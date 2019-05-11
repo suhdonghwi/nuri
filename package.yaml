@@ -1,0 +1,48 @@
+name:                nuri
+version:             0.1.0.0
+github:              "suhdonghwi/nuri"
+license:             MIT
+author:              "Suh Donghwi"
+maintainer:          "hwidongsuh@gmail.com"
+copyright:           "2019 Suh Donghwi"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description: 배우기 쉬운 한글 프로그래밍 언어
+
+dependencies:
+- base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+
+executables:
+  nuri-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - nuri
+
+tests:
+  nuri-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - nuri
