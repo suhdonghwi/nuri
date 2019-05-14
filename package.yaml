@@ -21,6 +21,7 @@ description: 배우기 쉬운 한글 프로그래밍 언어
 
 dependencies:
 - base >= 4.7 && < 5
+- megaparsec >= 7.0
 
 library:
   source-dirs: src
