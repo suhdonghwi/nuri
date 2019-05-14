@@ -9,3 +9,10 @@ data Literal = LitInteger Integer
 instance Show Literal where
     show (LitInteger v) = "(LitInteger " ++ show v ++ ")"
     show (LitDouble v) = "(LitDouble " ++ show v ++ ")"
+
+data Expr = Lit SourcePos Literal
+          | Var SourcePos String
+
+srcPos :: Expr -> SourcePos
+srcPos (Lit pos _) = pos
+srcPos (Var pos _) = pos
