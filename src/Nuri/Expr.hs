@@ -12,6 +12,7 @@ instance Show Literal where
 
 data Expr = Lit SourcePos Literal
           | Var SourcePos String
+    deriving(Eq)
 
 srcPos :: Expr -> SourcePos
 srcPos (Lit pos _) = pos
