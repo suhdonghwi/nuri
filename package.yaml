@@ -25,6 +25,9 @@ dependencies:
 - parser-combinators >= 1.0
 - text >= 1.2
 
+default-extensions:
+- OverloadedStrings
+
 library:
   source-dirs: src
 
@@ -49,3 +52,5 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - nuri
+    - hspec >= 2.6
+    - hspec-megaparsec >= 2.0

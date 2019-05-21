@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Nuri.Parse where
 
 import Data.Void
