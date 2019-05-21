@@ -7,8 +7,11 @@ import           Control.Monad.Combinators
 
 import           Nuri.Parse
 
+integer :: Parser Integer
+integer = try binary <|> try hexadecimal <|> try octal <|> decimal
+
 binary :: Parser Integer
-binary = string "0b" >> L.binary
+binary = string' "0b" >> L.binary
 
 octal :: Parser Integer
 octal = string "0" >> L.octal
@@ -17,4 +20,4 @@ decimal :: Parser Integer
 decimal = L.decimal
 
 hexadecimal :: Parser Integer
-hexadecimal = string "0x" >> L.hexadecimal
+hexadecimal = string' "0x" >> L.hexadecimal
