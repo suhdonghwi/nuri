@@ -1,6 +1,6 @@
 module Nuri.Expr where
 
-import Text.Megaparsec.Pos
+import           Text.Megaparsec.Pos
 
 data Literal = LitInteger Integer
              | LitDouble Double
