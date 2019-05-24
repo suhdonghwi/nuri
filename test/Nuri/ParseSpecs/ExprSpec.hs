@@ -80,4 +80,14 @@ spec = do
     it "두 정수 나누기" $ do
       testParse arithmetic "8 / 2"
         `shouldParse` binaryOp Divide (litInteger 8) (litInteger 2)
+    it "두 정수 더하고 한 정수로 나누기" $ do
+      testParse arithmetic "4 / 2 + 3" `shouldParse` binaryOp
+        Add
+        (binaryOp Divide (litInteger 4) (litInteger 2))
+        (litInteger 3)
+    it "두 정수 더하고 한 정수로 나누기 (순서 바꿔서)" $ do
+      testParse arithmetic "3 + 4 / 2" `shouldParse` binaryOp
+        Add
+        (litInteger 3)
+        (binaryOp Divide (litInteger 4) (litInteger 2))
 
