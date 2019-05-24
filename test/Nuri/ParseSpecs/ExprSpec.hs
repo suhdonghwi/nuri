@@ -55,3 +55,18 @@ spec = do
       testParse integer "0" `shouldParse` 0
     it "00을 0으로 파싱" $ do
       testParse integer "00" `shouldParse` 0
+
+  describe "사칙연산식 파싱" $ do
+    it "두 정수 더하기" $ do
+      testParse arithmetic "1 + 2" `shouldParse` 3
+    it "(붙어있는) 두 정수 더하기" $ do
+      testParse arithmetic "1+2" `shouldParse` 3
+    it "두 정수 빼기" $ do
+      testParse arithmetic "2 - 4" `shouldParse` (-2)
+    it "(붙어있는) 두 정수 빼기" $ do
+      testParse arithmetic "2-4" `shouldParse` (-2)
+    it "두 정수 곱하기" $ do
+      testParse arithmetic "2 * 4" `shouldParse` 8
+    it "두 정수 나누기" $ do
+      testParse arithmetic "8 / 2" `shouldParse` 4
+
