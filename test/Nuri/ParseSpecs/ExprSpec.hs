@@ -7,6 +7,11 @@ import           Text.Megaparsec
 
 import           Nuri.Parse.Expr
 import           Nuri.ParseSpecs.Util
+import           Nuri.Expr
+
+p = initialPos "(test)"
+litInteger i = Lit p (LitInteger i)
+binaryOp = BinaryOp p
 
 spec :: Spec
 spec = do
@@ -44,29 +49,35 @@ spec = do
 
   describe "정수 파싱" $ do
     it "0b1010을 10으로 파싱" $ do
-      testParse integer "0b1010" `shouldParse` 10
+      testParse integer "0b1010" `shouldParse` litInteger 10
     it "012을 10으로 파싱" $ do
-      testParse integer "012" `shouldParse` 10
+      testParse integer "012" `shouldParse` litInteger 10
     it "10을 10으로 파싱" $ do
-      testParse integer "10" `shouldParse` 10
+      testParse integer "10" `shouldParse` litInteger 10
     it "0x000A를 10으로 파싱" $ do
-      testParse integer "0x000A" `shouldParse` 10
+      testParse integer "0x000A" `shouldParse` litInteger 10
     it "0을 0으로 파싱" $ do
-      testParse integer "0" `shouldParse` 0
+      testParse integer "0" `shouldParse` litInteger 0
     it "00을 0으로 파싱" $ do
-      testParse integer "00" `shouldParse` 0
+      testParse integer "00" `shouldParse` litInteger 0
 
   describe "사칙연산식 파싱" $ do
     it "두 정수 더하기" $ do
-      testParse arithmetic "1 + 2" `shouldParse` 3
+      testParse arithmetic "1 + 2"
+        `shouldParse` binaryOp Add (litInteger 1) (litInteger 2)
     it "(붙어있는) 두 정수 더하기" $ do
-      testParse arithmetic "1+2" `shouldParse` 3
+      testParse arithmetic "1+2"
+        `shouldParse` binaryOp Add (litInteger 1) (litInteger 2)
     it "두 정수 빼기" $ do
-      testParse arithmetic "2 - 4" `shouldParse` (-2)
+      testParse arithmetic "2 - 4"
+        `shouldParse` binaryOp Subtract (litInteger 2) (litInteger 4)
     it "(붙어있는) 두 정수 빼기" $ do
-      testParse arithmetic "2-4" `shouldParse` (-2)
+      testParse arithmetic "2-4"
+        `shouldParse` binaryOp Subtract (litInteger 2) (litInteger 4)
     it "두 정수 곱하기" $ do
-      testParse arithmetic "2 * 4" `shouldParse` 8
+      testParse arithmetic "2 * 4"
+        `shouldParse` binaryOp Multiply (litInteger 2) (litInteger 4)
     it "두 정수 나누기" $ do
-      testParse arithmetic "8 / 2" `shouldParse` 4
+      testParse arithmetic "8 / 2"
+        `shouldParse` binaryOp Divide (litInteger 8) (litInteger 2)
 
