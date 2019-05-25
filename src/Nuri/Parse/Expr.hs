@@ -1,5 +1,7 @@
 module Nuri.Parse.Expr where
 
+import           Data.Text
+
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer    as L
@@ -23,11 +25,22 @@ arithmetic = makeExprParser integer table <?> "표현식"
     pos <- getSourcePos
     (\v -> UnaryOp pos op v) <$ L.symbol sc opStr
 
+identifier :: Parser Expr
+identifier = do
+  pos <- getSourcePos
+  let allowedChars   = ['가' .. '힣'] ++ ['a' .. 'z'] ++ ['A' .. 'Z']
+      identifierRule = (++) <$> some (oneOf allowedChars) <*> many
+        (oneOf $ ' ' : allowedChars ++ ['0' .. '9'])
+  char '['
+  identStr <- pack <$> identifierRule
+  char ']'
+  return $ Var pos identStr
+
 integer :: Parser Expr
 integer = do
-  pos <- getSourcePos
-  i   <- try binary <|> try hexadecimal <|> try octal <|> decimal
-  return $ Lit pos (LitInteger i)
+  pos   <- getSourcePos
+  value <- try binary <|> try hexadecimal <|> try octal <|> decimal
+  return $ Lit pos (LitInteger value)
 
 binary :: Parser Integer
 binary = lexeme $ string' "0b" >> L.binary

@@ -1,5 +1,7 @@
 module Nuri.Expr where
 
+import           Data.Text
+
 import           Text.Megaparsec.Pos
 
 data Literal = LitInteger Integer
@@ -11,7 +13,7 @@ instance Show Literal where
     show (LitDouble v) = "(LitDouble " ++ show v ++ ")"
 
 data Expr = Lit SourcePos Literal
-          | Var SourcePos String
+          | Var SourcePos Text
           | BinaryOp SourcePos Op Expr Expr
           | UnaryOp SourcePos Op Expr
     deriving(Show)
