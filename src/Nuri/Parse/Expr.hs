@@ -1,6 +1,9 @@
 module Nuri.Parse.Expr where
 
-import           Data.Text
+import           Data.Text                      ( Text
+                                                , pack
+                                                )
+import           Data.List                      ( foldl1' )
 
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
@@ -11,7 +14,7 @@ import           Control.Monad.Combinators.Expr
 import           Nuri.Parse
 import           Nuri.Expr
 
-arithmetic = makeExprParser integer table <?> "표현식"
+arithmetic = makeExprParser term table <?> "표현식"
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -25,10 +28,34 @@ arithmetic = makeExprParser integer table <?> "표현식"
     pos <- getSourcePos
     (\v -> UnaryOp pos op v) <$ L.symbol sc opStr
 
+nestedFuncCalls :: Parser Expr
+nestedFuncCalls = do
+  calls <- some funcCall
+  let addArg arg (App pos func args) = App pos func (arg : args)
+  return $ foldl1' addArg calls
+
+funcCall :: Parser Expr
+funcCall = do
+  args <- many term
+  pos  <- getSourcePos
+  func <- funcIdentifier
+  return $ App pos func args
+
+funcIdentifier :: Parser Text
+funcIdentifier = lexeme $ pack <$> some (oneOf ['가' .. '힣'])
+
+term :: Parser Expr
+term = integer <|> identifier
+
 identifier :: Parser Expr
-identifier = do
+identifier = lexeme $ do
   pos <- getSourcePos
-  let allowedChars   = ['가' .. '힣'] ++ ['a' .. 'z'] ++ ['A' .. 'Z']
+  let allowedChars =
+        ['가' .. '힣']
+          ++ ['ㄱ' .. 'ㅎ']
+          ++ ['ㅏ' .. 'ㅣ']
+          ++ ['a' .. 'z']
+          ++ ['A' .. 'Z']
       identifierRule = (++) <$> some (oneOf allowedChars) <*> many
         (oneOf $ ' ' : allowedChars ++ ['0' .. '9'])
   char '['

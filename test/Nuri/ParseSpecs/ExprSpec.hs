@@ -14,6 +14,7 @@ litInteger i = Lit p (LitInteger i)
 binaryOp = BinaryOp p
 unaryOp = UnaryOp p
 var = Var p
+app = App p
 
 spec :: Spec
 spec = do
@@ -122,8 +123,12 @@ spec = do
       testParse identifier "[foo]" `shouldParse` var "foo"
     it "(대문자) 영문 식별자" $ do
       testParse identifier "[Foo]" `shouldParse` var "Foo"
-    it "한글 식별자" $ do
+    it "한글 음절 식별자" $ do
       testParse identifier "[사과]" `shouldParse` var "사과"
+    it "한글 자음 식별자" $ do
+      testParse identifier "[ㅅㄷㅎ]" `shouldParse` var "ㅅㄷㅎ"
+    it "한글 모음 식별자" $ do
+      testParse identifier "[ㅓㅗㅜㅣ]" `shouldParse` var "ㅓㅗㅜㅣ"
     it "숫자가 포함된 식별자" $ do
       testParse identifier "[사람2]" `shouldParse` var "사람2"
     it "공백이 포함된 식별자" $ do
@@ -137,3 +142,26 @@ spec = do
     it "비어있는 식별자에 대해서 오류" $ do
       testParse identifier `shouldFailOn` "[]"
 
+  describe "함수 이름 파싱" $ do
+    it "더하고" $ do
+      testParse funcIdentifier "더하고" `shouldParse` "더하고"
+
+  describe "함수 호출식 파싱" $ do
+    it "인자가 2개인 함수 호출식" $ do
+      testParse funcCall "1 2 더하다"
+        `shouldParse` app "더하다" [litInteger 1, litInteger 2]
+    it "인자가 없는 함수 호출식" $ do
+      testParse funcCall "깨우다" `shouldParse` app "깨우다" []
+
+  describe "중첩된 함수 호출식 파싱" $ do
+    it "한 번 중첩된 식" $ do
+      testParse nestedFuncCalls "4 2 더하고 2 나누다"
+        `shouldParse` app
+                        "나누다"
+                        [app "더하고" [litInteger 4, litInteger 2], litInteger 2]
+    it "두 번 중첩된 식" $ do
+      testParse nestedFuncCalls "4 2 더하고 2 나누고 3 더하다" `shouldParse` app
+        "더하다"
+        [ app "나누고" [app "더하고" [litInteger 4, litInteger 2], litInteger 2]
+        , litInteger 3
+        ]

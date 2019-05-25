@@ -14,6 +14,7 @@ instance Show Literal where
 
 data Expr = Lit SourcePos Literal
           | Var SourcePos Text
+          | App SourcePos Text [Expr]
           | BinaryOp SourcePos Op Expr Expr
           | UnaryOp SourcePos Op Expr
     deriving(Show)
@@ -21,6 +22,7 @@ data Expr = Lit SourcePos Literal
 instance Eq Expr where
     Lit _ v1 == Lit _ v2 = v1 == v2
     Var _ v1 == Var _ v2 = v1 == v2
+    App _ f1 a1 == App _ f2 a2 = (f1 == f2) && (a1 == a2)
     BinaryOp _ op1 l1 r1 == BinaryOp _ op2 l2 r2 = (op1 == op2) && (l1 == l2) && (r1 == r2)
     UnaryOp _ op1 v1 == UnaryOp _ op2 v2 = (op1 == op2) && (v1 == v2)
     _ == _ = False
