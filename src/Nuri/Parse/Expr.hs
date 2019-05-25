@@ -12,11 +12,16 @@ import           Nuri.Expr
 arithmetic = makeExprParser integer table <?> "표현식"
  where
   table =
-    [ [binaryOp "*" Multiply, binaryOp "/" Divide]
-    , [binaryOp "+" Add, binaryOp "-" Subtract]
+    [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
+    , [InfixL $ binaryOp "*" Asterisk, InfixL $ binaryOp "/" Slash]
+    , [InfixL $ binaryOp "+" Plus, InfixL $ binaryOp "-" Minus]
     ]
-  binaryOp opStr op =
-    InfixL ((\l r -> BinaryOp (srcPos l) op l r) <$ L.symbol sc opStr)
+  binaryOp opStr op = do
+    pos <- getSourcePos
+    (\l r -> BinaryOp pos op l r) <$ L.symbol sc opStr
+  unaryOp opStr op = do
+    pos <- getSourcePos
+    (\v -> UnaryOp pos op v) <$ L.symbol sc opStr
 
 integer :: Parser Expr
 integer = do
