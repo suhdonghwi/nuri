@@ -14,7 +14,7 @@ import           Control.Monad.Combinators.Expr
 import           Nuri.Parse
 import           Nuri.Expr
 
-arithmetic = makeExprParser term table <?> "표현식"
+arithmetic = makeExprParser term table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -66,17 +66,21 @@ identifier = lexeme $ do
 integer :: Parser Expr
 integer = do
   pos   <- getSourcePos
-  value <- try binary <|> try hexadecimal <|> try octal <|> decimal
+  value <- zeroNumber <|> decimal
   return $ Lit pos (LitInteger value)
+ where
+  zeroNumber = do
+    char '0'
+    hexadecimal <|> octal <|> binary <|> return 0
 
 binary :: Parser Integer
-binary = lexeme $ string' "0b" >> L.binary
+binary = lexeme $ char' 'b' >> L.binary
 
 octal :: Parser Integer
-octal = lexeme $ string "0" >> L.octal
+octal = lexeme L.octal
 
 decimal :: Parser Integer
 decimal = lexeme L.decimal
 
 hexadecimal :: Parser Integer
-hexadecimal = lexeme $ string' "0x" >> L.hexadecimal
+hexadecimal = lexeme $ char' 'x' >> L.hexadecimal
