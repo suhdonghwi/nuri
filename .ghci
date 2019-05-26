@@ -1,0 +1,4 @@
+:set -package pretty-simple
+import Text.Megaparsec
+import Text.Pretty.Simple (pPrint)
+:set -interactive-print Text.Pretty.Simple.pPrint
