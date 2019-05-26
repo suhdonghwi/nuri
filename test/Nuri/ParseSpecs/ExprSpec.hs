@@ -100,27 +100,27 @@ spec = do
 
   describe "식별자 파싱" $ do
     it "영문 식별자" $ do
-      testParse identifier "[foo]" `shouldParse` var "foo"
+      testParse identifierExpr "[foo]" `shouldParse` var "foo"
     it "(대문자) 영문 식별자" $ do
-      testParse identifier "[Foo]" `shouldParse` var "Foo"
+      testParse identifierExpr "[Foo]" `shouldParse` var "Foo"
     it "한글 음절 식별자" $ do
-      testParse identifier "[사과]" `shouldParse` var "사과"
+      testParse identifierExpr "[사과]" `shouldParse` var "사과"
     it "한글 자음 식별자" $ do
-      testParse identifier "[ㅅㄷㅎ]" `shouldParse` var "ㅅㄷㅎ"
+      testParse identifierExpr "[ㅅㄷㅎ]" `shouldParse` var "ㅅㄷㅎ"
     it "한글 모음 식별자" $ do
-      testParse identifier "[ㅓㅗㅜㅣ]" `shouldParse` var "ㅓㅗㅜㅣ"
+      testParse identifierExpr "[ㅓㅗㅜㅣ]" `shouldParse` var "ㅓㅗㅜㅣ"
     it "숫자가 포함된 식별자" $ do
-      testParse identifier "[사람2]" `shouldParse` var "사람2"
+      testParse identifierExpr "[사람2]" `shouldParse` var "사람2"
     it "공백이 포함된 식별자" $ do
-      testParse identifier "[사과는 맛있다]" `shouldParse` var "사과는 맛있다"
+      testParse identifierExpr "[사과는 맛있다]" `shouldParse` var "사과는 맛있다"
     it "숫자로 시작하는 식별자에 대해 오류" $ do
-      testParse identifier `shouldFailOn` "[10마리 펭귄]"
+      testParse identifierExpr `shouldFailOn` "[10마리 펭귄]"
     it "공백으로 시작하는 식별자에 대해 오류" $ do
-      testParse identifier `shouldFailOn` "[ Foo]"
+      testParse identifierExpr `shouldFailOn` "[ Foo]"
     it "공백만 포함된 식별자에 대해서 오류" $ do
-      testParse identifier `shouldFailOn` "[  ]"
+      testParse identifierExpr `shouldFailOn` "[  ]"
     it "비어있는 식별자에 대해서 오류" $ do
-      testParse identifier `shouldFailOn` "[]"
+      testParse identifierExpr `shouldFailOn` "[]"
 
   describe "함수 이름 파싱" $ do
     it "더하고" $ do

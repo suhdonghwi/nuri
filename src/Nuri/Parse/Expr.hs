@@ -48,29 +48,31 @@ funcIdentifier =
   lexeme $ pack <$> (notFollowedBy returnKeywords >> some (oneOf ['가' .. '힣']))
 
 term :: Parser Expr
-term = integer <|> identifier <|> parens
+term = integer <|> identifierExpr <|> parens
 
 parens :: Parser Expr
 parens = between (symbol "(") (symbol ")") expr
 
-identifier :: Parser Expr
-identifier = lexeme $ do
+identifierExpr :: Parser Expr
+identifierExpr = lexeme $ do
   pos <- getSourcePos
-  let allowedChars =
-        ['가' .. '힣']
-          ++ ['ㄱ' .. 'ㅎ']
-          ++ ['ㅏ' .. 'ㅣ']
-          ++ ['a' .. 'z']
-          ++ ['A' .. 'Z']
-      identifierRule = (++) <$> some (oneOf allowedChars) <*> many
-        (oneOf $ ' ' : allowedChars ++ ['0' .. '9'])
   char '['
-  identStr <- pack <$> identifierRule
+  identStr <- identifier
   char ']'
   return $ Var pos identStr
 
+identifier :: Parser Text
+identifier =
+  pack
+    <$> ((++) <$> some (oneOf allowedChars) <*> many
+          (oneOf $ ' ' : allowedChars ++ ['0' .. '9'])
+        )
+ where
+  allowedChars =
+    ['가' .. '힣'] ++ ['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ'] ++ ['a' .. 'z'] ++ ['A' .. 'Z']
+
 integer :: Parser Expr
-integer = do
+integer = lexeme $ do
   pos   <- getSourcePos
   value <- zeroNumber <|> decimal
   return $ Lit pos (LitInteger value)
@@ -80,13 +82,13 @@ integer = do
     hexadecimal <|> octal <|> binary <|> return 0
 
 binary :: Parser Integer
-binary = lexeme $ char' 'b' >> L.binary
+binary = char' 'b' >> L.binary
 
 octal :: Parser Integer
-octal = lexeme L.octal
+octal = L.octal
 
 decimal :: Parser Integer
-decimal = lexeme L.decimal
+decimal = L.decimal
 
 hexadecimal :: Parser Integer
-hexadecimal = lexeme $ char' 'x' >> L.hexadecimal
+hexadecimal = char' 'x' >> L.hexadecimal
