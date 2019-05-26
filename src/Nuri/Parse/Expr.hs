@@ -14,7 +14,9 @@ import           Control.Monad.Combinators.Expr
 import           Nuri.Parse
 import           Nuri.Expr
 
-arithmetic = makeExprParser term table
+expr = arithmetic
+
+arithmetic = makeExprParser (try nestedFuncCalls <|> term) table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -45,7 +47,10 @@ funcIdentifier :: Parser Text
 funcIdentifier = lexeme $ pack <$> some (oneOf ['가' .. '힣'])
 
 term :: Parser Expr
-term = integer <|> identifier
+term = integer <|> identifier <|> parens
+
+parens :: Parser Expr
+parens = between (symbol "(") (symbol ")") expr
 
 identifier :: Parser Expr
 identifier = lexeme $ do

@@ -151,3 +151,19 @@ spec = do
         [ app "나누고" [app "더하고" [litInteger 4, litInteger 2], litInteger 2]
         , litInteger 3
         ]
+
+  describe "식 우선순위 테스트" $ do
+    it "사칙연산 우선순위 괄호를 통해 변경" $ do
+      testParse expr "(1 + 1) / 2" `shouldParse` binaryOp
+        Slash
+        (binaryOp Plus (litInteger 1) (litInteger 1))
+        (litInteger 2)
+    it "함수 호출식이 사칙연산식보다 우선순위 높음" $ do
+      testParse expr "1 + 1 2 더하다" `shouldParse` binaryOp
+        Plus
+        (litInteger 1)
+        (app "더하다" [litInteger 1, litInteger 2])
+    it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
+      testParse expr "(1 + 1) 2 더하다" `shouldParse` app
+        "더하다"
+        [(binaryOp Plus (litInteger 1) (litInteger 1)), (litInteger 2)]
