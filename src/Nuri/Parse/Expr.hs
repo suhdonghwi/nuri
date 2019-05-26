@@ -44,7 +44,8 @@ funcCall = do
   return $ App pos func args
 
 funcIdentifier :: Parser Text
-funcIdentifier = lexeme $ pack <$> some (oneOf ['가' .. '힣'])
+funcIdentifier =
+  lexeme $ pack <$> (notFollowedBy returnKeywords >> some (oneOf ['가' .. '힣']))
 
 term :: Parser Expr
 term = integer <|> identifier <|> parens

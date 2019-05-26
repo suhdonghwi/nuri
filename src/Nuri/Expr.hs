@@ -4,6 +4,8 @@ import           Data.Text
 
 import           Text.Megaparsec.Pos
 
+import           Nuri.ASTNode
+
 data Literal = LitInteger Integer
              | LitDouble Double
     deriving(Eq)
@@ -27,9 +29,12 @@ instance Eq Expr where
     UnaryOp _ op1 v1 == UnaryOp _ op2 v2 = (op1 == op2) && (v1 == v2)
     _ == _ = False
 
+instance ASTNode Expr where
+    srcPos (Lit pos _) = pos
+    srcPos (Var pos _) = pos
+    srcPos (App pos _ _) = pos
+    srcPos (BinaryOp pos _ _ _) = pos
+    srcPos (UnaryOp pos _ _) = pos
+
 data Op = Plus | Minus | Asterisk | Slash
     deriving(Eq, Show)
-
-srcPos :: Expr -> SourcePos
-srcPos (Lit pos _) = pos
-srcPos (Var pos _) = pos

@@ -1,7 +1,7 @@
 module Nuri.Parse where
 
 import           Data.Void
-import           Data.Text
+import           Data.Text                      ( Text )
 
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
@@ -17,3 +17,9 @@ lexeme = L.lexeme sc
 
 symbol :: Text -> Parser Text
 symbol = L.symbol sc
+
+returnKeywords :: Parser Text
+returnKeywords = foldr1 (<|>) $ symbol <$> keywords
+  where keywords = ["반환하다", "돌려주다"]
+
+

@@ -9,12 +9,6 @@ import           Nuri.Parse.Expr
 import           Nuri.ParseSpecs.Util
 import           Nuri.Expr
 
-p = initialPos "(test)"
-litInteger i = Lit p (LitInteger i)
-binaryOp = BinaryOp p
-unaryOp = UnaryOp p
-var = Var p
-app = App p
 
 spec :: Spec
 spec = do
@@ -131,6 +125,8 @@ spec = do
   describe "함수 이름 파싱" $ do
     it "더하고" $ do
       testParse funcIdentifier "더하고" `shouldParse` "더하고"
+    it "반환 키워드에 대해서 오류" $ do
+      testParse funcIdentifier `shouldFailOn` "반환하다"
 
   describe "함수 호출식 파싱" $ do
     it "인자가 2개인 함수 호출식" $ do
