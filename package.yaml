@@ -24,12 +24,9 @@ dependencies:
 - megaparsec >= 7.0
 - parser-combinators >= 1.0
 - text >= 1.2
-- raw-strings-qq >= 1.0
 
 default-extensions:
 - OverloadedStrings
-- QuasiQuotes
-- TemplateHaskell
 
 library:
   source-dirs: src

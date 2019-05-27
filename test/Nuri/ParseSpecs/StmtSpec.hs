@@ -3,11 +3,6 @@ module Nuri.ParseSpecs.StmtSpec where
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
 
-import           Text.RawString.QQ
-
-import           Text.Megaparsec
-import           Text.Megaparsec.Pos
-
 import           Nuri.Stmt
 import           Nuri.Expr
 import           Nuri.Parse.Stmt
