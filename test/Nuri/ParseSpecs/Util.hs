@@ -1,19 +1,32 @@
 module Nuri.ParseSpecs.Util where
 
+import           Data.Text
+
 import           Text.Megaparsec
-import           Text.Megaparsec.Error
 
 import           Nuri.Expr
 import           Nuri.Stmt
 
+p :: SourcePos
 p = initialPos "(test)"
+
+litInteger :: Integer -> Expr
 litInteger i = Lit p (LitInteger i)
+
+binaryOp :: Op -> Expr -> Expr -> Expr
 binaryOp = BinaryOp p
+
+unaryOp :: Op -> Expr -> Expr
 unaryOp = UnaryOp p
+
+var :: Text -> Expr
 var = Var p
+
+app :: Text -> [Expr] -> Expr
 app = App p
 
+funcDecl :: Text -> [Text] -> [Stmt] -> Stmt
 funcDecl = FuncDecl p
 
 testParse :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
-testParse parser input = parse parser "(test)" input
+testParse parser = parse parser "(test)"

@@ -3,12 +3,9 @@ module Nuri.ParseSpecs.ExprSpec where
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
 
-import           Text.Megaparsec
-
 import           Nuri.Parse.Expr
 import           Nuri.ParseSpecs.Util
 import           Nuri.Expr
-
 
 spec :: Spec
 spec = do

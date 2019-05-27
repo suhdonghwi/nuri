@@ -8,14 +8,15 @@ import           Data.List                      ( foldl1' )
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer    as L
-import           Control.Monad.Combinators
 import           Control.Monad.Combinators.Expr
 
 import           Nuri.Parse
 import           Nuri.Expr
 
+expr :: Parser Expr
 expr = arithmetic
 
+arithmetic :: Parser Expr
 arithmetic = makeExprParser (try nestedFuncCalls <|> term) table
  where
   table =
@@ -25,10 +26,10 @@ arithmetic = makeExprParser (try nestedFuncCalls <|> term) table
     ]
   binaryOp opStr op = do
     pos <- getSourcePos
-    (\l r -> BinaryOp pos op l r) <$ L.symbol sc opStr
+    BinaryOp pos op <$ L.symbol sc opStr
   unaryOp opStr op = do
     pos <- getSourcePos
-    (\v -> UnaryOp pos op v) <$ L.symbol sc opStr
+    UnaryOp pos op <$ L.symbol sc opStr
 
 nestedFuncCalls :: Parser Expr
 nestedFuncCalls = do
@@ -54,12 +55,8 @@ parens :: Parser Expr
 parens = between (symbol "(") (symbol ")") expr
 
 identifierExpr :: Parser Expr
-identifierExpr = lexeme $ do
-  pos <- getSourcePos
-  char '['
-  identStr <- identifier
-  char ']'
-  return $ Var pos identStr
+identifierExpr =
+  lexeme $ Var <$> getSourcePos <*> (char '[' >> identifier <* char ']')
 
 identifier :: Parser Text
 identifier =
@@ -76,10 +73,7 @@ integer = lexeme $ do
   pos   <- getSourcePos
   value <- zeroNumber <|> decimal
   return $ Lit pos (LitInteger value)
- where
-  zeroNumber = do
-    char '0'
-    hexadecimal <|> octal <|> binary <|> return 0
+  where zeroNumber = char '0' >> hexadecimal <|> octal <|> binary <|> return 0
 
 binary :: Parser Integer
 binary = char' 'b' >> L.binary

@@ -11,7 +11,10 @@ import qualified Text.Megaparsec.Char.Lexer    as L
 
 type Parser = Parsec Void Text
 
+lineComment :: Parser ()
 lineComment = L.skipLineComment "#"
+
+blockComment :: Parser ()
 blockComment = L.skipBlockComment "(*" "*)"
 
 scn :: Parser ()

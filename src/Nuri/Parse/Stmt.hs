@@ -7,7 +7,6 @@ import qualified Text.Megaparsec.Char.Lexer    as L
 import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
-import           Nuri.Expr
 
 exprStmt :: Parser Stmt
 exprStmt = ExprStmt <$> (expr <* notFollowedBy returnKeywords)
@@ -23,6 +22,6 @@ functionDecl = L.nonIndented scn (L.indentBlock scn p)
     args <- many (char '[' *> identifier <* char ']')
     sc
     funcName <- funcIdentifier
-    lexeme $ char ':'
+    _        <- symbol ":"
     return (L.IndentSome Nothing (return . FuncDecl pos funcName args) stmt)
   stmt = try exprStmt <|> returnStmt
