@@ -35,6 +35,7 @@ nestedFuncCalls :: Parser Expr
 nestedFuncCalls = do
   calls <- some funcCall
   let addArg arg (App pos func args) = App pos func (arg : args)
+      addArg _ _ = undefined
   return $ foldl1' addArg calls
 
 funcCall :: Parser Expr
@@ -46,7 +47,7 @@ funcCall = do
 
 funcIdentifier :: Parser Text
 funcIdentifier =
-  lexeme $ pack <$> (notFollowedBy returnKeywords >> some (oneOf ['가' .. '힣']))
+  lexeme $ pack <$> (notFollowedBy returnKeyword >> some hangulSyllable)
 
 term :: Parser Expr
 term = integer <|> identifierExpr <|> parens
@@ -61,12 +62,10 @@ identifierExpr =
 identifier :: Parser Text
 identifier =
   pack
-    <$> ((++) <$> some (oneOf allowedChars) <*> many
-          (oneOf $ ' ' : allowedChars ++ ['0' .. '9'])
+    <$> ((++) <$> some allowedChars <*> many
+          (char ' ' <|> allowedChars <|> digitChar)
         )
- where
-  allowedChars =
-    ['가' .. '힣'] ++ ['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ'] ++ ['a' .. 'z'] ++ ['A' .. 'Z']
+  where allowedChars = hangulSyllable <|> hangulJamo <|> letterChar
 
 integer :: Parser Expr
 integer = lexeme $ do

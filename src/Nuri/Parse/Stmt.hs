@@ -9,10 +9,10 @@ import           Nuri.Parse.Expr
 import           Nuri.Stmt
 
 exprStmt :: Parser Stmt
-exprStmt = ExprStmt <$> (expr <* notFollowedBy returnKeywords)
+exprStmt = ExprStmt <$> (expr <* notFollowedBy returnKeyword)
 
 returnStmt :: Parser Stmt
-returnStmt = Return <$> (expr <* returnKeywords)
+returnStmt = Return <$> (expr <* returnKeyword)
 
 functionDecl :: Parser Stmt
 functionDecl = L.nonIndented scn (L.indentBlock scn p)
