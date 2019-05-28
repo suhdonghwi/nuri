@@ -24,6 +24,8 @@ dependencies:
 - megaparsec >= 7.0
 - parser-combinators >= 1.0
 - text >= 1.2
+- containers >= 0.6
+- mtl >= 2.2
 
 default-extensions:
 - OverloadedStrings
