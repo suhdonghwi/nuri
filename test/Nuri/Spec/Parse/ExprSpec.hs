@@ -1,11 +1,12 @@
-module Nuri.ParseSpecs.ExprSpec where
+module Nuri.Spec.Parse.ExprSpec where
 
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
 
 import           Nuri.Parse.Expr
-import           Nuri.Util
 import           Nuri.Expr
+
+import           Nuri.Spec.Parse.Util
 
 spec :: Spec
 spec = do

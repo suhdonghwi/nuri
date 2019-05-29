@@ -1,4 +1,4 @@
-module Nuri.Util where
+module Nuri.Spec.Parse.Util where
 
 import           Data.Text
 
@@ -7,26 +7,25 @@ import           Text.Megaparsec
 import           Nuri.Expr
 import           Nuri.Stmt
 
-p :: SourcePos
-p = initialPos "(test)"
+import           Nuri.Spec.Util
 
 litInteger :: Integer -> Expr
-litInteger i = Lit p (LitInteger i)
+litInteger i = Lit initPos (LitInteger i)
 
 binaryOp :: Op -> Expr -> Expr -> Expr
-binaryOp = BinaryOp p
+binaryOp = BinaryOp initPos
 
 unaryOp :: Op -> Expr -> Expr
-unaryOp = UnaryOp p
+unaryOp = UnaryOp initPos
 
 var :: Text -> Expr
-var = Var p
+var = Var initPos
 
 app :: Text -> [Expr] -> Expr
-app = App p
+app = App initPos
 
 funcDecl :: Text -> [Text] -> [Stmt] -> Stmt
-funcDecl = FuncDecl p
+funcDecl = FuncDecl initPos
 
 testParse :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
 testParse parser = parse parser "(test)"

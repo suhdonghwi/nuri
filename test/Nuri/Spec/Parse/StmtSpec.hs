@@ -1,4 +1,4 @@
-module Nuri.ParseSpecs.StmtSpec where
+module Nuri.Spec.Parse.StmtSpec where
 
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
@@ -6,7 +6,8 @@ import           Test.Hspec.Megaparsec
 import           Nuri.Stmt
 import           Nuri.Expr
 import           Nuri.Parse.Stmt
-import           Nuri.Util
+
+import           Nuri.Spec.Parse.Util
 
 spec :: Spec
 spec = do

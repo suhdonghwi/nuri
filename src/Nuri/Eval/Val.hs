@@ -1,15 +1,16 @@
 module Nuri.Eval.Val where
 
 import           Control.Monad.Except
-import           Control.Monad.State.Lazy
+import           Control.Monad.State
 
 import           Data.Map
 import           Data.Text
 
 import           Nuri.Expr
+import           Nuri.Eval.Error
 
 type SymbolTable = Map Text Val
-type Func = Expr -> State SymbolTable Val
+type Func = Expr -> StateT SymbolTable (Except Error) Val
 
 data Val = IntegerVal Integer
          | FuncVal Func
