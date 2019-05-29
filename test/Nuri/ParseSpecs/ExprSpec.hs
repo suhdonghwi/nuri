@@ -4,7 +4,7 @@ import           Test.Hspec
 import           Test.Hspec.Megaparsec
 
 import           Nuri.Parse.Expr
-import           Nuri.ParseSpecs.Util
+import           Nuri.Util
 import           Nuri.Expr
 
 spec :: Spec
@@ -159,4 +159,4 @@ spec = do
     it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
       testParse expr "(1 + 1) 2 더하다" `shouldParse` app
         "더하다"
-        [(binaryOp Plus (litInteger 1) (litInteger 1)), (litInteger 2)]
+        [binaryOp Plus (litInteger 1) (litInteger 1), litInteger 2]

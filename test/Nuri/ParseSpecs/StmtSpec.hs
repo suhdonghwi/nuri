@@ -6,7 +6,7 @@ import           Test.Hspec.Megaparsec
 import           Nuri.Stmt
 import           Nuri.Expr
 import           Nuri.Parse.Stmt
-import           Nuri.ParseSpecs.Util
+import           Nuri.Util
 
 spec :: Spec
 spec = do

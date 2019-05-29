@@ -1,4 +1,4 @@
-module Nuri.ParseSpecs.Util where
+module Nuri.Util where
 
 import           Data.Text
 
