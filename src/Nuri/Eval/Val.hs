@@ -22,3 +22,7 @@ instance Eq Val where
 instance Show Val where
   show (IntegerVal v) = "(IntegerVal " ++ show v ++ ")"
   show (FuncVal _) = "(FuncVal (func))"
+
+getTypeName :: Val -> Text
+getTypeName (IntegerVal _) = "정수"
+getTypeName (FuncVal    _) = "함수"
