@@ -17,7 +17,7 @@ data Val = IntegerVal Integer
 
 instance Eq Val where
   IntegerVal v1 == IntegerVal v2 = v1 == v2
-  _ == _ = False
+  _ == _ = True
 
 instance Show Val where
   show (IntegerVal v) = "(IntegerVal " ++ show v ++ ")"

@@ -5,7 +5,6 @@ import           Prelude                 hiding ( lookup )
 import           Control.Monad.State.Lazy
 import           Control.Monad.Except
 import           Data.Map.Strict
-import           Data.Text
 
 import           Text.Megaparsec.Pos
 
