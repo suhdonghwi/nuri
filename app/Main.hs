@@ -1,9 +1,13 @@
 module Main where
 
-import Prelude hiding (getLine, putStrLn)
-import Data.Text.IO (getLine, putStrLn)
-import Data.Text as T
-import Data.Map as M
+import Prelude
+
+import System.Exit
+import System.IO as IO
+
+import Data.Text.IO as TextIO
+import Data.Text as Text
+import Data.Map as Map
 
 import Control.Monad.State.Lazy
 import Control.Monad.Except
@@ -14,18 +18,21 @@ import Nuri.Eval.Expr
 import Nuri.Eval.Val
 import Nuri.Parse.Expr
 
-runRepl :: SymbolTable -> IO ()
-runRepl table = do
-  line <- getLine
+runRepl :: Text -> SymbolTable -> IO ()
+runRepl prompt table = do
+  TextIO.putStr prompt
+  hFlush stdout
+  line <- TextIO.getLine
+  when (line == ":quit") exitSuccess
   let ast = runParser expr "(interactive)" line
   case ast of
-    Left err -> (putStrLn . T.pack) $ errorBundlePretty err
+    Left err -> IO.putStrLn $ errorBundlePretty err
     Right result -> do
       let evalResult = runExcept (runStateT (evalExpr result) table)
       case evalResult of
-        Left evalErr -> (putStrLn . T.pack) $ show evalErr
-        Right finalResult -> (putStrLn . T.pack) $ show finalResult
-  runRepl table
+        Left evalErr -> IO.putStrLn $ show evalErr
+        Right finalResult -> IO.putStrLn $ show finalResult
+  runRepl prompt table
 
 main :: IO ()
-main = runRepl (M.empty) 
+main = runRepl ">> " Map.empty 
