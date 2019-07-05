@@ -10,10 +10,10 @@ import           Nuri.Expr
 import           Nuri.Eval.Error
 
 type SymbolTable = Map Text Val
-type Func = Expr -> StateT SymbolTable (Except Error) Val
+type FuncReturn = StateT SymbolTable (Except Error) Val
 
 data Val = IntegerVal Integer
-         | FuncVal Func
+         | FuncVal ([Val] -> FuncReturn)
 
 instance Eq Val where
   IntegerVal v1 == IntegerVal v2 = v1 == v2

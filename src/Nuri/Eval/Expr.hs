@@ -12,7 +12,7 @@ import           Nuri.Expr
 import           Nuri.Eval.Val
 import           Nuri.Eval.Error
 
-evalExpr :: Func
+evalExpr :: Expr -> FuncReturn
 evalExpr (Lit _   (LitInteger v)) = return $ IntegerVal v
 evalExpr (Var pos ident         ) = do
   table <- get
