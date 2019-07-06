@@ -23,7 +23,7 @@ testEval expr = testEvalWith expr empty
 sampleTable :: SymbolTable
 sampleTable = fromList [("나이", IntegerVal 17), ("십", FuncVal sampleFunc)]
 
-sampleFunc :: [Val] -> FuncReturn
+sampleFunc :: [Val] -> Eval Val
 sampleFunc _ = return (IntegerVal 10)
 
 spec :: Spec
