@@ -14,7 +14,7 @@ instance Show Literal where
 
 data Expr = Lit SourcePos Literal
           | Var SourcePos Text
-          | App SourcePos Text [Expr]
+          | App SourcePos Expr [Expr]
           | BinaryOp SourcePos Op Expr Expr
           | UnaryOp SourcePos Op Expr
     deriving(Show)

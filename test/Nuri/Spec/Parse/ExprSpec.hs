@@ -129,20 +129,20 @@ spec = do
   describe "함수 호출식 파싱" $ do
     it "인자가 2개인 함수 호출식" $ do
       testParse funcCall "1 2 더하다"
-        `shouldParse` app "더하다" [litInteger 1, litInteger 2]
+        `shouldParse` app (var "더하다") [litInteger 1, litInteger 2]
     it "인자가 없는 함수 호출식" $ do
-      testParse funcCall "깨우다" `shouldParse` app "깨우다" []
+      testParse funcCall "깨우다" `shouldParse` app (var "깨우다") []
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
       testParse nestedFuncCalls "4 2 더하고 2 나누다"
         `shouldParse` app
-                        "나누다"
-                        [app "더하고" [litInteger 4, litInteger 2], litInteger 2]
+                        (var "나누다")
+                        [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
     it "두 번 중첩된 식" $ do
       testParse nestedFuncCalls "4 2 더하고 2 나누고 3 더하다" `shouldParse` app
-        "더하다"
-        [ app "나누고" [app "더하고" [litInteger 4, litInteger 2], litInteger 2]
+        (var "더하다")
+        [ app (var "나누고") [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
         , litInteger 3
         ]
 
@@ -156,8 +156,8 @@ spec = do
       testParse expr "1 + 1 2 더하다" `shouldParse` binaryOp
         Plus
         (litInteger 1)
-        (app "더하다" [litInteger 1, litInteger 2])
+        (app (var "더하다") [litInteger 1, litInteger 2])
     it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
       testParse expr "(1 + 1) 2 더하다" `shouldParse` app
-        "더하다"
+        (var "더하다")
         [binaryOp Plus (litInteger 1) (litInteger 1), litInteger 2]

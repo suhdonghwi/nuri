@@ -21,7 +21,7 @@ unaryOp = UnaryOp initPos
 var :: Text -> Expr
 var = Var initPos
 
-app :: Text -> [Expr] -> Expr
+app :: Expr -> [Expr] -> Expr
 app = App initPos
 
 funcDecl :: Text -> [Text] -> [Stmt] -> Stmt

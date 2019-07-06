@@ -43,7 +43,7 @@ funcCall = do
   args <- many term
   pos  <- getSourcePos
   func <- funcIdentifier
-  return $ App pos func args
+  return $ App pos (Var pos func) args
 
 funcIdentifier :: Parser Text
 funcIdentifier =

@@ -24,6 +24,6 @@ spec = do
         `shouldParse` funcDecl
                         "증가하다"
                         ["값"]
-                        [ ExprStmt $ app "더하다" [var "값", litInteger 1]
+                        [ ExprStmt $ app (var "더하다") [var "값", litInteger 1]
                         , Return (var "값")
                         ]
