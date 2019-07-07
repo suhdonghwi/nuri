@@ -21,10 +21,10 @@ testEval :: Expr -> Either Error (Val, SymbolTable)
 testEval expr = testEvalWith expr empty
 
 sampleTable :: SymbolTable
-sampleTable = fromList [("나이", IntegerVal 17), ("십", FuncVal sampleFunc)]
-
-sampleFunc :: [Val] -> Eval Val
-sampleFunc _ = return (IntegerVal 10)
+sampleTable = fromList [("나이", IntegerVal 17), ("십", FuncVal sampleFunc), ("늘리기", FuncVal sampleFunc2)]
+  where sampleFunc _ = return (IntegerVal 10)
+        sampleFunc2 [IntegerVal x] = return $ IntegerVal (x + 10)
+        sampleFunc2 _ = undefined
 
 spec :: Spec
 spec = do
@@ -57,3 +57,10 @@ spec = do
       testEvalWith (binaryOp Plus (litInteger 10) (var "십")) sampleTable
         `shouldEvalError` operateTypeError "정수" "함수"
 
+  describe "함수 호출 평가" $ do
+    it "인자 없는 함수 호출" $ do
+      testEvalWith (app (var "십") []) sampleTable `shouldEval` (IntegerVal 10, sampleTable)
+    it "인자가 하나인 함수 호출" $ do
+      testEvalWith (app (var "늘리기") [litInteger 10]) sampleTable `shouldEval` (IntegerVal 20, sampleTable)
+    it "호출할 수 없는 대상에 대해 에러" $ do
+      testEvalWith (app (var "나이") []) sampleTable `shouldEvalError` notCallable "정수"

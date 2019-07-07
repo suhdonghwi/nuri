@@ -6,7 +6,6 @@ import           Control.Monad.State
 import           Data.Map
 import           Data.Text
 
-import           Nuri.Expr
 import           Nuri.Eval.Error
 
 type SymbolTable = Map Text Val

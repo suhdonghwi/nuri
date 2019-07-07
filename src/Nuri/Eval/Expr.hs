@@ -19,6 +19,13 @@ evalExpr (Var pos ident         ) = do
   case lookup ident table of
     Just val -> return val
     Nothing  -> throwError $ UnboundSymbol pos ident
+evalExpr (App pos func args) = do
+  funcResult <- evalExpr func
+  case funcResult of
+    FuncVal funcVal -> do
+      argsVal <- sequence $ fmap evalExpr args
+      funcVal argsVal
+    val -> throwError $ NotCallable pos (getTypeName val)
 evalExpr (BinaryOp pos op lhs rhs) = do
   lhsVal <- evalExpr lhs
   rhsVal <- evalExpr rhs
