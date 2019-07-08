@@ -1,10 +1,10 @@
 module Nuri.Expr where
 
-import           Data.Text
+import Data.Text
 
-import           Text.Megaparsec.Pos
+import Text.Megaparsec.Pos
 
-import           Nuri.ASTNode
+import Nuri.ASTNode
 
 data Literal = LitInteger Integer
     deriving(Eq)

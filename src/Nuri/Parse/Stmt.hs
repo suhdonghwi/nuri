@@ -1,12 +1,12 @@
 module Nuri.Parse.Stmt where
 
-import           Text.Megaparsec
-import           Text.Megaparsec.Char
+import Text.Megaparsec
+import Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer    as L
 
-import           Nuri.Parse
-import           Nuri.Parse.Expr
-import           Nuri.Stmt
+import Nuri.Parse
+import Nuri.Parse.Expr
+import Nuri.Stmt
 
 stmt :: Parser Stmt
 stmt = try returnStmt <|> try functionDecl <|> exprStmt

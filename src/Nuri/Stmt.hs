@@ -1,11 +1,11 @@
 module Nuri.Stmt where
 
-import           Data.Text
+import Data.Text
 
-import           Text.Megaparsec.Pos
+import Text.Megaparsec.Pos
 
-import           Nuri.Expr
-import           Nuri.ASTNode
+import Nuri.Expr
+import Nuri.ASTNode
 
 data Stmt = ExprStmt Expr
           | Return Expr

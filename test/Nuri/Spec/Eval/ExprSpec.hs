@@ -1,18 +1,18 @@
 module Nuri.Spec.Eval.ExprSpec where
 
-import           Test.Hspec
+import Test.Hspec
 
-import           Control.Monad.State.Lazy
-import           Control.Monad.Except
-import           Data.Map.Strict
+import Control.Monad.State.Lazy
+import Control.Monad.Except
+import Data.Map
 
-import           Nuri.Eval.Expr
-import           Nuri.Eval.Error
-import           Nuri.Expr
-import           Nuri.Eval.Val
+import Nuri.Eval.Expr
+import Nuri.Eval.Error
+import Nuri.Expr
+import Nuri.Eval.Val
 
-import           Nuri.Spec.Util
-import           Nuri.Spec.Eval.Util
+import Nuri.Spec.Util
+import Nuri.Spec.Eval.Util
 
 testEvalWith :: Expr -> SymbolTable -> Either Error (Val, SymbolTable)
 testEvalWith expr table = runExcept (runStateT (evalExpr expr) table)
@@ -53,8 +53,11 @@ spec = do
 
   describe "함수 호출 평가" $ do
     it "인자 없는 함수 호출" $ do
-      testEvalWith (app (var "십") []) sampleTable `shouldEval` (IntegerVal 10, sampleTable)
+      testEvalWith (app (var "십") []) sampleTable
+        `shouldEval` (IntegerVal 10, sampleTable)
     it "인자가 하나인 함수 호출" $ do
-      testEvalWith (app (var "늘리기") [litInteger 10]) sampleTable `shouldEval` (IntegerVal 20, sampleTable)
+      testEvalWith (app (var "늘리기") [litInteger 10]) sampleTable
+        `shouldEval` (IntegerVal 20, sampleTable)
     it "호출할 수 없는 대상에 대해 에러" $ do
-      testEvalWith (app (var "나이") []) sampleTable `shouldEvalError` notCallable "정수"
+      testEvalWith (app (var "나이") []) sampleTable
+        `shouldEvalError` notCallable "정수"

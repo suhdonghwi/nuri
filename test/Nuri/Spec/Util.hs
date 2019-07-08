@@ -1,11 +1,11 @@
 module Nuri.Spec.Util where
 
-import           Data.Text
+import Data.Text
 
-import           Text.Megaparsec.Pos
+import Text.Megaparsec.Pos
 
-import           Nuri.Expr
-import           Nuri.Stmt
+import Nuri.Expr
+import Nuri.Stmt
 
 initPos :: SourcePos
 initPos = initialPos "(test)"

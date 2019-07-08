@@ -5,9 +5,9 @@ import Prelude
 import System.Exit
 import System.IO as IO
 
-import Data.Text.IO as TextIO
+import qualified Data.Text.IO as TextIO
+import qualified Data.Map as Map
 import Data.Text as Text
-import Data.Map as Map
 
 import Control.Monad.State.Lazy
 import Control.Monad.Except
@@ -27,13 +27,13 @@ runRepl prompt table = do
   when (line == ":quit") exitSuccess
   let ast = runParser expr "(interactive)" line
   case ast of
-    Left err -> IO.putStrLn $ errorBundlePretty err
+    Left  err    -> IO.putStrLn $ errorBundlePretty err
     Right result -> do
       let evalResult = runExcept (runStateT (evalExpr result) table)
       case evalResult of
-        Left evalErr -> IO.putStrLn $ show evalErr
+        Left  evalErr     -> IO.putStrLn $ show evalErr
         Right finalResult -> IO.putStrLn $ show finalResult
   runRepl prompt table
 
 main :: IO ()
-main = runRepl ">> " Map.empty 
+main = runRepl ">> " Map.empty

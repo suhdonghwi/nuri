@@ -1,13 +1,13 @@
 module Nuri.Spec.Parse.ExprSpec where
 
-import           Test.Hspec
-import           Test.Hspec.Megaparsec
+import Test.Hspec
+import Test.Hspec.Megaparsec
 
-import           Nuri.Parse.Expr
-import           Nuri.Expr
+import Nuri.Parse.Expr
+import Nuri.Expr
 
-import           Nuri.Spec.Util
-import           Nuri.Spec.Parse.Util
+import Nuri.Spec.Util
+import Nuri.Spec.Parse.Util
 
 spec :: Spec
 spec = do
@@ -136,14 +136,14 @@ spec = do
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
-      testParse nestedFuncCalls "4 2 더하고 2 나누다"
-        `shouldParse` app
-                        (var "나누다")
-                        [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
+      testParse nestedFuncCalls "4 2 더하고 2 나누다" `shouldParse` app
+        (var "나누다")
+        [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
     it "두 번 중첩된 식" $ do
       testParse nestedFuncCalls "4 2 더하고 2 나누고 3 더하다" `shouldParse` app
         (var "더하다")
-        [ app (var "나누고") [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
+        [ app (var "나누고")
+              [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
         , litInteger 3
         ]
 

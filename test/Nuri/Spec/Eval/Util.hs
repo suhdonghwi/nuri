@@ -1,20 +1,25 @@
 module Nuri.Spec.Eval.Util where
 
-import           Test.Hspec
+import Test.Hspec
 
-import           Data.Text
-import           Data.Map.Strict
+import Data.Text
+import Data.Map
 
-import           Nuri.Spec.Util
+import Nuri.Spec.Util
 
-import           Nuri.Eval.Error
-import           Nuri.Eval.Val
+import Nuri.Eval.Error
+import Nuri.Eval.Val
 
 sampleTable :: SymbolTable
-sampleTable = fromList [("나이", IntegerVal 17), ("십", FuncVal sampleFunc), ("늘리기", FuncVal sampleFunc2)]
-  where sampleFunc _ = return (IntegerVal 10)
-        sampleFunc2 [IntegerVal x] = return $ IntegerVal (x + 10)
-        sampleFunc2 _ = undefined
+sampleTable = fromList
+  [ ("나이" , IntegerVal 17)
+  , ("십"  , FuncVal sampleFunc)
+  , ("늘리기", FuncVal sampleFunc2)
+  ]
+ where
+  sampleFunc _ = return (IntegerVal 10)
+  sampleFunc2 [IntegerVal x] = return $ IntegerVal (x + 10)
+  sampleFunc2 _              = undefined
 
 funcVal :: Val
 funcVal = FuncVal (\_ -> return $ IntegerVal 10)

@@ -1,17 +1,15 @@
 module Nuri.Parse.Expr where
 
-import           Data.Text                      ( Text
-                                                , pack
-                                                )
-import           Data.List                      ( foldl1' )
+import Data.Text (Text , pack)
+import Data.List (foldl1')
 
-import           Text.Megaparsec
-import           Text.Megaparsec.Char
-import qualified Text.Megaparsec.Char.Lexer    as L
-import           Control.Monad.Combinators.Expr
+import Text.Megaparsec
+import Text.Megaparsec.Char
+import qualified Text.Megaparsec.Char.Lexer as L
+import Control.Monad.Combinators.Expr
 
-import           Nuri.Parse
-import           Nuri.Expr
+import Nuri.Parse
+import Nuri.Expr
 
 expr :: Parser Expr
 expr = arithmetic
@@ -35,7 +33,7 @@ nestedFuncCalls :: Parser Expr
 nestedFuncCalls = do
   calls <- some funcCall
   let addArg arg (App pos func args) = App pos func (arg : args)
-      addArg _ _ = undefined
+      addArg _   _                   = undefined
   return $ foldl1' addArg calls
 
 funcCall :: Parser Expr
@@ -62,7 +60,7 @@ identifierExpr =
 identifier :: Parser Text
 identifier =
   pack
-    <$> ((++) <$> some allowedChars <*> many
+    <$> ( (++) <$> some allowedChars <*> many
           (char ' ' <|> allowedChars <|> digitChar)
         )
   where allowedChars = hangulSyllable <|> hangulJamo <|> letterChar

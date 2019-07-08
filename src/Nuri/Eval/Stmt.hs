@@ -2,8 +2,9 @@ module Nuri.Eval.Stmt where
 
 import Control.Monad.State
 import Control.Monad.Except
+
 import Data.Map
-import qualified Data.Text as T
+import qualified Data.Text as Text
 
 import Nuri.Stmt
 import Nuri.ASTNode
@@ -34,8 +35,11 @@ evalStmt (FuncDecl pos funcName args body) _ = do
           Thrown v -> return v
   lift $ addSymbol funcName (FuncVal func)
   return Undefined
-    where 
-      addSymbol :: T.Text -> Val -> Eval ()
-      addSymbol symbol val = do table <- get
-                                if member symbol table then throwError $ BoundSymbol pos symbol
-                                                       else do modify $ insert symbol val
+ where
+  addSymbol :: Text.Text -> Val -> Eval ()
+  addSymbol symbol val = do
+    table <- get
+    if member symbol table
+      then throwError $ BoundSymbol pos symbol
+      else do
+        modify $ insert symbol val

@@ -1,14 +1,14 @@
 module Nuri.Spec.Parse.StmtSpec where
 
-import           Test.Hspec
-import           Test.Hspec.Megaparsec
+import Test.Hspec
+import Test.Hspec.Megaparsec
 
-import           Nuri.Stmt
-import           Nuri.Expr
-import           Nuri.Parse.Stmt
+import Nuri.Stmt
+import Nuri.Expr
+import Nuri.Parse.Stmt
 
-import           Nuri.Spec.Util
-import           Nuri.Spec.Parse.Util
+import Nuri.Spec.Util
+import Nuri.Spec.Parse.Util
 
 spec :: Spec
 spec = do
@@ -33,14 +33,12 @@ spec = do
 
   describe "구문 파싱" $ do
     it "표현식 구문 파싱" $ do
-      testParse stmt "1 + 2 줄이다" `shouldParse` ExprStmt (binaryOp Plus (litInteger 1) (app (var "줄이다") [litInteger 2]))
+      testParse stmt "1 + 2 줄이다" `shouldParse` ExprStmt
+        (binaryOp Plus (litInteger 1) (app (var "줄이다") [litInteger 2]))
     it "반환 구문 파싱" $ do
       testParse stmt "1 반환하다" `shouldParse` Return (litInteger 1)
     it "인자가 한 개인 함수" $ do
-      testParse stmt "[값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
-        `shouldParse` funcDecl
-                        "증가하다"
-                        ["값"]
-                        [ ExprStmt $ app (var "더하다") [var "값", litInteger 1]
-                        , Return (var "값")
-                        ]
+      testParse stmt "[값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다" `shouldParse` funcDecl
+        "증가하다"
+        ["값"]
+        [ExprStmt $ app (var "더하다") [var "값", litInteger 1], Return (var "값")]

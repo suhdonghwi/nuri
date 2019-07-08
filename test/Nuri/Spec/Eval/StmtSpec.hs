@@ -1,10 +1,10 @@
 module Nuri.Spec.Eval.StmtSpec where
 
-import           Test.Hspec
+import Test.Hspec
 
-import           Control.Monad.State.Lazy
-import           Control.Monad.Except
-import           Data.Map.Strict
+import Control.Monad.State.Lazy
+import Control.Monad.Except
+import Data.Map
 
 import Nuri.Spec.Util
 import Nuri.Spec.Eval.Util
@@ -39,4 +39,5 @@ spec = do
       testFlow (funcDecl "먹다" ["음식"] [Return $ litInteger 10])
         `shouldEval` (Normal Undefined, fromList [("먹다", funcVal)])
     it "함수 이름이 중복되면 에러" $ do
-      testFlowWith (funcDecl "십" ["수"] [Return $ litInteger 10]) sampleTable `shouldEvalError` boundSymbol "십"
+      testFlowWith (funcDecl "십" ["수"] [Return $ litInteger 10]) sampleTable
+        `shouldEvalError` boundSymbol "십"

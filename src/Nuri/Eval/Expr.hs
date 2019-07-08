@@ -1,16 +1,17 @@
 module Nuri.Eval.Expr where
 
-import           Prelude                 hiding ( lookup )
+import Prelude hiding ( lookup )
 
-import           Control.Monad.State.Lazy
-import           Control.Monad.Except
-import           Data.Map.Strict
+import Control.Monad.State.Lazy
+import Control.Monad.Except
 
-import           Text.Megaparsec.Pos
+import Data.Map
 
-import           Nuri.Expr
-import           Nuri.Eval.Val
-import           Nuri.Eval.Error
+import Text.Megaparsec.Pos
+
+import Nuri.Expr
+import Nuri.Eval.Val
+import Nuri.Eval.Error
 
 evalExpr :: Expr -> Eval Val
 evalExpr (Lit _   (LitInteger v)) = return $ IntegerVal v
@@ -44,5 +45,4 @@ operateBinary _ Slash (IntegerVal v1) (IntegerVal v2) =
   return $ IntegerVal (v1 `div` v2)
 operateBinary pos _ lhs rhs =
   throwError $ OperateTypeError pos (getTypeName lhs) (getTypeName rhs)
-
 
