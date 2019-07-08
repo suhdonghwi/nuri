@@ -8,6 +8,9 @@ import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
 
+stmt :: Parser Stmt
+stmt = try returnStmt <|> try functionDecl <|> exprStmt
+
 exprStmt :: Parser Stmt
 exprStmt = ExprStmt <$> (expr <* notFollowedBy returnKeyword)
 

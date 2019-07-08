@@ -15,6 +15,7 @@ import Control.Monad.Except
 import Text.Megaparsec
 
 import Nuri.Eval.Expr
+import Nuri.Eval.Stmt
 import Nuri.Eval.Val
 import Nuri.Parse.Expr
 
