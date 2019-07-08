@@ -27,4 +27,3 @@ functionDecl = L.nonIndented scn (L.indentBlock scn p)
     funcName <- funcIdentifier
     _        <- symbol ":"
     return (L.IndentSome Nothing (return . FuncDecl pos funcName args) stmt)
-  stmt = try exprStmt <|> returnStmt

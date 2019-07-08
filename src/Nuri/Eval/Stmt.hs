@@ -3,6 +3,7 @@ module Nuri.Eval.Stmt where
 import Control.Monad.State
 import Control.Monad.Except
 import Data.Map
+import qualified Data.Text as T
 
 import Nuri.Stmt
 import Nuri.ASTNode
@@ -20,8 +21,8 @@ evalStmt :: Stmt -> Bool -> FlowT Val Eval Val
 evalStmt (ExprStmt expr) _            = (lift $ evalExpr expr) >>= return
 evalStmt (Return   expr) isInFunction = if isInFunction
   then (lift $ evalExpr expr) >>= throw
-  else lift $ throwError $ NotInFunction (srcPos expr)
-evalStmt (FuncDecl _ funcName args body) _ = do
+  else lift . throwError $ NotInFunction (srcPos expr)
+evalStmt (FuncDecl pos funcName args body) _ = do
   -- TODO: 함수 인자 수 맞지 않을 시 에러
   let func argsVal = do
         prevTable <- get
@@ -31,6 +32,10 @@ evalStmt (FuncDecl _ funcName args body) _ = do
         case result of
           Normal _ -> return Undefined
           Thrown v -> return v
-  lift . modify $ union (fromList [(funcName, FuncVal func)])
-  -- TODO: 중복된 함수 이름 추가 시 에러
+  lift $ addSymbol funcName (FuncVal func)
   return Undefined
+    where 
+      addSymbol :: T.Text -> Val -> Eval ()
+      addSymbol symbol val = do table <- get
+                                if member symbol table then throwError $ BoundSymbol pos symbol
+                                                       else do modify $ insert symbol val

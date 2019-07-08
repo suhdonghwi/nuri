@@ -30,6 +30,7 @@ evalExpr (BinaryOp pos op lhs rhs) = do
   lhsVal <- evalExpr lhs
   rhsVal <- evalExpr rhs
   operateBinary pos op lhsVal rhsVal
+evalExpr (UnaryOp _ _ _) = undefined
 
 operateBinary
   :: SourcePos -> Op -> Val -> Val -> StateT SymbolTable (Except Error) Val

@@ -29,6 +29,7 @@ dependencies:
 
 default-extensions:
 - OverloadedStrings
+- FlexibleContexts
 
 library:
   source-dirs: src

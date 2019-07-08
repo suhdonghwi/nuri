@@ -38,3 +38,5 @@ spec = do
     it "인자가 하나인 함수 선언" $ do
       testFlow (funcDecl "먹다" ["음식"] [Return $ litInteger 10])
         `shouldEval` (Normal Undefined, fromList [("먹다", funcVal)])
+    it "함수 이름이 중복되면 에러" $ do
+      testFlowWith (funcDecl "십" ["수"] [Return $ litInteger 10]) sampleTable `shouldEvalError` boundSymbol "십"
