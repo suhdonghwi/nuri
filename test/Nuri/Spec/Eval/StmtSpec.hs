@@ -17,7 +17,7 @@ import Nuri.Eval.Error
 
 testFlowWith :: Stmt -> SymbolTable -> Either Error (Flow Val Val, SymbolTable)
 testFlowWith stmt table =
-  runExcept (runStateT (runFlowT (evalStmt stmt)) table)
+  runExcept (runStateT (runFlowT (evalStmt stmt False)) table)
 
 testFlow :: Stmt -> Either Error (Flow Val Val, SymbolTable)
 testFlow stmt = testFlowWith stmt empty
@@ -29,9 +29,8 @@ spec = do
       testFlow (ExprStmt $ litInteger 10)
         `shouldEval` (Normal (IntegerVal 10), empty)
   describe "반환 구문 평가" $ do
-    it "Thrown 표현식 평가" $ do
-      testFlow (Return $ litInteger 10)
-        `shouldEval` (Thrown (IntegerVal 10), empty)
+    it "함수 밖에서 Throw하면 에러" $ do
+      testFlow (Return $ litInteger 10) `shouldEvalError` notInFunction
   describe "함수 선언 구문 평가" $ do
     it "인자 없는 함수 선언" $ do
       testFlow (funcDecl "깨우다" [] [Return $ litInteger 10])

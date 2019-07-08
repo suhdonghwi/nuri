@@ -21,6 +21,9 @@ operateTypeError = OperateTypeError initPos
 notCallable :: Text -> Error
 notCallable = NotCallable initPos
 
+notInFunction :: Error
+notInFunction = NotInFunction initPos
+
 shouldEval
   :: (Eq a, Show a)
   => Either Error (a, SymbolTable)
