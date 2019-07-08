@@ -7,6 +7,7 @@ import           Nuri.Stmt
 import           Nuri.Expr
 import           Nuri.Parse.Stmt
 
+import           Nuri.Spec.Util
 import           Nuri.Spec.Parse.Util
 
 spec :: Spec
@@ -27,3 +28,5 @@ spec = do
                         [ ExprStmt $ app (var "더하다") [var "값", litInteger 1]
                         , Return (var "값")
                         ]
+    it "함수의 본문이 없으면 에러" $ do
+      testParse functionDecl `shouldFailOn` "[값] 증가하다:"

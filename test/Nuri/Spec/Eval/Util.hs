@@ -9,6 +9,9 @@ import           Nuri.Spec.Util
 import           Nuri.Eval.Error
 import           Nuri.Eval.Val
 
+funcVal :: Val
+funcVal = FuncVal (\_ -> return $ IntegerVal 10)
+
 unboundSymbol :: Text -> Error
 unboundSymbol = UnboundSymbol initPos
 
@@ -19,8 +22,12 @@ notCallable :: Text -> Error
 notCallable = NotCallable initPos
 
 shouldEval
-  :: Either Error (Val, SymbolTable) -> (Val, SymbolTable) -> Expectation
+  :: (Eq a, Show a)
+  => Either Error (a, SymbolTable)
+  -> (a, SymbolTable)
+  -> Expectation
 shouldEval actual expected = shouldBe actual (Right expected)
 
-shouldEvalError :: Either Error (Val, SymbolTable) -> Error -> Expectation
+shouldEvalError
+  :: (Eq a, Show a) => Either Error (a, SymbolTable) -> Error -> Expectation
 shouldEvalError actual expectedError = shouldBe actual (Left expectedError)

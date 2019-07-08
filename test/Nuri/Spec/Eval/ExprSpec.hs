@@ -11,7 +11,7 @@ import           Nuri.Eval.Error
 import           Nuri.Expr
 import           Nuri.Eval.Val
 
-import           Nuri.Spec.Parse.Util
+import           Nuri.Spec.Util
 import           Nuri.Spec.Eval.Util
 
 testEvalWith :: Expr -> SymbolTable -> Either Error (Val, SymbolTable)

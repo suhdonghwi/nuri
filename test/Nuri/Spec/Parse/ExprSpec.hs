@@ -6,6 +6,7 @@ import           Test.Hspec.Megaparsec
 import           Nuri.Parse.Expr
 import           Nuri.Expr
 
+import           Nuri.Spec.Util
 import           Nuri.Spec.Parse.Util
 
 spec :: Spec
