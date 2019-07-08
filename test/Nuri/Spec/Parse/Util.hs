@@ -1,6 +1,6 @@
 module Nuri.Spec.Parse.Util where
 
-import Text.Megaparsec
+import           Text.Megaparsec
 
 
 testParse :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a

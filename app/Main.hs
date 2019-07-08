@@ -1,23 +1,23 @@
 module Main where
 
-import Prelude
+import           Prelude
 
-import System.Exit
-import System.IO as IO
+import           System.Exit
+import           System.IO                     as IO
 
-import qualified Data.Text.IO as TextIO
-import qualified Data.Map as Map
-import Data.Text as Text
+import qualified Data.Text.IO                  as TextIO
+import qualified Data.Map                      as Map
+import           Data.Text                     as Text
 
-import Control.Monad.State.Lazy
-import Control.Monad.Except
+import           Control.Monad.State.Lazy
+import           Control.Monad.Except
 
-import Text.Megaparsec
+import           Text.Megaparsec
 
-import Nuri.Eval.Expr
-import Nuri.Eval.Stmt
-import Nuri.Eval.Val
-import Nuri.Parse.Expr
+import           Nuri.Eval.Expr
+import           Nuri.Eval.Stmt
+import           Nuri.Eval.Val
+import           Nuri.Parse.Expr
 
 runRepl :: Text -> SymbolTable -> IO ()
 runRepl prompt table = do

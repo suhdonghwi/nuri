@@ -1,7 +1,7 @@
 module Nuri.Eval.Flow where
 
-import Control.Monad
-import Control.Monad.Trans
+import           Control.Monad
+import           Control.Monad.Trans
 
 data Flow r a = Thrown r
               | Normal a
@@ -11,7 +11,7 @@ instance Functor (Flow r) where
   fmap = liftM
 
 instance Applicative (Flow r) where
-  pure = return
+  pure  = return
   (<*>) = ap
 
 instance Monad (Flow r) where
@@ -25,15 +25,16 @@ instance Monad m => Functor (FlowT r m) where
   fmap = liftM
 
 instance Monad m => Applicative (FlowT r m) where
-  pure = return
+  pure  = return
   (<*>) = ap
 
 instance Monad m => Monad (FlowT r m) where
   return = FlowT . return . Normal
-  x >>= f = FlowT $ do val <- runFlowT x
-                       case val of
-                         Thrown v -> return $ Thrown v
-                         Normal v -> runFlowT $ f v
+  x >>= f = FlowT $ do
+    val <- runFlowT x
+    case val of
+      Thrown v -> return $ Thrown v
+      Normal v -> runFlowT $ f v
 
 instance MonadTrans (FlowT r) where
   lift = FlowT . (liftM Normal)

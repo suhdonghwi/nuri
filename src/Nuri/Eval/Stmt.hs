@@ -1,22 +1,22 @@
 module Nuri.Eval.Stmt where
 
-import Control.Monad.State
-import Control.Monad.Except
+import           Control.Monad.State
+import           Control.Monad.Except
 
-import Data.Map
-import qualified Data.Text as Text
+import           Data.Map
+import qualified Data.Text                     as Text
 
-import Nuri.Stmt
-import Nuri.ASTNode
-import Nuri.Eval.Val
-import Nuri.Eval.Expr
-import Nuri.Eval.Flow
-import Nuri.Eval.Error
+import           Nuri.Stmt
+import           Nuri.ASTNode
+import           Nuri.Eval.Val
+import           Nuri.Eval.Expr
+import           Nuri.Eval.Flow
+import           Nuri.Eval.Error
 
 evalStmts :: [Stmt] -> Bool -> FlowT Val Eval Val
-evalStmts (x:[]) isInFunc = evalStmt x isInFunc
-evalStmts (x:xs) isInFunc = evalStmt x isInFunc >> evalStmts xs isInFunc
-evalStmts []     _        = return Undefined
+evalStmts (x : []) isInFunc = evalStmt x isInFunc
+evalStmts (x : xs) isInFunc = evalStmt x isInFunc >> evalStmts xs isInFunc
+evalStmts []       _        = return Undefined
 
 evalStmt :: Stmt -> Bool -> FlowT Val Eval Val
 evalStmt (ExprStmt expr) _            = (lift $ evalExpr expr) >>= return

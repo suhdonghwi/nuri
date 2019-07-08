@@ -1,19 +1,19 @@
 module Nuri.Spec.Eval.StmtSpec where
 
-import Test.Hspec
+import           Test.Hspec
 
-import Control.Monad.State.Lazy
-import Control.Monad.Except
-import Data.Map
+import           Control.Monad.State.Lazy
+import           Control.Monad.Except
+import           Data.Map
 
-import Nuri.Spec.Util
-import Nuri.Spec.Eval.Util
+import           Nuri.Spec.Util
+import           Nuri.Spec.Eval.Util
 
-import Nuri.Stmt
-import Nuri.Eval.Stmt
-import Nuri.Eval.Val
-import Nuri.Eval.Flow
-import Nuri.Eval.Error
+import           Nuri.Stmt
+import           Nuri.Eval.Stmt
+import           Nuri.Eval.Val
+import           Nuri.Eval.Flow
+import           Nuri.Eval.Error
 
 testFlowWith :: Stmt -> SymbolTable -> Either Error (Flow Val Val, SymbolTable)
 testFlowWith stmt table =

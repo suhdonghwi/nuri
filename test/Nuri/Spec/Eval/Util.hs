@@ -1,14 +1,14 @@
 module Nuri.Spec.Eval.Util where
 
-import Test.Hspec
+import           Test.Hspec
 
-import Data.Text
-import Data.Map
+import           Data.Text
+import           Data.Map
 
-import Nuri.Spec.Util
+import           Nuri.Spec.Util
 
-import Nuri.Eval.Error
-import Nuri.Eval.Val
+import           Nuri.Eval.Error
+import           Nuri.Eval.Val
 
 sampleTable :: SymbolTable
 sampleTable = fromList

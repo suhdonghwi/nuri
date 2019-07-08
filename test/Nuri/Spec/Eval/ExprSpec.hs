@@ -1,18 +1,18 @@
 module Nuri.Spec.Eval.ExprSpec where
 
-import Test.Hspec
+import           Test.Hspec
 
-import Control.Monad.State.Lazy
-import Control.Monad.Except
-import Data.Map
+import           Control.Monad.State.Lazy
+import           Control.Monad.Except
+import           Data.Map
 
-import Nuri.Eval.Expr
-import Nuri.Eval.Error
-import Nuri.Expr
-import Nuri.Eval.Val
+import           Nuri.Eval.Expr
+import           Nuri.Eval.Error
+import           Nuri.Expr
+import           Nuri.Eval.Val
 
-import Nuri.Spec.Util
-import Nuri.Spec.Eval.Util
+import           Nuri.Spec.Util
+import           Nuri.Spec.Eval.Util
 
 testEvalWith :: Expr -> SymbolTable -> Either Error (Val, SymbolTable)
 testEvalWith expr table = runExcept (runStateT (evalExpr expr) table)
