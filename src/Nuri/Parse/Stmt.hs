@@ -21,7 +21,7 @@ returnStmt :: Parser Stmt
 returnStmt = Return <$> (expr <* returnKeyword)
 
 functionDecl :: Parser Stmt
-functionDecl = L.nonIndented scn (L.indentBlock scn p)
+functionDecl = L.indentBlock scn p
  where
   p = do
     pos  <- getSourcePos
