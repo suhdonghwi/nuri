@@ -8,6 +8,9 @@ import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
 
+stmts :: Parser [Stmt]
+stmts = many (stmt <* option ' ' newline)
+
 stmt :: Parser Stmt
 stmt = try returnStmt <|> try functionDecl <|> exprStmt
 
@@ -22,7 +25,7 @@ functionDecl = L.nonIndented scn (L.indentBlock scn p)
  where
   p = do
     pos  <- getSourcePos
-    args <- many (char '[' *> identifier <* char ']')
+    args <- many (char '[' *> identifier <* (char ']' >> sc))
     sc
     funcName <- funcIdentifier
     _        <- symbol ":"
