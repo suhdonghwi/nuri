@@ -44,6 +44,9 @@ spec = do
     it "정수 두 개 나누기" $ do
       testEval (binaryOp Slash (litInteger 10) (litInteger 5))
         `shouldEval` (IntegerVal 2, empty)
+    it "0으로 나눌 시 DivideByZero 에러" $ do
+      testEval (binaryOp Slash (litInteger 10) (litInteger 0))
+        `shouldEvalError` divideByZero
     it "정수형 변수와 정수 리터럴 더하기" $ do
       testEvalWith (binaryOp Plus (var "나이") (litInteger 5)) sampleTable
         `shouldEval` (IntegerVal 22, sampleTable)

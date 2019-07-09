@@ -49,5 +49,4 @@ main = do
     else do
       let fileName = head args
       content <- readFile fileName
-      print content
       evalInput (T.pack content) Map.empty fileName

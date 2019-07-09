@@ -33,6 +33,9 @@ boundSymbol = BoundSymbol initPos
 operateTypeError :: [Text] -> Error
 operateTypeError = OperateTypeError initPos
 
+divideByZero :: Error
+divideByZero = DivideByZero initPos
+
 notCallable :: Text -> Error
 notCallable = NotCallable initPos
 

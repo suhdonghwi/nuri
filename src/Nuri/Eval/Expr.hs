@@ -43,8 +43,9 @@ operateBinary _ Minus (IntegerVal v1) (IntegerVal v2) =
   return $ IntegerVal (v1 - v2)
 operateBinary _ Asterisk (IntegerVal v1) (IntegerVal v2) =
   return $ IntegerVal (v1 * v2)
-operateBinary _ Slash (IntegerVal v1) (IntegerVal v2) =
-  return $ IntegerVal (v1 `div` v2)
+operateBinary pos Slash (IntegerVal v1) (IntegerVal v2) = if v2 == 0
+  then throwError $ DivideByZero pos
+  else return $ IntegerVal (v1 `div` v2)
 operateBinary pos _ lhs rhs =
   throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
 
