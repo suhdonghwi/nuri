@@ -31,10 +31,12 @@ evalExpr (BinaryOp pos op lhs rhs) = do
   lhsVal <- evalExpr lhs
   rhsVal <- evalExpr rhs
   operateBinary pos op lhsVal rhsVal
-evalExpr (UnaryOp _ _ _) = undefined
+evalExpr (UnaryOp pos op expr) = do
+  val <- evalExpr expr
+  operateUnary pos op val
 
-operateBinary
-  :: SourcePos -> Op -> Val -> Val -> StateT SymbolTable (Except Error) Val
+
+operateBinary :: SourcePos -> Op -> Val -> Val -> Eval Val
 operateBinary _ Plus (IntegerVal v1) (IntegerVal v2) =
   return $ IntegerVal (v1 + v2)
 operateBinary _ Minus (IntegerVal v1) (IntegerVal v2) =
@@ -44,4 +46,9 @@ operateBinary _ Asterisk (IntegerVal v1) (IntegerVal v2) =
 operateBinary _ Slash (IntegerVal v1) (IntegerVal v2) =
   return $ IntegerVal (v1 `div` v2)
 operateBinary pos _ lhs rhs =
-  throwError $ OperateTypeError pos (getTypeName lhs) (getTypeName rhs)
+  throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
+
+operateUnary :: SourcePos -> Op -> Val -> Eval Val
+operateUnary _ Plus v@(IntegerVal _) = return v
+operateUnary _ Minus (IntegerVal v) = return (IntegerVal (-v))
+operateUnary pos _ v = throwError $ OperateTypeError pos [getTypeName v]

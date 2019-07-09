@@ -49,7 +49,18 @@ spec = do
         `shouldEval` (IntegerVal 22, sampleTable)
     it "정수와 함수 더했을 시 타입 에러" $ do
       testEvalWith (binaryOp Plus (litInteger 10) (var "십")) sampleTable
-        `shouldEvalError` operateTypeError "정수" "함수"
+        `shouldEvalError` operateTypeError ["정수", "함수"]
+
+  describe "단항 연산자 평가" $ do
+    it "정수에 양수 단항 연산자" $ do
+      testEval (unaryOp Plus (litInteger 10))
+        `shouldEval` (IntegerVal 10, empty)
+    it "정수에 음수 단항 연산자" $ do
+      testEval (unaryOp Minus (litInteger 10))
+        `shouldEval` (IntegerVal (-10), empty)
+    it "함수에 양수 단항 연산자 적용 시 타입 에러" $ do
+      testEvalWith (unaryOp Minus (var "십")) sampleTable
+        `shouldEvalError` operateTypeError ["함수"]
 
   describe "함수 호출 평가" $ do
     it "인자 없는 함수 호출" $ do

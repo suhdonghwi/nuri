@@ -30,7 +30,7 @@ unboundSymbol = UnboundSymbol initPos
 boundSymbol :: Text -> Error
 boundSymbol = BoundSymbol initPos
 
-operateTypeError :: Text -> Text -> Error
+operateTypeError :: [Text] -> Error
 operateTypeError = OperateTypeError initPos
 
 notCallable :: Text -> Error

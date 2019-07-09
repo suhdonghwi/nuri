@@ -20,6 +20,7 @@ import           Nuri.Eval.Val
 import           Nuri.Eval.Flow
 import           Nuri.Parse.Stmt
 
+evalInput :: T.Text -> Map.Map T.Text Val -> String -> IO ()
 evalInput input table fileName = do
   let ast = runParser (stmts <* eof) fileName input
   case ast of
@@ -35,7 +36,7 @@ runRepl :: T.Text -> SymbolTable -> IO ()
 runRepl prompt table = do
   TextIO.putStr prompt
   hFlush stdout
-  line <- TextIO.getLine
+  line <- T.strip <$> TextIO.getLine
   evalInput line table "(반응형)"
   when (line == ":quit") exitSuccess
   runRepl prompt table
@@ -48,4 +49,5 @@ main = do
     else do
       let fileName = head args
       content <- readFile fileName
+      print content
       evalInput (T.pack content) Map.empty fileName
