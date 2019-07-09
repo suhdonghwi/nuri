@@ -3,7 +3,7 @@ module Nuri.Parse where
 import           Control.Monad
 
 import           Data.Void
-import           Data.Text                      ( Text )
+import           Data.Text                                ( Text )
 
 import           Text.Megaparsec
 import           Text.Megaparsec.Char

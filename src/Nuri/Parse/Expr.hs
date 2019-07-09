@@ -1,9 +1,9 @@
 module Nuri.Parse.Expr where
 
-import           Data.Text                      ( Text
-                                                , pack
-                                                )
-import           Data.List                      ( foldl1' )
+import           Data.Text                                ( Text
+                                                          , pack
+                                                          )
+import           Data.List                                ( foldl1' )
 
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
@@ -35,7 +35,7 @@ nestedFuncCalls :: Parser Expr
 nestedFuncCalls = do
   calls <- some funcCall
   let addArg arg (App pos func args) = App pos func (arg : args)
-      addArg _ _ = undefined
+      addArg _   _                   = undefined
   return $ foldl1' addArg calls
 
 funcCall :: Parser Expr
@@ -43,7 +43,7 @@ funcCall = do
   args <- many term
   pos  <- getSourcePos
   func <- funcIdentifier
-  return $ App pos func args
+  return $ App pos (Var pos func) args
 
 funcIdentifier :: Parser Text
 funcIdentifier =
