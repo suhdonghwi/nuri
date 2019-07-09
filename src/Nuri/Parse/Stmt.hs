@@ -12,10 +12,10 @@ stmts :: Parser [Stmt]
 stmts = many (stmt <* scn)
 
 stmt :: Parser Stmt
-stmt = try returnStmt <|> try functionDecl <|> exprStmt
+stmt = try returnStmt <|> try exprStmt <|> functionDecl
 
 exprStmt :: Parser Stmt
-exprStmt = ExprStmt <$> (expr <* notFollowedBy returnKeyword)
+exprStmt = ExprStmt <$> (expr <* notFollowedBy (returnKeyword <|> symbol ":"))
 
 returnStmt :: Parser Stmt
 returnStmt = Return <$> (expr <* returnKeyword)

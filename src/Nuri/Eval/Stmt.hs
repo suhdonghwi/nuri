@@ -27,6 +27,10 @@ evalStmt (FuncDecl pos funcName args body) _ = do
   -- TODO: 함수 인자 수 맞지 않을 시 에러
   let func argsVal = do
         prevTable <- get
+        when (length args /= length argsVal) $ throwError $ IncorrectArgsNum
+          pos
+          (length args)
+          (length argsVal)
         modify $ union (fromList $ zip args argsVal)
         result <- runFlowT $ evalStmts body True
         put prevTable
