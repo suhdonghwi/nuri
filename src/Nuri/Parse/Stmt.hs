@@ -9,7 +9,7 @@ import           Nuri.Parse.Expr
 import           Nuri.Stmt
 
 stmts :: Parser [Stmt]
-stmts = many (stmt <* option ' ' newline)
+stmts = many (stmt <* scn)
 
 stmt :: Parser Stmt
 stmt = try returnStmt <|> try functionDecl <|> exprStmt
