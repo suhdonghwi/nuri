@@ -37,8 +37,8 @@ runRepl prompt table = do
   TextIO.putStr prompt
   hFlush stdout
   line <- T.strip <$> TextIO.getLine
-  evalInput line table "(반응형)"
   when (line == ":quit") exitSuccess
+  evalInput line table "(반응형)"
   runRepl prompt table
 
 main :: IO ()
