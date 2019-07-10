@@ -1,14 +1,14 @@
-name:                nuri
-version:             0.1.0.0
-github:              "suhdonghwi/nuri"
-license:             MIT
-author:              "Suh Donghwi"
-maintainer:          "hwidongsuh@gmail.com"
-copyright:           "2019 Suh Donghwi"
+name: nuri
+version: 0.1.0.0
+github: "suhdonghwi/nuri"
+license: MIT
+author: "Suh Donghwi"
+maintainer: "hwidongsuh@gmail.com"
+copyright: "2019 Suh Donghwi"
 
 extra-source-files:
-- README.md
-- ChangeLog.md
+  - README.md
+  - ChangeLog.md
 
 # Metadata used when publishing your package
 # synopsis:            Short description of your package
@@ -20,42 +20,42 @@ extra-source-files:
 description: 배우기 쉬운 한글 프로그래밍 언어
 
 dependencies:
-- base >= 4.7 && < 5
-- megaparsec >= 7.0
-- parser-combinators >= 1.0
-- text >= 1.2
-- containers >= 0.6
-- mtl >= 2.2
+  - base >= 4.7 && < 5
+  - megaparsec >= 7.0
+  - parser-combinators >= 1.0
+  - text >= 1.2
+  - containers >= 0.6
+  - mtl >= 2.2
 
 default-extensions:
-- OverloadedStrings
-- FlexibleContexts
+  - OverloadedStrings
+  - FlexibleContexts
 
 library:
   source-dirs: src
   ghc-options:
-  - -Wall
+    - -Wall
 
 executables:
   nuri-exe:
-    main:                Main.hs
-    source-dirs:         app
+    main: Main.hs
+    source-dirs: app
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - nuri
+      - nuri
 
 tests:
   nuri-test:
-    main:                Spec.hs
-    source-dirs:         test
+    main: Spec.hs
+    source-dirs: test
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
     dependencies:
-    - nuri
-    - hspec >= 2.6
-    - hspec-megaparsec >= 2.0
+      - nuri
+      - hspec >= 2.6
+      - hspec-megaparsec >= 2.0

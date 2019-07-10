@@ -10,7 +10,6 @@ import           Control.Monad.Except
 import           Control.Monad.State
 
 import qualified Data.Text.IO                  as TextIO
-import qualified Data.Map                      as Map
 import qualified Data.Text                     as T
 
 import           Text.Megaparsec
@@ -20,23 +19,33 @@ import           Nuri.Eval.Val
 import           Nuri.Eval.Flow
 import           Nuri.Parse.Stmt
 
-evalInput :: T.Text -> Map.Map T.Text Val -> String -> IO ()
-evalInput input table fileName = do
-  let ast = runParser (stmts <* eof) fileName input
+data ReplState = ReplState { prompt :: T.Text, table :: SymbolTable, fileName :: String }
+type Repl = StateT ReplState IO ()
+
+evalInput :: T.Text -> Repl
+evalInput input = do
+  st <- get
+  let ast = runParser (stmts <* eof) (fileName st) input
   case ast of
-    Left  err    -> putStrLn $ errorBundlePretty err
+    Left  err    -> lift $ putStrLn (errorBundlePretty err)
     Right result -> do
       let evalResult =
-            runExcept (runStateT (runFlowT (evalStmts result False)) table)
+            runExcept (runStateT (runFlowT (evalStmts result False)) (table st))
       case evalResult of
-        Left  evalErr     -> putStrLn $ show evalErr
-        Right finalResult -> putStrLn $ show finalResult
+        Left  evalErr     -> lift $ putStrLn (show evalErr)
+        Right finalResult -> do
+          lift $ putStrLn (show finalResult)
+          put $ ReplState (prompt st) (snd finalResult) (fileName st)
 
-runRepl :: T.Text -> SymbolTable -> IO ()
-runRepl prompt table = do
-  TextIO.putStr prompt
-  hFlush stdout
-  line <- T.strip <$> TextIO.getLine
-  when (line == ":quit") exitSuccess
-  evalInput line table "(반응형)"
-  runRepl prompt table
+repl :: Repl
+repl = do
+  st <- get
+  lift $ TextIO.putStr (prompt st)
+  lift $ hFlush stdout
+  line <- T.strip <$> lift (TextIO.getLine)
+  lift $ when (line == ":quit") exitSuccess
+  evalInput line
+  repl
+
+runRepl :: Repl -> ReplState -> IO ()
+runRepl f st = runStateT f st >> return ()

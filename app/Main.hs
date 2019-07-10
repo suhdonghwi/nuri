@@ -1,6 +1,7 @@
 module Main where
 
 import           Prelude
+
 import           System.Environment
 
 import qualified Data.Map                      as Map
@@ -12,8 +13,8 @@ main :: IO ()
 main = do
   args <- getArgs
   if length args == 0
-    then runRepl ">> " Map.empty
+    then runRepl repl (ReplState ">> " Map.empty "(반응형)")
     else do
-      let fileName = head args
-      content <- readFile fileName
-      evalInput (T.pack content) Map.empty fileName
+      let filePath = head args
+      content <- readFile filePath
+      runRepl (evalInput (T.pack content)) (ReplState ">> " Map.empty filePath)
