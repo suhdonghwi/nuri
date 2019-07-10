@@ -1,1 +1,1 @@
---command="stack ghci nuri:lib nuri:nuri-test --ghci-options -fdiagnostics-color=always" --test="main"
+--command="stack ghci nuri:nuri-test nuri:lib --ghci-options -fdiagnostics-color=always"  --test="main"
