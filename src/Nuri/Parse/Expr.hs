@@ -50,10 +50,18 @@ funcIdentifier =
   lexeme $ pack <$> (notFollowedBy returnKeyword >> some hangulSyllable)
 
 term :: Parser Expr
-term = integer <|> identifierExpr <|> parens
+term = integer <|> try assignment <|> identifierExpr <|> parens
 
 parens :: Parser Expr
 parens = between (symbol "(") (symbol ")") expr
+
+assignment :: Parser Expr
+assignment = do
+  pos         <- getSourcePos
+  Var _ ident <- identifierExpr
+  _           <- symbol ":"
+  val         <- expr
+  return $ Assign pos ident val
 
 identifierExpr :: Parser Expr
 identifierExpr =
@@ -69,9 +77,9 @@ identifier =
 
 integer :: Parser Expr
 integer = lexeme $ do
-  pos   <- getSourcePos
-  value <- zeroNumber <|> decimal
-  return $ Lit pos (LitInteger value)
+  pos <- getSourcePos
+  val <- zeroNumber <|> decimal
+  return $ Lit pos (LitInteger val)
   where zeroNumber = char '0' >> hexadecimal <|> octal <|> binary <|> return 0
 
 binary :: Parser Integer

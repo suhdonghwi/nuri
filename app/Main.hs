@@ -1,7 +1,5 @@
 module Main where
 
-import           Prelude
-
 import           System.Environment
 
 import qualified Data.Map                      as Map
