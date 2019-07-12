@@ -75,3 +75,23 @@ spec = do
     it "호출할 수 없는 대상에 대해 에러" $ do
       testEvalWith (app (var "나이") []) sampleTable
         `shouldEvalError` notCallable "정수"
+
+  describe "대입식 평가" $ do
+    it "단순 정수 대입" $ do
+      testEvalWith (assign "수" (litInteger 10)) sampleTable
+        `shouldEval` (IntegerVal 10, insert "수" (IntegerVal 10) sampleTable)
+    it "사칙연산식 대입" $ do
+      testEvalWith
+          (assign "수" (binaryOp Plus (litInteger 10) (litInteger 10)))
+          sampleTable
+        `shouldEval` (IntegerVal 20, insert "수" (IntegerVal 20) sampleTable)
+    it "대입식 대입" $ do
+      testEvalWith (assign "수" (assign "상자" (litInteger 10))) sampleTable
+        `shouldEval` ( IntegerVal 10
+                     , union
+                       (fromList [("수", IntegerVal 10), ("상자", IntegerVal 10)])
+                       sampleTable
+                     )
+    it "겹치는 식별자 대입" $ do
+      testEvalWith (assign "십" (litInteger 10)) sampleTable
+        `shouldEval` (IntegerVal 10, insert "십" (IntegerVal 10) sampleTable)

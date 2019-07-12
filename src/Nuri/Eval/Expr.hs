@@ -27,6 +27,11 @@ evalExpr (App pos func args) = do
       argsVal <- sequence $ fmap evalExpr args
       funcVal argsVal
     val -> throwError $ NotCallable pos (getTypeName val)
+evalExpr (Assign _ ident expr) = do
+  val <- evalExpr expr
+  modify $ insert ident val
+  return val
+
 evalExpr (BinaryOp pos op lhs rhs) = do
   lhsVal <- evalExpr lhs
   rhsVal <- evalExpr rhs
