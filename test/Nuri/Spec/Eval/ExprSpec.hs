@@ -72,6 +72,9 @@ spec = do
     it "인자가 하나인 함수 호출" $ do
       testEvalWith (app (var "늘리기") [litInteger 10]) sampleTable
         `shouldEval` (IntegerVal 20, sampleTable)
+    it "호출 인수의 개수가 맞지 않으면 에러" $ do
+      testEvalWith (app (var "늘리기") [litInteger 10, litInteger 20]) sampleTable
+        `shouldEvalError` incorrectArgsNum 1 2
     it "호출할 수 없는 대상에 대해 에러" $ do
       testEvalWith (app (var "나이") []) sampleTable
         `shouldEvalError` notCallable "정수"

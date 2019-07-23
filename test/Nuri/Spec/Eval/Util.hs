@@ -7,19 +7,21 @@ import           Data.Map
 
 import           Nuri.Spec.Util
 
+import           Nuri.Stmt
+import           Nuri.Expr
 import           Nuri.Eval.Error
 import           Nuri.Eval.Val
+import           Nuri.Eval.Stmt
 
 sampleTable :: SymbolTable
 sampleTable = fromList
-  [ ("나이" , IntegerVal 17)
-  , ("십"  , FuncVal sampleFunc)
-  , ("늘리기", FuncVal sampleFunc2)
+  [ ("나이", IntegerVal 17)
+  , ("십", makeFunc initPos [] [Return $ litInteger 10])
+  , ( "늘리기"
+    , makeFunc initPos ["수"] [Return $ binaryOp Plus (litInteger 10) (var "수")]
+    )
   ]
  where
-  sampleFunc _ = return (IntegerVal 10)
-  sampleFunc2 [IntegerVal x] = return $ IntegerVal (x + 10)
-  sampleFunc2 _              = undefined
 
 funcVal :: Val
 funcVal = FuncVal (\_ -> return $ IntegerVal 10)
@@ -41,6 +43,9 @@ notCallable = NotCallable initPos
 
 notInFunction :: Error
 notInFunction = NotInFunction initPos
+
+incorrectArgsNum :: Int -> Int -> Error
+incorrectArgsNum = IncorrectArgsNum initPos
 
 shouldEval
   :: (Eq a, Show a)

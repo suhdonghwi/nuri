@@ -6,6 +6,8 @@ import           Control.Monad.Except
 import           Data.Map
 import qualified Data.Text                     as Text
 
+import           Text.Megaparsec.Pos
+
 import           Nuri.Stmt
 import           Nuri.ASTNode
 import           Nuri.Eval.Val
@@ -18,13 +20,8 @@ evalStmts (x : []) isInFunc = evalStmt x isInFunc
 evalStmts (x : xs) isInFunc = evalStmt x isInFunc >> evalStmts xs isInFunc
 evalStmts []       _        = return Undefined
 
-evalStmt :: Stmt -> Bool -> FlowT Val Eval Val
-evalStmt (ExprStmt expr) _            = (lift $ evalExpr expr) >>= return
-evalStmt (Return   expr) isInFunction = if isInFunction
-  then (lift $ evalExpr expr) >>= throw
-  else lift . throwError $ NotInFunction (srcPos expr)
-evalStmt (FuncDecl pos funcName args body) _ = do
-  -- TODO: 함수 인자 수 맞지 않을 시 에러
+makeFunc :: SourcePos -> [Text.Text] -> [Stmt] -> Val
+makeFunc pos args body =
   let func argsVal = do
         prevTable <- get
         when (length args /= length argsVal) $ throwError $ IncorrectArgsNum
@@ -37,7 +34,15 @@ evalStmt (FuncDecl pos funcName args body) _ = do
         case result of
           Normal _ -> return Undefined
           Thrown v -> return v
-  lift $ addSymbol funcName (FuncVal func)
+  in  FuncVal func
+
+evalStmt :: Stmt -> Bool -> FlowT Val Eval Val
+evalStmt (ExprStmt expr) _            = (lift $ evalExpr expr) >>= return
+evalStmt (Return   expr) isInFunction = if isInFunction
+  then (lift $ evalExpr expr) >>= throw
+  else lift . throwError $ NotInFunction (srcPos expr)
+evalStmt (FuncDecl pos funcName args body) _ = do
+  lift $ addSymbol funcName (makeFunc pos args body)
   return Undefined
  where
   addSymbol :: Text.Text -> Val -> Eval ()
