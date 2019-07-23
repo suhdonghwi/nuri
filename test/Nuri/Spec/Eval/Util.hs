@@ -24,7 +24,7 @@ sampleTable = fromList
  where
 
 funcVal :: Val
-funcVal = FuncVal (\_ -> return $ IntegerVal 10)
+funcVal = makeFunc initPos [] [Return $ litInteger 10]
 
 unboundSymbol :: Text -> Error
 unboundSymbol = UnboundSymbol initPos
