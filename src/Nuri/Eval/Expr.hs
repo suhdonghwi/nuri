@@ -15,6 +15,7 @@ import           Nuri.Eval.Error
 
 evalExpr :: Expr -> Eval Val
 evalExpr (Lit _   (LitInteger v)) = return $ IntegerVal v
+evalExpr (Lit _   (LitReal    v)) = return $ RealVal v
 
 evalExpr (Var pos ident         ) = do
   table <- get
