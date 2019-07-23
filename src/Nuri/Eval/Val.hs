@@ -28,3 +28,8 @@ getTypeName :: Val -> Text
 getTypeName (IntegerVal _) = "정수"
 getTypeName (FuncVal    _) = "함수"
 getTypeName Undefined      = "정의되지 않음"
+
+printVal :: Val -> Text
+printVal (IntegerVal v) = show v
+printVal (FuncVal    v) = "(함수)"
+printVal Undefined      = "(정의되지 않음)"
