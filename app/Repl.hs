@@ -9,6 +9,7 @@ import           Control.Monad.State
 
 import qualified Data.Text.IO                  as TextIO
 import qualified Data.Text                     as T
+import           Data.Map
 
 import           Text.Megaparsec
 
@@ -19,6 +20,19 @@ import           Nuri.Parse.Stmt
 
 data ReplState = ReplState { prompt :: T.Text, table :: SymbolTable, fileName :: String }
 type Repl = StateT ReplState IO ()
+
+intrinsicTable :: SymbolTable
+intrinsicTable = fromList
+  [ ( "보여주다"
+    , makeFunc
+      (initialPos "내장")
+      1
+      (\[x] -> do
+        lift $ lift $ putStrLn (printVal x)
+        return $ Normal Undefined
+      )
+    )
+  ]
 
 evalInput :: T.Text -> Repl
 evalInput input = do

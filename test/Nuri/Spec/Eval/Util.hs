@@ -16,15 +16,17 @@ import           Nuri.Eval.Stmt
 sampleTable :: SymbolTable
 sampleTable = fromList
   [ ("나이", IntegerVal 17)
-  , ("십", makeFunc initPos [] [Return $ litInteger 10])
+  , ("십", makeFuncStmt initPos [] [Return $ litInteger 10])
   , ( "늘리기"
-    , makeFunc initPos ["수"] [Return $ binaryOp Plus (litInteger 10) (var "수")]
+    , makeFuncStmt initPos
+                   ["수"]
+                   [Return $ binaryOp Plus (litInteger 10) (var "수")]
     )
   ]
  where
 
 funcVal :: Val
-funcVal = makeFunc initPos [] [Return $ litInteger 10]
+funcVal = makeFuncStmt initPos [] [Return $ litInteger 10]
 
 unboundSymbol :: Text -> Error
 unboundSymbol = UnboundSymbol initPos

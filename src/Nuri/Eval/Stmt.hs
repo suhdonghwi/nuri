@@ -20,21 +20,30 @@ evalStmts (x : []) isInFunc = evalStmt x isInFunc
 evalStmts (x : xs) isInFunc = evalStmt x isInFunc >> evalStmts xs isInFunc
 evalStmts []       _        = return Undefined
 
-makeFunc :: SourcePos -> [Text.Text] -> [Stmt] -> Val
-makeFunc pos args body =
+makeFunc :: SourcePos -> Int -> ([Val] -> Eval (Flow Val Val)) -> Val
+makeFunc pos argsNum body =
   let func argsVal = do
-        prevTable <- get
-        when (length args /= length argsVal) $ throwError $ IncorrectArgsNum
+        when (argsNum /= length argsVal) $ throwError $ IncorrectArgsNum
           pos
-          (length args)
+          argsNum
           (length argsVal)
-        modify $ union (fromList $ zip args argsVal)
-        result <- runFlowT $ evalStmts body True
-        put prevTable
+        result <- body argsVal
         case result of
           Normal _ -> return Undefined
           Thrown v -> return v
   in  FuncVal func
+
+makeFuncStmt :: SourcePos -> [Text.Text] -> [Stmt] -> Val
+makeFuncStmt pos args body = makeFunc
+  pos
+  (length args)
+  (\argsVal -> do
+    prevTable <- get
+    modify $ union (fromList $ zip args argsVal)
+    result <- runFlowT $ evalStmts body True
+    put prevTable
+    return result
+  )
 
 evalStmt :: Stmt -> Bool -> FlowT Val Eval Val
 evalStmt (ExprStmt expr) _            = (lift $ evalExpr expr) >>= return
@@ -42,7 +51,7 @@ evalStmt (Return   expr) isInFunction = if isInFunction
   then (lift $ evalExpr expr) >>= throw
   else lift . throwError $ NotInFunction (srcPos expr)
 evalStmt (FuncDecl pos funcName args body) _ = do
-  lift $ addSymbol funcName (makeFunc pos args body)
+  lift $ addSymbol funcName (makeFuncStmt pos args body)
   return Undefined
  where
   addSymbol :: Text.Text -> Val -> Eval ()

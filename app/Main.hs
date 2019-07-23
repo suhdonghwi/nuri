@@ -11,7 +11,7 @@ main :: IO ()
 main = do
   args <- getArgs
   if length args == 0
-    then runRepl repl (ReplState ">> " Map.empty "(반응형)")
+    then runRepl repl (ReplState ">> " intrinsicTable "(반응형)")
     else do
       let filePath = head args
       content <- readFile filePath
