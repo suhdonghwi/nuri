@@ -1,7 +1,5 @@
 module Repl where
 
-import           Prelude
-
 import           System.Exit
 import           System.IO
 

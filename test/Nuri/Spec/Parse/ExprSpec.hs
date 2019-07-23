@@ -162,3 +162,22 @@ spec = do
       testParse expr "(1 + 1) 2 더하다" `shouldParse` app
         (var "더하다")
         [binaryOp Plus (litInteger 1) (litInteger 1), litInteger 2]
+
+  describe "대입식 파싱" $ do
+    it "단순 정수 대입" $ do
+      testParse assignment "[상자]: 10"
+        `shouldParse` (assign "상자" (litInteger 10))
+    it "(붙어있는) 단순 정수 대입" $ do
+      testParse assignment "[상자]:10" `shouldParse` (assign "상자" (litInteger 10))
+    it "(떨어져있는) 단순 정수 대입" $ do
+      testParse assignment "[상자] : 10"
+        `shouldParse` (assign "상자" (litInteger 10))
+    it "사칙연산식 대입" $ do
+      testParse assignment "[상자]: 10 + 2"
+        `shouldParse` (assign
+                        "상자"
+                        (binaryOp Plus (litInteger 10) (litInteger 2))
+                      )
+    it "대입식 대입" $ do
+      testParse assignment "[상자]: [박스]: 10"
+        `shouldParse` (assign "상자" (assign "박스" (litInteger 10)))

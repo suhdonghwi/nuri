@@ -28,5 +28,8 @@ var = Var initPos
 app :: Expr -> [Expr] -> Expr
 app = App initPos
 
+assign :: Text -> Expr -> Expr
+assign = Assign initPos
+
 funcDecl :: Text -> [Text] -> [Stmt] -> Stmt
 funcDecl = FuncDecl initPos
