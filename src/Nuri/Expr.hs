@@ -7,10 +7,12 @@ import           Text.Megaparsec.Pos
 import           Nuri.ASTNode
 
 data Literal = LitInteger Integer
+             | LitReal Double
     deriving(Eq)
 
 instance Show Literal where
   show (LitInteger v) = "(LitInteger " ++ show v ++ ")"
+  show (LitReal    v) = "(LitReal " ++ show v ++ ")"
 
 data Expr = Lit SourcePos Literal
           | Var SourcePos Text
