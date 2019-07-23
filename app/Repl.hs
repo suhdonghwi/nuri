@@ -27,8 +27,7 @@ evalInput input = do
   case ast of
     Left  err    -> lift $ putStrLn (errorBundlePretty err)
     Right result -> do
-      let evalResult =
-            runExcept (runStateT (runFlowT (evalStmts result False)) (table st))
+      evalResult <- lift $ runStmtsEval result (table st)
       case evalResult of
         Left  evalErr     -> lift $ putStrLn (show evalErr)
         Right finalResult -> do

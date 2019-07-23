@@ -15,11 +15,13 @@ import           Nuri.Eval.Error
 
 evalExpr :: Expr -> Eval Val
 evalExpr (Lit _   (LitInteger v)) = return $ IntegerVal v
+
 evalExpr (Var pos ident         ) = do
   table <- get
   case lookup ident table of
     Just val -> return val
     Nothing  -> throwError $ UnboundSymbol pos ident
+
 evalExpr (App pos func args) = do
   funcResult <- evalExpr func
   case funcResult of
@@ -27,6 +29,7 @@ evalExpr (App pos func args) = do
       argsVal <- sequence $ fmap evalExpr args
       funcVal argsVal
     val -> throwError $ NotCallable pos (getTypeName val)
+
 evalExpr (Assign _ ident expr) = do
   val <- evalExpr expr
   modify $ insert ident val
@@ -58,3 +61,6 @@ operateUnary :: SourcePos -> Op -> Val -> Eval Val
 operateUnary _ Plus v@(IntegerVal _) = return v
 operateUnary _ Minus (IntegerVal v) = return (IntegerVal (-v))
 operateUnary pos _ v = throwError $ OperateTypeError pos [getTypeName v]
+
+runEval :: Expr -> SymbolTable -> IO (Either Error (Val, SymbolTable))
+runEval expr table = runExceptT (runStateT (evalExpr expr) table)

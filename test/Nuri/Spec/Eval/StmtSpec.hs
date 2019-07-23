@@ -2,8 +2,6 @@ module Nuri.Spec.Eval.StmtSpec where
 
 import           Test.Hspec
 
-import           Control.Monad.State.Lazy
-import           Control.Monad.Except
 import           Data.Map
 
 import           Nuri.Spec.Util
@@ -17,8 +15,7 @@ import           Nuri.Eval.Error
 
 testFlowWith
   :: Stmt -> SymbolTable -> IO (Either Error (Flow Val Val, SymbolTable))
-testFlowWith stmt table =
-  runExceptT (runStateT (runFlowT (evalStmt stmt False)) table)
+testFlowWith = runStmtEval
 
 testFlow :: Stmt -> IO (Either Error (Flow Val Val, SymbolTable))
 testFlow stmt = testFlowWith stmt empty

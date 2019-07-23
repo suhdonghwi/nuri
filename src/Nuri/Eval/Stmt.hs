@@ -52,3 +52,13 @@ evalStmt (FuncDecl pos funcName args body) _ = do
       then throwError $ BoundSymbol pos symbol
       else do
         modify $ insert symbol val
+
+runStmtEval
+  :: Stmt -> SymbolTable -> IO (Either Error (Flow Val Val, SymbolTable))
+runStmtEval stmt table =
+  runExceptT (runStateT (runFlowT (evalStmt stmt False)) table)
+
+runStmtsEval
+  :: [Stmt] -> SymbolTable -> IO (Either Error (Flow Val Val, SymbolTable))
+runStmtsEval stmt table =
+  runExceptT (runStateT (runFlowT (evalStmts stmt False)) table)

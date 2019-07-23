@@ -4,7 +4,7 @@ import           Control.Monad.Except
 import           Control.Monad.State
 
 import           Data.Map
-import           Data.Text
+import           Data.Text                     as Text
 
 import           Nuri.Eval.Error
 
@@ -30,6 +30,6 @@ getTypeName (FuncVal    _) = "함수"
 getTypeName Undefined      = "정의되지 않음"
 
 printVal :: Val -> Text
-printVal (IntegerVal v) = show v
-printVal (FuncVal    v) = "(함수)"
+printVal (IntegerVal v) = pack $ show v
+printVal (FuncVal    _) = "(함수)"
 printVal Undefined      = "(정의되지 않음)"

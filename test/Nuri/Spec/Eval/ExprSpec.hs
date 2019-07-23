@@ -2,8 +2,6 @@ module Nuri.Spec.Eval.ExprSpec where
 
 import           Test.Hspec
 
-import           Control.Monad.State.Lazy
-import           Control.Monad.Except
 import           Data.Map
 
 import           Nuri.Eval.Expr
@@ -15,10 +13,10 @@ import           Nuri.Spec.Util
 import           Nuri.Spec.Eval.Util
 
 testEvalWith :: Expr -> SymbolTable -> IO (Either Error (Val, SymbolTable))
-testEvalWith expr table = runExceptT (runStateT (evalExpr expr) table)
+testEvalWith = runEval
 
 testEval :: Expr -> IO (Either Error (Val, SymbolTable))
-testEval expr = testEvalWith expr empty
+testEval expr = runEval expr empty
 
 spec :: Spec
 spec = do
