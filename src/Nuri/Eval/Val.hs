@@ -9,7 +9,7 @@ import           Data.Text
 import           Nuri.Eval.Error
 
 type SymbolTable = Map Text Val
-type Eval = StateT SymbolTable (Except Error)
+type Eval = StateT SymbolTable (ExceptT Error IO)
 
 data Val = IntegerVal Integer
          | FuncVal ([Val] -> Eval Val)

@@ -15,11 +15,12 @@ import           Nuri.Eval.Val
 import           Nuri.Eval.Flow
 import           Nuri.Eval.Error
 
-testFlowWith :: Stmt -> SymbolTable -> Either Error (Flow Val Val, SymbolTable)
+testFlowWith
+  :: Stmt -> SymbolTable -> IO (Either Error (Flow Val Val, SymbolTable))
 testFlowWith stmt table =
-  runExcept (runStateT (runFlowT (evalStmt stmt False)) table)
+  runExceptT (runStateT (runFlowT (evalStmt stmt False)) table)
 
-testFlow :: Stmt -> Either Error (Flow Val Val, SymbolTable)
+testFlow :: Stmt -> IO (Either Error (Flow Val Val, SymbolTable))
 testFlow stmt = testFlowWith stmt empty
 
 spec :: Spec

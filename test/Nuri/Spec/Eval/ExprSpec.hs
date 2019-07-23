@@ -14,10 +14,10 @@ import           Nuri.Eval.Val
 import           Nuri.Spec.Util
 import           Nuri.Spec.Eval.Util
 
-testEvalWith :: Expr -> SymbolTable -> Either Error (Val, SymbolTable)
-testEvalWith expr table = runExcept (runStateT (evalExpr expr) table)
+testEvalWith :: Expr -> SymbolTable -> IO (Either Error (Val, SymbolTable))
+testEvalWith expr table = runExceptT (runStateT (evalExpr expr) table)
 
-testEval :: Expr -> Either Error (Val, SymbolTable)
+testEval :: Expr -> IO (Either Error (Val, SymbolTable))
 testEval expr = testEvalWith expr empty
 
 spec :: Spec

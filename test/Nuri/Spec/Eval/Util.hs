@@ -49,11 +49,14 @@ incorrectArgsNum = IncorrectArgsNum initPos
 
 shouldEval
   :: (Eq a, Show a)
-  => Either Error (a, SymbolTable)
+  => IO (Either Error (a, SymbolTable))
   -> (a, SymbolTable)
   -> Expectation
-shouldEval actual expected = shouldBe actual (Right expected)
+shouldEval actual expected = shouldReturn actual (Right expected)
 
 shouldEvalError
-  :: (Eq a, Show a) => Either Error (a, SymbolTable) -> Error -> Expectation
-shouldEvalError actual expectedError = shouldBe actual (Left expectedError)
+  :: (Eq a, Show a)
+  => IO (Either Error (a, SymbolTable))
+  -> Error
+  -> Expectation
+shouldEvalError actual expectedError = shouldReturn actual (Left expectedError)
