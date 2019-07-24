@@ -28,7 +28,7 @@ intrinsicTable = fromList
       (initialPos "내장")
       1
       (\[x] -> do
-        lift $ lift $ putStrLn (printVal x)
+        lift $ lift $ TextIO.putStrLn (printVal x)
         return $ Normal Undefined
       )
     )

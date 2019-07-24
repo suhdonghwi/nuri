@@ -40,6 +40,7 @@ evalExpr (BinaryOp pos op lhs rhs) = do
   lhsVal <- evalExpr lhs
   rhsVal <- evalExpr rhs
   operateBinary pos op lhsVal rhsVal
+
 evalExpr (UnaryOp pos op expr) = do
   val <- evalExpr expr
   operateUnary pos op val
@@ -55,6 +56,16 @@ operateBinary _ Asterisk (IntegerVal v1) (IntegerVal v2) =
 operateBinary pos Slash (IntegerVal v1) (IntegerVal v2) = if v2 == 0
   then throwError $ DivideByZero pos
   else return $ IntegerVal (v1 `div` v2)
+operateBinary _ Plus (RealVal v1) (RealVal v2) = return $ RealVal (v1 + v2)
+operateBinary _ Minus (RealVal v1) (RealVal v2) = return $ RealVal (v1 - v2)
+operateBinary _ Asterisk (RealVal v1) (RealVal v2) = return $ RealVal (v1 * v2)
+operateBinary pos Slash (RealVal v1) (RealVal v2) = if v2 == 0
+  then throwError $ DivideByZero pos
+  else return $ RealVal (v1 / v2)
+operateBinary pos op v@(RealVal _) (IntegerVal i) =
+  operateBinary pos op v (RealVal $ fromIntegral i)
+operateBinary pos op (IntegerVal i) v@(RealVal _) =
+  operateBinary pos op v (RealVal $ fromIntegral i)
 operateBinary pos _ lhs rhs =
   throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
 

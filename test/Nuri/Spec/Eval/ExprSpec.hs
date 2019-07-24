@@ -39,18 +39,30 @@ spec = do
     it "정수 두 개 더하기" $ do
       testEval (binaryOp Plus (litInteger 10) (litInteger 5))
         `shouldEval` (IntegerVal 15, empty)
+    it "실수 두 개 더하기" $ do
+      testEval (binaryOp Plus (litReal 10.5) (litReal 4.5))
+        `shouldEval` (RealVal 15.0, empty)
     it "정수 두 개 곱하기" $ do
       testEval (binaryOp Asterisk (litInteger 10) (litInteger 5))
         `shouldEval` (IntegerVal 50, empty)
+    it "실수 두 개 곱하기" $ do
+      testEval (binaryOp Asterisk (litReal 10.0) (litReal 4.0))
+        `shouldEval` (RealVal 40.0, empty)
     it "정수 두 개 나누기" $ do
       testEval (binaryOp Slash (litInteger 10) (litInteger 5))
         `shouldEval` (IntegerVal 2, empty)
+    it "실수 두 개 나누기" $ do
+      testEval (binaryOp Slash (litReal 5.0) (litReal 2.0))
+        `shouldEval` (RealVal 2.5, empty)
     it "0으로 나눌 시 DivideByZero 에러" $ do
       testEval (binaryOp Slash (litInteger 10) (litInteger 0))
         `shouldEvalError` divideByZero
-    it "정수형 변수와 정수 리터럴 더하기" $ do
-      testEvalWith (binaryOp Plus (var "나이") (litInteger 5)) sampleTable
-        `shouldEval` (IntegerVal 22, sampleTable)
+    it "0으로 나눌 시 DivideByZero 에러 (실수)" $ do
+      testEval (binaryOp Slash (litReal 10.0) (litReal 0.0))
+        `shouldEvalError` divideByZero
+    it "정수와 실수 더하기" $ do
+      testEval (binaryOp Plus (litInteger 10) (litReal 4.5))
+        `shouldEval` (RealVal 14.5, empty)
     it "정수와 함수 더했을 시 타입 에러" $ do
       testEvalWith (binaryOp Plus (litInteger 10) (var "십")) sampleTable
         `shouldEvalError` operateTypeError ["정수", "함수"]

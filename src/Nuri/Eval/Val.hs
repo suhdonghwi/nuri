@@ -18,11 +18,14 @@ data Val = IntegerVal Integer
 
 instance Eq Val where
   IntegerVal v1 == IntegerVal v2 = v1 == v2
-  _             == _             = True
+  RealVal    v1 == RealVal    v2 = v1 == v2
+  FuncVal    _  == FuncVal    _  = True
+  Undefined     == Undefined     = True
+  _             == _             = False
 
 instance Show Val where
   show (IntegerVal v) = "(IntegerVal " ++ show v ++ ")"
-  show (RealVal    v) = "(IntegerVal " ++ show v ++ ")"
+  show (RealVal    v) = "(RealVal " ++ show v ++ ")"
   show (FuncVal    _) = "(FuncVal (func))"
   show Undefined      = "(Undefined)"
 
