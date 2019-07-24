@@ -63,6 +63,9 @@ spec = do
     it "정수와 실수 더하기" $ do
       testEval (binaryOp Plus (litInteger 10) (litReal 4.5))
         `shouldEval` (RealVal 14.5, empty)
+    it "정수와 실수 더하기" $ do
+      testEval (binaryOp Slash (litInteger 10) (litReal 2.0))
+        `shouldEval` (RealVal 5.0, empty)
     it "정수와 함수 더했을 시 타입 에러" $ do
       testEvalWith (binaryOp Plus (litInteger 10) (var "십")) sampleTable
         `shouldEvalError` operateTypeError ["정수", "함수"]

@@ -65,7 +65,7 @@ operateBinary pos Slash (RealVal v1) (RealVal v2) = if v2 == 0
 operateBinary pos op v@(RealVal _) (IntegerVal i) =
   operateBinary pos op v (RealVal $ fromIntegral i)
 operateBinary pos op (IntegerVal i) v@(RealVal _) =
-  operateBinary pos op v (RealVal $ fromIntegral i)
+  operateBinary pos op (RealVal $ fromIntegral i) v
 operateBinary pos _ lhs rhs =
   throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
 
