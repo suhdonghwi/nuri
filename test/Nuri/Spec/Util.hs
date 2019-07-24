@@ -14,7 +14,10 @@ newPos :: Int -> Int -> SourcePos
 newPos p1 p2 = SourcePos "(test)" (mkPos p1) (mkPos p2)
 
 litInteger :: Integer -> Expr
-litInteger i = Lit initPos (LitInteger i)
+litInteger v = Lit initPos (LitInteger v)
+
+litReal :: Double -> Expr
+litReal v = Lit initPos (LitReal v)
 
 binaryOp :: Op -> Expr -> Expr -> Expr
 binaryOp = BinaryOp initPos

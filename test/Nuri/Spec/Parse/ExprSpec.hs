@@ -14,35 +14,45 @@ spec = do
   describe "정수 파싱" $ do
     describe "2진수 파싱" $ do
       it "0b1010을 10으로 파싱" $ do
-        testParse integer "0b1010" `shouldParse` litInteger 10
+        testParse integerExpr "0b1010" `shouldParse` litInteger 10
       it "0B1010을 10으로 파싱" $ do
-        testParse integer "0B1010" `shouldParse` litInteger 10
+        testParse integerExpr "0B1010" `shouldParse` litInteger 10
       it "0b0000을 0으로 파싱" $ do
-        testParse integer "0b0000" `shouldParse` litInteger 0
+        testParse integerExpr "0b0000" `shouldParse` litInteger 0
 
     describe "8진수 파싱" $ do
       it "012을 10으로 파싱" $ do
-        testParse integer "012" `shouldParse` litInteger 10
+        testParse integerExpr "012" `shouldParse` litInteger 10
       it "000을 0으로 파싱" $ do
-        testParse integer "000" `shouldParse` litInteger 0
+        testParse integerExpr "000" `shouldParse` litInteger 0
 
     describe "10진수 파싱" $ do
       it "10을 10으로 파싱" $ do
-        testParse integer "10" `shouldParse` litInteger 10
+        testParse integerExpr "10" `shouldParse` litInteger 10
       it "0을 0으로 파싱" $ do
-        testParse integer "0" `shouldParse` litInteger 0
+        testParse integerExpr "0" `shouldParse` litInteger 0
 
     describe "16진수 파싱" $ do
       it "0x000A를 10으로 파싱" $ do
-        testParse integer "0x000A" `shouldParse` litInteger 10
+        testParse integerExpr "0x000A" `shouldParse` litInteger 10
       it "0x0010을 16으로 파싱" $ do
-        testParse integer "0x0010" `shouldParse` litInteger 16
+        testParse integerExpr "0x0010" `shouldParse` litInteger 16
       it "0xffFF를 65535으로 파싱" $ do
-        testParse integer "0xffFF" `shouldParse` litInteger 65535
+        testParse integerExpr "0xffFF" `shouldParse` litInteger 65535
       it "0XffFF를 65535으로 파싱" $ do
-        testParse integer "0XffFF" `shouldParse` litInteger 65535
+        testParse integerExpr "0XffFF" `shouldParse` litInteger 65535
       it "0x0000을 0으로 파싱" $ do
-        testParse integer "0x0000" `shouldParse` litInteger 0
+        testParse integerExpr "0x0000" `shouldParse` litInteger 0
+
+  describe "실수 파싱" $ do
+    it "0.1을 0.1로 파싱" $ do
+      testParse real "0.1" `shouldParse` 0.1
+    it "0.01을 0.01로 파싱" $ do
+      testParse real "0.01" `shouldParse` 0.01
+    it "10.0을 10.0으로 파싱" $ do
+      testParse real "10.0" `shouldParse` 10.0
+    it "0을 0.0으로 파싱" $ do
+      testParse real "0.0" `shouldParse` 0.0
 
   describe "사칙연산식 파싱" $ do
     describe "단항 연산자" $ do
@@ -54,10 +64,20 @@ spec = do
         testParse arithmetic "-2" `shouldParse` unaryOp Minus (litInteger 2)
       it "(떨어져 있는) 음의 부호 정수" $ do
         testParse arithmetic "- 2" `shouldParse` unaryOp Minus (litInteger 2)
+      it "양의 부호 실수" $ do
+        testParse arithmetic "+2.5" `shouldParse` unaryOp Plus (litReal 2.5)
+      it "음의 부호 실수" $ do
+        testParse arithmetic "-2.5" `shouldParse` unaryOp Minus (litReal 2.5)
     describe "이항 연산자" $ do
       it "두 정수 더하기" $ do
         testParse arithmetic "1 + 2"
           `shouldParse` binaryOp Plus (litInteger 1) (litInteger 2)
+      it "두 실수 더하기" $ do
+        testParse arithmetic "1.0 + 2.5"
+          `shouldParse` binaryOp Plus (litReal 1.0) (litReal 2.5)
+      it "실수와 정수 더하기" $ do
+        testParse arithmetic "1.0 + 2"
+          `shouldParse` binaryOp Plus (litReal 1.0) (litInteger 2)
       it "(붙어있는) 두 정수 더하기" $ do
         testParse arithmetic "1+2"
           `shouldParse` binaryOp Plus (litInteger 1) (litInteger 2)

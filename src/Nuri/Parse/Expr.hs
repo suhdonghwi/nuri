@@ -50,7 +50,8 @@ funcIdentifier =
   lexeme $ pack <$> (notFollowedBy returnKeyword >> some hangulSyllable)
 
 term :: Parser Expr
-term = integer <|> try assignment <|> identifierExpr <|> parens
+term =
+  try realExpr <|> integerExpr <|> try assignment <|> identifierExpr <|> parens
 
 parens :: Parser Expr
 parens = between (symbol "(") (symbol ")") expr
@@ -75,12 +76,15 @@ identifier =
         )
   where allowedChars = hangulSyllable <|> hangulJamo <|> letterChar
 
-integer :: Parser Expr
-integer = lexeme $ do
+integerExpr :: Parser Expr
+integerExpr = lexeme $ do
   pos <- getSourcePos
   val <- zeroNumber <|> decimal
   return $ Lit pos (LitInteger val)
   where zeroNumber = char '0' >> hexadecimal <|> octal <|> binary <|> return 0
+
+realExpr :: Parser Expr
+realExpr = Lit <$> getSourcePos <*> (LitReal <$> real)
 
 binary :: Parser Integer
 binary = char' 'b' >> L.binary
@@ -93,3 +97,6 @@ decimal = L.decimal
 
 hexadecimal :: Parser Integer
 hexadecimal = char' 'x' >> L.hexadecimal
+
+real :: Parser Double
+real = lexeme L.float

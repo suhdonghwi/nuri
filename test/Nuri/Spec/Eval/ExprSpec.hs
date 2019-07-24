@@ -24,6 +24,9 @@ spec = do
     describe "정수 리터럴 평가" $ do
       it "LitInteger 10을 IntegerVal 10으로 평가" $ do
         testEval (litInteger 10) `shouldEval` (IntegerVal 10, empty)
+    describe "실수 리터럴 평가" $ do
+      it "LitReal 10을 RealVal 10으로 평가" $ do
+        testEval (litReal 10) `shouldEval` (RealVal 10, empty)
 
   describe "변수 식별자 평가" $ do
     it "심볼 테이블에서 식별자 값 가져오기" $ do
