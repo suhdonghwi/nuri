@@ -103,3 +103,6 @@ hexadecimal = char' 'x' >> L.hexadecimal
 
 real :: Parser Double
 real = lexeme L.float
+
+bool :: Parser Bool
+bool = (True <$ symbol "참") <|> (False <$ symbol "거짓")

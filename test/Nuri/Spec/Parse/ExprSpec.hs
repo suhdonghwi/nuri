@@ -54,6 +54,12 @@ spec = do
     it "0을 0.0으로 파싱" $ do
       testParse real "0.0" `shouldParse` 0.0
 
+  describe "부울 파싱" $ do
+    it "참을 True로 파싱" $ do
+      testParse bool "참" `shouldParse` True
+    it "거짓을 False로 파싱" $ do
+      testParse bool "거짓" `shouldParse` False
+
   describe "사칙연산식 파싱" $ do
     describe "단항 연산자" $ do
       it "양의 부호 정수" $ do
