@@ -56,16 +56,27 @@ operateBinary _ Asterisk (IntegerVal v1) (IntegerVal v2) =
 operateBinary pos Slash (IntegerVal v1) (IntegerVal v2) = if v2 == 0
   then throwError $ DivideByZero pos
   else return $ IntegerVal (v1 `div` v2)
+operateBinary pos Percent (IntegerVal v1) (IntegerVal v2) = if v2 == 0
+  then throwError $ DivideByZero pos
+  else return $ IntegerVal (v1 `mod` v2)
 operateBinary _ Plus (RealVal v1) (RealVal v2) = return $ RealVal (v1 + v2)
 operateBinary _ Minus (RealVal v1) (RealVal v2) = return $ RealVal (v1 - v2)
 operateBinary _ Asterisk (RealVal v1) (RealVal v2) = return $ RealVal (v1 * v2)
 operateBinary pos Slash (RealVal v1) (RealVal v2) = if v2 == 0
   then throwError $ DivideByZero pos
   else return $ RealVal (v1 / v2)
-operateBinary pos op v@(RealVal _) (IntegerVal i) =
-  operateBinary pos op v (RealVal $ fromIntegral i)
-operateBinary pos op (IntegerVal i) v@(RealVal _) =
-  operateBinary pos op (RealVal $ fromIntegral i) v
+operateBinary pos op lhs@(RealVal _) rhs@(IntegerVal v2) =
+  operateBinary pos op lhs (RealVal $ fromIntegral v2) `catchError` \e ->
+    case e of
+      OperateTypeError _ _ ->
+        throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
+      other -> throwError other
+operateBinary pos op lhs@(IntegerVal v1) rhs@(RealVal _) =
+  operateBinary pos op (RealVal $ fromIntegral v1) rhs `catchError` \e ->
+    case e of
+      OperateTypeError _ _ ->
+        throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
+      other -> throwError other
 operateBinary pos _ lhs rhs =
   throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
 

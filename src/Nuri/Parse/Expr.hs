@@ -21,7 +21,10 @@ arithmetic = makeExprParser (try nestedFuncCalls <|> term) table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
-    , [InfixL $ binaryOp "*" Asterisk, InfixL $ binaryOp "/" Slash]
+    , [ InfixL $ binaryOp "*" Asterisk
+      , InfixL $ binaryOp "/" Slash
+      , InfixL $ binaryOp "%" Percent
+      ]
     , [InfixL $ binaryOp "+" Plus, InfixL $ binaryOp "-" Minus]
     ]
   binaryOp opStr op = do

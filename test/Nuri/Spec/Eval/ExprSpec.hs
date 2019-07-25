@@ -54,8 +54,20 @@ spec = do
     it "실수 두 개 나누기" $ do
       testEval (binaryOp Slash (litReal 5.0) (litReal 2.0))
         `shouldEval` (RealVal 2.5, empty)
+    it "정수 두 개 나머지" $ do
+      testEval (binaryOp Percent (litInteger 10) (litInteger 4))
+        `shouldEval` (IntegerVal 2, empty)
+    it "실수 두 개 나머지 구할 시 타입 에러" $ do
+      testEval (binaryOp Percent (litReal 5.0) (litReal 2.0))
+        `shouldEvalError` operateTypeError ["실수", "실수"]
+    it "정수와 실수 나머지 구할 시 타입 에러" $ do
+      testEval (binaryOp Percent (litInteger 5) (litReal 2.0))
+        `shouldEvalError` operateTypeError ["정수", "실수"]
     it "0으로 나눌 시 DivideByZero 에러" $ do
       testEval (binaryOp Slash (litInteger 10) (litInteger 0))
+        `shouldEvalError` divideByZero
+    it "0으로 나머지 구할 시 DivideByZero 에러" $ do
+      testEval (binaryOp Percent (litInteger 10) (litInteger 0))
         `shouldEvalError` divideByZero
     it "0으로 나눌 시 DivideByZero 에러 (실수)" $ do
       testEval (binaryOp Slash (litReal 10.0) (litReal 0.0))
