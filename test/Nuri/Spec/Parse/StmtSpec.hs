@@ -35,6 +35,11 @@ spec = do
                                [Return (binaryOp Plus (var "값1") (var "값2"))]
     it "함수의 본문이 없으면 에러" $ do
       testParse functionDecl `shouldFailOn` "[값] 증가하다:"
+    it "함수의 이름이 예약어면 에러" $ do
+      testParse functionDecl `shouldFailOn` "[값] 거짓:\n  1 반환하다"
+    it "예약어로 시작하는 이름의 함수" $ do
+      testParse functionDecl "[값] 거짓하다:\n  1 반환하다"
+        `shouldParse` funcDecl "거짓하다" ["값"] [Return (litInteger 1)]
 
   describe "구문 파싱" $ do
     it "표현식 구문 파싱" $ do

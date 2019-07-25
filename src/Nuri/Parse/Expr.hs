@@ -49,12 +49,19 @@ funcCall = do
   return $ App pos (Var pos func) args
 
 funcIdentifier :: Parser Text
-funcIdentifier =
-  lexeme $ pack <$> (notFollowedBy returnKeyword >> some hangulSyllable)
+funcIdentifier = lexeme $ do
+  ident <- pack <$> some hangulSyllable
+  if ident `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return ident
+  where keywords = ["반환하다", "돌려주다", "참", "거짓"]
 
 term :: Parser Expr
 term =
-  try realExpr <|> integerExpr <|> try assignment <|> identifierExpr <|> parens
+  try realExpr
+    <|> integerExpr
+    <|> boolExpr
+    <|> try assignment
+    <|> identifierExpr
+    <|> parens
 
 parens :: Parser Expr
 parens = between (symbol "(") (symbol ")") expr
@@ -88,6 +95,9 @@ integerExpr = lexeme $ do
 
 realExpr :: Parser Expr
 realExpr = Lit <$> getSourcePos <*> (LitReal <$> real)
+
+boolExpr :: Parser Expr
+boolExpr = Lit <$> getSourcePos <*> (LitBool <$> bool)
 
 binary :: Parser Integer
 binary = char' 'b' >> L.binary
