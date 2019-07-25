@@ -19,6 +19,9 @@ litInteger v = Lit initPos (LitInteger v)
 litReal :: Double -> Expr
 litReal v = Lit initPos (LitReal v)
 
+litBool :: Bool -> Expr
+litBool v = Lit initPos (LitBool v)
+
 binaryOp :: Op -> Expr -> Expr -> Expr
 binaryOp = BinaryOp initPos
 

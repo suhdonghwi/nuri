@@ -8,11 +8,13 @@ import           Nuri.ASTNode
 
 data Literal = LitInteger Integer
              | LitReal Double
+             | LitBool Bool
     deriving(Eq)
 
 instance Show Literal where
   show (LitInteger v) = "(LitInteger " ++ show v ++ ")"
   show (LitReal    v) = "(LitReal " ++ show v ++ ")"
+  show (LitBool    v) = "(LitBool " ++ show v ++ ")"
 
 data Expr = Lit SourcePos Literal
           | Var SourcePos Text
