@@ -96,28 +96,22 @@ spec = do
       it "두 정수 빼기" $ do
         testParse arithmetic "2 - 4"
           `shouldParse` binaryOp Minus (litInteger 2) (litInteger 4)
-      it "(붙어있는) 두 정수 빼기" $ do
-        testParse arithmetic "2-4"
-          `shouldParse` binaryOp Minus (litInteger 2) (litInteger 4)
-      it "(부호있는) 두 정수 빼기" $ do
-        testParse arithmetic "1--2"
-          `shouldParse` binaryOp
-                          Minus
-                          (litInteger 1)
-                          (unaryOp Minus (litInteger 2))
       it "두 정수 곱하기" $ do
         testParse arithmetic "2 * 4"
           `shouldParse` binaryOp Asterisk (litInteger 2) (litInteger 4)
       it "두 정수 나누기" $ do
         testParse arithmetic "8 / 2"
           `shouldParse` binaryOp Slash (litInteger 8) (litInteger 2)
+      it "두 정수 동일 비교" $ do
+        testParse arithmetic "8 = 2"
+          `shouldParse` binaryOp Equal (litInteger 8) (litInteger 2)
     describe "복합 연산" $ do
-      it "두 정수 더하고 한 정수로 나누기" $ do
+      it "두 정수 나누고 한 정수 더하기" $ do
         testParse arithmetic "4 / 2 + 3" `shouldParse` binaryOp
           Plus
           (binaryOp Slash (litInteger 4) (litInteger 2))
           (litInteger 3)
-      it "두 정수 더하고 한 정수로 나누기 (순서 바꿔서)" $ do
+      it "두 정수 나누고 한 정수 더하기 (순서 바꿔서)" $ do
         testParse arithmetic "3 + 4 / 2" `shouldParse` binaryOp
           Plus
           (litInteger 3)
@@ -152,6 +146,8 @@ spec = do
       testParse funcIdentifier "더하고" `shouldParse` "더하고"
     it "반환 키워드에 대해서 오류" $ do
       testParse funcIdentifier `shouldFailOn` "반환하다"
+    it "부울 키워드에 대해서 오류" $ do
+      testParse funcIdentifier `shouldFailOn` "참"
 
   describe "함수 호출식 파싱" $ do
     it "인자가 2개인 함수 호출식" $ do
