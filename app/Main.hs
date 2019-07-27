@@ -15,4 +15,5 @@ main = do
     else do
       let filePath = head args
       content <- readFile filePath
-      runRepl (evalInput (T.pack content)) (ReplState ">> " Map.empty filePath)
+      runRepl (evalInput (T.pack content))
+              (ReplState ">> " intrinsicTable filePath)

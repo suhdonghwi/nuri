@@ -7,6 +7,7 @@ import           Data.Map
 import           Data.Text                     as Text
 
 import           Nuri.Eval.Error
+import           Nuri.Eval.ValType
 
 type SymbolTable = Map Text Val
 type Eval = StateT SymbolTable (ExceptT Error IO)
@@ -32,12 +33,12 @@ instance Show Val where
   show (FuncVal    _) = "(FuncVal (func))"
   show Undefined      = "(Undefined)"
 
-getTypeName :: Val -> Text
-getTypeName (IntegerVal _) = "정수"
-getTypeName (RealVal    _) = "실수"
-getTypeName (BoolVal    _) = "부울"
-getTypeName (FuncVal    _) = "함수"
-getTypeName Undefined      = "정의되지 않음"
+getTypeName :: Val -> ValType
+getTypeName (IntegerVal _) = IntegerType
+getTypeName (RealVal    _) = RealType
+getTypeName (BoolVal    _) = BoolType
+getTypeName (FuncVal    _) = FuncType
+getTypeName Undefined      = UndefinedType
 
 printVal :: Val -> Text
 printVal (IntegerVal v) = pack $ show v

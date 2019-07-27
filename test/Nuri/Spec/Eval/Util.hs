@@ -12,6 +12,7 @@ import           Nuri.Expr
 import           Nuri.Eval.Error
 import           Nuri.Eval.Val
 import           Nuri.Eval.Stmt
+import           Nuri.Eval.ValType
 
 sampleTable :: SymbolTable
 sampleTable = fromList
@@ -34,13 +35,13 @@ unboundSymbol = UnboundSymbol initPos
 boundSymbol :: Text -> Error
 boundSymbol = BoundSymbol initPos
 
-operateTypeError :: [Text] -> Error
+operateTypeError :: [ValType] -> Error
 operateTypeError = OperateTypeError initPos
 
 divideByZero :: Error
 divideByZero = DivideByZero initPos
 
-notCallable :: Text -> Error
+notCallable :: ValType -> Error
 notCallable = NotCallable initPos
 
 notInFunction :: Error

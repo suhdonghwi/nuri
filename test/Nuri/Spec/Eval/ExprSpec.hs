@@ -8,6 +8,7 @@ import           Nuri.Eval.Expr
 import           Nuri.Eval.Error
 import           Nuri.Expr
 import           Nuri.Eval.Val
+import           Nuri.Eval.ValType
 
 import           Nuri.Spec.Util
 import           Nuri.Spec.Eval.Util
@@ -62,10 +63,10 @@ spec = do
         `shouldEval` (IntegerVal 2, empty)
     it "실수 두 개 나머지 구할 시 타입 에러" $ do
       testEval (binaryOp Percent (litReal 5.0) (litReal 2.0))
-        `shouldEvalError` operateTypeError ["실수", "실수"]
+        `shouldEvalError` operateTypeError [RealType, RealType]
     it "정수와 실수 나머지 구할 시 타입 에러" $ do
       testEval (binaryOp Percent (litInteger 5) (litReal 2.0))
-        `shouldEvalError` operateTypeError ["정수", "실수"]
+        `shouldEvalError` operateTypeError [IntegerType, RealType]
     it "0으로 나눌 시 DivideByZero 에러" $ do
       testEval (binaryOp Slash (litInteger 10) (litInteger 0))
         `shouldEvalError` divideByZero
@@ -83,7 +84,7 @@ spec = do
         `shouldEval` (RealVal 5.0, empty)
     it "정수와 함수 더했을 시 타입 에러" $ do
       testEvalWith (binaryOp Plus (litInteger 10) (var "십")) sampleTable
-        `shouldEvalError` operateTypeError ["정수", "함수"]
+        `shouldEvalError` operateTypeError [IntegerType, FuncType]
 
   describe "단항 연산자 평가" $ do
     it "정수에 양수 단항 연산자" $ do
@@ -94,7 +95,7 @@ spec = do
         `shouldEval` (IntegerVal (-10), empty)
     it "함수에 양수 단항 연산자 적용 시 타입 에러" $ do
       testEvalWith (unaryOp Minus (var "십")) sampleTable
-        `shouldEvalError` operateTypeError ["함수"]
+        `shouldEvalError` operateTypeError [FuncType]
 
   describe "함수 호출 평가" $ do
     it "인자 없는 함수 호출" $ do
@@ -108,7 +109,7 @@ spec = do
         `shouldEvalError` incorrectArgsNum 1 2
     it "호출할 수 없는 대상에 대해 에러" $ do
       testEvalWith (app (var "나이") []) sampleTable
-        `shouldEvalError` notCallable "정수"
+        `shouldEvalError` notCallable IntegerType
 
   describe "대입식 평가" $ do
     it "단순 정수 대입" $ do

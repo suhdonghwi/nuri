@@ -43,10 +43,9 @@ evalInput input = do
     Right result -> do
       evalResult <- lift $ runStmtsEval result (table st)
       case evalResult of
-        Left  evalErr     -> lift $ putStrLn (show evalErr)
-        Right finalResult -> do
-          lift $ putStrLn (show finalResult)
-          put $ ReplState (prompt st) (snd finalResult) (fileName st)
+        Left  evalErr       -> lift $ putStrLn (show evalErr)
+        Right (_, newTable) -> do
+          put $ ReplState (prompt st) newTable (fileName st)
 
 repl :: Repl
 repl = do
