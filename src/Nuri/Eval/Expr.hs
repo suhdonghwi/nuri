@@ -23,7 +23,6 @@ evalExpr (Var pos ident         ) = do
   case lookup ident table of
     Just val -> return val
     Nothing  -> throwError $ UnboundSymbol pos ident
-
 evalExpr (App pos func args) = do
   funcResult <- evalExpr func
   case funcResult of
@@ -31,55 +30,62 @@ evalExpr (App pos func args) = do
       argsVal <- sequence $ fmap evalExpr args
       funcVal argsVal
     val -> throwError $ NotCallable pos (getTypeName val)
-
 evalExpr (Assign _ ident expr) = do
   val <- evalExpr expr
   modify $ insert ident val
   return val
-
 evalExpr (BinaryOp pos op lhs rhs) = do
   lhsVal <- evalExpr lhs
   rhsVal <- evalExpr rhs
   operateBinary pos op lhsVal rhsVal
-
 evalExpr (UnaryOp pos op expr) = do
   val <- evalExpr expr
   operateUnary pos op val
 
+normalize :: Val -> Val -> Maybe (Val, Val)
+normalize (RealVal v1) (RealVal v2) = Just (RealVal v1, RealVal v2)
+normalize (RealVal v1) (IntegerVal v2) =
+  Just (RealVal v1, RealVal (fromIntegral v2))
+normalize (IntegerVal v1) (RealVal v2) =
+  Just (RealVal (fromIntegral v1), RealVal v2)
+normalize (IntegerVal v1) (IntegerVal v2) = Just (IntegerVal v1, IntegerVal v2)
+normalize (BoolVal    v1) (BoolVal    v2) = Just (BoolVal v1, BoolVal v2)
+normalize _               _               = Nothing
 
 operateBinary :: SourcePos -> Op -> Val -> Val -> Eval Val
 operateBinary _ Plus (IntegerVal v1) (IntegerVal v2) =
   return $ IntegerVal (v1 + v2)
+operateBinary _ Plus (RealVal v1) (RealVal v2) = return $ RealVal (v1 + v2)
+
 operateBinary _ Minus (IntegerVal v1) (IntegerVal v2) =
   return $ IntegerVal (v1 - v2)
+operateBinary _ Minus (RealVal v1) (RealVal v2) = return $ RealVal (v1 - v2)
+
 operateBinary _ Asterisk (IntegerVal v1) (IntegerVal v2) =
   return $ IntegerVal (v1 * v2)
+operateBinary _ Asterisk (RealVal v1) (RealVal v2) = return $ RealVal (v1 * v2)
+
 operateBinary pos Slash (IntegerVal v1) (IntegerVal v2) = if v2 == 0
   then throwError $ DivideByZero pos
   else return $ IntegerVal (v1 `div` v2)
-operateBinary pos Percent (IntegerVal v1) (IntegerVal v2) = if v2 == 0
-  then throwError $ DivideByZero pos
-  else return $ IntegerVal (v1 `mod` v2)
-operateBinary _ Plus (RealVal v1) (RealVal v2) = return $ RealVal (v1 + v2)
-operateBinary _ Minus (RealVal v1) (RealVal v2) = return $ RealVal (v1 - v2)
-operateBinary _ Asterisk (RealVal v1) (RealVal v2) = return $ RealVal (v1 * v2)
 operateBinary pos Slash (RealVal v1) (RealVal v2) = if v2 == 0
   then throwError $ DivideByZero pos
   else return $ RealVal (v1 / v2)
-operateBinary pos op lhs@(RealVal _) rhs@(IntegerVal v2) =
-  operateBinary pos op lhs (RealVal $ fromIntegral v2) `catchError` \e ->
-    case e of
-      OperateTypeError _ _ ->
-        throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
-      other -> throwError other
-operateBinary pos op lhs@(IntegerVal v1) rhs@(RealVal _) =
-  operateBinary pos op (RealVal $ fromIntegral v1) rhs `catchError` \e ->
-    case e of
-      OperateTypeError _ _ ->
-        throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
-      other -> throwError other
-operateBinary pos _ lhs rhs =
+
+operateBinary pos Percent (IntegerVal v1) (IntegerVal v2) = if v2 == 0
+  then throwError $ DivideByZero pos
+  else return $ IntegerVal (v1 `mod` v2)
+operateBinary pos Percent lhs rhs =
   throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
+
+operateBinary pos op lhs rhs = case normalize lhs rhs of
+  Just (lhs', rhs') -> operateBinary pos op lhs' rhs' `catchError` \e ->
+    case e of
+      OperateTypeError _ _ ->
+        throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
+      other -> throwError other
+  Nothing ->
+    throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
 
 operateUnary :: SourcePos -> Op -> Val -> Eval Val
 operateUnary _ Plus v@(IntegerVal _) = return v
