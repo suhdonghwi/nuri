@@ -13,11 +13,11 @@ import           Control.Monad.Combinators.Expr
 import           Nuri.Parse
 import           Nuri.Expr
 
-expr :: Parser Expr
-expr = arithmetic
+parseExpr :: Parser Expr
+parseExpr = parseArithmetic
 
-arithmetic :: Parser Expr
-arithmetic = makeExprParser (try nestedFuncCalls <|> term) table
+parseArithmetic :: Parser Expr
+parseArithmetic = makeExprParser (try parseNestedFuncCalls <|> parseTerm) table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -35,85 +35,88 @@ arithmetic = makeExprParser (try nestedFuncCalls <|> term) table
     pos <- getSourcePos
     UnaryOp pos op <$ L.symbol sc opStr
 
-nestedFuncCalls :: Parser Expr
-nestedFuncCalls = do
-  calls <- some funcCall
+parseNestedFuncCalls :: Parser Expr
+parseNestedFuncCalls = do
+  calls <- some parseFuncCall
   let addArg arg (App pos func args) = App pos func (arg : args)
       addArg _   _                   = undefined
   return $ foldl1' addArg calls
 
-funcCall :: Parser Expr
-funcCall = do
-  args <- many term
+parseFuncCall :: Parser Expr
+parseFuncCall = do
+  args <- many parseTerm
   pos  <- getSourcePos
-  func <- funcIdentifier
+  func <- parseFuncIdentifier
   return $ App pos (Var pos func) args
 
-funcIdentifier :: Parser Text
-funcIdentifier = lexeme $ do
+parseFuncIdentifier :: Parser Text
+parseFuncIdentifier = lexeme $ do
   ident <- pack <$> some hangulSyllable
   if ident `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return ident
-  where keywords = ["반환하다", "돌려주다", "참", "거짓"]
+ where
+  keywords = ["반환하다", "돌려주다", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면"]
 
-term :: Parser Expr
-term =
-  try realExpr
-    <|> integerExpr
-    <|> boolExpr
-    <|> try assignment
-    <|> identifierExpr
-    <|> parens
+parseTerm :: Parser Expr
+parseTerm =
+  try parseRealExpr
+    <|> parseIntegerExpr
+    <|> parseBoolExpr
+    <|> try parseAssignment
+    <|> parseIdentifierExpr
+    <|> parseParens
 
-parens :: Parser Expr
-parens = between (symbol "(") (symbol ")") expr
+parseParens :: Parser Expr
+parseParens = between (symbol "(") (symbol ")") parseExpr
 
-assignment :: Parser Expr
-assignment = do
+parseAssignment :: Parser Expr
+parseAssignment = do
   pos         <- getSourcePos
-  Var _ ident <- identifierExpr
+  Var _ ident <- parseIdentifierExpr
   _           <- symbol ":"
-  val         <- expr
+  val         <- parseExpr
   return $ Assign pos ident val
 
-identifierExpr :: Parser Expr
-identifierExpr =
-  lexeme $ Var <$> getSourcePos <*> (char '[' >> identifier <* char ']')
+parseIdentifierExpr :: Parser Expr
+parseIdentifierExpr =
+  lexeme $ Var <$> getSourcePos <*> (char '[' >> parseIdentifier <* char ']')
 
-identifier :: Parser Text
-identifier =
+parseIdentifier :: Parser Text
+parseIdentifier =
   pack
     <$> ((++) <$> some allowedChars <*> many
           (char ' ' <|> allowedChars <|> digitChar)
         )
   where allowedChars = hangulSyllable <|> hangulJamo <|> letterChar
 
-integerExpr :: Parser Expr
-integerExpr = lexeme $ do
+parseIntegerExpr :: Parser Expr
+parseIntegerExpr = lexeme $ do
   pos <- getSourcePos
-  val <- zeroNumber <|> decimal
+  val <- zeroNumber <|> parseDecimal
   return $ Lit pos (LitInteger val)
-  where zeroNumber = char '0' >> hexadecimal <|> octal <|> binary <|> return 0
+ where
+  zeroNumber =
+    char '0' >> parseHexadecimal <|> parseOctal <|> parseBinary <|> return 0
 
-realExpr :: Parser Expr
-realExpr = Lit <$> getSourcePos <*> (LitReal <$> real)
+parseRealExpr :: Parser Expr
+parseRealExpr = Lit <$> getSourcePos <*> (LitReal <$> parseReal)
 
-boolExpr :: Parser Expr
-boolExpr = Lit <$> getSourcePos <*> (LitBool <$> bool)
+parseBoolExpr :: Parser Expr
+parseBoolExpr = Lit <$> getSourcePos <*> (LitBool <$> parseBool)
 
-binary :: Parser Integer
-binary = char' 'b' >> L.binary
+parseBinary :: Parser Integer
+parseBinary = char' 'b' >> L.binary
 
-octal :: Parser Integer
-octal = L.octal
+parseOctal :: Parser Integer
+parseOctal = L.octal
 
-decimal :: Parser Integer
-decimal = L.decimal
+parseDecimal :: Parser Integer
+parseDecimal = L.decimal
 
-hexadecimal :: Parser Integer
-hexadecimal = char' 'x' >> L.hexadecimal
+parseHexadecimal :: Parser Integer
+parseHexadecimal = char' 'x' >> L.hexadecimal
 
-real :: Parser Double
-real = lexeme L.float
+parseReal :: Parser Double
+parseReal = lexeme L.float
 
-bool :: Parser Bool
-bool = (True <$ symbol "참") <|> (False <$ symbol "거짓")
+parseBool :: Parser Bool
+parseBool = (True <$ symbol "참") <|> (False <$ symbol "거짓")
