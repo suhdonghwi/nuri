@@ -86,8 +86,10 @@ operateBinary pos op lhs rhs = case normalize lhs rhs of
 
 
 operateUnary :: SourcePos -> Op -> Val -> Eval Val
-operateUnary _ Plus v@(IntegerVal _) = return v
-operateUnary _ Minus (IntegerVal v) = return (IntegerVal (-v))
+operateUnary _   Plus  v@(IntegerVal _) = return v
+operateUnary _   Minus (  IntegerVal v) = return (IntegerVal (-v))
+operateUnary _   Plus  v@(RealVal    _) = return v
+operateUnary _   Minus (  RealVal    v) = return (RealVal (-v))
 operateUnary pos _ v = throwError $ OperateTypeError pos [getTypeName v]
 
 runEval :: Expr -> SymbolTable -> IO (Either Error (Val, SymbolTable))

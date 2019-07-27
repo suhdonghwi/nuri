@@ -105,6 +105,11 @@ spec = do
     it "정수에 음수 단항 연산자" $ do
       testEval (unaryOp Minus (litInteger 10))
         `shouldEval` (IntegerVal (-10), empty)
+    it "실수에 양수 단항 연산자" $ do
+      testEval (unaryOp Plus (litReal 10.0)) `shouldEval` (RealVal 10.0, empty)
+    it "실수에 음수 단항 연산자" $ do
+      testEval (unaryOp Minus (litReal 10.0))
+        `shouldEval` (RealVal (-10.0), empty)
     it "함수에 양수 단항 연산자 적용 시 타입 에러" $ do
       testEvalWith (unaryOp Minus (var "십")) sampleTable
         `shouldEvalError` operateTypeError [FuncType]
