@@ -80,6 +80,7 @@ operateBinary pos op lhs rhs = case normalize lhs rhs of
       else return $ IntegerVal (v1 `mod` v2)
 
     (Equal, v1, v2) -> return $ BoolVal (v1 == v2)
+    (Inequal, v1, v2) -> return $ BoolVal (v1 /= v2)
 
     _ -> throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
 

@@ -91,9 +91,12 @@ spec = do
     it "정수 두 개 동등 비교 (같지 않음)" $ do
       testEval (binaryOp Equal (litInteger 10) (litInteger 4))
         `shouldEval` (BoolVal False, empty)
-    it "실수 두 개 동등 비교" $ do
-      testEval (binaryOp Equal (litReal 10.0) (litReal 10.0))
+    it "정수 두 개 부등 비교" $ do
+      testEval (binaryOp Inequal (litInteger 10) (litInteger 4))
         `shouldEval` (BoolVal True, empty)
+    it "정수 두 개 부등 비교 (같음)" $ do
+      testEval (binaryOp Inequal (litInteger 10) (litInteger 10))
+        `shouldEval` (BoolVal False, empty)
 
   describe "단항 연산자 평가" $ do
     it "정수에 양수 단항 연산자" $ do
