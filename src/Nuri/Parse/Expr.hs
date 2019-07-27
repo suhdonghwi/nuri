@@ -26,7 +26,7 @@ arithmetic = makeExprParser (try nestedFuncCalls <|> term) table
       , InfixL $ binaryOp "%" Percent
       ]
     , [InfixL $ binaryOp "+" Plus, InfixL $ binaryOp "-" Minus]
-    , [InfixL $ binaryOp "=" Equal]
+    , [InfixL $ binaryOp "=" Equal, InfixL $ binaryOp "!=" Inequal]
     ]
   binaryOp opStr op = do
     pos <- getSourcePos

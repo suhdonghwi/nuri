@@ -85,13 +85,13 @@ spec = do
     it "0으로 나머지 구할 시 DivideByZero 에러" $ do
       testEval (binaryOp Percent (litInteger 10) (litInteger 0))
         `shouldEvalError` divideByZero
-    it "정수 두 개 동일 비교" $ do
+    it "정수 두 개 동등 비교" $ do
       testEval (binaryOp Equal (litInteger 10) (litInteger 10))
         `shouldEval` (BoolVal True, empty)
-    it "정수 두 개 동일 비교 (같지 않음)" $ do
+    it "정수 두 개 동등 비교 (같지 않음)" $ do
       testEval (binaryOp Equal (litInteger 10) (litInteger 4))
         `shouldEval` (BoolVal False, empty)
-    it "실수 두 개 동일 비교" $ do
+    it "실수 두 개 동등 비교" $ do
       testEval (binaryOp Equal (litReal 10.0) (litReal 10.0))
         `shouldEval` (BoolVal True, empty)
 

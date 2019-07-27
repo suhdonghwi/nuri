@@ -42,5 +42,5 @@ instance ASTNode Expr where
   srcPos (BinaryOp pos _ _ _) = pos
   srcPos (UnaryOp pos _ _   ) = pos
 
-data Op = Plus | Minus | Asterisk | Slash | Percent | Equal
+data Op = Plus | Minus | Asterisk | Slash | Percent | Equal | Inequal
     deriving(Eq, Show)

@@ -102,9 +102,12 @@ spec = do
       it "두 정수 나누기" $ do
         testParse arithmetic "8 / 2"
           `shouldParse` binaryOp Slash (litInteger 8) (litInteger 2)
-      it "두 정수 동일 비교" $ do
+      it "두 정수 동등 비교" $ do
         testParse arithmetic "8 = 2"
           `shouldParse` binaryOp Equal (litInteger 8) (litInteger 2)
+      it "두 정수 부등 비교" $ do
+        testParse arithmetic "8 != 2"
+          `shouldParse` binaryOp Inequal (litInteger 8) (litInteger 2)
     describe "복합 연산" $ do
       it "두 정수 나누고 한 정수 더하기" $ do
         testParse arithmetic "4 / 2 + 3" `shouldParse` binaryOp
