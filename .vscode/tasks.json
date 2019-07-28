@@ -1,0 +1,41 @@
+{
+  // atuomatically created by phoityne-vscode
+  
+  "version": "2.0.0",
+  "presentation": {
+    "reveal": "always",
+    "panel": "new"
+  },
+  "tasks": [
+    {
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "label": "stack build",
+      "type": "shell",
+      "command": "echo START_STACK_BUILD && cd ${workspaceRoot} && stack build && echo END_STACK_BUILD "
+    },
+    { 
+      "group": "build",
+      "type": "shell",
+      "label": "stack clean & build",
+      "command": "echo START_STACK_CLEAN_AND_BUILD && cd ${workspaceRoot} && stack clean && stack build && echo END_STACK_CLEAN_AND_BUILD "
+    },
+    { 
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "type": "shell",
+      "label": "stack test",
+      "command": "echo START_STACK_TEST && cd ${workspaceRoot} && stack test && echo END_STACK_TEST "
+    },
+    { 
+      "isBackground": true,
+      "type": "shell",
+      "label": "stack watch",
+      "command": "echo START_STACK_WATCH && cd ${workspaceRoot} && stack build --test --no-run-tests --file-watch && echo END_STACK_WATCH "
+    }
+  ]
+}

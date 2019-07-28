@@ -1,0 +1,40 @@
+2019-07-28 02:34:19.036875800000 [9463(ThreadId 17)] ERROR APP - 
+2019-07-28 02:34:19.038328700000 [9463(ThreadId 17)] ERROR APP - <interactive>:21:1: error: Variable not in scope: e
+2019-07-28 02:34:23.716759400000 [9463(ThreadId 17)] ERROR APP - 
+2019-07-28 02:34:23.718549700000 [9463(ThreadId 17)] ERROR APP - <interactive>:26:6: error: Variable not in scope: e :: ()
+2019-07-28 02:35:00.234549500000 [9463(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:35:30.597906500000 [9604(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:35:57.477545800000 [9719(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:36:55.717048900000 [9849(ThreadId 17)] ERROR APP - 
+2019-07-28 02:36:55.718202700000 [9849(ThreadId 17)] ERROR APP - <interactive>:35:1: error:
+2019-07-28 02:36:55.719455700000 [9849(ThreadId 17)] ERROR APP -     • No instance for (Show
+2019-07-28 02:36:55.720896400000 [9849(ThreadId 17)] ERROR APP -                          ((a0 -> c0) -> (b0 -> c0) -> Either a0 b0 -> c0))
+2019-07-28 02:36:55.722102700000 [9849(ThreadId 17)] ERROR APP -         arising from a use of ‘show’
+2019-07-28 02:36:55.723881300000 [9849(ThreadId 17)] ERROR APP -         (maybe you haven't applied a function to enough arguments?)
+2019-07-28 02:36:55.726600600000 [9849(ThreadId 17)] ERROR APP -     • In the expression: show either
+2019-07-28 02:36:55.728149500000 [9849(ThreadId 17)] ERROR APP -       In an equation for ‘it’: it = show either
+2019-07-28 02:38:24.351182500000 [9849(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:39:12.694617500000 [10017(ThreadId 17)] ERROR APP - user error (no stacktrace found.)
+2019-07-28 02:39:12.760409300000 [10017(ThreadId 17)] ERROR APP - user error (no stacktrace found.)
+2019-07-28 02:39:13.784833600000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:14.946329500000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:15.744997000000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:17.236967700000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:18.070313400000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:21.426316200000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:22.327214300000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:22.913708600000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:23.428636500000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:25.145306500000 [10017(ThreadId 17)] ERROR APP - user error (ExecResult not found.)
+2019-07-28 02:39:30.967591400000 [10017(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:55:07.192632100000 [12045(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:55:39.999708300000 [12159(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:57:18.261268200000 [12298(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:57:59.943909800000 [12422(ThreadId 17)] ERROR APP - user error (variable id:10 not found.)
+2019-07-28 02:58:53.929866300000 [12422(ThreadId 17)] ERROR APP - user error (variable id:12 not found.)
+2019-07-28 02:58:54.989453900000 [12422(ThreadId 17)] ERROR APP - user error (variable id:11 not found.)
+2019-07-28 02:59:13.668594500000 [12422(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 02:59:59.387447100000 [12557(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 03:03:52.834690800000 [13135(ThreadId 17)] ERROR APP - user error (variable id:10 not found.)
+2019-07-28 03:04:03.370051600000 [13135(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.
+2019-07-28 03:05:00.564300300000 [13255(ThreadId 20)] CRITICAL THREAD_MGR - Critical exit started.

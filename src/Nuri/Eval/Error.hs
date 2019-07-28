@@ -9,6 +9,7 @@ import           Nuri.Eval.ValType
 data Error = UnboundSymbol SourcePos Text
            | BoundSymbol SourcePos Text
            | OperateTypeError SourcePos [ValType]
+           | NotConditionType SourcePos ValType
            | DivideByZero SourcePos
            | NotCallable SourcePos ValType
            | NotInFunction SourcePos

@@ -30,9 +30,8 @@ lexeme = L.lexeme sc
 symbol :: Text -> Parser Text
 symbol = L.symbol sc
 
-returnKeyword :: Parser Text
-returnKeyword = foldr1 (<|>) $ symbol <$> keywords
-  where keywords = ["반환하다", "돌려주다"]
+reserved :: Text -> Parser ()
+reserved s = string s *> notFollowedBy hangulSyllable *> sc
 
 hangulSyllable :: Parser Char
 hangulSyllable = oneOf ['가' .. '힣']

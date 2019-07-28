@@ -3,17 +3,24 @@ module Nuri.Eval.Stmt where
 import           Control.Monad.State
 import           Control.Monad.Except
 
-import           Data.Map
+import           Data.Map                                 ( union
+                                                          , fromList
+                                                          , member
+                                                          , insert
+                                                          )
+import           Data.List.NonEmpty                       ( toList )
 import qualified Data.Text                     as Text
 
 import           Text.Megaparsec.Pos
 
 import           Nuri.Stmt
+import           Nuri.Expr
 import           Nuri.ASTNode
 import           Nuri.Eval.Val
 import           Nuri.Eval.Expr
 import           Nuri.Eval.Flow
 import           Nuri.Eval.Error
+import           Nuri.Eval.ValType
 
 evalStmts :: [Stmt] -> Bool -> FlowT Val Eval Val
 evalStmts (x : []) isInFunc = evalStmt x isInFunc
@@ -45,11 +52,26 @@ makeFuncStmt pos args body = makeFunc
     return result
   )
 
+processIfStmts
+  :: SourcePos -> [(Expr, [Stmt])] -> Maybe [Stmt] -> Bool -> FlowT Val Eval Val
+processIfStmts pos ((expr, stmts) : xs) elseStmts isInFunc = do
+  exprVal <- lift $ evalExpr expr
+  let valType = getTypeName exprVal
+  if valType /= BoolType
+    then (lift . throwError $ NotConditionType pos valType)
+    else if exprVal == BoolVal True
+      then evalStmts stmts isInFunc
+      else processIfStmts pos xs elseStmts isInFunc
+processIfStmts _ [] (Just stmts) isInFunc = evalStmts stmts isInFunc
+processIfStmts _ [] Nothing      _        = return Undefined
+
 evalStmt :: Stmt -> Bool -> FlowT Val Eval Val
-evalStmt (ExprStmt expr) _            = (lift $ evalExpr expr) >>= return
-evalStmt (Return   expr) isInFunction = if isInFunction
+evalStmt (ExprStmt expr) _        = (lift $ evalExpr expr) >>= return
+evalStmt (Return   expr) isInFunc = if isInFunc
   then (lift $ evalExpr expr) >>= throw
   else lift . throwError $ NotInFunction (srcPos expr)
+evalStmt (If pos condStmts elseStmts) isInFunc =
+  processIfStmts pos (toList condStmts) elseStmts isInFunc
 evalStmt (FuncDecl pos funcName args body) _ = do
   lift $ addSymbol funcName (makeFuncStmt pos args body)
   return Undefined

@@ -1,5 +1,6 @@
 module Nuri.Parse.Expr where
 
+
 import           Data.Text                                ( Text
                                                           , pack
                                                           )
@@ -37,7 +38,7 @@ parseArithmetic = makeExprParser (try parseNestedFuncCalls <|> parseTerm) table
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  calls <- some parseFuncCall
+  calls <- some (try parseFuncCall)
   let addArg arg (App pos func args) = App pos func (arg : args)
       addArg _   _                   = undefined
   return $ foldl1' addArg calls
@@ -119,4 +120,4 @@ parseReal :: Parser Double
 parseReal = lexeme L.float
 
 parseBool :: Parser Bool
-parseBool = (True <$ symbol "참") <|> (False <$ symbol "거짓")
+parseBool = (True <$ reserved "참") <|> (False <$ reserved "거짓")

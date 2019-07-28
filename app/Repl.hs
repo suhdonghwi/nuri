@@ -37,7 +37,7 @@ intrinsicTable = fromList
 evalInput :: T.Text -> Repl
 evalInput input = do
   st <- get
-  let ast = runParser (stmts <* eof) (fileName st) input
+  let ast = runParser (parseStmts <* eof) (fileName st) input
   case ast of
     Left  err    -> lift $ putStrLn (errorBundlePretty err)
     Right result -> do

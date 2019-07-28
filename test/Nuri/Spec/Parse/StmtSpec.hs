@@ -18,22 +18,22 @@ spec = do
     it "단일 정수 반환" $ do
       testParse parseReturnStmt "1 반환하다" `shouldParse` Return (litInteger 1)
     it "사칙연산식 반환" $ do
-      testParse parseReturnStmt "1+2 돌려주다"
+      testParse parseReturnStmt "1+2 반환하다"
         `shouldParse` Return (binaryOp Plus (litInteger 1) (litInteger 2))
 
   describe "조건문 파싱" $ do
     it "만약 1개 (단일 조건) 조건문" $ do
-      testParse parseIfStmt "만약 참 이면:\n  [값]: 1"
-        `shouldParse` If
-                        initPos
-                        ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
+      testParse parseIfStmt "만약 1 1 같다 면:\n  [값]: 1"
+        `shouldParse` ifStmt
+                        (  ( app (var "같다") [litInteger 1, litInteger 1]
+                           , [ExprStmt $ assign "값" (litInteger 1)]
+                           )
                         :| []
                         )
                         Nothing
     it "만약 ~ 아니고 ~ 면 조건문" $ do
       testParse parseIfStmt "만약 참 이면:\n  [값]: 1\n아니고 참 이면: \n [값]: 2"
-        `shouldParse` If
-                        initPos
+        `shouldParse` ifStmt
                         ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
                         :| [ ( litBool True
                              , [ExprStmt $ assign "값" (litInteger 2)]
@@ -44,8 +44,7 @@ spec = do
     it "만약 ~ 아니고 ~ 면 ~ 아니면 조건문" $ do
       testParse parseIfStmt
                 "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니면:\n  [값]: 3"
-        `shouldParse` If
-                        initPos
+        `shouldParse` ifStmt
                         ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
                         :| [ ( litBool True
                              , [ExprStmt $ assign "값" (litInteger 2)]
@@ -57,8 +56,7 @@ spec = do
       testParse
           parseIfStmt
           "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니고 참 이면:\n  [값]: 3\n아니면:\n  [값]: 4"
-        `shouldParse` If
-                        initPos
+        `shouldParse` ifStmt
                         ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
                         :| [ ( litBool True
                              , [ExprStmt $ assign "값" (litInteger 2)]
@@ -98,6 +96,22 @@ spec = do
         (binaryOp Plus (litInteger 1) (app (var "줄이다") [litInteger 2]))
     it "반환 구문 파싱" $ do
       testParse parseStmt "1 반환하다" `shouldParse` Return (litInteger 1)
+    it "조건문 파싱" $ do
+      testParse
+          parseStmt
+          "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니고 참 이면:\n  [값]: 3\n아니면:\n  [값]: 4"
+        `shouldParse` ifStmt
+                        ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
+                        :| [ ( litBool True
+                             , [ExprStmt $ assign "값" (litInteger 2)]
+                             )
+                           , ( litBool True
+                             , [ExprStmt $ assign "값" (litInteger 3)]
+                             )
+                           ]
+                        )
+                        (Just [ExprStmt $ assign "값" (litInteger 4)])
+
     it "인자가 한 개인 함수" $ do
       testParse parseStmt "[값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
         `shouldParse` funcDecl

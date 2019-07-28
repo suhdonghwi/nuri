@@ -1,5 +1,7 @@
 module Nuri.Parse.Stmt where
 
+import           Control.Monad
+
 import           Data.List.NonEmpty
 import           Data.Maybe
 
@@ -15,14 +17,19 @@ parseStmts :: Parser [Stmt]
 parseStmts = many (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
-parseStmt = try parseReturnStmt <|> try parseExprStmt <|> parseFuncDecl
+parseStmt =
+  try parseIfStmt
+    <|> try parseReturnStmt
+    <|> try parseExprStmt
+    <|> parseFuncDecl
 
 parseExprStmt :: Parser Stmt
 parseExprStmt =
-  ExprStmt <$> (parseExpr <* notFollowedBy (returnKeyword <|> symbol ":"))
+  ExprStmt
+    <$> (parseExpr <* notFollowedBy (reserved "반환하다" <|> void (symbol ":")))
 
 parseReturnStmt :: Parser Stmt
-parseReturnStmt = Return <$> (parseExpr <* returnKeyword)
+parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
 
 parseIfStmt :: Parser Stmt
 parseIfStmt = do
@@ -33,13 +40,13 @@ parseIfStmt = do
   return $ If pos (ifPart :| fromMaybe [] elifPart) elsePart
  where
   ifLine s = do
-    _ <- symbol s
+    _ <- reserved s
     e <- parseExpr
-    _ <- optional (symbol "면" <|> symbol "이면" <|> symbol "이라면")
+    _ <- (reserved "면" <|> reserved "이면" <|> reserved "이라면")
     _ <- symbol ":"
     return (L.IndentSome Nothing (return . (,) e) parseStmt)
   elseLine s = do
-    _ <- symbol s
+    _ <- reserved s
     _ <- symbol ":"
     return (L.IndentSome Nothing return parseStmt)
 
