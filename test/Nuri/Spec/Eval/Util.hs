@@ -2,6 +2,9 @@ module Nuri.Spec.Eval.Util where
 
 import           Test.Hspec
 
+import           Control.Monad.Except
+import           Control.Monad.State
+
 import           Data.Text
 import qualified Data.Map                      as Map
 
@@ -11,16 +14,17 @@ import           Nuri.Stmt
 import           Nuri.Expr
 import           Nuri.Eval.Error
 import           Nuri.Eval.Val
-import           Nuri.Eval.Expr
 import           Nuri.Eval.Stmt
 import           Nuri.Eval.ValType
 
 
-testEvalWith :: Expr -> SymbolTable -> IO (Either Error (Val, SymbolTable))
-testEvalWith = runEval
+testEvalWith
+  :: (a -> Eval Val) -> a -> SymbolTable -> IO (Either Error (Val, SymbolTable))
+testEvalWith f e table = runExceptT (runStateT (unEval (f e)) table)
 
-testEval :: Expr -> IO (Either Error (Val, SymbolTable))
-testEval expr = runEval expr Map.empty
+testEval :: (a -> Eval Val) -> a -> IO (Either Error (Val, SymbolTable))
+testEval f e = testEvalWith f e Map.empty
+
 
 sampleTable :: SymbolTable
 sampleTable = Map.fromList
