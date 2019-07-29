@@ -3,7 +3,7 @@ module Nuri.Spec.Eval.Util where
 import           Test.Hspec
 
 import           Data.Text
-import           Data.Map
+import qualified Data.Map                      as Map
 
 import           Nuri.Spec.Util
 
@@ -11,11 +11,19 @@ import           Nuri.Stmt
 import           Nuri.Expr
 import           Nuri.Eval.Error
 import           Nuri.Eval.Val
+import           Nuri.Eval.Expr
 import           Nuri.Eval.Stmt
 import           Nuri.Eval.ValType
 
+
+testEvalWith :: Expr -> SymbolTable -> IO (Either Error (Val, SymbolTable))
+testEvalWith = runEval
+
+testEval :: Expr -> IO (Either Error (Val, SymbolTable))
+testEval expr = runEval expr Map.empty
+
 sampleTable :: SymbolTable
-sampleTable = fromList
+sampleTable = Map.fromList
   [ ("나이", IntegerVal 17)
   , ("십", makeFuncStmt initPos [] [Return $ litInteger 10])
   , ( "늘리기"
@@ -24,7 +32,6 @@ sampleTable = fromList
                    [Return $ binaryOp Plus (litInteger 10) (var "수")]
     )
   ]
- where
 
 funcVal :: Val
 funcVal = makeFuncStmt initPos [] [Return $ litInteger 10]

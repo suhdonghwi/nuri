@@ -93,4 +93,4 @@ operateUnary _   Minus (  RealVal    v) = return (RealVal (-v))
 operateUnary pos _ v = throwError $ OperateTypeError pos [getTypeName v]
 
 runEval :: Expr -> SymbolTable -> IO (Either Error (Val, SymbolTable))
-runEval expr table = runExceptT (runStateT (evalExpr expr) table)
+runEval expr table = runExceptT (runStateT (unEval (evalExpr expr)) table)

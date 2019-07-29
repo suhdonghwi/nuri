@@ -4,20 +4,12 @@ import           Test.Hspec
 
 import           Data.Map
 
-import           Nuri.Eval.Expr
-import           Nuri.Eval.Error
 import           Nuri.Expr
 import           Nuri.Eval.Val
 import           Nuri.Eval.ValType
 
 import           Nuri.Spec.Util
 import           Nuri.Spec.Eval.Util
-
-testEvalWith :: Expr -> SymbolTable -> IO (Either Error (Val, SymbolTable))
-testEvalWith = runEval
-
-testEval :: Expr -> IO (Either Error (Val, SymbolTable))
-testEval expr = runEval expr empty
 
 spec :: Spec
 spec = do

@@ -10,7 +10,9 @@ import           Nuri.Eval.Error
 import           Nuri.Eval.ValType
 
 type SymbolTable = Map Text Val
-type Eval = StateT SymbolTable (ExceptT Error IO)
+
+newtype Eval a = Eval { unEval :: StateT SymbolTable (ExceptT Error IO) a }
+  deriving (Monad, Functor, Applicative, MonadState SymbolTable, MonadError Error)
 
 data Val = IntegerVal Integer
          | RealVal Double
