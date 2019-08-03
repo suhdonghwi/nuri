@@ -19,10 +19,10 @@ import           Nuri.Eval.ValType
 
 
 testEvalWith
-  :: (a -> Eval Val) -> a -> SymbolTable -> IO (Either Error (Val, SymbolTable))
+  :: (a -> Eval b) -> a -> SymbolTable -> IO (Either Error (b, SymbolTable))
 testEvalWith f e table = runExceptT (runStateT (unEval (f e)) table)
 
-testEval :: (a -> Eval Val) -> a -> IO (Either Error (Val, SymbolTable))
+testEval :: (a -> Eval b) -> a -> IO (Either Error (b, SymbolTable))
 testEval f e = testEvalWith f e Map.empty
 
 

@@ -28,7 +28,10 @@ evalExpr (App pos func args) = do
   case funcResult of
     FuncVal funcVal -> do
       argsVal <- sequence $ fmap evalExpr args
-      funcVal argsVal
+      v       <- funcVal argsVal
+      case v of
+        Returned result -> return result
+        Normal   _      -> return Undefined
     val -> throwError $ NotCallable pos (getTypeName val)
 evalExpr (Assign _ ident expr) = do
   val <- evalExpr expr

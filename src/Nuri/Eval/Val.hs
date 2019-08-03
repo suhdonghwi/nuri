@@ -12,12 +12,15 @@ import           Nuri.Eval.ValType
 type SymbolTable = Map Text Val
 
 newtype Eval a = Eval { unEval :: StateT SymbolTable (ExceptT Error IO) a }
-  deriving (Monad, Functor, Applicative, MonadState SymbolTable, MonadError Error)
+  deriving (Monad, Functor, Applicative, MonadState SymbolTable, MonadError Error, MonadIO)
+
+data Flow a = Returned a | Normal a
+  deriving (Eq, Show)
 
 data Val = IntegerVal Integer
          | RealVal Double
          | BoolVal Bool
-         | FuncVal ([Val] -> Eval Val)
+         | FuncVal ([Val] -> Eval (Flow Val))
          | Undefined
 
 instance Eq Val where
