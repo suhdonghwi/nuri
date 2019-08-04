@@ -25,48 +25,62 @@ spec = do
     it "만약 1개 (단일 조건) 조건문" $ do
       testParse parseIfStmt "만약 1 1 같다 면:\n  [값]: 1"
         `shouldParse` ifStmt
-                        (  ( app (var "같다") [litInteger 1, litInteger 1]
-                           , [ExprStmt $ assign "값" (litInteger 1)]
-                           )
-                        :| []
-                        )
+                        (app (var "같다") [litInteger 1, litInteger 1])
+                        (Seq (ExprStmt (assign "값" (litInteger 1)) :| []))
                         Nothing
     it "만약 ~ 아니고 ~ 면 조건문" $ do
       testParse parseIfStmt "만약 참 이면:\n  [값]: 1\n아니고 참 이면: \n [값]: 2"
         `shouldParse` ifStmt
-                        ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
-                        :| [ ( litBool True
-                             , [ExprStmt $ assign "값" (litInteger 2)]
-                             )
-                           ]
+                        (litBool True)
+                        (Seq (ExprStmt (assign "값" (litInteger 1)) :| []))
+                        (Just
+                          (ifStmt
+                            (litBool True)
+                            (Seq (ExprStmt (assign "값" (litInteger 2)) :| []))
+                            Nothing
+                          )
                         )
-                        Nothing
     it "만약 ~ 아니고 ~ 면 ~ 아니면 조건문" $ do
       testParse parseIfStmt
                 "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니면:\n  [값]: 3"
         `shouldParse` ifStmt
-                        ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
-                        :| [ ( litBool True
-                             , [ExprStmt $ assign "값" (litInteger 2)]
-                             )
-                           ]
+                        (litBool True)
+                        (Seq (ExprStmt (assign "값" (litInteger 1)) :| []))
+                        (Just
+                          (ifStmt
+                            (litBool True)
+                            (Seq (ExprStmt (assign "값" (litInteger 2)) :| []))
+                            (Just
+                              (Seq (ExprStmt (assign "값" (litInteger 3)) :| []))
+                            )
+                          )
                         )
-                        (Just [ExprStmt $ assign "값" (litInteger 3)])
     it "만약 ~ 아니고 ~ 면 ~ 아니고 ~ 면 ~ 아니면 조건문" $ do
       testParse
           parseIfStmt
           "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니고 참 이면:\n  [값]: 3\n아니면:\n  [값]: 4"
         `shouldParse` ifStmt
-                        ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
-                        :| [ ( litBool True
-                             , [ExprStmt $ assign "값" (litInteger 2)]
-                             )
-                           , ( litBool True
-                             , [ExprStmt $ assign "값" (litInteger 3)]
-                             )
-                           ]
+                        (litBool True)
+                        (Seq (ExprStmt (assign "값" (litInteger 1)) :| []))
+                        (Just
+                          (ifStmt
+                            (litBool True)
+                            (Seq (ExprStmt (assign "값" (litInteger 2)) :| []))
+                            (Just
+                              (ifStmt
+                                (litBool True)
+                                (Seq
+                                  (ExprStmt (assign "값" (litInteger 3)) :| [])
+                                )
+                                (Just
+                                  (Seq
+                                    (ExprStmt (assign "값" (litInteger 4)) :| [])
+                                  )
+                                )
+                              )
+                            )
+                          )
                         )
-                        (Just [ExprStmt $ assign "값" (litInteger 4)])
 
   describe "함수 선언문 파싱" $ do
     it "인자가 한 개인 함수" $ do
@@ -74,21 +88,26 @@ spec = do
         `shouldParse` funcDecl
                         "증가하다"
                         ["값"]
-                        [ ExprStmt $ app (var "더하다") [var "값", litInteger 1]
-                        , Return (var "값")
-                        ]
+                        (Seq
+                          ((ExprStmt $ app (var "더하다") [var "값", litInteger 1])
+                          :| [Return (var "값")]
+                          )
+                        )
     it "인자가 여러 개인 함수" $ do
       testParse parseFuncDecl "[값1] [값2] 더하다:\n  [값1] + [값2] 반환하다"
-        `shouldParse` funcDecl "더하다"
-                               ["값1", "값2"]
-                               [Return (binaryOp Plus (var "값1") (var "값2"))]
+        `shouldParse` funcDecl
+                        "더하다"
+                        ["값1", "값2"]
+                        (Seq
+                          (Return (binaryOp Plus (var "값1") (var "값2")) :| [])
+                        )
     it "함수의 본문이 없으면 에러" $ do
       testParse parseFuncDecl `shouldFailOn` "[값] 증가하다:"
     it "함수의 이름이 예약어면 에러" $ do
       testParse parseFuncDecl `shouldFailOn` "[값] 거짓:\n  1 반환하다"
     it "예약어로 시작하는 이름의 함수" $ do
       testParse parseFuncDecl "[값] 거짓하다:\n  1 반환하다"
-        `shouldParse` funcDecl "거짓하다" ["값"] [Return (litInteger 1)]
+        `shouldParse` funcDecl "거짓하다" ["값"] (Seq (Return (litInteger 1) :| []))
 
   describe "구문 파싱" $ do
     it "표현식 구문 파싱" $ do
@@ -101,25 +120,37 @@ spec = do
           parseStmt
           "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니고 참 이면:\n  [값]: 3\n아니면:\n  [값]: 4"
         `shouldParse` ifStmt
-                        ((litBool True, [ExprStmt $ assign "값" (litInteger 1)])
-                        :| [ ( litBool True
-                             , [ExprStmt $ assign "값" (litInteger 2)]
-                             )
-                           , ( litBool True
-                             , [ExprStmt $ assign "값" (litInteger 3)]
-                             )
-                           ]
+                        (litBool True)
+                        (Seq (ExprStmt (assign "값" (litInteger 1)) :| []))
+                        (Just
+                          (ifStmt
+                            (litBool True)
+                            (Seq (ExprStmt (assign "값" (litInteger 2)) :| []))
+                            (Just
+                              (ifStmt
+                                (litBool True)
+                                (Seq
+                                  (ExprStmt (assign "값" (litInteger 3)) :| [])
+                                )
+                                (Just
+                                  (Seq
+                                    (ExprStmt (assign "값" (litInteger 4)) :| [])
+                                  )
+                                )
+                              )
+                            )
+                          )
                         )
-                        (Just [ExprStmt $ assign "값" (litInteger 4)])
-
     it "인자가 한 개인 함수" $ do
       testParse parseStmt "[값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
         `shouldParse` funcDecl
                         "증가하다"
                         ["값"]
-                        [ ExprStmt $ app (var "더하다") [var "값", litInteger 1]
-                        , Return (var "값")
-                        ]
+                        (Seq
+                          ((ExprStmt $ app (var "더하다") [var "값", litInteger 1])
+                          :| [Return (var "값")]
+                          )
+                        )
 
   describe "구문 여러 개 파싱" $ do
     it "표현식 구문 여러 개 파싱" $ do

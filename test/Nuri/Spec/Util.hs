@@ -1,7 +1,6 @@
 module Nuri.Spec.Util where
 
 import           Data.Text
-import           Data.List.NonEmpty
 
 import           Text.Megaparsec.Pos
 
@@ -38,8 +37,8 @@ app = App initPos
 assign :: Text -> Expr -> Expr
 assign = Assign initPos
 
-ifStmt :: NonEmpty (Expr, [Stmt]) -> Maybe [Stmt] -> Stmt
+ifStmt :: Expr -> Stmt -> Maybe Stmt -> Stmt
 ifStmt = If initPos
 
-funcDecl :: Text -> [Text] -> [Stmt] -> Stmt
+funcDecl :: Text -> [Text] -> Stmt -> Stmt
 funcDecl = FuncDecl initPos

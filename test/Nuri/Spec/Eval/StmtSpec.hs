@@ -3,7 +3,6 @@ module Nuri.Spec.Eval.StmtSpec where
 import           Test.Hspec
 
 import qualified Data.Map                      as Map
-import           Data.List.NonEmpty
 
 import           Nuri.Stmt
 import           Nuri.Eval.Stmt
@@ -32,9 +31,9 @@ spec = do
   describe "조건문 평가" $ do
     it "단일 조건문 평가 (참)" $ do
       testStmtEvalWith
-          (ifStmt
-            ((litBool True, [ExprStmt (assign "나이" (litInteger 10))]) :| [])
-            Nothing
+          (ifStmt (litBool True)
+                  (ExprStmt (assign "나이" (litInteger 10)))
+                  Nothing
           )
           sampleTable
         `shouldEval` ( Normal (IntegerVal 10)
@@ -42,53 +41,49 @@ spec = do
                      )
     it "단일 조건문 평가 (거짓)" $ do
       testStmtEvalWith
-          (ifStmt
-            ((litBool False, [ExprStmt (assign "값" (litInteger 10))]) :| [])
-            Nothing
+          (ifStmt (litBool False)
+                  (ExprStmt (assign "값" (litInteger 10)))
+                  Nothing
           )
           sampleTable
         `shouldEval` (Normal Undefined, sampleTable)
-    it "아니고 ~ 이면 조건문 평가" $ do
+    it "아니면 ~ 조건문 평가" $ do
       testStmtEvalWith
           (ifStmt
-            (  (litBool False, [ExprStmt (assign "나이" (litInteger 10))])
-            :| [(litBool True, [ExprStmt (assign "나이" (litInteger 20))])]
+            (litBool False)
+            (ExprStmt (assign "나이" (litInteger 10)))
+            (Just
+              (ifStmt (litBool True)
+                      (ExprStmt (assign "나이" (litInteger 20)))
+                      Nothing
+              )
             )
-            Nothing
           )
           sampleTable
         `shouldEval` ( Normal (IntegerVal 20)
                      , Map.adjust (const (IntegerVal 20)) "나이" sampleTable
                      )
-    it "아니면 ~ 조건문 평가" $ do
-      testStmtEvalWith
-          (ifStmt
-            (  (litBool False, [ExprStmt (assign "나이" (litInteger 10))])
-            :| [(litBool False, [ExprStmt (assign "나이" (litInteger 20))])]
-            )
-            (Just [ExprStmt (assign "나이" (litInteger 30))])
-          )
-          sampleTable
-        `shouldEval` ( Normal (IntegerVal 30)
-                     , Map.adjust (const (IntegerVal 30)) "나이" sampleTable
-                     )
     it "스코프 적용" $ do
       testStmtEvalWith
           (ifStmt
-            (  (litBool False, [ExprStmt (assign "수" (litInteger 10))])
-            :| [(litBool False, [ExprStmt (assign "수2" (litInteger 20))])]
+            (litBool False)
+            (ExprStmt (assign "수1" (litInteger 10)))
+            (Just
+              (ifStmt (litBool True)
+                      (ExprStmt (assign "수2" (litInteger 20)))
+                      Nothing
+              )
             )
-            (Just [ExprStmt (assign "수3" (litInteger 30))])
           )
           sampleTable
-        `shouldEval` (Normal (IntegerVal 30), sampleTable)
+        `shouldEval` (Normal (IntegerVal 20), sampleTable)
   describe "함수 선언 구문 평가" $ do
     it "인자 없는 함수 선언" $ do
-      testStmtEval (funcDecl "깨우다" [] [Return (litInteger 10)])
+      testStmtEval (funcDecl "깨우다" [] (Return (litInteger 10)))
         `shouldEval` (Normal Undefined, Map.fromList [("깨우다", funcVal)])
     it "인자가 하나인 함수 선언" $ do
-      testStmtEval (funcDecl "먹다" ["음식"] [Return (litInteger 10)])
+      testStmtEval (funcDecl "먹다" ["음식"] (Return (litInteger 10)))
         `shouldEval` (Normal Undefined, Map.fromList [("먹다", funcVal)])
     it "함수 이름이 중복되면 에러" $ do
-      testStmtEvalWith (funcDecl "십" ["수"] [Return (litInteger 10)]) sampleTable
+      testStmtEvalWith (funcDecl "십" ["수"] (Return (litInteger 10))) sampleTable
         `shouldEvalError` boundSymbol "십"

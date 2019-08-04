@@ -3,7 +3,6 @@ module Nuri.Parse.Stmt where
 import           Control.Monad
 
 import           Data.List.NonEmpty
-import           Data.Maybe
 
 import           Text.Megaparsec
 import           Text.Megaparsec.Char
@@ -33,22 +32,24 @@ parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
 
 parseIfStmt :: Parser Stmt
 parseIfStmt = do
-  pos      <- getSourcePos
   ifPart   <- L.indentBlock scn (ifLine "만약")
-  elifPart <- optional (many $ L.indentBlock scn (ifLine "아니고"))
-  elsePart <- optional (L.indentBlock scn (elseLine "아니면"))
-  return $ If pos (ifPart :| fromMaybe [] elifPart) elsePart
+  elifPart <- many $ L.indentBlock scn (ifLine "아니고")
+  elsePart <- optional $ L.indentBlock scn (elseLine "아니면")
+  return $ ifPart (foldr (??) elsePart (Just <$> elifPart))
  where
+  f ?? a = f <*> return a
   ifLine s = do
-    _ <- reserved s
-    e <- parseExpr
-    _ <- (reserved "면" <|> reserved "이면" <|> reserved "이라면")
-    _ <- symbol ":"
-    return (L.IndentSome Nothing (return . (,) e) parseStmt)
+    pos <- getSourcePos
+    _   <- reserved s
+    e   <- parseExpr
+    _   <- (reserved "면" <|> reserved "이면" <|> reserved "이라면")
+    _   <- symbol ":"
+    return
+      (L.IndentSome Nothing (return . (If pos e) . Seq . fromList) parseStmt)
   elseLine s = do
     _ <- reserved s
     _ <- symbol ":"
-    return (L.IndentSome Nothing return parseStmt)
+    return (L.IndentSome Nothing (return . Seq . fromList) parseStmt)
 
 parseFuncDecl :: Parser Stmt
 parseFuncDecl = L.indentBlock scn argsLine
@@ -60,4 +61,7 @@ parseFuncDecl = L.indentBlock scn argsLine
     funcName <- parseFuncIdentifier
     _        <- symbol ":"
     return
-      (L.IndentSome Nothing (return . FuncDecl pos funcName args) parseStmt)
+      (L.IndentSome Nothing
+                    (return . FuncDecl pos funcName args . Seq . fromList)
+                    parseStmt
+      )
