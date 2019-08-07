@@ -15,10 +15,10 @@ import           Nuri.Spec.Util
 import           Nuri.Spec.Eval.Util
 
 testStmtEvalWith :: Stmt -> EvalState -> IO (Either Error (Flow Val, EvalState))
-testStmtEvalWith = testEvalWith (`evalStmt` False)
+testStmtEvalWith = testEvalWith evalStmt
 
 testStmtEval :: Stmt -> IO (Either Error (Flow Val, EvalState))
-testStmtEval = testEval (`evalStmt` False)
+testStmtEval = testEval evalStmt
 
 spec :: Spec
 spec = do

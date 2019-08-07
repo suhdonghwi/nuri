@@ -34,18 +34,18 @@ sampleState = EvalState
   { _symbolTable  =
     Map.fromList
       [ ("나이", IntegerVal 17)
-      , ("십", makeFuncStmt initPos [] (Return $ litInteger 10))
+      , ("십", makeFunc initPos [] (Return $ litInteger 10))
       , ( "늘리기"
-        , makeFuncStmt initPos
-                       ["수"]
-                       (Return $ binaryOp Plus (litInteger 10) (var "수"))
+        , makeFunc initPos
+                   ["수"]
+                   (Return $ binaryOp Plus (litInteger 10) (var "수"))
         )
       ]
   , _isInFunction = False
   }
 
 funcVal :: Val
-funcVal = makeFuncStmt initPos [] (Return $ litInteger 10)
+funcVal = makeFunc initPos [] (Return $ litInteger 10)
 
 unboundSymbol :: Text -> Error
 unboundSymbol = UnboundSymbol initPos
