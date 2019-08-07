@@ -19,23 +19,30 @@ import           Nuri.Eval.ValType
 
 
 testEvalWith
-  :: (a -> Eval b) -> a -> SymbolTable -> IO (Either Error (b, SymbolTable))
-testEvalWith f e table = runExceptT (runStateT (unEval (f e)) table)
+  :: (a -> Eval b) -> a -> EvalState -> IO (Either Error (b, EvalState))
+testEvalWith f e st = runExceptT (runStateT (unEval (f e)) st)
 
-testEval :: (a -> Eval b) -> a -> IO (Either Error (b, SymbolTable))
-testEval f e = testEvalWith f e Map.empty
+testEval :: (a -> Eval b) -> a -> IO (Either Error (b, EvalState))
+testEval f e = testEvalWith
+  f
+  e
+  (EvalState { _symbolTable = Map.empty, _isInFunction = False })
 
 
-sampleTable :: SymbolTable
-sampleTable = Map.fromList
-  [ ("나이", IntegerVal 17)
-  , ("십", makeFuncStmt initPos [] (Return $ litInteger 10))
-  , ( "늘리기"
-    , makeFuncStmt initPos
-                   ["수"]
-                   (Return $ binaryOp Plus (litInteger 10) (var "수"))
-    )
-  ]
+sampleState :: EvalState
+sampleState = EvalState
+  { _symbolTable  =
+    Map.fromList
+      [ ("나이", IntegerVal 17)
+      , ("십", makeFuncStmt initPos [] (Return $ litInteger 10))
+      , ( "늘리기"
+        , makeFuncStmt initPos
+                       ["수"]
+                       (Return $ binaryOp Plus (litInteger 10) (var "수"))
+        )
+      ]
+  , _isInFunction = False
+  }
 
 funcVal :: Val
 funcVal = makeFuncStmt initPos [] (Return $ litInteger 10)
@@ -63,14 +70,11 @@ incorrectArgsNum = IncorrectArgsNum initPos
 
 shouldEval
   :: (Eq a, Show a)
-  => IO (Either Error (a, SymbolTable))
-  -> (a, SymbolTable)
+  => IO (Either Error (a, EvalState))
+  -> (a, EvalState)
   -> Expectation
 shouldEval actual expected = shouldReturn actual (Right expected)
 
 shouldEvalError
-  :: (Eq a, Show a)
-  => IO (Either Error (a, SymbolTable))
-  -> Error
-  -> Expectation
+  :: (Eq a, Show a) => IO (Either Error (a, EvalState)) -> Error -> Expectation
 shouldEvalError actual expectedError = shouldReturn actual (Left expectedError)

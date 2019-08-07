@@ -3,6 +3,8 @@ module Nuri.Eval.Stmt where
 import           Control.Monad.State
 import           Control.Monad.Except
 
+import           Control.Lens
+
 import           Data.Map                                 ( union
                                                           , fromList
                                                           , member
@@ -24,10 +26,9 @@ import           Nuri.Eval.ValType
 
 scope :: Eval (Flow Val) -> Eval (Flow Val)
 scope p = do
-  prevTable <- get
+  prevTable <- view symbolTable <$> get
   result    <- p
-  newTable  <- get
-  put $ intersection newTable prevTable
+  modify $ over symbolTable (intersection prevTable)
   return result
 
 makeFunc :: SourcePos -> Int -> ([Val] -> Eval (Flow Val)) -> Val
@@ -45,7 +46,7 @@ makeFuncStmt pos args body = makeFunc
   pos
   (length args)
   (\argsVal -> do
-    modify $ union (fromList $ zip args argsVal)
+    modify $ over symbolTable ((union . fromList) (zip args argsVal))
     result <- evalStmt body True
     return result
   )
@@ -75,12 +76,10 @@ evalStmt (FuncDecl pos funcName args body) _ = do
  where
   addSymbol :: Text.Text -> Val -> Eval ()
   addSymbol symbol val = do
-    table <- get
+    table <- view symbolTable <$> get
     if member symbol table
       then throwError $ BoundSymbol pos symbol
-      else do
-        modify $ insert symbol val
+      else modify $ over symbolTable (insert symbol val)
 
-runStmtEval :: Stmt -> SymbolTable -> IO (Either Error (Flow Val, SymbolTable))
-runStmtEval stmt table =
-  runExceptT (runStateT (unEval (evalStmt stmt False)) table)
+runStmtEval :: Stmt -> EvalState -> IO (Either Error (Flow Val, EvalState))
+runStmtEval stmt st = runExceptT (runStateT (unEval (evalStmt stmt False)) st)

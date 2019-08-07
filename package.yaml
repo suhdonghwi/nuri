@@ -27,11 +27,13 @@ dependencies:
   - containers >= 0.6
   - mtl >= 2.2
   - transformers >= 0.5
+  - lens >= 4.17
 
 default-extensions:
   - OverloadedStrings
   - FlexibleContexts
   - GeneralizedNewtypeDeriving
+  - TemplateHaskell
 
 library:
   source-dirs: src

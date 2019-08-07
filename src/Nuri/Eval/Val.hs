@@ -3,16 +3,16 @@ module Nuri.Eval.Val where
 import           Control.Monad.Except
 import           Control.Monad.State
 
-import           Data.Map
+import           Control.Lens
+
+import qualified Data.Map as Map
 import           Data.Text                     as Text
 
 import           Nuri.Eval.Error
 import           Nuri.Eval.ValType
 
-type SymbolTable = Map Text Val
-
-newtype Eval a = Eval { unEval :: StateT SymbolTable (ExceptT Error IO) a }
-  deriving (Monad, Functor, Applicative, MonadState SymbolTable, MonadError Error, MonadIO)
+newtype Eval a = Eval { unEval :: StateT EvalState (ExceptT Error IO) a }
+  deriving (Monad, Functor, Applicative, MonadState EvalState, MonadError Error, MonadIO)
 
 data Flow a = Returned a | Normal a
   deriving (Eq, Show)
@@ -37,6 +37,15 @@ instance Show Val where
   show (BoolVal    v) = "(BoolVal " ++ show v ++ ")"
   show (FuncVal    _) = "(FuncVal (func))"
   show Undefined      = "(Undefined)"
+
+type SymbolTable = Map.Map Text Val
+data EvalState = EvalState { _symbolTable :: SymbolTable, _isInFunction :: Bool }
+  deriving (Eq, Show)
+
+$(makeLenses ''EvalState)
+
+initState :: EvalState
+initState = EvalState { _symbolTable = Map.empty, _isInFunction = False }
 
 getTypeName :: Val -> ValType
 getTypeName (IntegerVal _) = IntegerType
