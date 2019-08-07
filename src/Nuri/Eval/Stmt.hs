@@ -24,7 +24,7 @@ import           Nuri.Eval.Error
 import           Nuri.Eval.ValType
 
 
-scope :: Eval (Flow Val) -> Eval (Flow Val)
+scope :: Interpreter (Flow Val) -> Interpreter (Flow Val)
 scope p = do
   prevTable <- view symbolTable <$> get
   result    <- p
@@ -48,7 +48,7 @@ makeFunc pos argNames body =
         return result
   in  FuncVal func
 
-evalStmt :: Stmt -> Eval (Flow Val)
+evalStmt :: Stmt -> Interpreter (Flow Val)
 evalStmt (Seq      stmts) = NE.last <$> (sequence $ evalStmt <$> stmts)
 evalStmt (ExprStmt expr ) = Normal <$> evalExpr expr
 evalStmt (Return   expr ) = do
@@ -72,12 +72,13 @@ evalStmt (FuncDecl pos funcName args body) = do
   addSymbol funcName (makeFunc pos args body)
   return (Normal Undefined)
  where
-  addSymbol :: Text.Text -> Val -> Eval ()
+  addSymbol :: Text.Text -> Val -> Interpreter ()
   addSymbol symbol val = do
     table <- view symbolTable <$> get
     if member symbol table
       then throwError $ BoundSymbol pos symbol
       else modify $ over symbolTable (insert symbol val)
 
-runStmtEval :: Stmt -> EvalState -> IO (Either Error (Flow Val, EvalState))
-runStmtEval stmt st = runExceptT (runStateT (unEval (evalStmt stmt)) st)
+runStmtInterpreter
+  :: Stmt -> InterpreterState -> IO (Either Error (Flow Val, InterpreterState))
+runStmtInterpreter stmt st = runExceptT (runStateT (unwrap (evalStmt stmt)) st)

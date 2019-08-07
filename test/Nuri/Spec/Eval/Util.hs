@@ -19,18 +19,21 @@ import           Nuri.Eval.ValType
 
 
 testEvalWith
-  :: (a -> Eval b) -> a -> EvalState -> IO (Either Error (b, EvalState))
-testEvalWith f e st = runExceptT (runStateT (unEval (f e)) st)
+  :: (a -> Interpreter b)
+  -> a
+  -> InterpreterState
+  -> IO (Either Error (b, InterpreterState))
+testEvalWith f e st = runExceptT (runStateT (unwrap (f e)) st)
 
-testEval :: (a -> Eval b) -> a -> IO (Either Error (b, EvalState))
+testEval :: (a -> Interpreter b) -> a -> IO (Either Error (b, InterpreterState))
 testEval f e = testEvalWith
   f
   e
-  (EvalState { _symbolTable = Map.empty, _isInFunction = False })
+  (InterpreterState { _symbolTable = Map.empty, _isInFunction = False })
 
 
-sampleState :: EvalState
-sampleState = EvalState
+sampleState :: InterpreterState
+sampleState = InterpreterState
   { _symbolTable  =
     Map.fromList
       [ ("나이", IntegerVal 17)
@@ -70,11 +73,14 @@ incorrectArgsNum = IncorrectArgsNum initPos
 
 shouldEval
   :: (Eq a, Show a)
-  => IO (Either Error (a, EvalState))
-  -> (a, EvalState)
+  => IO (Either Error (a, InterpreterState))
+  -> (a, InterpreterState)
   -> Expectation
 shouldEval actual expected = shouldReturn actual (Right expected)
 
 shouldEvalError
-  :: (Eq a, Show a) => IO (Either Error (a, EvalState)) -> Error -> Expectation
+  :: (Eq a, Show a)
+  => IO (Either Error (a, InterpreterState))
+  -> Error
+  -> Expectation
 shouldEvalError actual expectedError = shouldReturn actual (Left expectedError)

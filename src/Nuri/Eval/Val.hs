@@ -5,14 +5,15 @@ import           Control.Monad.State
 
 import           Control.Lens
 
-import qualified Data.Map as Map
+import qualified Data.Map                      as Map
 import           Data.Text                     as Text
 
 import           Nuri.Eval.Error
 import           Nuri.Eval.ValType
 
-newtype Eval a = Eval { unEval :: StateT EvalState (ExceptT Error IO) a }
-  deriving (Monad, Functor, Applicative, MonadState EvalState, MonadError Error, MonadIO)
+
+newtype Interpreter a = Interpreter { unwrap :: StateT InterpreterState (ExceptT Error IO) a }
+  deriving (Monad, Functor, Applicative, MonadState InterpreterState, MonadError Error, MonadIO)
 
 data Flow a = Returned a | Normal a
   deriving (Eq, Show)
@@ -20,7 +21,7 @@ data Flow a = Returned a | Normal a
 data Val = IntegerVal Integer
          | RealVal Double
          | BoolVal Bool
-         | FuncVal ([Val] -> Eval (Flow Val))
+         | FuncVal ([Val] -> Interpreter (Flow Val))
          | Undefined
 
 instance Eq Val where
@@ -38,15 +39,6 @@ instance Show Val where
   show (FuncVal    _) = "(FuncVal (func))"
   show Undefined      = "(Undefined)"
 
-type SymbolTable = Map.Map Text Val
-data EvalState = EvalState { _symbolTable :: SymbolTable, _isInFunction :: Bool }
-  deriving (Eq, Show)
-
-$(makeLenses ''EvalState)
-
-initState :: EvalState
-initState = EvalState { _symbolTable = Map.empty, _isInFunction = False }
-
 getTypeName :: Val -> ValType
 getTypeName (IntegerVal _) = IntegerType
 getTypeName (RealVal    _) = RealType
@@ -60,3 +52,13 @@ printVal (RealVal    v) = pack $ show v
 printVal (BoolVal    v) = if v then "참" else "거짓"
 printVal (FuncVal    _) = "(함수)"
 printVal Undefined      = "(정의되지 않음)"
+
+type SymbolTable = Map.Map Text Val
+data InterpreterState = InterpreterState { _symbolTable :: SymbolTable, _isInFunction :: Bool }
+  deriving (Eq, Show)
+
+$(makeLenses ''InterpreterState)
+
+initState :: InterpreterState
+initState =
+  InterpreterState { _symbolTable = Map.empty, _isInFunction = False }

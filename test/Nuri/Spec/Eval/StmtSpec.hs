@@ -14,10 +14,11 @@ import           Nuri.Eval.Error
 import           Nuri.Spec.Util
 import           Nuri.Spec.Eval.Util
 
-testStmtEvalWith :: Stmt -> EvalState -> IO (Either Error (Flow Val, EvalState))
+testStmtEvalWith
+  :: Stmt -> InterpreterState -> IO (Either Error (Flow Val, InterpreterState))
 testStmtEvalWith = testEvalWith evalStmt
 
-testStmtEval :: Stmt -> IO (Either Error (Flow Val, EvalState))
+testStmtEval :: Stmt -> IO (Either Error (Flow Val, InterpreterState))
 testStmtEval = testEval evalStmt
 
 spec :: Spec

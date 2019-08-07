@@ -15,10 +15,11 @@ import           Nuri.Eval.ValType
 import           Nuri.Spec.Util
 import           Nuri.Spec.Eval.Util
 
-testExprEvalWith :: Expr -> EvalState -> IO (Either Error (Val, EvalState))
+testExprEvalWith
+  :: Expr -> InterpreterState -> IO (Either Error (Val, InterpreterState))
 testExprEvalWith = testEvalWith evalExpr
 
-testExprEval :: Expr -> IO (Either Error (Val, EvalState))
+testExprEval :: Expr -> IO (Either Error (Val, InterpreterState))
 testExprEval = testEval evalExpr
 
 spec :: Spec

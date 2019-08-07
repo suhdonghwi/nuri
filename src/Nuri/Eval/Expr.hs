@@ -15,7 +15,7 @@ import           Nuri.Expr
 import           Nuri.Eval.Val
 import           Nuri.Eval.Error
 
-evalExpr :: Expr -> Eval Val
+evalExpr :: Expr -> Interpreter Val
 evalExpr (Lit _   (LitInteger v)) = return $ IntegerVal v
 evalExpr (Lit _   (LitReal    v)) = return $ RealVal v
 evalExpr (Lit _   (LitBool    v)) = return $ BoolVal v
@@ -56,7 +56,7 @@ normalize lhs rhs = case (lhs, rhs) of
   (BoolVal    v1, BoolVal v2   ) -> Just (BoolVal v1, BoolVal v2)
   _                              -> Nothing
 
-operateBinary :: SourcePos -> Op -> Val -> Val -> Eval Val
+operateBinary :: SourcePos -> Op -> Val -> Val -> Interpreter Val
 operateBinary pos op lhs rhs = case normalize lhs rhs of
   Nothing ->
     throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
@@ -90,7 +90,7 @@ operateBinary pos op lhs rhs = case normalize lhs rhs of
     _ -> throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
 
 
-operateUnary :: SourcePos -> Op -> Val -> Eval Val
+operateUnary :: SourcePos -> Op -> Val -> Interpreter Val
 operateUnary _   Plus  v@(IntegerVal _) = return v
 operateUnary _   Minus (  IntegerVal v) = return (IntegerVal (-v))
 operateUnary _   Plus  v@(RealVal    _) = return v
