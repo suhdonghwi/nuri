@@ -26,14 +26,14 @@ evalExpr (Var pos ident         ) = do
     Just val -> return val
     Nothing  -> throwError $ UnboundSymbol pos ident
 evalExpr (App pos func args) = do
-  funcResult <- evalExpr func
-  case funcResult of
+  funcEval <- evalExpr func
+  case funcEval of
     FuncVal funcVal -> do
-      argsVal <- sequence $ fmap evalExpr args
-      v       <- funcVal argsVal
-      case v of
-        Returned result -> return result
-        Normal   _      -> return Undefined
+      argsVal    <- sequence $ fmap evalExpr args
+      funcResult <- funcVal argsVal
+      case funcResult of
+        Returned resultVal -> return resultVal
+        Normal   _         -> return Undefined
     val -> throwError $ NotCallable pos (getTypeName val)
 evalExpr (Assign _ ident expr) = do
   val <- evalExpr expr
