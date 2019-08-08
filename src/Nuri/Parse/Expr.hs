@@ -18,7 +18,7 @@ parseExpr :: Parser Expr
 parseExpr = parseArithmetic
 
 parseArithmetic :: Parser Expr
-parseArithmetic = makeExprParser (try parseNestedFuncCalls <|> parseTerm) table
+parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]

@@ -17,10 +17,7 @@ parseStmts = many (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
 parseStmt =
-  try parseIfStmt
-    <|> try parseReturnStmt
-    <|> try parseExprStmt
-    <|> parseFuncDecl
+  parseIfStmt <|> try parseReturnStmt <|> try parseExprStmt <|> parseFuncDecl
 
 parseExprStmt :: Parser Stmt
 parseExprStmt =

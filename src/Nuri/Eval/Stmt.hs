@@ -79,6 +79,6 @@ evalStmt (FuncDecl pos funcName args body) = do
       then throwError $ BoundSymbol pos symbol
       else modify $ over symbolTable (insert symbol val)
 
-runStmtInterpreter
+runStmtEval
   :: Stmt -> InterpreterState -> IO (Either Error (Flow Val, InterpreterState))
-runStmtInterpreter stmt st = runExceptT (runStateT (unwrap (evalStmt stmt)) st)
+runStmtEval stmt st = runExceptT (runStateT (unwrap (evalStmt stmt)) st)
