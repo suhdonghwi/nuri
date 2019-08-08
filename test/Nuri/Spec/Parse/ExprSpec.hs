@@ -54,6 +54,20 @@ spec = do
     it "0을 0.0으로 파싱" $ do
       testParse parseReal "0.0" `shouldParse` 0.0
 
+  describe "문자 파싱" $ do
+    it "'a'를 'a'로 파싱" $ do
+      testParse parseChar "'a'" `shouldParse` 'a'
+    it "'가'를 '가'로 파싱" $ do
+      testParse parseChar "'가'" `shouldParse` '가'
+    it "'\\''를 '\\''로 파싱" $ do
+      testParse parseChar "'\\''" `shouldParse` '\''
+    it "'\\n를 '\\n로 파싱" $ do
+      testParse parseChar "'\\n'" `shouldParse` '\n'
+    it "'''에 대해서 오류" $ do
+      testParse parseChar `shouldFailOn` "'''"
+    it "'ab'에 대해서 오류" $ do
+      testParse parseChar `shouldFailOn` "'ab'"
+
   describe "부울 파싱" $ do
     it "참을 True로 파싱" $ do
       testParse parseBool "참" `shouldParse` True

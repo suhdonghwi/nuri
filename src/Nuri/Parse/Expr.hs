@@ -119,5 +119,10 @@ parseHexadecimal = char' 'x' >> L.hexadecimal
 parseReal :: Parser Double
 parseReal = lexeme L.float
 
+parseChar :: Parser Char
+parseChar = between (symbol "\'" >> notFollowedBy (symbol "\'"))
+                    (symbol "\'")
+                    L.charLiteral
+
 parseBool :: Parser Bool
 parseBool = (True <$ reserved "참") <|> (False <$ reserved "거짓")
