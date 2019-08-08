@@ -20,6 +20,7 @@ data Flow a = Returned a | Normal a
 
 data Val = IntegerVal Integer
          | RealVal Double
+         | CharVal Char
          | BoolVal Bool
          | FuncVal ([Val] -> Interpreter (Flow Val))
          | Undefined
@@ -35,6 +36,7 @@ instance Eq Val where
 instance Show Val where
   show (IntegerVal v) = "(IntegerVal " ++ show v ++ ")"
   show (RealVal    v) = "(RealVal " ++ show v ++ ")"
+  show (CharVal    v) = "(CharVal " ++ show v ++ ")"
   show (BoolVal    v) = "(BoolVal " ++ show v ++ ")"
   show (FuncVal    _) = "(FuncVal (func))"
   show Undefined      = "(Undefined)"
@@ -42,6 +44,7 @@ instance Show Val where
 getTypeName :: Val -> ValType
 getTypeName (IntegerVal _) = IntegerType
 getTypeName (RealVal    _) = RealType
+getTypeName (CharVal    _) = CharType
 getTypeName (BoolVal    _) = BoolType
 getTypeName (FuncVal    _) = FuncType
 getTypeName Undefined      = UndefinedType
@@ -49,6 +52,7 @@ getTypeName Undefined      = UndefinedType
 printVal :: Val -> Text
 printVal (IntegerVal v) = pack $ show v
 printVal (RealVal    v) = pack $ show v
+printVal (CharVal    v) = pack $ show v
 printVal (BoolVal    v) = if v then "참" else "거짓"
 printVal (FuncVal    _) = "(함수)"
 printVal Undefined      = "(정의되지 않음)"
