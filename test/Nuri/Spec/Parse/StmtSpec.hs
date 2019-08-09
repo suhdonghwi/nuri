@@ -160,5 +160,5 @@ spec = do
                                   (litInteger 1)
                                   (app (var "줄이다") [litInteger 2])
                         )
-                      , ExprStmt ((app (var "증가하다") [litInteger 3]))
+                      , ExprStmt (app (var "증가하다") [litInteger 3])
                       ]

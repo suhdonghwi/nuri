@@ -16,7 +16,7 @@ data Stmt = Seq (NonEmpty Stmt)
     deriving (Show)
 
 instance Eq Stmt where
-  Seq      s1   == Seq      s2   = (s1 == s2)
+  Seq      s1   == Seq      s2   = s1 == s2
   ExprStmt e1   == ExprStmt e2   = e1 == e2
   Return   e1   == Return   e2   = e1 == e2
   If _ e1 a1 b1 == If _ e2 a2 b2 = (e1 == e2) && (a1 == a2) && (b1 == b2)

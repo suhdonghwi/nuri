@@ -26,7 +26,7 @@ import           Nuri.Eval.ValType
 
 scope :: Interpreter (Flow Val) -> Interpreter (Flow Val)
 scope p = do
-  prevTable <- view symbolTable <$> get
+  prevTable <- gets (view symbolTable)
   result    <- p
   modify $ over symbolTable (intersection prevTable)
   return result
@@ -49,10 +49,10 @@ makeFunc pos argNames body =
   in  FuncVal func
 
 evalStmt :: Stmt -> Interpreter (Flow Val)
-evalStmt (Seq      stmts) = NE.last <$> (sequence $ evalStmt <$> stmts)
+evalStmt (Seq      stmts) = NE.last <$> sequence (evalStmt <$> stmts)
 evalStmt (ExprStmt expr ) = Normal <$> evalExpr expr
 evalStmt (Return   expr ) = do
-  inFunc <- view isInFunction <$> get
+  inFunc <- gets (view isInFunction)
   if inFunc
     then Returned <$> evalExpr expr
     else throwError $ NotInFunction (srcPos expr)
@@ -74,7 +74,7 @@ evalStmt (FuncDecl pos funcName args body) = do
  where
   addSymbol :: Text.Text -> Val -> Interpreter ()
   addSymbol symbol val = do
-    table <- view symbolTable <$> get
+    table <- gets (view symbolTable)
     if member symbol table
       then throwError $ BoundSymbol pos symbol
       else modify $ over symbolTable (insert symbol val)

@@ -40,7 +40,7 @@ evalInput input = do
       evalResult <- liftIO
         $ runStmtEval result (V.InterpreterState (view symbolTable st) False)
       case evalResult of
-        Left evalErr -> liftIO $ putStrLn (show evalErr) >> return Nothing
+        Left evalErr -> liftIO $ print evalErr >> return Nothing
         Right (finalValue, st') -> do
           modify $ set symbolTable (view V.symbolTable st')
           return $ Just finalValue
@@ -60,4 +60,4 @@ repl = do
   repl
 
 runRepl :: Repl a -> ReplState -> IO ()
-runRepl f st = runStateT (unRepl f) st >> return ()
+runRepl f st = void $ runStateT (unRepl f) st

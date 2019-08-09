@@ -18,7 +18,9 @@ parseExpr :: Parser Expr
 parseExpr = parseArithmetic
 
 parseArithmetic :: Parser Expr
-parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
+parseArithmetic = makeExprParser
+  ((parseNestedFuncCalls <?> "함수식") <|> (parseTerm <?> "단순식"))
+  table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -29,12 +31,18 @@ parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
     , [InfixL $ binaryOp "+" Plus, InfixL $ binaryOp "-" Minus]
     , [InfixL $ binaryOp "=" Equal, InfixL $ binaryOp "!=" Inequal]
     ]
-  binaryOp opStr op = do
-    pos <- getSourcePos
-    BinaryOp pos op <$ L.symbol sc opStr
-  unaryOp opStr op = do
-    pos <- getSourcePos
-    UnaryOp pos op <$ L.symbol sc opStr
+  binaryOp opStr op =
+    (do
+        pos <- getSourcePos
+        BinaryOp pos op <$ L.symbol sc opStr
+      )
+      <?> "연산식"
+  unaryOp opStr op =
+    (do
+        pos <- getSourcePos
+        UnaryOp pos op <$ L.symbol sc opStr
+      )
+      <?> "연산식"
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
@@ -52,19 +60,19 @@ parseFuncCall = do
 
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme $ do
-  ident <- pack <$> some hangulSyllable
+  ident <- pack <$> some (hangulSyllable <|> letterChar)
   if ident `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return ident
  where
   keywords = ["반환하다", "돌려주다", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면"]
 
 parseTerm :: Parser Expr
 parseTerm =
-  try parseRealExpr
-    <|> parseIntegerExpr
-    <|> parseBoolExpr
-    <|> try parseAssignment
-    <|> parseIdentifierExpr
-    <|> parseParens
+  (parseBoolExpr <?> "부울")
+    <|> try (parseRealExpr <?> "실수")
+    <|> (parseIntegerExpr <?> "정수")
+    <|> try (parseAssignment <?> "대입식")
+    <|> (parseIdentifierExpr <?> "변수명")
+    <|> (parseParens <?> "괄호식")
 
 parseParens :: Parser Expr
 parseParens = between (symbol "(") (symbol ")") parseExpr
@@ -74,8 +82,7 @@ parseAssignment = do
   pos         <- getSourcePos
   Var _ ident <- parseIdentifierExpr
   _           <- symbol ":"
-  val         <- parseExpr
-  return $ Assign pos ident val
+  Assign pos ident <$> parseExpr
 
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr =

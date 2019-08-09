@@ -2,7 +2,6 @@ module Main where
 
 import           System.Environment
 
-import qualified Data.Map                      as Map
 import qualified Data.Text                     as T
 
 import           Repl
@@ -10,7 +9,7 @@ import           Repl
 main :: IO ()
 main = do
   args <- getArgs
-  if length args == 0
+  if null args
     then runRepl repl (ReplState ">> " intrinsicTable "(반응형)")
     else do
       let filePath = head args

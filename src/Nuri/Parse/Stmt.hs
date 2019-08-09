@@ -39,10 +39,10 @@ parseIfStmt = do
     pos <- getSourcePos
     _   <- reserved s
     e   <- parseExpr
-    _   <- (reserved "면" <|> reserved "이면" <|> reserved "이라면")
+    _   <- reserved "면" <|> reserved "이면" <|> reserved "이라면"
     _   <- symbol ":"
     return
-      (L.IndentSome Nothing (return . (If pos e) . Seq . fromList) parseStmt)
+      (L.IndentSome Nothing (return . If pos e . Seq . fromList) parseStmt)
   elseLine s = do
     _ <- reserved s
     _ <- symbol ":"

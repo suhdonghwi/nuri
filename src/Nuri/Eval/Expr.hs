@@ -29,7 +29,7 @@ evalExpr (App pos func args) = do
   funcEval <- evalExpr func
   case funcEval of
     FuncVal funcVal -> do
-      argsVal    <- sequence $ fmap evalExpr args
+      argsVal    <- mapM evalExpr args
       funcResult <- funcVal argsVal
       case funcResult of
         Returned resultVal -> return resultVal
