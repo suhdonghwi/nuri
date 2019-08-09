@@ -31,10 +31,10 @@ symbol :: Text -> Parser Text
 symbol = L.symbol sc
 
 reserved :: Text -> Parser ()
-reserved s = string s *> notFollowedBy hangulSyllable *> sc
+reserved s = (lexeme . try) (string s *> notFollowedBy hangulSyllable)
 
 hangulSyllable :: Parser Char
-hangulSyllable = oneOf ['가' .. '힣']
+hangulSyllable = oneOf ['가' .. '힣'] <?> "한글"
 
 hangulJamo :: Parser Char
-hangulJamo = oneOf $ ['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ']
+hangulJamo = oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ']) <?> "한글"

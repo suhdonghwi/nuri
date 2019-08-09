@@ -1,11 +1,8 @@
 module Nuri.Parse.Stmt where
 
-import           Control.Monad
-
 import           Data.List.NonEmpty
 
 import           Text.Megaparsec
-import           Text.Megaparsec.Char
 import qualified Text.Megaparsec.Char.Lexer    as L
 
 import           Nuri.Parse
@@ -17,12 +14,10 @@ parseStmts = many (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
 parseStmt =
-  parseIfStmt <|> try parseReturnStmt <|> try parseExprStmt <|> parseFuncDecl
+  parseIfStmt <|> try parseReturnStmt <|> try parseFuncDecl <|> parseExprStmt
 
 parseExprStmt :: Parser Stmt
-parseExprStmt =
-  ExprStmt
-    <$> (parseExpr <* notFollowedBy (reserved "반환하다" <|> void (symbol ":")))
+parseExprStmt = ExprStmt <$> parseExpr
 
 parseReturnStmt :: Parser Stmt
 parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
@@ -41,8 +36,7 @@ parseIfStmt = do
     e   <- parseExpr
     _   <- reserved "면" <|> reserved "이면" <|> reserved "이라면"
     _   <- symbol ":"
-    return
-      (L.IndentSome Nothing (return . If pos e . Seq . fromList) parseStmt)
+    return (L.IndentSome Nothing (return . If pos e . Seq . fromList) parseStmt)
   elseLine s = do
     _ <- reserved s
     _ <- symbol ":"
@@ -53,7 +47,7 @@ parseFuncDecl = L.indentBlock scn argsLine
  where
   argsLine = do
     pos  <- getSourcePos
-    args <- many (char '[' *> parseIdentifier <* (char ']' >> sc))
+    args <- many (between (symbol "[") (symbol "]") parseIdentifier)
     sc
     funcName <- parseFuncIdentifier
     _        <- symbol ":"

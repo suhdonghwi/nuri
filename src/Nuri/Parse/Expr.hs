@@ -18,9 +18,7 @@ parseExpr :: Parser Expr
 parseExpr = parseArithmetic
 
 parseArithmetic :: Parser Expr
-parseArithmetic = makeExprParser
-  ((parseNestedFuncCalls <?> "함수식") <|> (parseTerm <?> "단순식"))
-  table
+parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -32,24 +30,24 @@ parseArithmetic = makeExprParser
     , [InfixL $ binaryOp "=" Equal, InfixL $ binaryOp "!=" Inequal]
     ]
   binaryOp opStr op =
-    (do
+    do
         pos <- getSourcePos
         BinaryOp pos op <$ L.symbol sc opStr
-      )
       <?> "연산식"
   unaryOp opStr op =
-    (do
+    do
         pos <- getSourcePos
         UnaryOp pos op <$ L.symbol sc opStr
-      )
       <?> "연산식"
 
 parseNestedFuncCalls :: Parser Expr
-parseNestedFuncCalls = do
-  calls <- some (try parseFuncCall)
-  let addArg arg (App pos func args) = App pos func (arg : args)
-      addArg _   _                   = undefined
-  return $ foldl1' addArg calls
+parseNestedFuncCalls =
+  do
+      calls <- some (try parseFuncCall)
+      let addArg arg (App pos func args) = App pos func (arg : args)
+          addArg _   _                   = undefined
+      return $ foldl1' addArg calls
+    <?> "함수식"
 
 parseFuncCall :: Parser Expr
 parseFuncCall = do
@@ -60,19 +58,19 @@ parseFuncCall = do
 
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme $ do
-  ident <- pack <$> some (hangulSyllable <|> letterChar)
+  ident <- pack <$> some hangulSyllable
   if ident `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return ident
- where
-  keywords = ["반환하다", "돌려주다", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면"]
+  where keywords = ["반환하다", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면"]
 
 parseTerm :: Parser Expr
 parseTerm =
-  (parseBoolExpr <?> "부울")
-    <|> try (parseRealExpr <?> "실수")
-    <|> (parseIntegerExpr <?> "정수")
-    <|> try (parseAssignment <?> "대입식")
-    <|> (parseIdentifierExpr <?> "변수명")
-    <|> (parseParens <?> "괄호식")
+  parseBoolExpr
+    <|> try parseRealExpr
+    <|> parseIntegerExpr
+    <|> try parseAssignment
+    <|> parseIdentifierExpr
+    <|> parseParens
+    <?> "단순식"
 
 parseParens :: Parser Expr
 parseParens = between (symbol "(") (symbol ")") parseExpr
