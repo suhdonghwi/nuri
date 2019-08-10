@@ -1,9 +1,7 @@
 module Nuri.Parse.Expr where
 
 
-import           Data.Text                                ( Text
-                                                          , pack
-                                                          )
+import qualified Data.Text                     as T
 import           Data.List                                ( foldl1' )
 
 import           Text.Megaparsec
@@ -29,25 +27,19 @@ parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
     , [InfixL $ binaryOp "+" Plus, InfixL $ binaryOp "-" Minus]
     , [InfixL $ binaryOp "=" Equal, InfixL $ binaryOp "!=" Inequal]
     ]
-  binaryOp opStr op =
-    do
-        pos <- getSourcePos
-        BinaryOp pos op <$ L.symbol sc opStr
-      <?> "연산식"
-  unaryOp opStr op =
-    do
-        pos <- getSourcePos
-        UnaryOp pos op <$ L.symbol sc opStr
-      <?> "연산식"
+  binaryOp opStr op = hidden $ do
+    pos <- getSourcePos
+    BinaryOp pos op <$ L.symbol sc opStr
+  unaryOp opStr op = hidden $ do
+    pos <- getSourcePos
+    UnaryOp pos op <$ L.symbol sc opStr
 
 parseNestedFuncCalls :: Parser Expr
-parseNestedFuncCalls =
-  do
-      calls <- some (try parseFuncCall)
-      let addArg arg (App pos func args) = App pos func (arg : args)
-          addArg _   _                   = undefined
-      return $ foldl1' addArg calls
-    <?> "함수식"
+parseNestedFuncCalls = do
+  calls <- some (try parseFuncCall)
+  let addArg arg (App pos func args) = App pos func (arg : args)
+      addArg _   _                   = undefined
+  return $ foldl1' addArg calls
 
 parseFuncCall :: Parser Expr
 parseFuncCall = do
@@ -56,9 +48,9 @@ parseFuncCall = do
   func <- parseFuncIdentifier
   return $ App pos (Var pos func) args
 
-parseFuncIdentifier :: Parser Text
+parseFuncIdentifier :: Parser T.Text
 parseFuncIdentifier = lexeme $ do
-  ident <- pack <$> some hangulSyllable
+  ident <- T.pack <$> some hangulSyllable
   if ident `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return ident
   where keywords = ["반환하다", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면"]
 
@@ -67,10 +59,11 @@ parseTerm =
   parseBoolExpr
     <|> try parseRealExpr
     <|> parseIntegerExpr
+    <|> parseCharExpr
     <|> try parseAssignment
     <|> parseIdentifierExpr
     <|> parseParens
-    <?> "단순식"
+    <?> "표현식"
 
 parseParens :: Parser Expr
 parseParens = between (symbol "(") (symbol ")") parseExpr
@@ -83,15 +76,14 @@ parseAssignment = do
   Assign pos ident <$> parseExpr
 
 parseIdentifierExpr :: Parser Expr
-parseIdentifierExpr =
-  lexeme $ Var <$> getSourcePos <*> (char '[' >> parseIdentifier <* char ']')
+parseIdentifierExpr = Var <$> getSourcePos <*> parseIdentifier
 
-parseIdentifier :: Parser Text
-parseIdentifier =
-  pack
-    <$> ((++) <$> some allowedChars <*> many
-          (char ' ' <|> allowedChars <|> digitChar)
-        )
+parseIdentifier :: Parser T.Text
+parseIdentifier = lexeme $ T.pack <$> between
+  (char '[')
+  (char ']')
+  ((++) <$> some allowedChars <*> many (char ' ' <|> allowedChars <|> digitChar)
+  )
   where allowedChars = hangulSyllable <|> hangulJamo <|> letterChar
 
 parseIntegerExpr :: Parser Expr
@@ -105,6 +97,9 @@ parseIntegerExpr = lexeme $ do
 
 parseRealExpr :: Parser Expr
 parseRealExpr = Lit <$> getSourcePos <*> (LitReal <$> parseReal)
+
+parseCharExpr :: Parser Expr
+parseCharExpr = Lit <$> getSourcePos <*> (LitChar <$> parseChar)
 
 parseBoolExpr :: Parser Expr
 parseBoolExpr = Lit <$> getSourcePos <*> (LitBool <$> parseBool)
@@ -125,9 +120,8 @@ parseReal :: Parser Double
 parseReal = lexeme L.float
 
 parseChar :: Parser Char
-parseChar = between (symbol "\'" >> notFollowedBy (symbol "\'"))
-                    (symbol "\'")
-                    L.charLiteral
+parseChar = lexeme
+  (between (char '\'' >> notFollowedBy (char '\'')) (char '\'') L.charLiteral)
 
 parseBool :: Parser Bool
 parseBool = (True <$ reserved "참") <|> (False <$ reserved "거짓")

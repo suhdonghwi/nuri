@@ -47,7 +47,7 @@ parseFuncDecl = L.indentBlock scn argsLine
  where
   argsLine = do
     pos  <- getSourcePos
-    args <- many (between (symbol "[") (symbol "]") parseIdentifier)
+    args <- many parseIdentifier
     sc
     funcName <- parseFuncIdentifier
     _        <- symbol ":"

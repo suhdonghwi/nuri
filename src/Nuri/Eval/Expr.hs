@@ -18,6 +18,7 @@ import           Nuri.Eval.Error
 evalExpr :: Expr -> Interpreter Val
 evalExpr (Lit _   (LitInteger v)) = return $ IntegerVal v
 evalExpr (Lit _   (LitReal    v)) = return $ RealVal v
+evalExpr (Lit _   (LitChar    v)) = return $ CharVal v
 evalExpr (Lit _   (LitBool    v)) = return $ BoolVal v
 
 evalExpr (Var pos ident         ) = do
