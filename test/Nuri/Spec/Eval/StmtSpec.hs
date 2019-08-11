@@ -4,7 +4,7 @@ import           Test.Hspec
 
 import           Control.Lens                      hiding ( assign )
 
-import qualified Data.Map                      as Map
+import qualified Data.Map                      as M
 
 import           Nuri.Stmt
 import           Nuri.Eval.Stmt
@@ -40,7 +40,7 @@ spec = do
           initState
         `shouldEval` ( Normal (IntegerVal 10)
                      , over symbolTable
-                            (Map.adjust (const (IntegerVal 10)) "나이")
+                            (M.adjust (const (IntegerVal 10)) "나이")
                             initState
                      )
     it "단일 조건문 평가 (거짓)" $ do
@@ -66,7 +66,7 @@ spec = do
           initState
         `shouldEval` ( Normal (IntegerVal 20)
                      , over symbolTable
-                            (Map.adjust (const (IntegerVal 20)) "나이")
+                            (M.adjust (const (IntegerVal 20)) "나이")
                             initState
                      )
     it "스코프 적용" $ do
@@ -87,16 +87,12 @@ spec = do
     it "인자 없는 함수 선언" $ do
       testStmtEval (funcDecl "깨우다" [] (Return (litInteger 10)))
         `shouldEval` ( Normal Undefined
-                     , set symbolTable
-                           (Map.fromList [("깨우다", funcVal)])
-                           initState
+                     , set symbolTable (M.fromList [("깨우다", funcVal)]) initState
                      )
     it "인자가 하나인 함수 선언" $ do
       testStmtEval (funcDecl "먹다" ["음식"] (Return (litInteger 10)))
         `shouldEval` ( Normal Undefined
-                     , set symbolTable
-                           (Map.fromList [("먹다", funcVal)])
-                           initState
+                     , set symbolTable (M.fromList [("먹다", funcVal)]) initState
                      )
     it "함수 이름이 중복되면 에러" $ do
       testStmtEvalWith (funcDecl "십" ["수"] (Return (litInteger 10))) sampleState

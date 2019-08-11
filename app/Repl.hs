@@ -2,15 +2,11 @@ module Repl where
 
 import           System.IO                                ( hFlush )
 
-import           Control.Monad
-import           Control.Monad.Except
-
 import           Control.Lens
 import           Control.Lens.TH
 
-import qualified Data.Text.IO                  as TextIO
-import qualified Data.Text                     as T
 import qualified Data.Map                      as M
+import           Data.Text                                ( strip )
 
 import           Text.Megaparsec
 
@@ -18,7 +14,7 @@ import           Nuri.Eval.Stmt
 import qualified Nuri.Eval.Val                 as V
 import           Nuri.Parse.Stmt
 
-data ReplState = ReplState { _prompt :: T.Text, _symbolTable :: V.SymbolTable, _fileName :: String }
+data ReplState = ReplState { _prompt :: Text, _symbolTable :: V.SymbolTable, _fileName :: Text }
 
 $(makeLenses ''ReplState)
 
@@ -28,10 +24,10 @@ newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
 intrinsicTable :: V.SymbolTable
 intrinsicTable = M.fromList []
 
-evalInput :: T.Text -> Repl (Maybe (V.Flow V.Val))
+evalInput :: Text -> Repl (Maybe (V.Flow V.Val))
 evalInput input = do
   st <- get
-  let ast = runParser (parseStmt <* eof) (view fileName st) input
+  let ast = runParser (parseStmt <* eof) (toString $ view fileName st) input
   case ast of
     Left  err    -> liftIO $ putStrLn (errorBundlePretty err) >> return Nothing
     Right result -> do
@@ -47,14 +43,14 @@ repl :: Repl ()
 repl = do
   st <- get
   liftIO $ do
-    TextIO.putStr (view prompt st)
+    putText (view prompt st)
     hFlush stdout
-  line <- T.strip <$> liftIO TextIO.getLine
+  line <- strip <$> liftIO getLine
   liftIO $ when (line == ":quit") exitSuccess
   result <- evalInput line
   case result of
     Just val -> liftIO $ print val
-    Nothing  -> return ()
+    Nothing  -> pass
   repl
 
 runRepl :: Repl a -> ReplState -> IO ()

@@ -1,8 +1,5 @@
 module Nuri.Eval.Expr where
 
-import           Prelude                           hiding ( lookup )
-
-import           Control.Monad.State.Lazy
 import           Control.Monad.Except
 
 import           Control.Lens                      hiding ( op )

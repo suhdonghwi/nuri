@@ -10,6 +10,7 @@ data Stmt = Seq (NonEmpty Stmt)
           | Return Expr
           | If SourcePos Expr Stmt (Maybe Stmt)
           | FuncDecl SourcePos Text [Text] Stmt
+          deriving (Show)
 
 instance Eq Stmt where
   Seq      s1   == Seq      s2   = s1 == s2

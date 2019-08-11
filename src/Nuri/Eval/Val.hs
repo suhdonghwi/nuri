@@ -10,7 +10,6 @@ import qualified Text.Show
 import           Nuri.Eval.Error
 import           Nuri.Eval.ValType
 
-
 newtype Interpreter a = Interpreter { unwrap :: StateT InterpreterState (ExceptT Error IO) a }
   deriving (Monad, Functor, Applicative, MonadState InterpreterState, MonadError Error, MonadIO)
 
@@ -59,7 +58,7 @@ printVal Undefined      = "(정의되지 않음)"
 
 type SymbolTable = M.Map Text Val
 data InterpreterState = InterpreterState { _symbolTable :: SymbolTable, _isInFunction :: Bool }
-  deriving (Eq)
+  deriving (Eq, Show)
 
 $(makeLenses ''InterpreterState)
 

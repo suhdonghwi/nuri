@@ -4,7 +4,7 @@ import           Test.Hspec
 
 import           Control.Lens                      hiding ( assign )
 
-import           Data.Map
+import qualified Data.Map                      as M
 
 import           Nuri.Expr
 import           Nuri.Eval.Val
@@ -138,22 +138,27 @@ spec = do
     it "단순 정수 대입" $ do
       testExprEvalWith (assign "수" (litInteger 10)) sampleState
         `shouldEval` ( IntegerVal 10
-                     , over symbolTable (insert "수" (IntegerVal 10)) sampleState
+                     , over symbolTable
+                            (M.insert "수" (IntegerVal 10))
+                            sampleState
                      )
     it "사칙연산식 대입" $ do
       testExprEvalWith
           (assign "수" (binaryOp Plus (litInteger 10) (litInteger 10)))
           sampleState
         `shouldEval` ( IntegerVal 20
-                     , over symbolTable (insert "수" (IntegerVal 20)) sampleState
+                     , over symbolTable
+                            (M.insert "수" (IntegerVal 20))
+                            sampleState
                      )
     it "대입식 대입" $ do
       testExprEvalWith (assign "수" (assign "상자" (litInteger 10))) sampleState
         `shouldEval` ( IntegerVal 10
                      , over
                        symbolTable
-                       (union
-                         (fromList [("수", IntegerVal 10), ("상자", IntegerVal 10)]
+                       (M.union
+                         (M.fromList
+                           [("수", IntegerVal 10), ("상자", IntegerVal 10)]
                          )
                        )
                        sampleState
@@ -161,5 +166,7 @@ spec = do
     it "겹치는 식별자 대입" $ do
       testExprEvalWith (assign "십" (litInteger 10)) sampleState
         `shouldEval` ( IntegerVal 10
-                     , over symbolTable (insert "십" (IntegerVal 10)) sampleState
+                     , over symbolTable
+                            (M.insert "십" (IntegerVal 10))
+                            sampleState
                      )

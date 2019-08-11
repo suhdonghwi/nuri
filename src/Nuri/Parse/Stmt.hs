@@ -27,7 +27,6 @@ parseIfStmt = do
   elsePart <- optional $ L.indentBlock scn (elseLine "아니면")
   return $ ifPart (foldr (??) elsePart (Just <$> elifPart))
  where
-  f ?? a = f <*> return a
   ifLine s = do
     pos <- getSourcePos
     _   <- reserved s

@@ -1,7 +1,5 @@
 module Nuri.Eval.Error where
 
-import           Data.Text
-
 import           Text.Megaparsec.Pos
 
 import           Nuri.Eval.ValType

@@ -1,7 +1,6 @@
 module Nuri.Parse.Expr where
 
 
-import qualified Data.Text                     as T
 import           Data.List                                ( foldl1' )
 
 import           Text.Megaparsec
@@ -40,7 +39,7 @@ parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
   calls <- some (try parseFuncCall)
   let addArg arg (App pos func args) = App pos func (arg : args)
-      addArg _   _                   = undefined
+      addArg _   _                   = error "Impossible"
   return $ foldl1' addArg calls
 
 parseFuncCall :: Parser Expr
@@ -50,9 +49,9 @@ parseFuncCall = do
   func <- parseFuncIdentifier
   return $ App pos (Var pos func) args
 
-parseFuncIdentifier :: Parser T.Text
+parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme $ do
-  ident <- T.pack <$> some hangulSyllable
+  ident <- toText <$> some hangulSyllable
   if ident `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return ident
   where keywords = ["반환하다", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면"]
 
@@ -79,8 +78,8 @@ parseAssignment = do
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = Var <$> getSourcePos <*> parseIdentifier
 
-parseIdentifier :: Parser T.Text
-parseIdentifier = lexeme $ T.pack <$> between
+parseIdentifier :: Parser Text
+parseIdentifier = lexeme $ toText <$> between
   (char '[')
   (char ']')
   ((++) <$> some allowedChars <*> many (char ' ' <|> allowedChars <|> digitChar)

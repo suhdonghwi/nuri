@@ -2,11 +2,7 @@ module Nuri.Spec.Eval.Util where
 
 import           Test.Hspec
 
-import           Control.Monad.Except
-import           Control.Monad.State
-
-import           Data.Text
-import qualified Data.Map                      as Map
+import qualified Data.Map                      as M
 
 import           Nuri.Spec.Util
 
@@ -29,13 +25,13 @@ testEval :: (a -> Interpreter b) -> a -> IO (Either Error (b, InterpreterState))
 testEval f e = testEvalWith
   f
   e
-  (InterpreterState { _symbolTable = Map.empty, _isInFunction = False })
+  (InterpreterState { _symbolTable = M.empty, _isInFunction = False })
 
 
 sampleState :: InterpreterState
 sampleState = InterpreterState
   { _symbolTable  =
-    Map.fromList
+    M.fromList
       [ ("나이", IntegerVal 17)
       , ("십", makeFunc initPos [] (Return $ litInteger 10))
       , ( "늘리기"
