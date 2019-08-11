@@ -16,7 +16,9 @@ parseExpr :: Parser Expr
 parseExpr = parseArithmetic
 
 parseArithmetic :: Parser Expr
-parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
+parseArithmetic = makeExprParser
+  ((parseNestedFuncCalls <|> parseTerm) <?> "표현식")
+  table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -57,13 +59,12 @@ parseFuncIdentifier = lexeme $ do
 parseTerm :: Parser Expr
 parseTerm =
   parseBoolExpr
+    <|> parseCharExpr
     <|> try parseRealExpr
     <|> parseIntegerExpr
-    <|> parseCharExpr
     <|> try parseAssignment
     <|> parseIdentifierExpr
     <|> parseParens
-    <?> "표현식"
 
 parseParens :: Parser Expr
 parseParens = between (symbol "(") (symbol ")") parseExpr
