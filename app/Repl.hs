@@ -3,7 +3,7 @@ module Repl where
 import           System.IO                                ( hFlush )
 
 import           Control.Lens
-import           Control.Lens.TH
+import           Control.Lens.TH                          ( )
 
 import qualified Data.Map                      as M
 import           Data.Text                                ( strip )

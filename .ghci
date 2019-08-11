@@ -1,0 +1,3 @@
+import Text.Megaparsec
+import Text.Megaparsec.Char.Lexer
+:set prompt "$ "

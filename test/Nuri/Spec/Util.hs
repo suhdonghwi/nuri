@@ -8,9 +8,6 @@ import           Nuri.Stmt
 initPos :: SourcePos
 initPos = initialPos "(test)"
 
-newPos :: Int -> Int -> SourcePos
-newPos p1 p2 = SourcePos "(test)" (mkPos p1) (mkPos p2)
-
 litInteger :: Integer -> Expr
 litInteger v = Lit initPos (LitInteger v)
 
