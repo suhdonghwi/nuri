@@ -1,12 +1,11 @@
 module Nuri.Eval.Val where
 
 import           Control.Monad.Except
-import           Control.Monad.State
 
 import           Control.Lens
 
-import qualified Data.Map                      as Map
-import           Data.Text                     as Text
+import qualified Data.Map                      as M
+import qualified Text.Show
 
 import           Nuri.Eval.Error
 import           Nuri.Eval.ValType
@@ -25,6 +24,14 @@ data Val = IntegerVal Integer
          | FuncVal ([Val] -> Interpreter (Flow Val))
          | Undefined
 
+instance Show Val where
+  show (IntegerVal v) = "(IntegerVal " ++ show v ++ ")"
+  show (RealVal    v) = "(RealVal " ++ show v ++ ")"
+  show (CharVal    v) = "(CharVal " ++ show v ++ ")"
+  show (BoolVal    v) = "(BoolVal " ++ show v ++ ")"
+  show (FuncVal    _) = "(FuncVal (func))"
+  show Undefined      = "(Undefined)"
+
 instance Eq Val where
   IntegerVal v1 == IntegerVal v2 = v1 == v2
   RealVal    v1 == RealVal    v2 = v1 == v2
@@ -33,13 +40,6 @@ instance Eq Val where
   Undefined     == Undefined     = True
   _             == _             = False
 
-instance Show Val where
-  show (IntegerVal v) = "(IntegerVal " ++ show v ++ ")"
-  show (RealVal    v) = "(RealVal " ++ show v ++ ")"
-  show (CharVal    v) = "(CharVal " ++ show v ++ ")"
-  show (BoolVal    v) = "(BoolVal " ++ show v ++ ")"
-  show (FuncVal    _) = "(FuncVal (func))"
-  show Undefined      = "(Undefined)"
 
 getTypeName :: Val -> ValType
 getTypeName (IntegerVal _) = IntegerType
@@ -50,19 +50,18 @@ getTypeName (FuncVal    _) = FuncType
 getTypeName Undefined      = UndefinedType
 
 printVal :: Val -> Text
-printVal (IntegerVal v) = pack $ show v
-printVal (RealVal    v) = pack $ show v
-printVal (CharVal    v) = pack $ show v
+printVal (IntegerVal v) = show v
+printVal (RealVal    v) = show v
+printVal (CharVal    v) = show v
 printVal (BoolVal    v) = if v then "참" else "거짓"
 printVal (FuncVal    _) = "(함수)"
 printVal Undefined      = "(정의되지 않음)"
 
-type SymbolTable = Map.Map Text Val
+type SymbolTable = M.Map Text Val
 data InterpreterState = InterpreterState { _symbolTable :: SymbolTable, _isInFunction :: Bool }
-  deriving (Eq, Show)
+  deriving (Eq)
 
 $(makeLenses ''InterpreterState)
 
 initState :: InterpreterState
-initState =
-  InterpreterState { _symbolTable = Map.empty, _isInFunction = False }
+initState = InterpreterState { _symbolTable = M.empty, _isInFunction = False }

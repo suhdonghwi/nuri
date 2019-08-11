@@ -12,11 +12,11 @@ data Literal = LitInteger Integer
              | LitBool Bool
     deriving(Eq)
 
-instance Show Literal where
-  show (LitInteger v) = "(LitInteger " ++ show v ++ ")"
-  show (LitReal    v) = "(LitReal " ++ show v ++ ")"
-  show (LitChar    v) = "(LitChar " ++ show v ++ ")"
-  show (LitBool    v) = "(LitBool " ++ show v ++ ")"
+-- instance Show Literal where
+--   show (LitInteger v) = "(LitInteger " ++ show v ++ ")"
+--   show (LitReal    v) = "(LitReal " ++ show v ++ ")"
+--   show (LitChar    v) = "(LitChar " ++ show v ++ ")"
+--   show (LitBool    v) = "(LitBool " ++ show v ++ ")"
 
 data Expr = Lit SourcePos Literal
           | Var SourcePos Text
@@ -24,7 +24,6 @@ data Expr = Lit SourcePos Literal
           | Assign SourcePos Text Expr
           | BinaryOp SourcePos Op Expr Expr
           | UnaryOp SourcePos Op Expr
-    deriving(Show)
 
 instance Eq Expr where
   Lit _ v1       == Lit _ v2       = v1 == v2

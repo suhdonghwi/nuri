@@ -1,18 +1,16 @@
 module Repl where
 
-import           System.Exit
-import           System.IO
+import           System.IO                                ( hFlush )
 
 import           Control.Monad
 import           Control.Monad.Except
-import           Control.Monad.State
 
 import           Control.Lens
 import           Control.Lens.TH
 
 import qualified Data.Text.IO                  as TextIO
 import qualified Data.Text                     as T
-import           Data.Map
+import qualified Data.Map                      as M
 
 import           Text.Megaparsec
 
@@ -28,7 +26,7 @@ newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
 intrinsicTable :: V.SymbolTable
-intrinsicTable = fromList []
+intrinsicTable = M.fromList []
 
 evalInput :: T.Text -> Repl (Maybe (V.Flow V.Val))
 evalInput input = do
@@ -40,7 +38,7 @@ evalInput input = do
       evalResult <- liftIO
         $ runStmtEval result (V.InterpreterState (view symbolTable st) False)
       case evalResult of
-        Left evalErr -> liftIO $ print evalErr >> return Nothing
+        Left  evalErr           -> liftIO $ print evalErr >> return Nothing
         Right (finalValue, st') -> do
           modify $ set symbolTable (view V.symbolTable st')
           return $ Just finalValue

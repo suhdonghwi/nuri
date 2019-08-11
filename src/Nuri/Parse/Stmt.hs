@@ -1,7 +1,5 @@
 module Nuri.Parse.Stmt where
 
-import           Data.List.NonEmpty
-
 import           Text.Megaparsec
 import qualified Text.Megaparsec.Char.Lexer    as L
 

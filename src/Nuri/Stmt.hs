@@ -1,8 +1,5 @@
 module Nuri.Stmt where
 
-import           Data.Text
-import           Data.List.NonEmpty
-
 import           Text.Megaparsec.Pos
 
 import           Nuri.Expr
@@ -13,7 +10,6 @@ data Stmt = Seq (NonEmpty Stmt)
           | Return Expr
           | If SourcePos Expr Stmt (Maybe Stmt)
           | FuncDecl SourcePos Text [Text] Stmt
-    deriving (Show)
 
 instance Eq Stmt where
   Seq      s1   == Seq      s2   = s1 == s2

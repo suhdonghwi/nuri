@@ -20,7 +20,8 @@ extra-source-files:
 description: 배우기 쉬운 한글 프로그래밍 언어
 
 dependencies:
-  - base >= 4.7 && < 5
+  - base-noprelude >= 4.12
+  - relude >= 0.5
   - megaparsec >= 7.0
   - parser-combinators >= 1.0
   - text >= 1.2

@@ -3,7 +3,14 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: relude-0.5.0@sha256:8b9d5659c4c82dbd46883cfff24bb7cc71e21aaea868162921b691e06a3e8263,8706
+    pantry-tree:
+      size: 3939
+      sha256: fce7c7016b612ef8919105980df3203e40bfc575dc296d11bf989232169325aa
+  original:
+    hackage: relude-0.5.0
 snapshots:
 - completed:
     size: 498155
