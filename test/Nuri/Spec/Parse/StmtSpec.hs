@@ -3,8 +3,6 @@ module Nuri.Spec.Parse.StmtSpec where
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
 
-import           Data.List.NonEmpty
-
 import           Nuri.Stmt
 import           Nuri.Expr
 import           Nuri.Parse.Stmt

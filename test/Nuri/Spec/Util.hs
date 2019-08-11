@@ -1,7 +1,5 @@
 module Nuri.Spec.Util where
 
-import           Data.Text
-
 import           Text.Megaparsec.Pos
 
 import           Nuri.Expr
