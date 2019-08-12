@@ -2,9 +2,11 @@ module Nuri.Expr where
 
 import qualified Text.Show
 
-import           Text.Megaparsec.Pos
+import           Text.Megaparsec.Pos                      ( SourcePos )
 
-import           Nuri.ASTNode
+import           Nuri.ASTNode                             ( ASTNode
+                                                          , srcPos
+                                                          )
 
 data Literal = LitInteger Integer
              | LitReal Double

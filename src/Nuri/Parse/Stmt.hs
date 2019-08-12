@@ -1,18 +1,29 @@
 module Nuri.Parse.Stmt where
 
-import           Text.Megaparsec
+import qualified Text.Megaparsec               as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
-import           Nuri.Parse
-import           Nuri.Parse.Expr
-import           Nuri.Stmt
+import           Nuri.Parse                               ( Parser
+                                                          , scn
+                                                          , sc
+                                                          , reserved
+                                                          , symbol
+                                                          )
+import           Nuri.Parse.Expr                          ( parseExpr
+                                                          , parseIdentifier
+                                                          , parseFuncIdentifier
+                                                          )
+import           Nuri.Stmt                                ( Stmt(..) )
 
 parseStmts :: Parser [Stmt]
-parseStmts = many (parseStmt <* scn)
+parseStmts = P.many (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
 parseStmt =
-  parseIfStmt <|> try parseReturnStmt <|> try parseFuncDecl <|> parseExprStmt
+  parseIfStmt
+    <|> P.try parseReturnStmt
+    <|> P.try parseFuncDecl
+    <|> parseExprStmt
 
 parseExprStmt :: Parser Stmt
 parseExprStmt = ExprStmt <$> parseExpr
@@ -23,12 +34,12 @@ parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
 parseIfStmt :: Parser Stmt
 parseIfStmt = do
   ifPart   <- L.indentBlock scn (ifLine "만약")
-  elifPart <- many $ L.indentBlock scn (ifLine "아니고")
+  elifPart <- P.many $ L.indentBlock scn (ifLine "아니고")
   elsePart <- optional $ L.indentBlock scn (elseLine "아니면")
   return $ ifPart (foldr (??) elsePart (Just <$> elifPart))
  where
   ifLine s = do
-    pos <- getSourcePos
+    pos <- P.getSourcePos
     _   <- reserved s
     e   <- parseExpr
     _   <- reserved "면" <|> reserved "이면" <|> reserved "이라면"
@@ -43,8 +54,8 @@ parseFuncDecl :: Parser Stmt
 parseFuncDecl = L.indentBlock scn argsLine
  where
   argsLine = do
-    pos  <- getSourcePos
-    args <- many parseIdentifier
+    pos  <- P.getSourcePos
+    args <- P.many parseIdentifier
     sc
     funcName <- parseFuncIdentifier
     _        <- symbol ":"

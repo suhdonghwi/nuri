@@ -1,14 +1,14 @@
 module Nuri.Eval.Val where
 
-import           Control.Monad.Except
+import           Control.Monad.Except                     ( MonadError )
 
-import           Control.Lens
+import           Control.Lens                             ( makeLenses )
 
 import qualified Data.Map                      as M
 import qualified Text.Show
 
-import           Nuri.Eval.Error
-import           Nuri.Eval.ValType
+import           Nuri.Eval.Error                          ( Error )
+import           Nuri.Eval.ValType                        ( ValType(..) )
 
 newtype Interpreter a = Interpreter { unwrap :: StateT InterpreterState (ExceptT Error IO) a }
   deriving (Monad, Functor, Applicative, MonadState InterpreterState, MonadError Error, MonadIO)

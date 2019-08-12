@@ -1,8 +1,8 @@
 module Nuri.Eval.Error where
 
-import           Text.Megaparsec.Pos
+import           Text.Megaparsec.Pos                      ( SourcePos )
 
-import           Nuri.Eval.ValType
+import           Nuri.Eval.ValType                        ( ValType )
 
 data Error = UnboundSymbol SourcePos Text
            | BoundSymbol SourcePos Text

@@ -1,30 +1,33 @@
 module Nuri.Eval.Stmt where
 
-import           Control.Monad.Except
+import           Control.Monad.Except                     ( throwError )
 
-import           Control.Lens
+import           Control.Lens                             ( view
+                                                          , over
+                                                          , set
+                                                          )
 
 import qualified Data.Map                      as M
 import qualified Data.Text                     as T
 
-import           Text.Megaparsec.Pos
+import           Text.Megaparsec.Pos                      ( SourcePos )
 
-import           Nuri.Stmt
-import           Nuri.ASTNode
-import           Nuri.Eval.Val
-import           Nuri.Eval.Expr
-import           Nuri.Eval.Error
-import           Nuri.Eval.ValType
+import           Nuri.Stmt                                ( Stmt(..) )
+import           Nuri.ASTNode                             ( srcPos )
+import qualified Nuri.Eval.Val                 as V
+import           Nuri.Eval.Expr                           ( evalExpr )
+import           Nuri.Eval.Error                          ( Error(..) )
+import           Nuri.Eval.ValType                        ( ValType(..) )
 
 
-scope :: Interpreter (Flow Val) -> Interpreter (Flow Val)
+scope :: V.Interpreter (V.Flow V.Val) -> V.Interpreter (V.Flow V.Val)
 scope p = do
-  prevTable <- gets (view symbolTable)
+  prevTable <- gets (view V.symbolTable)
   result    <- p
-  modify $ over symbolTable (M.intersection prevTable)
+  modify $ over V.symbolTable (M.intersection prevTable)
   return result
 
-makeFunc :: SourcePos -> [T.Text] -> Stmt -> Val
+makeFunc :: SourcePos -> [T.Text] -> Stmt -> V.Val
 makeFunc pos argNames body =
   let
     func argsVal = scope $ do
@@ -35,44 +38,47 @@ makeFunc pos argNames body =
         expectedArity
         actualArity
 
-      modify $ over symbolTable ((M.union . M.fromList) (zip argNames argsVal))
-      modify $ set isInFunction True
+      modify
+        $ over V.symbolTable ((M.union . M.fromList) (zip argNames argsVal))
+      modify $ set V.isInFunction True
       result <- evalStmt body
-      modify $ set isInFunction False
+      modify $ set V.isInFunction False
       return result
-  in  FuncVal func
+  in  V.FuncVal func
 
-evalStmt :: Stmt -> Interpreter (Flow Val)
+evalStmt :: Stmt -> V.Interpreter (V.Flow V.Val)
 evalStmt (Seq      stmts) = last <$> sequence (evalStmt <$> stmts)
-evalStmt (ExprStmt expr ) = Normal <$> evalExpr expr
+evalStmt (ExprStmt expr ) = V.Normal <$> evalExpr expr
 evalStmt (Return   expr ) = do
-  inFunc <- gets (view isInFunction)
+  inFunc <- gets (view V.isInFunction)
   if inFunc
-    then Returned <$> evalExpr expr
+    then V.Returned <$> evalExpr expr
     else throwError $ NotInFunction (srcPos expr)
 evalStmt (If pos expr thenStmt elseStmt) = do
   result <- evalExpr expr
-  let resultType = getTypeName result
+  let resultType = V.getTypeName result
   if resultType /= BoolType
     then throwError $ NotConditionType pos resultType
     else scope
-      (if result == BoolVal True
+      (if result == V.BoolVal True
         then evalStmt thenStmt
         else case elseStmt of
           Just stmt -> evalStmt stmt
-          Nothing   -> return (Normal Undefined)
+          Nothing   -> return (V.Normal V.Undefined)
       )
 evalStmt (FuncDecl pos funcName args body) = do
   addSymbol funcName (makeFunc pos args body)
-  return (Normal Undefined)
+  return (V.Normal V.Undefined)
  where
-  addSymbol :: T.Text -> Val -> Interpreter ()
+  addSymbol :: T.Text -> V.Val -> V.Interpreter ()
   addSymbol symbol val = do
-    table <- gets (view symbolTable)
+    table <- gets (view V.symbolTable)
     if M.member symbol table
       then throwError $ BoundSymbol pos symbol
-      else modify $ over symbolTable (M.insert symbol val)
+      else modify $ over V.symbolTable (M.insert symbol val)
 
 runStmtEval
-  :: Stmt -> InterpreterState -> IO (Either Error (Flow Val, InterpreterState))
-runStmtEval stmt st = runExceptT (runStateT (unwrap (evalStmt stmt)) st)
+  :: Stmt
+  -> V.InterpreterState
+  -> IO (Either Error (V.Flow V.Val, V.InterpreterState))
+runStmtEval stmt st = runExceptT (runStateT (V.unwrap (evalStmt stmt)) st)
