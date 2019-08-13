@@ -15,19 +15,8 @@ import           Control.Monad.Combinators.Expr           ( makeExprParser
                                                             )
                                                           )
 
-import           Nuri.Parse                               ( Parser
-                                                          , sc
-                                                          , lexeme
-                                                          , hangulSyllable
-                                                          , hangulJamo
-                                                          , symbol
-                                                          , reserved
-                                                          )
-
-import           Nuri.Expr                                ( Expr(..)
-                                                          , Op(..)
-                                                          , Literal(..)
-                                                          )
+import           Nuri.Parse
+import           Nuri.Expr
 
 parseExpr :: Parser Expr
 parseExpr = parseArithmetic

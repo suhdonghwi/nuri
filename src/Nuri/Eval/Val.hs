@@ -4,11 +4,11 @@ import           Control.Monad.Except                     ( MonadError )
 
 import           Control.Lens                             ( makeLenses )
 
-import qualified Data.Map                      as M
+import qualified Data.Map                      as Map
 import qualified Text.Show
 
-import           Nuri.Eval.Error                          ( Error )
-import           Nuri.Eval.ValType                        ( ValType(..) )
+import           Nuri.Eval.Error
+import           Nuri.Eval.ValType
 
 newtype Interpreter a = Interpreter { unwrap :: StateT InterpreterState (ExceptT Error IO) a }
   deriving (Monad, Functor, Applicative, MonadState InterpreterState, MonadError Error, MonadIO)
@@ -56,11 +56,12 @@ printVal (BoolVal    v) = if v then "참" else "거짓"
 printVal (FuncVal    _) = "(함수)"
 printVal Undefined      = "(정의되지 않음)"
 
-type SymbolTable = M.Map Text Val
+type SymbolTable = Map.Map Text Val
 data InterpreterState = InterpreterState { _symbolTable :: SymbolTable, _isInFunction :: Bool }
   deriving (Eq, Show)
 
 $(makeLenses ''InterpreterState)
 
 initState :: InterpreterState
-initState = InterpreterState { _symbolTable = M.empty, _isInFunction = False }
+initState =
+  InterpreterState { _symbolTable = Map.empty, _isInFunction = False }

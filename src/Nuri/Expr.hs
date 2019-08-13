@@ -4,9 +4,7 @@ import qualified Text.Show
 
 import           Text.Megaparsec.Pos                      ( SourcePos )
 
-import           Nuri.ASTNode                             ( ASTNode
-                                                          , srcPos
-                                                          )
+import           Nuri.ASTNode                           
 
 data Literal = LitInteger Integer
              | LitReal Double

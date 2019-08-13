@@ -3,17 +3,9 @@ module Nuri.Parse.Stmt where
 import qualified Text.Megaparsec               as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
-import           Nuri.Parse                               ( Parser
-                                                          , scn
-                                                          , sc
-                                                          , reserved
-                                                          , symbol
-                                                          )
-import           Nuri.Parse.Expr                          ( parseExpr
-                                                          , parseIdentifier
-                                                          , parseFuncIdentifier
-                                                          )
-import           Nuri.Stmt                                ( Stmt(..) )
+import           Nuri.Parse
+import           Nuri.Parse.Expr
+import           Nuri.Stmt
 
 parseStmts :: Parser [Stmt]
 parseStmts = P.many (parseStmt <* scn)

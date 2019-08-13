@@ -2,10 +2,8 @@ module Nuri.Stmt where
 
 import           Text.Megaparsec.Pos                      ( SourcePos )
 
-import           Nuri.Expr                                ( Expr )
-import           Nuri.ASTNode                             ( ASTNode
-                                                          , srcPos
-                                                          )
+import           Nuri.Expr
+import           Nuri.ASTNode
 
 data Stmt = Seq (NonEmpty Stmt)
           | ExprStmt Expr

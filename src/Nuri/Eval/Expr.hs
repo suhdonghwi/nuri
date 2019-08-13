@@ -6,21 +6,13 @@ import           Control.Lens                             ( view
                                                           , over
                                                           )
 
-import qualified Data.Map                      as M
+import qualified Data.Map                      as Map
 
 import           Text.Megaparsec.Pos                      ( SourcePos )
 
-import           Nuri.Expr                                ( Expr(..)
-                                                          , Literal(..)
-                                                          , Op(..)
-                                                          )
-import           Nuri.Eval.Val                            ( Val(..)
-                                                          , Interpreter
-                                                          , Flow(..)
-                                                          , symbolTable
-                                                          , getTypeName
-                                                          )
-import           Nuri.Eval.Error                          ( Error(..) )
+import           Nuri.Expr                              
+import           Nuri.Eval.Val                            
+import           Nuri.Eval.Error                          
 
 evalExpr :: Expr -> Interpreter Val
 evalExpr (Lit _   (LitInteger v)) = return $ IntegerVal v
@@ -30,7 +22,7 @@ evalExpr (Lit _   (LitBool    v)) = return $ BoolVal v
 
 evalExpr (Var pos ident         ) = do
   table <- view symbolTable <$> get
-  case M.lookup ident table of
+  case Map.lookup ident table of
     Just val -> return val
     Nothing  -> throwError $ UnboundSymbol pos ident
 evalExpr (App pos func args) = do
@@ -45,7 +37,7 @@ evalExpr (App pos func args) = do
     val -> throwError $ NotCallable pos (getTypeName val)
 evalExpr (Assign _ ident expr) = do
   val <- evalExpr expr
-  modify $ over symbolTable (M.insert ident val)
+  modify $ over symbolTable (Map.insert ident val)
   return val
 evalExpr (BinaryOp pos op lhs rhs) = do
   lhsVal <- evalExpr lhs
