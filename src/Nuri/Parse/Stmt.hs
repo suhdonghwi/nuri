@@ -7,8 +7,8 @@ import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
 
-parseStmts :: Parser [Stmt]
-parseStmts = P.many (parseStmt <* scn)
+parseStmts :: Parser Stmt
+parseStmts = Seq . fromList <$> P.some (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
 parseStmt =

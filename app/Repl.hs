@@ -9,34 +9,49 @@ import qualified Data.Map                      as M
 import           Data.Text                                ( strip )
 
 import           Text.Megaparsec
+import           Text.Megaparsec.Pos
 
 import           Nuri.Eval.Stmt
-import qualified Nuri.Eval.Val                 as V
+import           Nuri.Eval.Expr
+import           Nuri.Expr
+import           Nuri.Eval.Val
 import           Nuri.Parse.Stmt
 
-data ReplState = ReplState { _prompt :: Text, _symbolTable :: V.SymbolTable, _fileName :: Text }
+data ReplState = ReplState { _prompt :: Text, _replSymbolTable :: SymbolTable, _fileName :: Text }
 
 $(makeLenses ''ReplState)
 
 newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
-intrinsicTable :: V.SymbolTable
-intrinsicTable = M.fromList []
+intrinsicTable :: SymbolTable
+intrinsicTable = M.fromList
+  [ ( "보여주다"
+    , makeFunc
+      pos
+      ["값"]
+      (do
+        result <- evalExpr (Var pos "값")
+        print result
+        return (Normal Undefined)
+      )
+    )
+  ]
+  where pos = initialPos "내장"
 
-evalInput :: Text -> Repl (Maybe (V.Flow V.Val))
+evalInput :: Text -> Repl (Maybe (Flow Val))
 evalInput input = do
   st <- get
-  let ast = runParser (parseStmt <* eof) (toString $ view fileName st) input
+  let ast = runParser (parseStmts <* eof) (toString $ view fileName st) input
   case ast of
     Left  err    -> liftIO $ putStrLn (errorBundlePretty err) >> return Nothing
     Right result -> do
       evalResult <- liftIO
-        $ runStmtEval result (V.InterpreterState (view symbolTable st) False)
+        $ runStmtEval result (InterpreterState (view replSymbolTable st) False)
       case evalResult of
         Left  evalErr           -> liftIO $ print evalErr >> return Nothing
         Right (finalValue, st') -> do
-          modify $ set symbolTable (view V.symbolTable st')
+          modify $ set replSymbolTable (view symbolTable st')
           return $ Just finalValue
 
 repl :: Repl ()

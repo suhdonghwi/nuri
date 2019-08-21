@@ -27,7 +27,10 @@ scope p = do
   modify $ over symbolTable (Map.intersection prevTable)
   return result
 
-makeFunc :: SourcePos -> [Text.Text] -> Stmt -> Val
+makeFuncStmt :: SourcePos -> [Text.Text] -> Stmt -> Val
+makeFuncStmt pos argNames bodyStmt = makeFunc pos argNames (evalStmt bodyStmt)
+
+makeFunc :: SourcePos -> [Text.Text] -> Interpreter (Flow Val) -> Val
 makeFunc pos argNames body =
   let
     func argsVal = scope $ do
@@ -41,8 +44,9 @@ makeFunc pos argNames body =
       modify
         $ over symbolTable ((Map.union . Map.fromList) (zip argNames argsVal))
       modify $ set isInFunction True
-      result <- evalStmt body
+      result <- body
       modify $ set isInFunction False
+
       return result
   in  FuncVal func
 
@@ -67,7 +71,7 @@ evalStmt (If pos expr thenStmt elseStmt) = do
           Nothing   -> return (Normal Undefined)
       )
 evalStmt (FuncDecl pos funcName args body) = do
-  addSymbol funcName (makeFunc pos args body)
+  addSymbol funcName (makeFuncStmt pos args body)
   return (Normal Undefined)
  where
   addSymbol :: Text.Text -> Val -> Interpreter ()

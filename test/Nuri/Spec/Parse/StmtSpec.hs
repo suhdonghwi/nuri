@@ -152,11 +152,9 @@ spec = do
 
   describe "구문 여러 개 파싱" $ do
     it "표현식 구문 여러 개 파싱" $ do
-      testParse parseStmts "1 + 2 줄이다\n3 증가하다"
-        `shouldParse` [ ExprStmt
-                        (binaryOp Plus
-                                  (litInteger 1)
-                                  (app (var "줄이다") [litInteger 2])
-                        )
-                      , ExprStmt (app (var "증가하다") [litInteger 3])
-                      ]
+      testParse parseStmts "1 + 2 줄이다\n3 증가하다" `shouldParse` Seq
+        (  ExprStmt
+            (binaryOp Plus (litInteger 1) (app (var "줄이다") [litInteger 2]))
+
+        :| [ExprStmt (app (var "증가하다") [litInteger 3])]
+        )
