@@ -1,0 +1,17 @@
+name: Haskell CI
+
+on: [push]
+
+jobs:
+  build:
+   
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: stack build
+    - name: Build
+      run: stack build
+    - name: Run tests
+      run: stack test
