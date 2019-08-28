@@ -1,5 +1,7 @@
 # 누리
 
+[![Actions Status](https://github.com/suhdonghwi/nuri/workflows/Haskell%20CI/badge.svg)](https://github.com/sundonghwi/nuri/actions)
+
 누리는 쓰기 쉬운 한글 프로그래밍 언어를 목표로 하는 프로젝트입니다.
 
 ```nuri
