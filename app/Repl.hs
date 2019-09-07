@@ -32,7 +32,7 @@ intrinsicTable = M.fromList
       ["값"]
       (do
         result <- evalExpr (Var pos "값")
-        print result
+        putTextLn $ printVal result
         return (Normal Undefined)
       )
     )
@@ -44,7 +44,8 @@ evalInput input = do
   st <- get
   let ast = runParser (parseStmts <* eof) (toString $ view fileName st) input
   case ast of
-    Left  err    -> liftIO $ putStrLn (errorBundlePretty err) >> return Nothing
+    Left err ->
+      liftIO $ (putTextLn . toText . errorBundlePretty) err >> return Nothing
     Right result -> do
       evalResult <- liftIO
         $ runStmtEval result (InterpreterState (view replSymbolTable st) False)
