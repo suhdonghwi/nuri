@@ -12,10 +12,7 @@ parseStmts = Seq . fromList <$> P.some (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
 parseStmt =
-  parseIfStmt
-    <|> P.try parseReturnStmt
-    <|> P.try parseFuncDecl
-    <|> parseExprStmt
+  parseIfStmt <|> P.try parseReturnStmt <|> parseFuncDecl <|> parseExprStmt
 
 parseExprStmt :: Parser Stmt
 parseExprStmt = ExprStmt <$> parseExpr
@@ -45,7 +42,7 @@ parseIfStmt = do
 parseFuncDecl :: Parser Stmt
 parseFuncDecl = L.indentBlock scn argsLine
  where
-  argsLine = do
+  argsLine = P.try $ do
     pos  <- P.getSourcePos
     args <- P.many parseIdentifier
     sc
