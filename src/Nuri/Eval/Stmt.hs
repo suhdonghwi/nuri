@@ -22,9 +22,9 @@ import           Nuri.Eval.ValType
 
 scope :: Interpreter (Flow Val) -> Interpreter (Flow Val)
 scope p = do
-  prevTable <- gets (view symbolTable)
+  prevState <- get
   result    <- p
-  modify $ over symbolTable (Map.intersection prevTable)
+  put prevState
   return result
 
 makeFuncStmt :: SourcePos -> [Text.Text] -> Stmt -> Val
@@ -44,10 +44,7 @@ makeFunc pos argNames body =
       modify
         $ over symbolTable ((Map.union . Map.fromList) (zip argNames argsVal))
       modify $ set isInFunction True
-      result <- body
-      modify $ set isInFunction False
-
-      return result
+      body
   in  FuncVal func
 
 evalStmt :: Stmt -> Interpreter (Flow Val)
