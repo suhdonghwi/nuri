@@ -7,6 +7,13 @@ import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
 
+parseIndent :: Parser (L.IndentOpt Parser a b) -> Parser a
+parseIndent p = do
+  oldState <- get
+  r        <- L.indentBlock scn p
+  put oldState
+  return r
+
 parseStmts :: Parser Stmt
 parseStmts = Seq . fromList <$> P.some (parseStmt <* scn)
 
@@ -22,10 +29,10 @@ parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
 
 parseIfStmt :: Parser Stmt
 parseIfStmt = do
-  ifPart   <- L.indentBlock scn (ifLine "만약")
-  elifPart <- P.many $ L.indentBlock scn (ifLine "아니고")
-  elsePart <- optional $ L.indentBlock scn (elseLine "아니면")
-  return $ ifPart (foldr (??) elsePart (Just <$> elifPart))
+  ifPart   <- parseIndent (ifLine "만약")
+  elifPart <- P.many $ parseIndent (ifLine "아니고")
+  elsePart <- optional $ parseIndent (elseLine "아니면")
+  return $ ifPart (foldr ($) elsePart (fmap Just <$> elifPart))
  where
   ifLine s = do
     pos <- P.getSourcePos
@@ -40,7 +47,7 @@ parseIfStmt = do
     return (L.IndentSome Nothing (return . Seq . fromList) parseStmt)
 
 parseFuncDecl :: Parser Stmt
-parseFuncDecl = L.indentBlock scn argsLine
+parseFuncDecl = parseIndent argsLine
  where
   argsLine = P.try $ do
     pos  <- P.getSourcePos
