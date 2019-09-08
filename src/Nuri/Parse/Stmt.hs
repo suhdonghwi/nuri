@@ -47,7 +47,10 @@ parseIfStmt = do
     return (L.IndentSome Nothing (return . Seq . fromList) parseStmt)
 
 parseFuncDecl :: Parser Stmt
-parseFuncDecl = parseIndent argsLine
+parseFuncDecl = do
+  stmt@(FuncDecl _ funcName _ _) <- parseIndent argsLine
+  modify (funcName :)
+  return stmt
  where
   argsLine = P.try $ do
     pos  <- P.getSourcePos

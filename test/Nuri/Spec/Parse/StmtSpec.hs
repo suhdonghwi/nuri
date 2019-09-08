@@ -82,8 +82,8 @@ spec = do
 
   describe "함수 선언문 파싱" $ do
     it "인자가 한 개인 함수" $ do
-      testParse parseFuncDecl "[값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
-        `shouldParse` funcDecl
+      testParse' parseFuncDecl "[값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
+        `shouldParse` ( funcDecl
                         "증가하다"
                         ["값"]
                         (Seq
@@ -91,14 +91,32 @@ spec = do
                           :| [Return (var "값")]
                           )
                         )
+                      , ["증가하다"]
+                      )
     it "인자가 여러 개인 함수" $ do
-      testParse parseFuncDecl "[값1] [값2] 더하다:\n  [값1] + [값2] 반환하다"
-        `shouldParse` funcDecl
+      testParse' parseFuncDecl "[값1] [값2] 더하다:\n  [값1] + [값2] 반환하다"
+        `shouldParse` ( funcDecl
                         "더하다"
                         ["값1", "값2"]
                         (Seq
                           (Return (binaryOp Plus (var "값1") (var "값2")) :| [])
                         )
+                      , ["더하다"]
+                      )
+    it "함수 속의 함수" $ do
+      testParse' parseFuncDecl "[값] 더하다:\n  [값2] 빼다:\n    1 반환하다\n  2 반환하다"
+        `shouldParse` ( funcDecl
+                        "더하다"
+                        ["값"]
+                        (Seq
+                          (  funcDecl "빼다"
+                                      ["값2"]
+                                      (Seq (Return (litInteger 1) :| []))
+                          :| [Return (litInteger 2)]
+                          )
+                        )
+                      , ["더하다"]
+                      )
     it "함수의 본문이 없으면 에러" $ do
       testParse parseFuncDecl `shouldFailOn` "[값] 증가하다:"
     it "함수의 이름이 예약어면 에러" $ do
@@ -158,3 +176,17 @@ spec = do
 
         :| [ExprStmt (app (var "증가하다") [litInteger 3])]
         )
+    it "함수 여러 개 선언 파싱" $ do
+      testParse' parseStmts "[값] 더하다:\n  1 반환하다\n[값] 빼다:\n  2 반환하다"
+        `shouldParse` ( Seq
+                        (  funcDecl "더하다"
+                                    ["값"]
+                                    (Seq (Return (litInteger 1) :| []))
+                        :| [ funcDecl
+                               "빼다"
+                               ["값"]
+                               (Seq (Return (litInteger 2) :| []))
+                           ]
+                        )
+                      , ["빼다", "더하다"]
+                      )

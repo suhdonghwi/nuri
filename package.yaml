@@ -35,6 +35,7 @@ default-extensions:
   - FlexibleContexts
   - GeneralizedNewtypeDeriving
   - TemplateHaskell
+  - TupleSections
 
 library:
   source-dirs: src
