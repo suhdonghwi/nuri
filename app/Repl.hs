@@ -6,6 +6,7 @@ import           Control.Lens
 import           Control.Lens.TH                          ( )
 
 import qualified Data.Map                      as M
+import qualified Data.Set                      as S
 import           Data.Text                                ( strip )
 
 import           Text.Megaparsec
@@ -48,7 +49,7 @@ evalInput input = do
                     (toString $ view fileName st)
                     input
         )
-        []
+        S.empty
   case ast of
     Left err ->
       liftIO $ (putTextLn . toText . errorBundlePretty) err >> return Nothing
