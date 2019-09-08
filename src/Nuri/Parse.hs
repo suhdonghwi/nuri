@@ -4,7 +4,8 @@ import qualified Text.Megaparsec               as P
 import qualified Text.Megaparsec.Char          as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
-type Parser = P.Parsec Void Text
+newtype Parser a = Parser { unParse :: P.ParsecT Void Text (State [Text]) a }
+  deriving (Monad, Functor, Applicative, Alternative, MonadPlus, MonadFail, P.MonadParsec Void Text)
 
 lineComment :: Parser ()
 lineComment = L.skipLineComment "#"

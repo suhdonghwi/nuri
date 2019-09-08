@@ -16,6 +16,7 @@ import           Nuri.Eval.Expr
 import           Nuri.Expr
 import           Nuri.Eval.Val
 import           Nuri.Parse.Stmt
+import           Nuri.Parse
 
 data ReplState = ReplState { _prompt :: Text, _replSymbolTable :: SymbolTable, _fileName :: Text }
 
@@ -42,7 +43,12 @@ intrinsicTable = M.fromList
 evalInput :: Text -> Repl (Maybe (Flow Val))
 evalInput input = do
   st <- get
-  let ast = runParser (parseStmts <* eof) (toString $ view fileName st) input
+  let ast = evalState
+        (runParserT (unParse (parseStmts <* eof))
+                    (toString $ view fileName st)
+                    input
+        )
+        []
   case ast of
     Left err ->
       liftIO $ (putTextLn . toText . errorBundlePretty) err >> return Nothing
