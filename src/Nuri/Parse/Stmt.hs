@@ -3,6 +3,8 @@ module Nuri.Parse.Stmt where
 import qualified Text.Megaparsec               as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
+import qualified Data.Set                      as S
+
 import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
@@ -49,7 +51,7 @@ parseIfStmt = do
 parseFuncDecl :: Parser Stmt
 parseFuncDecl = do
   stmt@(FuncDecl _ funcName _ _) <- parseIndent argsLine
-  modify (funcName :)
+  modify (S.insert funcName)
   return stmt
  where
   argsLine = P.try $ do

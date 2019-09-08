@@ -3,6 +3,8 @@ module Nuri.Spec.Parse.StmtSpec where
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
 
+import qualified Data.Set                      as S
+
 import           Nuri.Stmt
 import           Nuri.Expr
 import           Nuri.Parse.Stmt
@@ -91,7 +93,7 @@ spec = do
                           :| [Return (var "값")]
                           )
                         )
-                      , ["증가하다"]
+                      , one "증가하다"
                       )
     it "인자가 여러 개인 함수" $ do
       testParse' parseFuncDecl "[값1] [값2] 더하다:\n  [값1] + [값2] 반환하다"
@@ -101,7 +103,7 @@ spec = do
                         (Seq
                           (Return (binaryOp Plus (var "값1") (var "값2")) :| [])
                         )
-                      , ["더하다"]
+                      , one "더하다"
                       )
     it "함수 속의 함수" $ do
       testParse' parseFuncDecl "[값] 더하다:\n  [값2] 빼다:\n    1 반환하다\n  2 반환하다"
@@ -115,7 +117,7 @@ spec = do
                           :| [Return (litInteger 2)]
                           )
                         )
-                      , ["더하다"]
+                      , one "더하다"
                       )
     it "함수의 본문이 없으면 에러" $ do
       testParse parseFuncDecl `shouldFailOn` "[값] 증가하다:"
@@ -188,5 +190,5 @@ spec = do
                                (Seq (Return (litInteger 2) :| []))
                            ]
                         )
-                      , ["빼다", "더하다"]
+                      , S.fromList ["더하다", "빼다"]
                       )
