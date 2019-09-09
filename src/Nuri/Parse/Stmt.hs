@@ -3,18 +3,12 @@ module Nuri.Parse.Stmt where
 import qualified Text.Megaparsec               as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
-import qualified Data.Set                      as S
-
 import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
 
 parseIndent :: Parser (L.IndentOpt Parser a b) -> Parser a
-parseIndent p = do
-  oldState <- get
-  r        <- L.indentBlock scn p
-  put oldState
-  return r
+parseIndent = L.indentBlock scn
 
 parseStmts :: Parser Stmts
 parseStmts = fromList <$> P.some (parseStmt <* scn)
@@ -49,10 +43,7 @@ parseIfStmt = do
     return (L.IndentSome Nothing return parseStmt)
 
 parseFuncDecl :: Parser Stmt
-parseFuncDecl = do
-  stmt@(FuncDecl _ funcName _ _) <- parseIndent argsLine
-  modify (S.insert funcName)
-  return stmt
+parseFuncDecl = parseIndent argsLine
  where
   argsLine = P.try $ do
     pos      <- P.getSourcePos
