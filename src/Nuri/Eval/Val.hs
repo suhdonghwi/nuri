@@ -51,7 +51,7 @@ getTypeName Undefined      = UndefinedType
 printVal :: Val -> Text
 printVal (IntegerVal v) = show v
 printVal (RealVal    v) = show v
-printVal (CharVal    v) = show v
+printVal (CharVal    v) = one v
 printVal (BoolVal    v) = if v then "참" else "거짓"
 printVal (FuncVal    _) = "(함수)"
 printVal Undefined      = "(정의되지 않음)"
