@@ -44,12 +44,7 @@ intrinsicTable = M.fromList
 evalInput :: Text -> Repl (Maybe (Flow Val))
 evalInput input = do
   st <- get
-  let ast = evalState
-        (runParserT (unParse (parseStmts <* eof))
-                    (toString $ view fileName st)
-                    input
-        )
-        S.empty
+  let ast = runParser (parseStmts <* eof) (toString $ view fileName st) input
   case ast of
     Left err ->
       liftIO $ (putTextLn . toText . errorBundlePretty) err >> return Nothing
