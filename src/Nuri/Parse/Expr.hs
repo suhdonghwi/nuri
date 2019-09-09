@@ -57,10 +57,13 @@ parseFuncCall = do
   return $ App pos (Var pos func) args
 
 parseFuncIdentifier :: Parser Text
-parseFuncIdentifier = lexeme $ do
-  ident <- toText <$> P.some hangulSyllable
-  if ident `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return ident
-  where keywords = ["반환하다", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면"]
+parseFuncIdentifier = lexeme $ unwords <$> P.sepEndBy1 (P.try hangulWord)
+                                                       (P.char ' ')
+ where
+  keywords   = ["반환하다", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면"]
+  hangulWord = do
+    word <- toText <$> P.some hangulSyllable
+    if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 
 parseTerm :: Parser Expr
 parseTerm =

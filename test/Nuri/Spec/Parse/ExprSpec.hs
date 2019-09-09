@@ -164,8 +164,10 @@ spec = do
       testParse parseIdentifierExpr `shouldFailOn` "[]"
 
   describe "함수 이름 파싱" $ do
-    it "더하고" $ do
+    it "띄어쓰기 없는 한 단어" $ do
       testParse parseFuncIdentifier "더하고" `shouldParse` "더하고"
+    it "띄어쓰기가 포함된 이름" $ do
+      testParse parseFuncIdentifier "합 구하다" `shouldParse` "합 구하다"
     it "반환 키워드에 대해서 오류" $ do
       testParse parseFuncIdentifier `shouldFailOn` "반환하다"
     it "부울 키워드에 대해서 오류" $ do
@@ -180,9 +182,9 @@ spec = do
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4 2 더하고, 2 나누다" `shouldParse` app
+      testParse parseNestedFuncCalls "4 2 합 구하고, 2 나누다" `shouldParse` app
         (var "나누다")
-        [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
+        [app (var "합 구하고") [litInteger 4, litInteger 2], litInteger 2]
     it "두 번 중첩된 식" $ do
       testParse parseNestedFuncCalls "4 2 더하고, 2 나누고, 3 더하다" `shouldParse` app
         (var "더하다")

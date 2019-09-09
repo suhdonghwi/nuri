@@ -88,6 +88,13 @@ spec = do
                                ["값1", "값2"]
                                [Return (binaryOp Plus (var "값1") (var "값2"))]
 
+    it "함수 이름에 띄어쓰기가 포함된 함수" $ do
+      testParse parseFuncDecl "[값1] [값2] 피보나치 구하다:\n  만약 참 이면:\n    [값2] 반환하다"
+        `shouldParse` funcDecl
+                        "피보나치 구하다"
+                        ["값1", "값2"]
+                        [ifStmt (litBool True) [Return (var "값2")] Nothing]
+
     it "함수 속의 함수" $ do
       testParse parseFuncDecl "[값] 더하다:\n  [값2] 빼다:\n    1 반환하다\n  2 반환하다"
         `shouldParse` funcDecl
