@@ -4,7 +4,7 @@ import qualified Text.Show
 
 import           Text.Megaparsec.Pos                      ( SourcePos )
 
-import           Nuri.ASTNode                           
+import           Nuri.ASTNode
 
 data Literal = LitInteger Integer
              | LitReal Double
@@ -44,5 +44,8 @@ instance ASTNode Expr where
   srcPos (BinaryOp pos _ _ _) = pos
   srcPos (UnaryOp pos _ _   ) = pos
 
-data Op = Plus | Minus | Asterisk | Slash | Percent | Equal | Inequal
+data Op = Plus | Minus | Asterisk | Slash | Percent
+        | Equal | Inequal
+        | LessThan | GreaterThan
+        | LessThanEqual | GreaterThanEqual
     deriving(Eq, Show)

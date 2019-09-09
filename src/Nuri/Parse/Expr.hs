@@ -34,6 +34,11 @@ parseArithmetic = makeExprParser
       ]
     , [InfixL $ binaryOp "+" Plus, InfixL $ binaryOp "-" Minus]
     , [InfixL $ binaryOp "=" Equal, InfixL $ binaryOp "!=" Inequal]
+    , [ InfixL $ binaryOp "<=" LessThanEqual
+      , InfixL $ binaryOp ">=" GreaterThanEqual
+      , InfixL $ binaryOp "<" LessThan
+      , InfixL $ binaryOp ">" GreaterThan
+      ]
     ]
   binaryOp opStr op = P.hidden $ do
     pos <- P.getSourcePos

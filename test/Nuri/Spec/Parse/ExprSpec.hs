@@ -127,6 +127,18 @@ spec = do
       it "두 정수 부등 비교" $ do
         testParse parseArithmetic "8 != 2"
           `shouldParse` binaryOp Inequal (litInteger 8) (litInteger 2)
+      it "두 정수 대소 비교 (LT)" $ do
+        testParse parseArithmetic "8 < 2"
+          `shouldParse` binaryOp LessThan (litInteger 8) (litInteger 2)
+      it "두 정수 대소 비교 (GT)" $ do
+        testParse parseArithmetic "8 > 2"
+          `shouldParse` binaryOp GreaterThan (litInteger 8) (litInteger 2)
+      it "두 정수 대소 비교 (LTE)" $ do
+        testParse parseArithmetic "8 <= 2"
+          `shouldParse` binaryOp LessThanEqual (litInteger 8) (litInteger 2)
+      it "두 정수 대소 비교 (GTE)" $ do
+        testParse parseArithmetic "8 >= 2"
+          `shouldParse` binaryOp GreaterThanEqual (litInteger 8) (litInteger 2)
     describe "복합 연산" $ do
       it "두 정수 나누고 한 정수 더하기" $ do
         testParse parseArithmetic "4 / 2 + 3" `shouldParse` binaryOp
