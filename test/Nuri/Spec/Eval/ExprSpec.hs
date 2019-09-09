@@ -101,6 +101,30 @@ spec = do
     it "정수 두 개 부등 비교 (같음)" $ do
       testExprEval (binaryOp Inequal (litInteger 10) (litInteger 10))
         `shouldEval` (BoolVal False, initState)
+    it "정수 두 개 대소 비교 (LT)" $ do
+      testExprEval (binaryOp LessThan (litInteger 10) (litInteger 4))
+        `shouldEval` (BoolVal False, initState)
+    it "정수 두 개 대소 비교 (GT)" $ do
+      testExprEval (binaryOp GreaterThan (litInteger 10) (litInteger 4))
+        `shouldEval` (BoolVal True, initState)
+    it "정수 두 개 대소 비교 (LTE)" $ do
+      testExprEval (binaryOp LessThanEqual (litInteger 10) (litInteger 10))
+        `shouldEval` (BoolVal True, initState)
+    it "정수 두 개 대소 비교 (GTE)" $ do
+      testExprEval (binaryOp GreaterThanEqual (litInteger 10) (litInteger 4))
+        `shouldEval` (BoolVal True, initState)
+    it "정수와 실수 대소 비교 (LT)" $ do
+      testExprEval (binaryOp LessThan (litInteger 10) (litReal 4.5))
+        `shouldEval` (BoolVal False, initState)
+    it "정수와 실수 대소 비교 (GT)" $ do
+      testExprEval (binaryOp GreaterThan (litInteger 10) (litReal 4.5))
+        `shouldEval` (BoolVal True, initState)
+    it "정수와 실수 대소 비교 (LTE)" $ do
+      testExprEval (binaryOp LessThanEqual (litInteger 10) (litReal 9.5))
+        `shouldEval` (BoolVal False, initState)
+    it "정수와 실수 대소 비교 (GTE)" $ do
+      testExprEval (binaryOp GreaterThanEqual (litInteger 10) (litReal 4.5))
+        `shouldEval` (BoolVal True, initState)
 
   describe "단항 연산자 평가" $ do
     it "정수에 양수 단항 연산자" $ do

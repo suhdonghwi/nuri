@@ -10,9 +10,9 @@ import qualified Data.Map                      as Map
 
 import           Text.Megaparsec.Pos                      ( SourcePos )
 
-import           Nuri.Expr                              
-import           Nuri.Eval.Val                            
-import           Nuri.Eval.Error                          
+import           Nuri.Expr
+import           Nuri.Eval.Val
+import           Nuri.Eval.Error
 
 evalExpr :: Expr -> Interpreter Val
 evalExpr (Lit _   (LitInteger v)) = return $ IntegerVal v
@@ -84,8 +84,20 @@ operateBinary pos op lhs rhs = case normalize lhs rhs of
       then throwError $ DivideByZero pos
       else return $ IntegerVal (v1 `mod` v2)
 
-    (Equal, v1, v2) -> return $ BoolVal (v1 == v2)
-    (Inequal, v1, v2) -> return $ BoolVal (v1 /= v2)
+    (Equal   , v1           , v2           ) -> return $ BoolVal (v1 == v2)
+    (Inequal , v1           , v2           ) -> return $ BoolVal (v1 /= v2)
+
+    (LessThan, IntegerVal v1, IntegerVal v2) -> return $ BoolVal (v1 < v2)
+    (LessThanEqual, IntegerVal v1, IntegerVal v2) ->
+      return $ BoolVal (v1 <= v2)
+    (GreaterThan, IntegerVal v1, IntegerVal v2) -> return $ BoolVal (v1 > v2)
+    (GreaterThanEqual, IntegerVal v1, IntegerVal v2) ->
+      return $ BoolVal (v1 >= v2)
+
+    (LessThan, RealVal v1, RealVal v2) -> return $ BoolVal (v1 < v2)
+    (LessThanEqual, RealVal v1, RealVal v2) -> return $ BoolVal (v1 <= v2)
+    (GreaterThan, RealVal v1, RealVal v2) -> return $ BoolVal (v1 > v2)
+    (GreaterThanEqual, RealVal v1, RealVal v2) -> return $ BoolVal (v1 >= v2)
 
     _ -> throwError $ OperateTypeError pos [getTypeName lhs, getTypeName rhs]
 
