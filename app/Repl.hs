@@ -55,7 +55,7 @@ evalInput input = do
       liftIO $ (putTextLn . toText . errorBundlePretty) err >> return Nothing
     Right result -> do
       evalResult <- liftIO
-        $ runStmtEval result (InterpreterState (view replSymbolTable st) False)
+        $ runStmtsEval result (InterpreterState (view replSymbolTable st) False)
       case evalResult of
         Left  evalErr           -> liftIO $ print evalErr >> return Nothing
         Right (finalValue, st') -> do

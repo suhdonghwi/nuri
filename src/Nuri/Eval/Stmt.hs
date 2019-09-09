@@ -27,8 +27,8 @@ scope p = do
   put prevState
   return result
 
-makeFuncStmt :: SourcePos -> [Text.Text] -> Stmt -> Val
-makeFuncStmt pos argNames bodyStmt = makeFunc pos argNames (evalStmt bodyStmt)
+makeFuncStmt :: SourcePos -> [Text.Text] -> Stmts -> Val
+makeFuncStmt pos argNames bodyStmt = makeFunc pos argNames (evalStmts bodyStmt)
 
 makeFunc :: SourcePos -> [Text.Text] -> Interpreter (Flow Val) -> Val
 makeFunc pos argNames body =
@@ -47,10 +47,12 @@ makeFunc pos argNames body =
       body
   in  FuncVal func
 
+evalStmts :: Stmts -> Interpreter (Flow Val)
+evalStmts stmts = last <$> sequence (evalStmt <$> stmts)
+
 evalStmt :: Stmt -> Interpreter (Flow Val)
-evalStmt (Seq      stmts) = last <$> sequence (evalStmt <$> stmts)
-evalStmt (ExprStmt expr ) = Normal <$> evalExpr expr
-evalStmt (Return   expr ) = do
+evalStmt (ExprStmt expr) = Normal <$> evalExpr expr
+evalStmt (Return   expr) = do
   inFunc <- gets (view isInFunction)
   if inFunc
     then Returned <$> evalExpr expr
@@ -62,9 +64,9 @@ evalStmt (If pos expr thenStmt elseStmt) = do
     then throwError $ NotConditionType pos resultType
     else scope
       (if result == BoolVal True
-        then evalStmt thenStmt
+        then evalStmts thenStmt
         else case elseStmt of
-          Just stmt -> evalStmt stmt
+          Just stmt -> evalStmts stmt
           Nothing   -> return (Normal Undefined)
       )
 evalStmt (FuncDecl pos funcName args body) = do
@@ -81,3 +83,7 @@ evalStmt (FuncDecl pos funcName args body) = do
 runStmtEval
   :: Stmt -> InterpreterState -> IO (Either Error (Flow Val, InterpreterState))
 runStmtEval stmt st = runExceptT (runStateT (unwrap (evalStmt stmt)) st)
+
+runStmtsEval
+  :: Stmts -> InterpreterState -> IO (Either Error (Flow Val, InterpreterState))
+runStmtsEval stmts st = runExceptT (runStateT (unwrap (evalStmts stmts)) st)

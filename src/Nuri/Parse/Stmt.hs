@@ -16,8 +16,8 @@ parseIndent p = do
   put oldState
   return r
 
-parseStmts :: Parser Stmt
-parseStmts = Seq . fromList <$> P.some (parseStmt <* scn)
+parseStmts :: Parser Stmts
+parseStmts = fromList <$> P.some (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
 parseStmt =
@@ -33,8 +33,8 @@ parseIfStmt :: Parser Stmt
 parseIfStmt = do
   ifPart   <- parseIndent (ifLine "만약")
   elifPart <- P.many $ parseIndent (ifLine "아니고")
-  elsePart <- optional $ parseIndent (elseLine "아니면")
-  return $ ifPart (foldr ($) elsePart (fmap Just <$> elifPart))
+  elsePart <- optional $ fromList <$> parseIndent (elseLine "아니면")
+  return $ ifPart (foldr ($) elsePart (fmap (Just . one) <$> elifPart))
  where
   ifLine s = do
     pos <- P.getSourcePos
@@ -42,11 +42,11 @@ parseIfStmt = do
     e   <- parseExpr
     _   <- reserved "면" <|> reserved "이면" <|> reserved "이라면"
     _   <- symbol ":"
-    return (L.IndentSome Nothing (return . If pos e . Seq . fromList) parseStmt)
+    return (L.IndentSome Nothing (return . If pos e . fromList) parseStmt)
   elseLine s = do
     _ <- reserved s
     _ <- symbol ":"
-    return (L.IndentSome Nothing (return . Seq . fromList) parseStmt)
+    return (L.IndentSome Nothing return parseStmt)
 
 parseFuncDecl :: Parser Stmt
 parseFuncDecl = do
@@ -55,13 +55,13 @@ parseFuncDecl = do
   return stmt
  where
   argsLine = P.try $ do
-    pos  <- P.getSourcePos
-    args <- P.many parseIdentifier
-    sc
+    pos      <- P.getSourcePos
+    args     <- P.many parseIdentifier
+    _        <- sc
     funcName <- parseFuncIdentifier
     _        <- symbol ":"
     return
       (L.IndentSome Nothing
-                    (return . FuncDecl pos funcName args . Seq . fromList)
+                    (return . FuncDecl pos funcName args . fromList)
                     parseStmt
       )

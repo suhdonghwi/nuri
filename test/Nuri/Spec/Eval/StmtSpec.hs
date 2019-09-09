@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLists #-}
 module Nuri.Spec.Eval.StmtSpec where
 
 import           Test.Hspec
@@ -34,7 +35,7 @@ spec = do
     it "단일 조건문 평가 (참)" $ do
       testStmtEvalWith
           (ifStmt (litBool True)
-                  (ExprStmt (assign "나이" (litInteger 10)))
+                  [ExprStmt (assign "나이" (litInteger 10))]
                   Nothing
           )
           initState
@@ -46,7 +47,7 @@ spec = do
     it "단일 조건문 평가 (거짓)" $ do
       testStmtEvalWith
           (ifStmt (litBool False)
-                  (ExprStmt (assign "값" (litInteger 10)))
+                  [ExprStmt (assign "값" (litInteger 10))]
                   Nothing
           )
           initState
@@ -55,12 +56,12 @@ spec = do
       testStmtEvalWith
           (ifStmt
             (litBool False)
-            (ExprStmt (assign "나이" (litInteger 10)))
+            [ExprStmt (assign "나이" (litInteger 10))]
             (Just
-              (ifStmt (litBool True)
-                      (ExprStmt (assign "나이" (litInteger 20)))
-                      Nothing
-              )
+              [ ifStmt (litBool True)
+                       [ExprStmt (assign "나이" (litInteger 20))]
+                       Nothing
+              ]
             )
           )
           initState
@@ -73,27 +74,27 @@ spec = do
       testStmtEvalWith
           (ifStmt
             (litBool False)
-            (ExprStmt (assign "수1" (litInteger 10)))
+            [ExprStmt (assign "수1" (litInteger 10))]
             (Just
-              (ifStmt (litBool True)
-                      (ExprStmt (assign "수2" (litInteger 20)))
-                      Nothing
-              )
+              [ ifStmt (litBool True)
+                       [ExprStmt (assign "수2" (litInteger 20))]
+                       Nothing
+              ]
             )
           )
           initState
         `shouldEval` (Normal (IntegerVal 20), initState)
   describe "함수 선언 구문 평가" $ do
     it "인자 없는 함수 선언" $ do
-      testStmtEval (funcDecl "깨우다" [] (Return (litInteger 10)))
+      testStmtEval (funcDecl "깨우다" [] [Return (litInteger 10)])
         `shouldEval` ( Normal Undefined
                      , set symbolTable (M.fromList [("깨우다", funcVal)]) initState
                      )
     it "인자가 하나인 함수 선언" $ do
-      testStmtEval (funcDecl "먹다" ["음식"] (Return (litInteger 10)))
+      testStmtEval (funcDecl "먹다" ["음식"] [Return (litInteger 10)])
         `shouldEval` ( Normal Undefined
                      , set symbolTable (M.fromList [("먹다", funcVal)]) initState
                      )
     it "함수 이름이 중복되면 에러" $ do
-      testStmtEvalWith (funcDecl "십" ["수"] (Return (litInteger 10))) sampleState
+      testStmtEvalWith (funcDecl "십" ["수"] [Return (litInteger 10)]) sampleState
         `shouldEvalError` boundSymbol "십"
