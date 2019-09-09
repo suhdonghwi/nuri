@@ -44,9 +44,9 @@ parseArithmetic = makeExprParser
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  calls <- P.some (P.try parseFuncCall)
+  calls <- P.sepBy1 (P.try parseFuncCall) (symbol ",")
   let addArg arg (App pos func args) = App pos func (arg : args)
-      addArg _   _                   = error "Impossible"
+      addArg _   _                   = error "불가능한 상황"
   return $ foldl1' addArg calls
 
 parseFuncCall :: Parser Expr

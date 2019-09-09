@@ -180,11 +180,11 @@ spec = do
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4 2 더하고 2 나누다" `shouldParse` app
+      testParse parseNestedFuncCalls "4 2 더하고, 2 나누다" `shouldParse` app
         (var "나누다")
         [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
     it "두 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4 2 더하고 2 나누고 3 더하다" `shouldParse` app
+      testParse parseNestedFuncCalls "4 2 더하고, 2 나누고, 3 더하다" `shouldParse` app
         (var "더하다")
         [ app (var "나누고")
               [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
