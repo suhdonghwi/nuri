@@ -42,6 +42,13 @@ parseIfStmt = do
     _ <- symbol ":"
     return (L.IndentSome Nothing return parseStmt)
 
+parseWhileStmt :: Parser Stmt
+parseWhileStmt = parseIndent $ do
+  e <- parseExpr
+  _ <- reserved "인 동안 반복"
+  _ <- symbol ":"
+  return (L.IndentSome Nothing (return . While e . fromList) parseStmt)
+
 parseFuncDecl :: Parser Stmt
 parseFuncDecl = parseIndent argsLine
  where
