@@ -2,8 +2,8 @@ module Nuri.Eval.Expr where
 
 import           Control.Monad.Except                     ( throwError )
 
-import           Control.Lens                             ( view
-                                                          , over
+import           Control.Lens                             ( use
+                                                          , modifying
                                                           )
 
 import qualified Data.Map                      as Map
@@ -21,10 +21,11 @@ evalExpr (Lit _   (LitChar    v)) = return $ CharVal v
 evalExpr (Lit _   (LitBool    v)) = return $ BoolVal v
 
 evalExpr (Var pos ident         ) = do
-  table <- view symbolTable <$> get
+  table <- use symbolTable
   case Map.lookup ident table of
     Just val -> return val
     Nothing  -> throwError $ UnboundSymbol pos ident
+
 evalExpr (App pos func args) = do
   funcEval <- evalExpr func
   case funcEval of
@@ -35,14 +36,17 @@ evalExpr (App pos func args) = do
         Returned resultVal -> return resultVal
         Normal   _         -> return Undefined
     val -> throwError $ NotCallable pos (getTypeName val)
+
 evalExpr (Assign _ ident expr) = do
   val <- evalExpr expr
-  modify $ over symbolTable (Map.insert ident val)
+  modifying symbolTable (Map.insert ident val)
   return val
+
 evalExpr (BinaryOp pos op lhs rhs) = do
   lhsVal <- evalExpr lhs
   rhsVal <- evalExpr rhs
   operateBinary pos op lhsVal rhsVal
+
 evalExpr (UnaryOp pos op expr) = do
   val <- evalExpr expr
   operateUnary pos op val
@@ -54,6 +58,8 @@ normalize lhs rhs = case (lhs, rhs) of
   (IntegerVal v1, RealVal v2   ) -> Just (RealVal (fromIntegral v1), RealVal v2)
   (IntegerVal v1, IntegerVal v2) -> Just (IntegerVal v1, IntegerVal v2)
   (BoolVal    v1, BoolVal v2   ) -> Just (BoolVal v1, BoolVal v2)
+  (CharVal    v1, CharVal v2   ) -> Just (CharVal v1, CharVal v2)
+  (CharVal    v1, CharVal v2   ) -> Just (CharVal v1, CharVal v2)
   _                              -> Nothing
 
 operateBinary :: SourcePos -> Op -> Val -> Val -> Interpreter Val
