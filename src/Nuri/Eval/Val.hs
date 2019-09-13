@@ -1,11 +1,18 @@
 module Nuri.Eval.Val where
 
-import           Control.Monad.Except                     ( MonadError )
-
-import           Control.Lens                             ( makeLenses )
+import           Control.Monad.Except                     ( MonadError
+                                                          , throwError
+                                                          )
 
 import qualified Data.Map                      as Map
 import qualified Text.Show
+
+import           Control.Lens                             ( makeLenses
+                                                          , use
+                                                          , modifying
+                                                          )
+
+import           Text.Megaparsec.Pos
 
 import           Nuri.Eval.Error
 import           Nuri.Eval.ValType
@@ -61,6 +68,18 @@ data InterpreterState = InterpreterState { _symbolTable :: SymbolTable, _isInFun
   deriving (Eq, Show)
 
 $(makeLenses ''InterpreterState)
+
+addSymbol :: SourcePos -> Text -> Val -> Interpreter ()
+addSymbol pos symbol val = do
+  table <- use symbolTable
+  if Map.member symbol table
+    then throwError $ BoundSymbol pos symbol
+    else modifying symbolTable (Map.insert symbol val)
+
+addSymbol' :: Text -> Val -> Interpreter ()
+addSymbol' symbol val = do
+  table <- use symbolTable
+  modifying symbolTable (Map.insert symbol val)
 
 initState :: InterpreterState
 initState =

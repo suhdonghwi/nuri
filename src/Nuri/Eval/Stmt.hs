@@ -3,7 +3,9 @@ module Nuri.Eval.Stmt where
 import           Control.Monad.Except                     ( throwError )
 
 import           Control.Lens                             ( view
-                                                          , over
+                                                          , modifying
+                                                          , assign
+                                                          , use
                                                           , set
                                                           )
 
@@ -23,9 +25,7 @@ import           Nuri.Eval.ValType
 scope :: Interpreter (Flow Val) -> Interpreter (Flow Val)
 scope p = do
   prevState <- get
-  result    <- p
-  put prevState
-  return result
+  p <* put prevState
 
 makeFuncStmt :: SourcePos -> [Text.Text] -> Stmts -> Val
 makeFuncStmt pos argNames bodyStmt = makeFunc pos argNames (evalStmts bodyStmt)
@@ -41,9 +41,8 @@ makeFunc pos argNames body =
         expectedArity
         actualArity
 
-      modify
-        $ over symbolTable ((Map.union . Map.fromList) (zip argNames argsVal))
-      modify $ set isInFunction True
+      modifying symbolTable ((Map.union . Map.fromList) (zip argNames argsVal))
+      assign isInFunction True
       body
   in  FuncVal func
 
@@ -53,32 +52,23 @@ evalStmts stmts = last <$> sequence (evalStmt <$> stmts)
 evalStmt :: Stmt -> Interpreter (Flow Val)
 evalStmt (ExprStmt expr) = Normal <$> evalExpr expr
 evalStmt (Return   expr) = do
-  inFunc <- gets (view isInFunction)
+  inFunc <- use isInFunction
   if inFunc
     then Returned <$> evalExpr expr
     else throwError $ NotInFunction (srcPos expr)
 evalStmt (If pos expr thenStmt elseStmt) = do
   result <- evalExpr expr
   let resultType = getTypeName result
-  if resultType /= BoolType
-    then throwError $ NotConditionType pos resultType
-    else scope
-      (if result == BoolVal True
-        then evalStmts thenStmt
-        else case elseStmt of
-          Just stmt -> evalStmts stmt
-          Nothing   -> return (Normal Undefined)
-      )
+  when (resultType /= BoolType) $ throwError (NotConditionType pos resultType)
+  scope $ if result == BoolVal True
+    then evalStmts thenStmt
+    else case elseStmt of
+      Just stmt -> evalStmts stmt
+      Nothing   -> return (Normal Undefined)
+
 evalStmt (FuncDecl pos funcName args body) = do
-  addSymbol funcName (makeFuncStmt pos args body)
+  addSymbol pos funcName (makeFuncStmt pos args body)
   return (Normal Undefined)
- where
-  addSymbol :: Text.Text -> Val -> Interpreter ()
-  addSymbol symbol val = do
-    table <- gets (view symbolTable)
-    if Map.member symbol table
-      then throwError $ BoundSymbol pos symbol
-      else modify $ over symbolTable (Map.insert symbol val)
 
 runStmtEval
   :: Stmt -> InterpreterState -> IO (Either Error (Flow Val, InterpreterState))

@@ -37,9 +37,9 @@ evalExpr (App pos func args) = do
         Normal   _         -> return Undefined
     val -> throwError $ NotCallable pos (getTypeName val)
 
-evalExpr (Assign _ ident expr) = do
+evalExpr (Assign pos ident expr) = do
   val <- evalExpr expr
-  modifying symbolTable (Map.insert ident val)
+  addSymbol' ident val
   return val
 
 evalExpr (BinaryOp pos op lhs rhs) = do
