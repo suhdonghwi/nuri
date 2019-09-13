@@ -6,18 +6,15 @@ import           Control.Lens
 import           Control.Lens.TH                          ( )
 
 import qualified Data.Map                      as M
-import qualified Data.Set                      as S
 import           Data.Text                                ( strip )
 
 import           Text.Megaparsec
-import           Text.Megaparsec.Pos
 
 import           Nuri.Eval.Stmt
 import           Nuri.Eval.Expr
 import           Nuri.Expr
 import           Nuri.Eval.Val
 import           Nuri.Parse.Stmt
-import           Nuri.Parse
 
 data ReplState = ReplState { _prompt :: Text, _replSymbolTable :: SymbolTable, _fileName :: Text }
 
@@ -44,32 +41,34 @@ intrinsicTable = M.fromList
 evalInput :: Text -> Repl (Maybe (Flow Val))
 evalInput input = do
   st <- get
-  let ast = runParser (parseStmts <* eof) (toString $ view fileName st) input
-  case ast of
-    Left err ->
-      liftIO $ (putTextLn . toText . errorBundlePretty) err >> return Nothing
-    Right result -> do
-      evalResult <- liftIO
-        $ runStmtsEval result (InterpreterState (view replSymbolTable st) False)
+  case runParser (parseStmts <* eof) (toString $ view fileName st) input of
+    Left err -> do
+      liftIO $ (putTextLn . toText . errorBundlePretty) err
+      return Nothing
+    Right parseResult -> do
+      evalResult <- liftIO $ runStmtsEval
+        parseResult
+        (InterpreterState (view replSymbolTable st) False)
       case evalResult of
-        Left  evalErr           -> liftIO $ print evalErr >> return Nothing
-        Right (finalValue, st') -> do
+        Left evalErr -> do
+          liftIO $ print evalErr
+          return Nothing
+        Right (evalValue, st') -> do
           modify $ set replSymbolTable (view symbolTable st')
-          return $ Just finalValue
+          return $ Just evalValue
 
 repl :: Repl ()
-repl = do
+repl = forever $ do
   st <- get
   liftIO $ do
     putText (view prompt st)
     hFlush stdout
-  line <- strip <$> liftIO getLine
-  liftIO $ when (line == ":quit") exitSuccess
-  result <- evalInput line
+  input <- strip <$> liftIO getLine
+  liftIO $ when (input == ":quit") exitSuccess
+  result <- evalInput input
   case result of
     Just val -> liftIO $ print val
     Nothing  -> pass
-  repl
 
 runRepl :: Repl a -> ReplState -> IO ()
 runRepl f st = void $ runStateT (unRepl f) st
