@@ -77,9 +77,7 @@ addSymbol pos symbol val = do
     else modifying symbolTable (Map.insert symbol val)
 
 addSymbol' :: Text -> Val -> Interpreter ()
-addSymbol' symbol val = do
-  table <- use symbolTable
-  modifying symbolTable (Map.insert symbol val)
+addSymbol' symbol val = modifying symbolTable (Map.insert symbol val)
 
 initState :: InterpreterState
 initState =

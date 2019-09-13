@@ -2,9 +2,7 @@ module Nuri.Eval.Expr where
 
 import           Control.Monad.Except                     ( throwError )
 
-import           Control.Lens                             ( use
-                                                          , modifying
-                                                          )
+import           Control.Lens                             ( use )
 
 import qualified Data.Map                      as Map
 
@@ -37,7 +35,7 @@ evalExpr (App pos func args) = do
         Normal   _         -> return Undefined
     val -> throwError $ NotCallable pos (getTypeName val)
 
-evalExpr (Assign pos ident expr) = do
+evalExpr (Assign _ ident expr) = do
   val <- evalExpr expr
   addSymbol' ident val
   return val
@@ -59,7 +57,7 @@ normalize lhs rhs = case (lhs, rhs) of
   (IntegerVal v1, IntegerVal v2) -> Just (IntegerVal v1, IntegerVal v2)
   (BoolVal    v1, BoolVal v2   ) -> Just (BoolVal v1, BoolVal v2)
   (CharVal    v1, CharVal v2   ) -> Just (CharVal v1, CharVal v2)
-  (CharVal    v1, CharVal v2   ) -> Just (CharVal v1, CharVal v2)
+  (FuncVal    v1, FuncVal v2   ) -> Just (FuncVal v1, FuncVal v2)
   _                              -> Nothing
 
 operateBinary :: SourcePos -> Op -> Val -> Val -> Interpreter Val

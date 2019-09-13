@@ -2,11 +2,9 @@ module Nuri.Eval.Stmt where
 
 import           Control.Monad.Except                     ( throwError )
 
-import           Control.Lens                             ( view
-                                                          , modifying
+import           Control.Lens                             ( modifying
                                                           , assign
                                                           , use
-                                                          , set
                                                           )
 
 import qualified Data.Map                      as Map
