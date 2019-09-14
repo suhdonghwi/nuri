@@ -13,12 +13,13 @@ import           Data.Text.Prettyprint.Doc                ( Pretty
 
 import           Nuri.Literal
 import           Nuri.Expr
+import           Nuri.Stmt
 
 instance Pretty Literal where
-  pretty (LitInteger v) = pretty v
-  pretty (LitReal    v) = pretty v
-  pretty (LitChar    v) = pretty v
-  pretty (LitBool    v) = pretty v
+  pretty (LitInteger v) = "LitInteger" <> parens (pretty v)
+  pretty (LitReal    v) = "LitReal" <> parens (pretty v)
+  pretty (LitChar    v) = "LitChar" <> parens (pretty v)
+  pretty (LitBool    v) = "LitBool" <> parens (pretty v)
 
 instance Pretty Op where
   pretty Plus             = "(+)"
@@ -55,3 +56,21 @@ instance Pretty Expr where
     ]
   pretty (UnaryOp _ op val) =
     nest' $ vsep ["UnaryOp", "[op]" <+> pretty op, "[val]" <+> pretty val]
+
+instance Pretty Stmt where
+  pretty (ExprStmt expr) = nest' $ vsep ["ExprStmt", "[expr]" <+> pretty expr]
+  pretty (Return expr) = nest' $ vsep ["Return", "[expr]" <+> pretty expr]
+  pretty (If _ condition thenStmts elseStmts) = nest' $ vsep
+    [ "If"
+    , "[condition]" <+> pretty condition
+    , "[then]" <+> pretty thenStmts
+    , "[else]" <+> pretty elseStmts
+    ]
+  pretty (While condition body) = nest' $ vsep
+    ["While", "[condition]" <+> pretty condition, "[body]" <+> pretty body]
+  pretty (FuncDecl _ name args body) = nest' $ vsep
+    [ "FuncDecl"
+    , "[name]" <+> pretty name
+    , "[args]" <+> pretty args
+    , "[body]" <+> pretty body
+    ]
