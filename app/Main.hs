@@ -8,8 +8,9 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    []           -> runRepl repl (ReplState ">> " intrinsicTable "(반응형)")
+    []           -> runRepl repl (ReplState ">> " "(반응형)")
     filePath : _ -> do
       content <- readFile filePath
-      runRepl (evalInput (toText content))
-              (ReplState ">> " intrinsicTable (toText filePath))
+      result  <- runRepl (parseInput (toText content))
+                         (ReplState ">> " (toText filePath))
+      print result
