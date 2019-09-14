@@ -29,6 +29,7 @@ dependencies:
   - mtl >= 2.2
   - transformers >= 0.5
   - lens >= 4.17
+  - prettyprinter >= 1.3
 
 default-extensions:
   - OverloadedStrings
@@ -50,6 +51,7 @@ executables:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
+      - -Wno-orphans
     dependencies:
       - nuri
 
@@ -61,6 +63,7 @@ tests:
       - -threaded
       - -rtsopts
       - -with-rtsopts=-N
+      - -Wno-orphans
     dependencies:
       - nuri
       - hspec >= 2.6

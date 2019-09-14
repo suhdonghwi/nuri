@@ -1,22 +1,10 @@
 module Nuri.Expr where
 
-import qualified Text.Show
 
 import           Text.Megaparsec.Pos                      ( SourcePos )
 
 import           Nuri.ASTNode
-
-data Literal = LitInteger Integer
-             | LitReal Double
-             | LitChar Char
-             | LitBool Bool
-    deriving(Eq)
-
-instance Show Literal where
-  show (LitInteger v) = "(LitInteger " ++ show v ++ ")"
-  show (LitReal    v) = "(LitReal " ++ show v ++ ")"
-  show (LitChar    v) = "(LitChar " ++ show v ++ ")"
-  show (LitBool    v) = "(LitBool " ++ show v ++ ")"
+import           Nuri.Literal
 
 data Expr = Lit SourcePos Literal
           | Var SourcePos Text

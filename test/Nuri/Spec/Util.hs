@@ -5,6 +5,7 @@ import           Text.Megaparsec.Pos
 
 import           Nuri.Expr
 import           Nuri.Stmt
+import           Nuri.Literal
 
 initPos :: SourcePos
 initPos = initialPos "(test)"

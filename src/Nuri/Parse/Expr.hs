@@ -17,6 +17,7 @@ import           Control.Monad.Combinators.Expr           ( makeExprParser
 
 import           Nuri.Parse
 import           Nuri.Expr
+import           Nuri.Literal
 
 parseExpr :: Parser Expr
 parseExpr = parseArithmetic
