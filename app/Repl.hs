@@ -7,7 +7,9 @@ import           Data.Text                                ( strip )
 import           Control.Lens
 import           Control.Lens.TH                          ( )
 
-import           Data.Text.Prettyprint.Doc                ( pretty )
+import           Data.Text.Prettyprint.Doc                ( pretty
+                                                          , vsep
+                                                          )
 
 import           Text.Megaparsec
 
@@ -22,10 +24,10 @@ $(makeLenses ''ReplState)
 newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
-parseInput :: Text -> Repl (Maybe Stmt)
+parseInput :: Text -> Repl (Maybe Stmts)
 parseInput input = do
   st <- get
-  case runParser (parseStmt <* eof) (toString $ view fileName st) input of
+  case runParser (parseStmts <* eof) (toString $ view fileName st) input of
     Left err -> do
       liftIO $ (putTextLn . toText . errorBundlePretty) err
       return Nothing
@@ -42,7 +44,7 @@ repl = forever $ do
   liftIO $ when (input == ":quit") exitSuccess
   result <- parseInput input
   case result of
-    Just val -> (liftIO . print) (pretty val)
+    Just val -> (liftIO . print . vsep . toList) (pretty <$> val)
     Nothing  -> pass
 
 runRepl :: Repl a -> ReplState -> IO a
