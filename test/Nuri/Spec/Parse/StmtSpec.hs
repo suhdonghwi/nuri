@@ -13,6 +13,20 @@ import           Nuri.Spec.Parse.Util
 
 spec :: Spec
 spec = do
+  describe "대입 구문 파싱" $ do
+    it "단순 정수 대입" $ do
+      testParse parseAssignment "[상자]: 10"
+        `shouldParse` assign "상자" (litInteger 10)
+    it "(붙어있는) 단순 정수 대입" $ do
+      testParse parseAssignment "[상자]:10"
+        `shouldParse` assign "상자" (litInteger 10)
+    it "(떨어져있는) 단순 정수 대입" $ do
+      testParse parseAssignment "[상자] : 10"
+        `shouldParse` assign "상자" (litInteger 10)
+    it "사칙연산식 대입" $ do
+      testParse parseAssignment "[상자]: 10 + 2"
+        `shouldParse` assign "상자" (binaryOp Plus (litInteger 10) (litInteger 2))
+
   describe "반환 구문 파싱" $ do
     it "단일 정수 반환" $ do
       testParse parseReturnStmt "1 반환하다" `shouldParse` Return (litInteger 1)
@@ -24,16 +38,16 @@ spec = do
     it "만약 1개 (단일 조건) 조건문" $ do
       testParse parseIfStmt "만약 1 1 같다 면:\n  [값]: 1"
         `shouldParse` ifStmt (app (var "같다") [litInteger 1, litInteger 1])
-                             [ExprStmt (assign "값" (litInteger 1))]
+                             [assign "값" (litInteger 1)]
                              Nothing
     it "만약 ~ 아니고 ~ 면 조건문" $ do
       testParse parseIfStmt "만약 참 이면:\n  [값]: 1\n아니고 참 이면: \n [값]: 2"
         `shouldParse` ifStmt
                         (litBool True)
-                        [ExprStmt (assign "값" (litInteger 1))]
+                        [assign "값" (litInteger 1)]
                         (Just
                           [ ifStmt (litBool True)
-                                   [ExprStmt (assign "값" (litInteger 2))]
+                                   [assign "값" (litInteger 2)]
                                    Nothing
                           ]
                         )
@@ -42,12 +56,11 @@ spec = do
                 "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니면:\n  [값]: 3"
         `shouldParse` ifStmt
                         (litBool True)
-                        [ExprStmt (assign "값" (litInteger 1))]
+                        [assign "값" (litInteger 1)]
                         (Just
-                          [ ifStmt
-                              (litBool True)
-                              [ExprStmt (assign "값" (litInteger 2))]
-                              (Just [ExprStmt (assign "값" (litInteger 3))])
+                          [ ifStmt (litBool True)
+                                   [assign "값" (litInteger 2)]
+                                   (Just [assign "값" (litInteger 3)])
                           ]
                         )
     it "만약 ~ 아니고 ~ 면 ~ 아니고 ~ 면 ~ 아니면 조건문" $ do
@@ -56,17 +69,15 @@ spec = do
           "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니고 참 이면:\n  [값]: 3\n아니면:\n  [값]: 4"
         `shouldParse` ifStmt
                         (litBool True)
-                        [ExprStmt (assign "값" (litInteger 1))]
+                        [assign "값" (litInteger 1)]
                         (Just
                           [ ifStmt
                               (litBool True)
-                              [ExprStmt (assign "값" (litInteger 2))]
+                              [assign "값" (litInteger 2)]
                               (Just
-                                [ ifStmt
-                                    (litBool True)
-                                    [ExprStmt (assign "값" (litInteger 3))]
-                                    (Just [ExprStmt (assign "값" (litInteger 4))]
-                                    )
+                                [ ifStmt (litBool True)
+                                         [assign "값" (litInteger 3)]
+                                         (Just [assign "값" (litInteger 4)])
                                 ]
                               )
                           ]
@@ -122,10 +133,6 @@ spec = do
       testParse parseWhileStmt "1 = 1 인 동안 반복:\n  1 보여주다" `shouldParse` While
         (binaryOp Equal (litInteger 1) (litInteger 1))
         [ExprStmt $ app (var "보여주다") [litInteger 1]]
-    it "[값]: 참 인 동안 반복:" $ do
-      testParse parseWhileStmt "[값]: 참 인 동안 반복:\n  1 보여주다" `shouldParse` While
-        (assign "값" (litBool True))
-        [ExprStmt $ app (var "보여주다") [litInteger 1]]
 
   describe "구문 파싱" $ do
     it "표현식 구문 파싱" $ do
@@ -139,17 +146,15 @@ spec = do
           "만약 참 이면:\n  [값]: 1\n아니고 참 이면:\n  [값]: 2\n아니고 참 이면:\n  [값]: 3\n아니면:\n  [값]: 4"
         `shouldParse` ifStmt
                         (litBool True)
-                        [ExprStmt (assign "값" (litInteger 1))]
+                        [assign "값" (litInteger 1)]
                         (Just
                           [ ifStmt
                               (litBool True)
-                              [ExprStmt (assign "값" (litInteger 2))]
+                              [assign "값" (litInteger 2)]
                               (Just
-                                [ ifStmt
-                                    (litBool True)
-                                    [ExprStmt (assign "값" (litInteger 3))]
-                                    (Just [ExprStmt (assign "값" (litInteger 4))]
-                                    )
+                                [ ifStmt (litBool True)
+                                         [assign "값" (litInteger 3)]
+                                         (Just [assign "값" (litInteger 4)])
                                 ]
                               )
                           ]

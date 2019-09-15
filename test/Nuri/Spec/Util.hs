@@ -17,6 +17,7 @@ binaryOp = BinaryOp initPos
 unaryOp = UnaryOp initPos
 var = Var initPos
 app = App initPos
+
 assign = Assign initPos
 ifStmt = If initPos
 funcDecl = FuncDecl initPos

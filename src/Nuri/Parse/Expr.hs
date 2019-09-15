@@ -4,6 +4,7 @@ module Nuri.Parse.Expr where
 import           Data.List                                ( foldl1' )
 
 import qualified Text.Megaparsec               as P
+import           Text.Megaparsec                          ( (<?>) )
 import qualified Text.Megaparsec.Char          as P
 
 import qualified Text.Megaparsec.Char.Lexer    as L
@@ -23,7 +24,9 @@ parseExpr :: Parser Expr
 parseExpr = parseArithmetic
 
 parseArithmetic :: Parser Expr
-parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
+parseArithmetic = makeExprParser
+  ((parseNestedFuncCalls <|> parseTerm) <?> "표현식")
+  table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -39,10 +42,10 @@ parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
       , InfixL $ binaryOp ">" GreaterThan
       ]
     ]
-  binaryOp opStr op = do
+  binaryOp opStr op = P.hidden $ do
     pos <- P.getSourcePos
     BinaryOp pos op <$ L.symbol sc opStr
-  unaryOp opStr op = do
+  unaryOp opStr op = P.hidden $ do
     pos <- P.getSourcePos
     UnaryOp pos op <$ L.symbol sc opStr
 
@@ -77,19 +80,12 @@ parseTerm =
     <|> parseCharExpr
     <|> P.try parseRealExpr
     <|> parseIntegerExpr
-    <|> P.try parseAssignment
     <|> parseIdentifierExpr
     <|> parseParens
 
 parseParens :: Parser Expr
 parseParens = P.between (symbol "(") (symbol ")") parseExpr
 
-parseAssignment :: Parser Expr
-parseAssignment = do
-  pos         <- P.getSourcePos
-  Var _ ident <- parseIdentifierExpr
-  _           <- symbol ":"
-  Assign pos ident <$> parseExpr
 
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = Var <$> P.getSourcePos <*> parseIdentifier

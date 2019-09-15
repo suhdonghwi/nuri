@@ -46,8 +46,6 @@ instance Pretty Expr where
     , "[func]" <+> pretty func
     , "[args]" <+> align (vsep (pretty <$> args))
     ]
-  pretty (Assign _ ident val) =
-    nest' $ vsep ["Assign", "[var]" <+> pretty ident, "[val]" <+> pretty val]
   pretty (BinaryOp _ op lhs rhs) = nest' $ vsep
     [ "BinaryOp"
     , "[op]" <+> pretty op
@@ -59,7 +57,9 @@ instance Pretty Expr where
 
 instance Pretty Stmt where
   pretty (ExprStmt expr) = nest' $ vsep ["ExprStmt", "[expr]" <+> pretty expr]
-  pretty (Return expr) = nest' $ vsep ["Return", "[expr]" <+> pretty expr]
+  pretty (Return   expr) = nest' $ vsep ["Return", "[expr]" <+> pretty expr]
+  pretty (Assign _ ident val) =
+    nest' $ vsep ["Assign", "[var]" <+> pretty ident, "[val]" <+> pretty val]
   pretty (If _ condition thenStmts elseStmts) = nest' $ vsep
     [ "If"
     , "[condition]" <+> pretty condition

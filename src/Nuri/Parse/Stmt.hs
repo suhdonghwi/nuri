@@ -6,6 +6,7 @@ import qualified Text.Megaparsec.Char.Lexer    as L
 import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
+import           Nuri.Expr
 
 parseIndent :: Parser (L.IndentOpt Parser a b) -> Parser a
 parseIndent = L.indentBlock scn
@@ -15,13 +16,23 @@ parseStmts = fromList <$> P.some (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
 parseStmt =
-  parseIfStmt <|> P.try parseReturnStmt <|> parseFuncDecl <|> parseExprStmt
+  parseIfStmt
+    <|> P.try parseReturnStmt
+    <|> parseAssignment
+    <|> parseFuncDecl
+    <|> parseExprStmt
 
 parseExprStmt :: Parser Stmt
 parseExprStmt = ExprStmt <$> parseExpr
 
 parseReturnStmt :: Parser Stmt
 parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
+
+parseAssignment :: Parser Stmt
+parseAssignment = do
+  pos         <- P.getSourcePos
+  Var _ ident <- P.try $ parseIdentifierExpr <* symbol ":"
+  Assign pos ident <$> parseExpr
 
 parseIfStmt :: Parser Stmt
 parseIfStmt = do
