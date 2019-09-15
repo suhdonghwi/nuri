@@ -29,7 +29,7 @@ reserved :: Text -> Parser ()
 reserved s = (lexeme . P.try) (P.string s *> P.notFollowedBy hangulSyllable)
 
 hangulSyllable :: Parser Char
-hangulSyllable = P.oneOf ['가' .. '힣'] P.<?> "한글"
+hangulSyllable = P.oneOf ['가' .. '힣']
 
 hangulJamo :: Parser Char
-hangulJamo = P.oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ']) P.<?> "한글"
+hangulJamo = P.oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ'])

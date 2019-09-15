@@ -23,9 +23,7 @@ parseExpr :: Parser Expr
 parseExpr = parseArithmetic
 
 parseArithmetic :: Parser Expr
-parseArithmetic = makeExprParser
-  ((parseNestedFuncCalls <|> parseTerm) P.<?> "표현식")
-  table
+parseArithmetic = makeExprParser (parseNestedFuncCalls <|> parseTerm) table
  where
   table =
     [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
@@ -41,10 +39,10 @@ parseArithmetic = makeExprParser
       , InfixL $ binaryOp ">" GreaterThan
       ]
     ]
-  binaryOp opStr op = P.hidden $ do
+  binaryOp opStr op = do
     pos <- P.getSourcePos
     BinaryOp pos op <$ L.symbol sc opStr
-  unaryOp opStr op = P.hidden $ do
+  unaryOp opStr op = do
     pos <- P.getSourcePos
     UnaryOp pos op <$ L.symbol sc opStr
 
