@@ -31,7 +31,7 @@ parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
 parseAssignment :: Parser Stmt
 parseAssignment = do
   pos         <- P.getSourcePos
-  Var _ ident <- P.try $ parseIdentifierExpr <* symbol ":"
+  Var _ ident <- P.try $ parseIdentifierExpr <* symbol "="
   Assign pos ident <$> parseExpr
 
 parseIfStmt :: Parser Stmt

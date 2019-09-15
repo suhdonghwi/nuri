@@ -122,7 +122,7 @@ spec = do
         testParse parseArithmetic "8 / 2"
           `shouldParse` binaryOp Slash (litInteger 8) (litInteger 2)
       it "두 정수 동등 비교" $ do
-        testParse parseArithmetic "8 = 2"
+        testParse parseArithmetic "8 == 2"
           `shouldParse` binaryOp Equal (litInteger 8) (litInteger 2)
       it "두 정수 부등 비교" $ do
         testParse parseArithmetic "8 != 2"
