@@ -82,7 +82,7 @@ spec = do
 
   describe "함수 선언문 파싱" $ do
     it "인자가 한 개인 함수" $ do
-      testParse parseFuncDecl "[값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
+      testParse parseFuncDecl "함수 [값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
         `shouldParse` funcDecl
                         "증가하다"
                         ["값"]
@@ -91,20 +91,21 @@ spec = do
                         ]
 
     it "인자가 여러 개인 함수" $ do
-      testParse parseFuncDecl "[값1] [값2] 더하다:\n  [값1] + [값2] 반환하다"
+      testParse parseFuncDecl "함수 [값1] [값2] 더하다:\n  [값1] + [값2] 반환하다"
         `shouldParse` funcDecl "더하다"
                                ["값1", "값2"]
                                [Return (binaryOp Plus (var "값1") (var "값2"))]
 
     it "함수 이름에 띄어쓰기가 포함된 함수" $ do
-      testParse parseFuncDecl "[값1] [값2] 피보나치 구하다:\n  만약 참 이면:\n    [값2] 반환하다"
+      testParse parseFuncDecl
+                "함수 [값1] [값2] 피보나치 구하다:\n  만약 참 이면:\n    [값2] 반환하다"
         `shouldParse` funcDecl
                         "피보나치 구하다"
                         ["값1", "값2"]
                         [ifStmt (litBool True) [Return (var "값2")] Nothing]
 
     it "함수 속의 함수" $ do
-      testParse parseFuncDecl "[값] 더하다:\n  [값2] 빼다:\n    1 반환하다\n  2 반환하다"
+      testParse parseFuncDecl "함수 [값] 더하다:\n  함수 [값2] 빼다:\n    1 반환하다\n  2 반환하다"
         `shouldParse` funcDecl
                         "더하다"
                         ["값"]
@@ -113,11 +114,11 @@ spec = do
                         ]
 
     it "함수의 본문이 없으면 에러" $ do
-      testParse parseFuncDecl `shouldFailOn` "[값] 증가하다:"
+      testParse parseFuncDecl `shouldFailOn` "함수 [값] 증가하다:"
     it "함수의 이름이 예약어면 에러" $ do
-      testParse parseFuncDecl `shouldFailOn` "[값] 거짓:\n  1 반환하다"
+      testParse parseFuncDecl `shouldFailOn` "함수 [값] 거짓:\n  1 반환하다"
     it "예약어로 시작하는 이름의 함수" $ do
-      testParse parseFuncDecl "[값] 거짓하다:\n  1 반환하다"
+      testParse parseFuncDecl "함수 [값] 거짓하다:\n  1 반환하다"
         `shouldParse` funcDecl "거짓하다" ["값"] [Return (litInteger 1)]
 
   describe "~인 동안 반복문 파싱" $ do
@@ -157,7 +158,7 @@ spec = do
                           ]
                         )
     it "인자가 한 개인 함수" $ do
-      testParse parseStmt "[값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
+      testParse parseStmt "함수 [값] 증가하다:\n  [값] 1 더하다\n  [값] 반환하다"
         `shouldParse` funcDecl
                         "증가하다"
                         ["값"]
@@ -176,7 +177,7 @@ spec = do
                       , ExprStmt (app (var "증가하다") [litInteger 3])
                       ]
     it "함수 여러 개 선언 파싱" $ do
-      testParse parseStmts "[값] 더하다:\n  1 반환하다\n[값] 빼다:\n  2 반환하다"
+      testParse parseStmts "함수 [값] 더하다:\n  1 반환하다\n함수 [값] 빼다:\n  2 반환하다"
         `shouldParse` [ funcDecl "더하다" ["값"] [Return (litInteger 1)]
                       , funcDecl "빼다"  ["값"] [Return (litInteger 2)]
                       ]

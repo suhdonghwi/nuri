@@ -64,7 +64,8 @@ parseFuncDecl :: Parser Stmt
 parseFuncDecl = parseIndent argsLine
  where
   argsLine = P.try $ do
-    pos      <- P.getSourcePos
+    pos <- P.getSourcePos
+    reserved "함수"
     args     <- P.many parseIdentifier
     _        <- sc
     funcName <- parseFuncIdentifier
