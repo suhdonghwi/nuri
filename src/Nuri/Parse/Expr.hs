@@ -95,9 +95,11 @@ parseIdentifier = lexeme $ toText <$> P.between
   (P.char '[')
   (P.char ']')
   ((++) <$> P.some allowedChars <*> P.many
-    (P.char ' ' <|> allowedChars <|> P.digitChar)
+    (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자"))
   )
-  where allowedChars = hangulSyllable <|> hangulJamo <|> P.letterChar
+ where
+  allowedChars =
+    (hangulSyllable <|> hangulJamo <?> "한글") <|> (P.letterChar <?> "영문")
 
 parseIntegerExpr :: Parser Expr
 parseIntegerExpr = lexeme $ do
