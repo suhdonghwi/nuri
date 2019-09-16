@@ -120,16 +120,16 @@ parseBoolExpr :: Parser Expr
 parseBoolExpr = Lit <$> P.getSourcePos <*> (LitBool <$> parseBool)
 
 parseBinary :: Parser Integer
-parseBinary = P.char' 'b' >> L.binary
+parseBinary = P.char' 'b' >> (L.binary <?> "2진수")
 
 parseOctal :: Parser Integer
-parseOctal = L.octal
+parseOctal = L.octal <?> "8진수"
 
 parseDecimal :: Parser Integer
-parseDecimal = L.decimal
+parseDecimal = L.decimal <?> "정수"
 
 parseHexadecimal :: Parser Integer
-parseHexadecimal = P.char' 'x' >> L.hexadecimal
+parseHexadecimal = P.char' 'x' >> (L.hexadecimal <?> "16진수")
 
 parseReal :: Parser Double
 parseReal = lexeme L.float
@@ -138,7 +138,7 @@ parseChar :: Parser Char
 parseChar = lexeme
   (P.between (P.char '\'' >> P.notFollowedBy (P.char '\''))
              (P.char '\'')
-             L.charLiteral
+             (L.charLiteral <?> "문자")
   )
 
 parseBool :: Parser Bool
