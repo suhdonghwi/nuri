@@ -122,12 +122,12 @@ spec = do
         `shouldParse` funcDecl "거짓하다" ["값"] [Return (litInteger 1)]
 
   describe "~인 동안 반복문 파싱" $ do
-    it "참 인 동안 반복:" $ do
+    it "반복 참 인 동안:" $ do
       testParse parseWhileStmt "반복 참 인 동안:\n  1 보여주다"
         `shouldParse` While
                         (litBool True)
                         [ExprStmt $ app (var "보여주다") [litInteger 1]]
-    it "1 == 1 인 동안 반복:" $ do
+    it "반복 1 == 1 인 동안:" $ do
       testParse parseWhileStmt "반복 1 == 1 인 동안:\n  1 보여주다" `shouldParse` While
         (binaryOp Equal (litInteger 1) (litInteger 1))
         [ExprStmt $ app (var "보여주다") [litInteger 1]]
