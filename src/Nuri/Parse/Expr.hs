@@ -64,9 +64,12 @@ parseFuncCall = do
   return $ App pos (Var pos func) args
 
 parseFuncIdentifier :: Parser Text
-parseFuncIdentifier = lexeme $ unwords <$> P.sepEndBy1
-  (P.try $ P.notFollowedBy keyword *> hangulWord)
-  (P.char ' ')
+parseFuncIdentifier =
+  lexeme
+      (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
+                               (P.char ' ')
+      )
+    <?> "함수 이름"
  where
   keywords =
     ["반환하다", "함수", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면", "인 동안 반복"]
@@ -86,20 +89,22 @@ parseTerm =
 parseParens :: Parser Expr
 parseParens = P.between (symbol "(") (symbol ")") parseExpr
 
-
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = Var <$> P.getSourcePos <*> parseIdentifier
 
 parseIdentifier :: Parser Text
-parseIdentifier = lexeme $ toText <$> P.between
-  (P.char '[')
-  (P.char ']')
-  ((++) <$> P.some allowedChars <*> P.many
-    (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자"))
-  )
+parseIdentifier =
+  lexeme
+      (toText <$> P.between
+        (P.char '[')
+        (P.char ']')
+        ((++) <$> P.some allowedChars <*> P.many
+          (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자"))
+        )
+      )
+    <?> "변수 이름"
  where
-  allowedChars =
-    (hangulSyllable <|> hangulJamo <?> "한글") <|> (P.letterChar <?> "영문")
+  allowedChars = hangulSyllable <|> hangulJamo <|> (P.letterChar <?> "영문")
 
 parseIntegerExpr :: Parser Expr
 parseIntegerExpr = lexeme $ do

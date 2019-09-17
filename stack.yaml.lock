@@ -5,6 +5,13 @@
 
 packages:
 - completed:
+    hackage: megaparsec-7.0.5@sha256:45e1f1348fab2783646fdb4d9e6097568981a740951c7356d36d794e2baba305,3902
+    pantry-tree:
+      size: 1428
+      sha256: 1f8baf6e07326f8c8a2dd31de6b2860427f158b0892c52ba5fe9ffeb6cd3bf7f
+  original:
+    hackage: megaparsec-7.0.5
+- completed:
     hackage: relude-0.5.0@sha256:8b9d5659c4c82dbd46883cfff24bb7cc71e21aaea868162921b691e06a3e8263,8706
     pantry-tree:
       size: 3939

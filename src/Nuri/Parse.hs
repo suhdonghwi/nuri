@@ -1,6 +1,7 @@
 module Nuri.Parse where
 
 import qualified Text.Megaparsec               as P
+import           Text.Megaparsec                          ( (<?>) )
 import qualified Text.Megaparsec.Char          as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
@@ -29,7 +30,7 @@ reserved :: Text -> Parser ()
 reserved s = (lexeme . P.try) (P.string s *> P.notFollowedBy hangulSyllable)
 
 hangulSyllable :: Parser Char
-hangulSyllable = P.oneOf ['가' .. '힣']
+hangulSyllable = P.oneOf ['가' .. '힣'] <?> "한글"
 
 hangulJamo :: Parser Char
-hangulJamo = P.oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ'])
+hangulJamo = P.oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ']) <?> "한글"
