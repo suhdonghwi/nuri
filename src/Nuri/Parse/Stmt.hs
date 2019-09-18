@@ -17,7 +17,7 @@ parseStmts = fromList <$> P.some (parseStmt <* scn)
 parseStmt :: Parser Stmt
 parseStmt =
   parseIfStmt
-    <|> parseWhileStmt
+    <|> P.try parseWhileStmt
     <|> P.try parseReturnStmt
     <|> parseAssignment
     <|> parseFuncDecl
@@ -56,9 +56,8 @@ parseIfStmt = do
 
 parseWhileStmt :: Parser Stmt
 parseWhileStmt = parseIndent $ do
-  P.try $ reserved "반복"
   e <- parseExpr
-  _ <- reserved "인 동안"
+  _ <- reserved "인 동안 반복"
   _ <- symbol ":"
   return (L.IndentSome Nothing (return . While e . fromList) parseStmt)
 
