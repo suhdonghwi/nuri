@@ -17,6 +17,7 @@ parseStmts = fromList <$> P.some (parseStmt <* scn)
 parseStmt :: Parser Stmt
 parseStmt =
   parseIfStmt
+    <|> parseWhileStmt
     <|> P.try parseReturnStmt
     <|> parseAssignment
     <|> parseFuncDecl
@@ -55,7 +56,7 @@ parseIfStmt = do
 
 parseWhileStmt :: Parser Stmt
 parseWhileStmt = parseIndent $ do
-  reserved "반복"
+  P.try $ reserved "반복"
   e <- parseExpr
   _ <- reserved "인 동안"
   _ <- symbol ":"

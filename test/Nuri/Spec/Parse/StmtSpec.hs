@@ -165,6 +165,10 @@ spec = do
                         [ ExprStmt $ app (var "더하다") [var "값", litInteger 1]
                         , Return (var "값")
                         ]
+    it "반복문 파싱" $ do
+      testParse parseStmt "반복 1 == 1 인 동안:\n  1 보여주다" `shouldParse` While
+        (binaryOp Equal (litInteger 1) (litInteger 1))
+        [ExprStmt $ app (var "보여주다") [litInteger 1]]
 
   describe "구문 여러 개 파싱" $ do
     it "표현식 구문 여러 개 파싱" $ do
