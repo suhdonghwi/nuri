@@ -56,6 +56,10 @@ parseIfStmt = do
 
 parseWhileStmt :: Parser Stmt
 parseWhileStmt = parseIndent $ do
+<<<<<<< HEAD
+=======
+  reserved "반복"
+>>>>>>> parent of 9ebd833... parseStmt에 반복문 파싱 추가 및 테스트 케이스 추가
   e <- parseExpr
   _ <- reserved "인 동안 반복"
   _ <- symbol ":"
