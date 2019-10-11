@@ -25,6 +25,13 @@ packages:
       sha256: 4377e72f4341cd9810a9f70137c21075e2b444a317784bb6f3d3f5ba2f463a6d
   original:
     hackage: prettyprinter-1.3.0
+- completed:
+    hackage: ordered-containers-0.2.2@sha256:ebf2be3f592d9cf148ea6b8375f8af97148d44f82d8d04476899285e965afdbf,810
+    pantry-tree:
+      size: 526
+      sha256: 757fd75227afa0107f8eb3ebb467856b1d7456276eb501d510c9b06cb5395fbc
+  original:
+    hackage: ordered-containers-0.2.2
 snapshots:
 - completed:
     size: 498155

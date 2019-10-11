@@ -5,4 +5,4 @@ data Literal = LitInteger Integer
              | LitReal Double
              | LitChar Char
              | LitBool Bool
-    deriving(Eq, Show)
+    deriving(Eq, Show, Ord)
