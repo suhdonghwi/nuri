@@ -5,3 +5,4 @@ data Instruction = Push Int
                  | Subtract
                  | Multiply
                  | Divide
+                 deriving (Eq, Show)

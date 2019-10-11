@@ -11,6 +11,7 @@ initPos :: SourcePos
 initPos = initialPos "(test)"
 
 litInteger v = Lit initPos (LitInteger v)
+litChar v = Lit initPos (LitChar v)
 litReal v = Lit initPos (LitReal v)
 litBool v = Lit initPos (LitBool v)
 binaryOp = BinaryOp initPos
