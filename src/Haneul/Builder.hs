@@ -9,6 +9,7 @@ import           Control.Lens.TH                          ( )
 import           Text.Megaparsec.Pos
 
 import           Nuri.Literal
+import           Nuri.Codegen.Error
 
 import           Haneul.Instruction
 
@@ -17,4 +18,4 @@ data BuilderInternal = BuilderInternal {_constTable :: OSet Literal, _registerTa
 
 $(makeLenses ''BuilderInternal)
 
-type Builder = RWS () [(Pos, Instruction)] BuilderInternal
+type Builder = ExceptT Error (RWS () [(Pos, Instruction)] BuilderInternal)

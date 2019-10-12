@@ -11,5 +11,11 @@ import           Haneul.Instruction
 
 shouldBuild :: Builder () -> (BuilderInternal, [Instruction]) -> Expectation
 shouldBuild actual expected = do
-  let result = execRWS actual () (BuilderInternal S.empty [])
-  (second (fmap snd) result) `shouldBe` expected
+  let (result, internal, insts) =
+        runRWS (runExceptT actual) () (BuilderInternal S.empty [])
+  case result of
+    Left err ->
+      expectationFailure
+        $  "expected bytecodes, but caught an error: "
+        ++ show err
+    Right () -> (internal, snd <$> insts) `shouldBe` expected
