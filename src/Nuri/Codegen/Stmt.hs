@@ -18,4 +18,8 @@ compileStmt s@(ExprStmt e) = do
 compileStmt s@(Return e) = do
   compileExpr e
   tell [(sourceLine (srcPos s), Inst.Return)]
+compileStmt (Assign _ _ _    ) = undefined
+compileStmt (If _ _ _ _      ) = undefined
+compileStmt (While _ _       ) = undefined
+compileStmt (FuncDecl _ _ _ _) = undefined
 
