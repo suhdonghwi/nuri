@@ -3,28 +3,31 @@ module Nuri.Codegen.Expr where
 import           Control.Monad.RWS
 import           Data.Set.Ordered
 
+import           Text.Megaparsec.Pos
+
 import           Nuri.Expr
 
 import           Haneul.Builder
 import qualified Haneul.Instruction            as Inst
 
 compileExpr :: Expr -> Builder ()
-compileExpr (Lit _ lit) = do
+compileExpr (Lit pos lit) = do
   modify (|> lit)
   table <- get
   let (Just index) = findIndex lit table
-  tell [Inst.Push index]
-compileExpr (BinaryOp _ op lhs rhs) = do
+  tell [(sourceLine pos, Inst.Push index)]
+compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs
+  let line = sourceLine pos
   case op of
-    Add      -> tell [Inst.Add]
-    Subtract -> tell [Inst.Subtract]
-    Multiply -> tell [Inst.Multiply]
-    Divide   -> tell [Inst.Divide]
-    Mod      -> tell [Inst.Mod]
-compileExpr (UnaryOp _ op value) = do
+    Add      -> tell [(line, Inst.Add)]
+    Subtract -> tell [(line, Inst.Subtract)]
+    Multiply -> tell [(line, Inst.Multiply)]
+    Divide   -> tell [(line, Inst.Divide)]
+    Mod      -> tell [(line, Inst.Mod)]
+compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of
     Positive -> tell []
-    Negative -> tell [Inst.Negate]
+    Negative -> tell [(sourceLine pos, Inst.Negate)]

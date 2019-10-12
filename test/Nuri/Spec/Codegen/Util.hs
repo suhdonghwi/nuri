@@ -13,4 +13,4 @@ import           Haneul.Instruction
 shouldBuild :: Builder () -> (S.OSet Literal, [Instruction]) -> Expectation
 shouldBuild actual expected = do
   let result = execRWS actual () S.empty
-  result `shouldBe` expected
+  (second (fmap snd) result) `shouldBe` expected
