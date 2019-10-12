@@ -14,3 +14,12 @@ compileExpr (Lit _ lit) = do
   table <- get
   let (Just index) = findIndex lit table
   tell [Push index]
+compileExpr (BinaryOp _ op lhs rhs) = do
+  compileExpr lhs
+  compileExpr rhs
+  case op of
+    Plus     -> tell [Add]
+    Minus    -> tell [Subtract]
+    Asterisk -> tell [Multiply]
+    Slash    -> tell [Divide]
+    Percent  -> tell [Mod]
