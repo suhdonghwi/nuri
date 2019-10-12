@@ -4,13 +4,17 @@ import           Control.Monad.RWS                        ( tell )
 import           Control.Lens                             ( modifying
                                                           , use
                                                           )
+import           Control.Monad.Except                     ( throwError )
+
 import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
                                                           )
+import           Data.List                                ( elemIndex )
 
 import           Text.Megaparsec.Pos                      ( sourceLine )
 
 import           Nuri.Expr
+import           Nuri.Codegen.Error
 
 import           Haneul.Builder
 import qualified Haneul.Instruction            as Inst
@@ -21,7 +25,11 @@ compileExpr (Lit pos lit) = do
   table <- use constTable
   let (Just index) = findIndex lit table
   tell [(sourceLine pos, Inst.Push index)]
-compileExpr (Var _ _                ) = undefined
+compileExpr (Var pos ident) = do
+  register <- use registerTable
+  case elemIndex ident register of
+    Just index -> tell [(sourceLine pos, Inst.Load index)]
+    Nothing    -> throwError UnboundVariable
 compileExpr (App _ _ _              ) = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
