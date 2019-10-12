@@ -1,8 +1,8 @@
 module Nuri.Codegen.Stmt where
 
-import           Control.Monad.RWS
+import           Control.Monad.RWS                        ( tell )
 
-import           Text.Megaparsec.Pos
+import           Text.Megaparsec.Pos                      ( sourceLine )
 
 import           Nuri.Stmt
 import           Nuri.ASTNode

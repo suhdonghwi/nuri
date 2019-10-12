@@ -4,9 +4,11 @@ import           Control.Monad.RWS                        ( tell )
 import           Control.Lens                             ( modifying
                                                           , use
                                                           )
-import           Data.Set.Ordered
+import           Data.Set.Ordered                         ( (|>)
+                                                          , findIndex
+                                                          )
 
-import           Text.Megaparsec.Pos
+import           Text.Megaparsec.Pos                      ( sourceLine )
 
 import           Nuri.Expr
 
