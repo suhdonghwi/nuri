@@ -23,3 +23,8 @@ compileExpr (BinaryOp _ op lhs rhs) = do
     Multiply -> tell [Inst.Multiply]
     Divide   -> tell [Inst.Divide]
     Mod      -> tell [Inst.Mod]
+compileExpr (UnaryOp _ op value) = do
+  compileExpr value
+  case op of
+    Positive -> tell []
+    Negative -> tell [Inst.Negate]

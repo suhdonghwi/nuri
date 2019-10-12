@@ -56,4 +56,11 @@ spec = do
                         , Inst.Add
                         ]
                       )
+  describe "단항 연산 코드 생성" $ do
+    it "양수 코드 생성" $ do
+      compileExpr (unaryOp Positive (litInteger 10))
+        `shouldBuild` (S.fromList [LitInteger 10], [Inst.Push 0])
+    it "음수 코드 생성" $ do
+      compileExpr (unaryOp Negative (litInteger 10))
+        `shouldBuild` (S.fromList [LitInteger 10], [Inst.Push 0, Inst.Negate])
 
