@@ -1,6 +1,9 @@
 module Nuri.Codegen.Expr where
 
-import           Control.Monad.RWS
+import           Control.Monad.RWS                        ( tell )
+import           Control.Lens                             ( modifying
+                                                          , use
+                                                          )
 import           Data.Set.Ordered
 
 import           Text.Megaparsec.Pos
@@ -12,8 +15,8 @@ import qualified Haneul.Instruction            as Inst
 
 compileExpr :: Expr -> Builder ()
 compileExpr (Lit pos lit) = do
-  modify (|> lit)
-  table <- get
+  modifying constTable (|> lit)
+  table <- use constTable
   let (Just index) = findIndex lit table
   tell [(sourceLine pos, Inst.Push index)]
 compileExpr (Var _ _                ) = undefined
