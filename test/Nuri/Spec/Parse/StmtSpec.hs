@@ -22,14 +22,14 @@ spec = do
         `shouldParse` assign "상자" (litInteger 10)
     it "사칙연산식 대입" $ do
       testParse parseAssignment "[상자] = 10 + 2"
-        `shouldParse` assign "상자" (binaryOp Plus (litInteger 10) (litInteger 2))
+        `shouldParse` assign "상자" (binaryOp Add (litInteger 10) (litInteger 2))
 
   describe "반환 구문 파싱" $ do
     it "단일 정수 반환" $ do
       testParse parseReturnStmt "1 반환하다" `shouldParse` Return (litInteger 1)
     it "사칙연산식 반환" $ do
       testParse parseReturnStmt "1+2 반환하다"
-        `shouldParse` Return (binaryOp Plus (litInteger 1) (litInteger 2))
+        `shouldParse` Return (binaryOp Add (litInteger 1) (litInteger 2))
 
   describe "조건문 파싱" $ do
     it "만약 1개 (단일 조건) 조건문" $ do
@@ -94,7 +94,7 @@ spec = do
       testParse parseFuncDecl "함수 [값1] [값2] 더하다:\n  [값1] + [값2] 반환하다"
         `shouldParse` funcDecl "더하다"
                                ["값1", "값2"]
-                               [Return (binaryOp Plus (var "값1") (var "값2"))]
+                               [Return (binaryOp Add (var "값1") (var "값2"))]
 
     it "함수 이름에 띄어쓰기가 포함된 함수" $ do
       testParse parseFuncDecl
@@ -135,7 +135,7 @@ spec = do
   describe "구문 파싱" $ do
     it "표현식 구문 파싱" $ do
       testParse parseStmt "1 + 2 줄이다" `shouldParse` ExprStmt
-        (binaryOp Plus (litInteger 1) (app (var "줄이다") [litInteger 2]))
+        (binaryOp Add (litInteger 1) (app (var "줄이다") [litInteger 2]))
     it "반환 구문 파싱" $ do
       testParse parseStmt "1 반환하다" `shouldParse` Return (litInteger 1)
     it "조건문 파싱" $ do
@@ -174,7 +174,7 @@ spec = do
     it "표현식 구문 여러 개 파싱" $ do
       testParse parseStmts "1 + 2 줄이다\n3 증가하다"
         `shouldParse` [ ExprStmt
-                        (binaryOp Plus
+                        (binaryOp Add
                                   (litInteger 1)
                                   (app (var "줄이다") [litInteger 2])
                         )

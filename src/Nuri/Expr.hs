@@ -9,8 +9,8 @@ import           Nuri.Literal
 data Expr = Lit SourcePos Literal
           | Var SourcePos Text
           | App SourcePos Expr [Expr]
-          | BinaryOp SourcePos Op Expr Expr
-          | UnaryOp SourcePos Op Expr
+          | BinaryOp SourcePos BinaryOperator Expr Expr
+          | UnaryOp SourcePos UnaryOperator Expr
           deriving (Show)
 
 instance Eq Expr where
@@ -29,8 +29,11 @@ instance ASTNode Expr where
   srcPos (BinaryOp pos _ _ _) = pos
   srcPos (UnaryOp pos _ _   ) = pos
 
-data Op = Plus | Minus | Asterisk | Slash | Percent
-        | Equal | Inequal
-        | LessThan | GreaterThan
-        | LessThanEqual | GreaterThanEqual
-    deriving(Eq, Show)
+data BinaryOperator = Add | Subtract | Multiply | Divide | Mod
+                    | Equal | Inequal
+                    | LessThan | GreaterThan
+                    | LessThanEqual | GreaterThanEqual
+    deriving (Eq, Show)
+
+data UnaryOperator = Positive | Negative
+    deriving (Eq, Show)

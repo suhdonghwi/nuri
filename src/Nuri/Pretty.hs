@@ -21,12 +21,12 @@ instance Pretty Literal where
   pretty (LitChar    v) = "LitChar" <> parens (pretty v)
   pretty (LitBool    v) = "LitBool" <> parens (pretty v)
 
-instance Pretty Op where
-  pretty Plus             = "(+)"
-  pretty Minus            = "(-)"
-  pretty Asterisk         = "(*)"
-  pretty Slash            = "(/)"
-  pretty Percent          = "(%)"
+instance Pretty BinaryOperator where
+  pretty Add              = "(+)"
+  pretty Subtract         = "(-)"
+  pretty Multiply         = "(*)"
+  pretty Divide           = "(/)"
+  pretty Mod              = "(%)"
   pretty Equal            = "(=)"
   pretty Inequal          = "(!=)"
   pretty LessThan         = "(<)"
@@ -34,6 +34,9 @@ instance Pretty Op where
   pretty LessThanEqual    = "(<=)"
   pretty GreaterThanEqual = "(>=)"
 
+instance Pretty UnaryOperator where
+  pretty Positive = "(+)"
+  pretty Negative = "(-)"
 
 nest' :: Doc a -> Doc a
 nest' = nest 4

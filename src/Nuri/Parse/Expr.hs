@@ -29,12 +29,12 @@ parseArithmetic = makeExprParser
   table
  where
   table =
-    [ [Prefix $ unaryOp "+" Plus, Prefix $ unaryOp "-" Minus]
-    , [ InfixL $ binaryOp "*" Asterisk
-      , InfixL $ binaryOp "/" Slash
-      , InfixL $ binaryOp "%" Percent
+    [ [Prefix $ unaryOp "+" Positive, Prefix $ unaryOp "-" Negative]
+    , [ InfixL $ binaryOp "*" Multiply
+      , InfixL $ binaryOp "/" Divide
+      , InfixL $ binaryOp "%" Mod
       ]
-    , [InfixL $ binaryOp "+" Plus, InfixL $ binaryOp "-" Minus]
+    , [InfixL $ binaryOp "+" Add, InfixL $ binaryOp "-" Subtract]
     , [InfixL $ binaryOp "==" Equal, InfixL $ binaryOp "!=" Inequal]
     , [ InfixL $ binaryOp "<=" LessThanEqual
       , InfixL $ binaryOp ">=" GreaterThanEqual
@@ -72,7 +72,19 @@ parseFuncIdentifier =
     <?> "함수 이름"
  where
   keywords =
-    ["반환하다", "함수", "참", "거짓", "만약", "면", "이면", "이라면", "아니고", "아니면", "반복", "인 동안"]
+    [ "반환하다"
+    , "함수"
+    , "참"
+    , "거짓"
+    , "만약"
+    , "면"
+    , "이면"
+    , "이라면"
+    , "아니고"
+    , "아니면"
+    , "반복"
+    , "인 동안"
+    ]
   keyword    = P.choice $ fmap reserved keywords
   hangulWord = toText <$> P.some hangulSyllable
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word

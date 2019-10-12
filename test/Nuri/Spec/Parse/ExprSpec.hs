@@ -77,50 +77,51 @@ spec = do
   describe "사칙연산식 파싱" $ do
     describe "단항 연산자" $ do
       it "양의 부호 정수" $ do
-        testParse parseArithmetic "+2" `shouldParse` unaryOp Plus (litInteger 2)
+        testParse parseArithmetic "+2"
+          `shouldParse` unaryOp Positive (litInteger 2)
       it "(떨어져 있는) 양의 부호 정수" $ do
         testParse parseArithmetic "+ 2"
-          `shouldParse` unaryOp Plus (litInteger 2)
+          `shouldParse` unaryOp Positive (litInteger 2)
       it "음의 부호 정수" $ do
         testParse parseArithmetic "-2"
-          `shouldParse` unaryOp Minus (litInteger 2)
+          `shouldParse` unaryOp Negative (litInteger 2)
       it "(떨어져 있는) 음의 부호 정수" $ do
         testParse parseArithmetic "- 2"
-          `shouldParse` unaryOp Minus (litInteger 2)
+          `shouldParse` unaryOp Negative (litInteger 2)
       it "양의 부호 실수" $ do
         testParse parseArithmetic "+2.5"
-          `shouldParse` unaryOp Plus (litReal 2.5)
+          `shouldParse` unaryOp Positive (litReal 2.5)
       it "음의 부호 실수" $ do
         testParse parseArithmetic "-2.5"
-          `shouldParse` unaryOp Minus (litReal 2.5)
+          `shouldParse` unaryOp Negative (litReal 2.5)
     describe "이항 연산자" $ do
       it "두 정수 더하기" $ do
         testParse parseArithmetic "1 + 2"
-          `shouldParse` binaryOp Plus (litInteger 1) (litInteger 2)
+          `shouldParse` binaryOp Add (litInteger 1) (litInteger 2)
       it "두 실수 더하기" $ do
         testParse parseArithmetic "1.0 + 2.5"
-          `shouldParse` binaryOp Plus (litReal 1.0) (litReal 2.5)
+          `shouldParse` binaryOp Add (litReal 1.0) (litReal 2.5)
       it "실수와 정수 더하기" $ do
         testParse parseArithmetic "1.0 + 2"
-          `shouldParse` binaryOp Plus (litReal 1.0) (litInteger 2)
+          `shouldParse` binaryOp Add (litReal 1.0) (litInteger 2)
       it "(붙어있는) 두 정수 더하기" $ do
         testParse parseArithmetic "1+2"
-          `shouldParse` binaryOp Plus (litInteger 1) (litInteger 2)
+          `shouldParse` binaryOp Add (litInteger 1) (litInteger 2)
       it "(부호있는) 두 정수 더하기" $ do
         testParse parseArithmetic "1++2"
           `shouldParse` binaryOp
-                          Plus
+                          Add
                           (litInteger 1)
-                          (unaryOp Plus (litInteger 2))
+                          (unaryOp Positive (litInteger 2))
       it "두 정수 빼기" $ do
         testParse parseArithmetic "2 - 4"
-          `shouldParse` binaryOp Minus (litInteger 2) (litInteger 4)
+          `shouldParse` binaryOp Subtract (litInteger 2) (litInteger 4)
       it "두 정수 곱하기" $ do
         testParse parseArithmetic "2 * 4"
-          `shouldParse` binaryOp Asterisk (litInteger 2) (litInteger 4)
+          `shouldParse` binaryOp Multiply (litInteger 2) (litInteger 4)
       it "두 정수 나누기" $ do
         testParse parseArithmetic "8 / 2"
-          `shouldParse` binaryOp Slash (litInteger 8) (litInteger 2)
+          `shouldParse` binaryOp Divide (litInteger 8) (litInteger 2)
       it "두 정수 동등 비교" $ do
         testParse parseArithmetic "8 == 2"
           `shouldParse` binaryOp Equal (litInteger 8) (litInteger 2)
@@ -142,14 +143,14 @@ spec = do
     describe "복합 연산" $ do
       it "두 정수 나누고 한 정수 더하기" $ do
         testParse parseArithmetic "4 / 2 + 3" `shouldParse` binaryOp
-          Plus
-          (binaryOp Slash (litInteger 4) (litInteger 2))
+          Add
+          (binaryOp Divide (litInteger 4) (litInteger 2))
           (litInteger 3)
       it "두 정수 나누고 한 정수 더하기 (순서 바꿔서)" $ do
         testParse parseArithmetic "3 + 4 / 2" `shouldParse` binaryOp
-          Plus
+          Add
           (litInteger 3)
-          (binaryOp Slash (litInteger 4) (litInteger 2))
+          (binaryOp Divide (litInteger 4) (litInteger 2))
 
   describe "식별자 파싱" $ do
     it "영문 식별자" $ do
@@ -208,16 +209,16 @@ spec = do
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
       testParse parseExpr "(1 + 1) / 2" `shouldParse` binaryOp
-        Slash
-        (binaryOp Plus (litInteger 1) (litInteger 1))
+        Divide
+        (binaryOp Add (litInteger 1) (litInteger 1))
         (litInteger 2)
     it "함수 호출식이 사칙연산식보다 우선순위 높음" $ do
       testParse parseExpr "1 + 1 2 더하다" `shouldParse` binaryOp
-        Plus
+        Add
         (litInteger 1)
         (app (var "더하다") [litInteger 1, litInteger 2])
     it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
       testParse parseExpr "(1 + 1) 2 더하다" `shouldParse` app
         (var "더하다")
-        [binaryOp Plus (litInteger 1) (litInteger 1), litInteger 2]
+        [binaryOp Add (litInteger 1) (litInteger 1), litInteger 2]
 
