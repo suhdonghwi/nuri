@@ -12,7 +12,10 @@ import           Haneul.Builder
 import qualified Haneul.Instruction            as Inst
 
 compileStmt :: Stmt -> Builder ()
-compileStmt (ExprStmt e) = do
+compileStmt s@(ExprStmt e) = do
   compileExpr e
-  tell [(sourceLine (srcPos e), Inst.Pop)]
+  tell [(sourceLine (srcPos s), Inst.Pop)]
+compileStmt s@(Return e) = do
+  compileExpr e
+  tell [(sourceLine (srcPos s), Inst.Return)]
 
