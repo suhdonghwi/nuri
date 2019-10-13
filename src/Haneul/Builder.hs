@@ -8,12 +8,12 @@ import           Control.Lens.TH                          ( )
 
 import           Text.Megaparsec.Pos
 
-import           Nuri.Literal
 import           Nuri.Codegen.Error
 
 import           Haneul.Instruction
+import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal {_constTable :: OSet Literal, _varNames :: OSet Text}
+data BuilderInternal = BuilderInternal {_constTable :: OSet Constant, _varNames :: OSet Text}
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)

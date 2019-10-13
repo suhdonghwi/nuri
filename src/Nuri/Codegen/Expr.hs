@@ -12,15 +12,24 @@ import           Data.Set.Ordered                         ( (|>)
 import           Text.Megaparsec.Pos                      ( sourceLine )
 
 import           Nuri.Expr
+import           Nuri.Literal
 
 import           Haneul.Builder
+import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
+
+litToConst :: Literal -> Constant
+litToConst (LitInteger v) = ConstInteger v
+litToConst (LitReal    v) = ConstReal v
+litToConst (LitChar    v) = ConstChar v
+litToConst (LitBool    v) = ConstBool v
 
 compileExpr :: Expr -> Builder ()
 compileExpr (Lit pos lit) = do
-  modifying constTable (|> lit)
+  let value = litToConst lit
+  modifying constTable (|> value)
   table <- use constTable
-  let (Just index) = findIndex lit table
+  let (Just index) = findIndex value table
   tell [(sourceLine pos, Inst.Push index)]
 compileExpr (Var pos ident) = do
   names <- use varNames

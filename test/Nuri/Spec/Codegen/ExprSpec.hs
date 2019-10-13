@@ -7,19 +7,19 @@ import qualified Data.Set.Ordered              as S
 import           Nuri.Spec.Util
 import           Nuri.Spec.Codegen.Util
 
-import           Nuri.Literal
 import           Nuri.Expr
 import           Nuri.Codegen.Expr
 
 import qualified Haneul.Instruction            as Inst
 import           Haneul.Builder
+import           Haneul.Constant
 
 spec :: Spec
 spec = do
   describe "리터럴 코드 생성" $ do
     it "정수 리터럴 코드 생성" $ do
       compileExpr (litInteger 10)
-        `shouldBuild` ( defaultI { _constTable = S.singleton (LitInteger 10) }
+        `shouldBuild` ( defaultI { _constTable = S.singleton (ConstInteger 10) }
                       , [Inst.Push 0]
                       )
     it "리터럴 여러개 코드 생성"
@@ -28,7 +28,8 @@ spec = do
                       compileExpr (litChar 'a')
                     )
       `shouldBuild` ( defaultI
-                      { _constTable = S.fromList [LitInteger 10, LitChar 'a']
+                      { _constTable = S.fromList
+                                        [ConstInteger 10, ConstChar 'a']
                       }
                     , [Inst.Push 0, Inst.Push 1]
                     )
@@ -39,7 +40,8 @@ spec = do
                       compileExpr (litInteger 10)
                     )
       `shouldBuild` ( defaultI
-                      { _constTable = S.fromList [LitInteger 10, LitChar 'a']
+                      { _constTable = S.fromList
+                                        [ConstInteger 10, ConstChar 'a']
                       }
                     , [Inst.Push 0, Inst.Push 1, Inst.Push 0]
                     )
@@ -48,7 +50,7 @@ spec = do
       compileExpr (binaryOp Add (litInteger 10) (litInteger 20))
         `shouldBuild` ( defaultI
                         { _constTable = S.fromList
-                                          [LitInteger 10, LitInteger 20]
+                                          [ConstInteger 10, ConstInteger 20]
                         }
                       , [Inst.Push 0, Inst.Push 1, Inst.Add]
                       )
@@ -61,7 +63,7 @@ spec = do
         `shouldBuild` ( defaultI
                         { _constTable =
                           S.fromList
-                            [LitInteger 10, LitInteger 20, LitInteger 30]
+                            [ConstInteger 10, ConstInteger 20, ConstInteger 30]
                         }
                       , [ Inst.Push 0
                         , Inst.Push 1
@@ -73,12 +75,12 @@ spec = do
   describe "단항 연산 코드 생성" $ do
     it "양수 코드 생성" $ do
       compileExpr (unaryOp Positive (litInteger 10))
-        `shouldBuild` ( defaultI { _constTable = S.singleton (LitInteger 10) }
+        `shouldBuild` ( defaultI { _constTable = S.singleton (ConstInteger 10) }
                       , [Inst.Push 0]
                       )
     it "음수 코드 생성" $ do
       compileExpr (unaryOp Negative (litInteger 10))
-        `shouldBuild` ( defaultI { _constTable = S.singleton (LitInteger 10) }
+        `shouldBuild` ( defaultI { _constTable = S.singleton (ConstInteger 10) }
                       , [Inst.Push 0, Inst.Negate]
                       )
   describe "변수 접근 코드 생성" $ do
