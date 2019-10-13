@@ -40,3 +40,20 @@ spec = do
                       , Inst.Pop
                       ]
                     )
+  describe "대입 구문 코드 생성" $ do
+    it "정수 대입 코드 생성" $ do
+      compileStmt (assign "값" (litInteger 10))
+        `shouldBuild` ( defaultI { _constTable = S.singleton (LitInteger 10)
+                                 , _varNames   = S.singleton "값"
+                                 }
+                      , [Inst.Push 0, Inst.Store 0]
+                      )
+    it "연산삭 대입 코드 생성" $ do
+      compileStmt (assign "값" (binaryOp Add (litInteger 10) (litInteger 20)))
+        `shouldBuild` ( defaultI
+                        { _constTable = S.fromList
+                                          [LitInteger 10, LitInteger 20]
+                        , _varNames   = S.singleton "값"
+                        }
+                      , [Inst.Push 0, Inst.Push 1, Inst.Add, Inst.Store 0]
+                      )
