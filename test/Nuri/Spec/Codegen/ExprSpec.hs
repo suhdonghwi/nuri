@@ -73,12 +73,18 @@ spec = do
   describe "단항 연산 코드 생성" $ do
     it "양수 코드 생성" $ do
       compileExpr (unaryOp Positive (litInteger 10))
-        `shouldBuild` ( defaultI { _constTable = S.fromList [LitInteger 10] }
+        `shouldBuild` ( defaultI { _constTable = S.singleton (LitInteger 10) }
                       , [Inst.Push 0]
                       )
     it "음수 코드 생성" $ do
       compileExpr (unaryOp Negative (litInteger 10))
-        `shouldBuild` ( defaultI { _constTable = S.fromList [LitInteger 10] }
+        `shouldBuild` ( defaultI { _constTable = S.singleton (LitInteger 10) }
                       , [Inst.Push 0, Inst.Negate]
+                      )
+  describe "변수 접근 코드 생성" $ do
+    it "선언되지 않은 변수 이름에 대해 LoadGlobal 코드 생성" $ do
+      compileExpr (var "값")
+        `shouldBuild` ( defaultI { _globalVarNames = S.singleton "값" }
+                      , [Inst.LoadGlobal 0]
                       )
 
