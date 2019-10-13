@@ -9,7 +9,7 @@ import           Control.Monad.Except                     ( throwError )
 import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
                                                           )
-import           Data.List                                ( elemIndex )
+import           Data.List                                ( elemIndices )
 
 import           Text.Megaparsec.Pos                      ( sourceLine )
 
@@ -27,9 +27,9 @@ compileExpr (Lit pos lit) = do
   tell [(sourceLine pos, Inst.Push index)]
 compileExpr (Var pos ident) = do
   register <- use registerTable
-  case elemIndex ident register of
-    Just index -> tell [(sourceLine pos, Inst.Load index)]
-    Nothing    -> throwError UnboundVariable
+  case nonEmpty $ elemIndices ident register of
+    Nothing      -> throwError UnboundVariable
+    Just indices -> tell [(sourceLine pos, Inst.Load (last indices))]
 compileExpr (App _ _ _              ) = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
