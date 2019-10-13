@@ -6,4 +6,4 @@ data Instruction = Push Int | Pop
                  | Add | Subtract | Multiply | Divide | Mod
                  | Equal | Inequal | LessThan | GreaterThan | LessThanEqual | GreaterThanEqual
                  | Negate
-                 deriving (Eq, Show)
+                 deriving (Eq, Show, Ord)

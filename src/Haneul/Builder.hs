@@ -1,12 +1,11 @@
 module Haneul.Builder where
 
-import           Control.Monad.RWS
-import           Data.Set.Ordered
-
-import           Control.Lens
+import           Control.Monad.RWS                        ( RWS )
+import           Control.Lens                             ( makeLenses )
 import           Control.Lens.TH                          ( )
+import           Data.Set.Ordered                         ( OSet )
 
-import           Text.Megaparsec.Pos
+import           Text.Megaparsec.Pos                      ( Pos )
 
 import           Nuri.Codegen.Error
 
