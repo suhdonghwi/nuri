@@ -13,7 +13,7 @@ import           Nuri.Codegen.Error
 
 import           Haneul.Instruction
 
-data BuilderInternal = BuilderInternal {_constTable :: OSet Literal, _registerTable :: [Text]}
+data BuilderInternal = BuilderInternal {_constTable :: OSet Literal, _localVarNames :: OSet Text, _globalVarNames :: OSet Text}
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)

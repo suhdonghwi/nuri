@@ -20,7 +20,7 @@ spec = do
   describe "표현식 구문 코드 생성" $ do
     it "일반 연산 표현식 구문" $ do
       compileStmt (ExprStmt (litInteger 10))
-        `shouldBuild` ( BuilderInternal (S.singleton (LitInteger 10)) []
+        `shouldBuild` ( defaultI { _constTable = S.singleton (LitInteger 10) }
                       , [Inst.Push 0, Inst.Pop]
                       )
     it "1개 이상의 일반 연산 표현식 구문"
@@ -28,9 +28,10 @@ spec = do
                       compileStmt (ExprStmt (litInteger 10))
                       compileStmt (ExprStmt (binaryOp Add (litInteger 20) (litInteger 30)))
                     )
-      `shouldBuild` ( BuilderInternal
-                      (S.fromList [LitInteger 10, LitInteger 20, LitInteger 30])
-                      []
+      `shouldBuild` ( defaultI
+                      { _constTable =
+                        S.fromList [LitInteger 10, LitInteger 20, LitInteger 30]
+                      }
                     , [ Inst.Push 0
                       , Inst.Pop
                       , Inst.Push 1

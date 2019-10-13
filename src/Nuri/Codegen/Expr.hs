@@ -4,17 +4,14 @@ import           Control.Monad.RWS                        ( tell )
 import           Control.Lens                             ( modifying
                                                           , use
                                                           )
-import           Control.Monad.Except                     ( throwError )
 
 import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
                                                           )
-import           Data.List                                ( elemIndices )
 
 import           Text.Megaparsec.Pos                      ( sourceLine )
 
 import           Nuri.Expr
-import           Nuri.Codegen.Error
 
 import           Haneul.Builder
 import qualified Haneul.Instruction            as Inst
@@ -26,10 +23,14 @@ compileExpr (Lit pos lit) = do
   let (Just index) = findIndex lit table
   tell [(sourceLine pos, Inst.Push index)]
 compileExpr (Var pos ident) = do
-  register <- use registerTable
-  case nonEmpty $ elemIndices ident register of
-    Nothing      -> throwError UnboundVariable
-    Just indices -> tell [(sourceLine pos, Inst.Load (last indices))]
+  localNames <- use localVarNames
+  case findIndex ident localNames of
+    Nothing -> do
+      modifying globalVarNames (|> ident)
+      globalNames <- use globalVarNames
+      let (Just index) = findIndex ident globalNames
+      tell [(sourceLine pos, Inst.LoadGlobal index)]
+    Just index -> tell [(sourceLine pos, Inst.Load index)]
 compileExpr (App _ _ _              ) = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
