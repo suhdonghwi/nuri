@@ -82,9 +82,9 @@ spec = do
                       , [Inst.Push 0, Inst.Negate]
                       )
   describe "변수 접근 코드 생성" $ do
-    it "선언되지 않은 변수 이름에 대해 LoadGlobal 코드 생성" $ do
+    it "선언되지 않은 변수 이름에 대해 LoadBuiltin 코드 생성" $ do
       compileExpr (var "값")
-        `shouldBuild` ( defaultI { _globalVarNames = S.singleton "값" }
-                      , [Inst.LoadGlobal 0]
+        `shouldBuild` ( defaultI { _varNames = S.singleton "값" }
+                      , [Inst.LoadBuiltin 0]
                       )
 

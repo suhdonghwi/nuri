@@ -23,13 +23,11 @@ compileExpr (Lit pos lit) = do
   let (Just index) = findIndex lit table
   tell [(sourceLine pos, Inst.Push index)]
 compileExpr (Var pos ident) = do
-  localNames <- use localVarNames
-  case findIndex ident localNames of
+  names <- use varNames
+  case findIndex ident names of
     Nothing -> do
-      modifying globalVarNames (|> ident)
-      globalNames <- use globalVarNames
-      let (Just index) = findIndex ident globalNames
-      tell [(sourceLine pos, Inst.LoadGlobal index)]
+      modifying varNames (|> ident)
+      tell [(sourceLine pos, Inst.LoadBuiltin (length names))]
     Just index -> tell [(sourceLine pos, Inst.Load index)]
 compileExpr (App _ _ _              ) = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do

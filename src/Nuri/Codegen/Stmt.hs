@@ -12,14 +12,14 @@ import           Haneul.Builder
 import qualified Haneul.Instruction            as Inst
 
 compileStmt :: Stmt -> Builder ()
-compileStmt s@(ExprStmt e) = do
-  compileExpr e
-  tell [(sourceLine (srcPos s), Inst.Pop)]
-compileStmt s@(Return e) = do
-  compileExpr e
-  tell [(sourceLine (srcPos s), Inst.Return)]
-compileStmt (Assign _ _ _    ) = undefined
-compileStmt (If _ _ _ _      ) = undefined
-compileStmt (While _ _       ) = undefined
-compileStmt (FuncDecl _ _ _ _) = undefined
+compileStmt stmt@(ExprStmt expr) = do
+  compileExpr expr
+  tell [(sourceLine (srcPos stmt), Inst.Pop)]
+compileStmt stmt@(Return expr) = do
+  compileExpr expr
+  tell [(sourceLine (srcPos stmt), Inst.Return)]
+compileStmt (Assign pos ident expr) = undefined
+compileStmt (If _ _ _ _           ) = undefined
+compileStmt (While _ _            ) = undefined
+compileStmt (FuncDecl _ _ _ _     ) = undefined
 
