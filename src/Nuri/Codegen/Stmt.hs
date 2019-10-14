@@ -8,6 +8,7 @@ import           Control.Lens                             ( modifying
                                                           , view
                                                           )
 
+import qualified Data.Set.Ordered              as S
 import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
                                                           )
@@ -48,8 +49,10 @@ compileStmt (FuncDecl pos funcName argNames body) = do
           )
         _ <- sequence (compileStmt <$> body)
         return ()
-  (internal, instructions) <- execRWS funcBuilder () <$> get
-  let funcObject = ConstFunc
+  st <- get
+  let (internal, instructions) =
+        execRWS funcBuilder () (st { _constTable = S.empty })
+      funcObject = ConstFunc
         (FuncObject { _arity          = fromIntegral (length argNames)
                     , _insts          = instructions
                     , _funcConstTable = view constTable internal
