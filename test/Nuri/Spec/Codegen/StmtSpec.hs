@@ -1,8 +1,11 @@
+{-# LANGUAGE OverloadedLists #-}
 module Nuri.Spec.Codegen.StmtSpec where
 
 import           Test.Hspec
 
 import qualified Data.Set.Ordered              as S
+
+import           Text.Megaparsec.Pos
 
 import           Nuri.Spec.Util
 import           Nuri.Spec.Codegen.Util
@@ -58,3 +61,87 @@ spec = do
                         }
                       , [Inst.Push 0, Inst.Push 1, Inst.Add, Inst.Store 0]
                       )
+  describe "함수 선언 코드 생성" $ do
+    it "상수 함수 코드 생성" $ do
+      compileStmt (funcDecl "더하다" ["값"] [Return (litInteger 1)])
+        `shouldBuild` ( defaultI
+                        { _constTable =
+                          S.singleton $ ConstFunc
+                            (FuncObject
+                              { _arity          = 1
+                              , _insts = [ (sourceLine initPos, Inst.Store 0)
+                                         , (sourceLine initPos, Inst.Push 0)
+                                         , (sourceLine initPos, Inst.Return)
+                                         ]
+                              , _funcConstTable = S.singleton (ConstInteger 1)
+                              , _funcVarNames   = S.singleton "값"
+                              }
+                            )
+                        , _varNames   = S.singleton "더하다"
+                        }
+                      , [Inst.Push 0, Inst.Store 0]
+                      )
+    it "항등 함수 코드 생성" $ do
+      compileStmt (funcDecl "더하다" ["값"] [Return (var "값")])
+        `shouldBuild` ( defaultI
+                        { _constTable =
+                          S.singleton $ ConstFunc
+                            (FuncObject
+                              { _arity          = 1
+                              , _insts = [ (sourceLine initPos, Inst.Store 0)
+                                         , (sourceLine initPos, Inst.Load 0)
+                                         , (sourceLine initPos, Inst.Return)
+                                         ]
+                              , _funcConstTable = S.empty
+                              , _funcVarNames   = S.singleton "값"
+                              }
+                            )
+                        , _varNames   = S.singleton "더하다"
+                        }
+                      , [Inst.Push 0, Inst.Store 0]
+                      )
+    it "항등 함수 코드 생성" $ do
+      compileStmt (funcDecl "더하다" ["값"] [Return (var "값")])
+        `shouldBuild` ( defaultI
+                        { _constTable =
+                          S.singleton $ ConstFunc
+                            (FuncObject
+                              { _arity          = 1
+                              , _insts = [ (sourceLine initPos, Inst.Store 0)
+                                         , (sourceLine initPos, Inst.Load 0)
+                                         , (sourceLine initPos, Inst.Return)
+                                         ]
+                              , _funcConstTable = S.empty
+                              , _funcVarNames   = S.singleton "값"
+                              }
+                            )
+                        , _varNames   = S.singleton "더하다"
+                        }
+                      , [Inst.Push 0, Inst.Store 0]
+                      )
+    it "외부 변수가 존재할 때 함수 코드 생성"
+      $             (do
+                      compileStmt (assign "값" (litInteger 10))
+                      compileStmt (funcDecl "더하다" ["값"] [Return (litInteger 20)])
+                    )
+      `shouldBuild` ( defaultI
+                      { _constTable =
+                        S.fromList
+                          [ ConstInteger 10
+                          , ConstFunc
+                            (FuncObject
+                              { _arity          = 1
+                              , _insts = [ (sourceLine initPos, Inst.Store 0)
+                                         , (sourceLine initPos, Inst.Push 1)
+                                         , (sourceLine initPos, Inst.Return)
+                                         ]
+                              , _funcConstTable =
+                                S.fromList [ConstInteger 10, ConstInteger 20]
+                              , _funcVarNames   = S.singleton "값"
+                              }
+                            )
+                          ]
+                      , _varNames   = S.fromList ["값", "더하다"]
+                      }
+                    , [Inst.Push 0, Inst.Store 0, Inst.Push 1, Inst.Store 1]
+                    )

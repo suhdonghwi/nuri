@@ -1,13 +1,9 @@
 module Nuri.Codegen.Expr where
 
 import           Control.Monad.RWS                        ( tell )
-import           Control.Lens                             ( modifying
-                                                          , use
-                                                          )
+import           Control.Lens                             ( use )
 
-import           Data.Set.Ordered                         ( (|>)
-                                                          , findIndex
-                                                          )
+import           Data.Set.Ordered                         ( findIndex )
 
 import           Text.Megaparsec.Pos                      ( sourceLine )
 
@@ -27,7 +23,7 @@ litToConst (LitBool    v) = ConstBool v
 compileExpr :: Expr -> Builder ()
 compileExpr (Lit pos lit) = do
   let value = litToConst lit
-  modifying constTable (|> value)
+  _     <- addConstant value
   table <- use constTable
   let (Just index) = findIndex value table
   tell [(sourceLine pos, Inst.Push index)]
@@ -35,7 +31,7 @@ compileExpr (Var pos ident) = do
   names <- use varNames
   case findIndex ident names of
     Nothing -> do
-      modifying varNames (|> ident)
+      _ <- addVarName ident
       tell [(sourceLine pos, Inst.LoadBuiltin (length names))]
     Just index -> tell [(sourceLine pos, Inst.Load index)]
 compileExpr (App _ _ _              ) = undefined
