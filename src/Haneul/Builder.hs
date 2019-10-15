@@ -12,7 +12,7 @@ import           Data.Set.Ordered                         ( OSet
                                                           , findIndex
                                                           )
 
-import           Text.Megaparsec.Pos                      ( Pos )
+import           Text.Megaparsec.Pos                      ( SourcePos )
 
 import           Haneul.Instruction
 import           Haneul.Constant
@@ -39,4 +39,4 @@ addConstant value = do
   let (Just index) = findIndex value names
   return index
 
-type Builder = RWS () [(Pos, Instruction)] BuilderInternal
+type Builder = RWS () [(SourcePos, Instruction)] BuilderInternal

@@ -5,8 +5,6 @@ import           Control.Lens                             ( use )
 
 import           Data.Set.Ordered                         ( findIndex )
 
-import           Text.Megaparsec.Pos                      ( sourceLine )
-
 import           Nuri.Expr
 import           Nuri.Literal
 
@@ -26,33 +24,32 @@ compileExpr (Lit pos lit) = do
   _     <- addConstant value
   table <- use constTable
   let (Just index) = findIndex value table
-  tell [(sourceLine pos, Inst.Push index)]
+  tell [(pos, Inst.Push index)]
 compileExpr (Var pos ident) = do
   names <- use varNames
   case findIndex ident names of
     Nothing -> do
       _ <- addVarName ident
-      tell [(sourceLine pos, Inst.LoadBuiltin (length names))]
-    Just index -> tell [(sourceLine pos, Inst.Load index)]
+      tell [(pos, Inst.LoadBuiltin (length names))]
+    Just index -> tell [(pos, Inst.Load index)]
 compileExpr (App _ _ _              ) = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs
-  let line = sourceLine pos
   case op of
-    Add              -> tell [(line, Inst.Add)]
-    Subtract         -> tell [(line, Inst.Subtract)]
-    Multiply         -> tell [(line, Inst.Multiply)]
-    Divide           -> tell [(line, Inst.Divide)]
-    Mod              -> tell [(line, Inst.Mod)]
-    Equal            -> tell [(line, Inst.Equal)]
-    Inequal          -> tell [(line, Inst.Inequal)]
-    LessThan         -> tell [(line, Inst.LessThan)]
-    GreaterThan      -> tell [(line, Inst.GreaterThan)]
-    LessThanEqual    -> tell [(line, Inst.LessThanEqual)]
-    GreaterThanEqual -> tell [(line, Inst.GreaterThanEqual)]
+    Add              -> tell [(pos, Inst.Add)]
+    Subtract         -> tell [(pos, Inst.Subtract)]
+    Multiply         -> tell [(pos, Inst.Multiply)]
+    Divide           -> tell [(pos, Inst.Divide)]
+    Mod              -> tell [(pos, Inst.Mod)]
+    Equal            -> tell [(pos, Inst.Equal)]
+    Inequal          -> tell [(pos, Inst.Inequal)]
+    LessThan         -> tell [(pos, Inst.LessThan)]
+    GreaterThan      -> tell [(pos, Inst.GreaterThan)]
+    LessThanEqual    -> tell [(pos, Inst.LessThanEqual)]
+    GreaterThanEqual -> tell [(pos, Inst.GreaterThanEqual)]
 compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of
     Positive -> tell []
-    Negative -> tell [(sourceLine pos, Inst.Negate)]
+    Negative -> tell [(pos, Inst.Negate)]

@@ -5,8 +5,6 @@ import           Test.Hspec
 
 import qualified Data.Set.Ordered              as S
 
-import           Text.Megaparsec.Pos
-
 import           Nuri.Spec.Util
 import           Nuri.Spec.Codegen.Util
 
@@ -69,10 +67,10 @@ spec = do
                           S.singleton $ ConstFunc
                             (FuncObject
                               { _arity          = 1
-                              , _insts = [ (sourceLine initPos, Inst.Store 0)
-                                         , (sourceLine initPos, Inst.Push 0)
-                                         , (sourceLine initPos, Inst.Return)
-                                         ]
+                              , _insts          = [ (initPos, Inst.Store 0)
+                                                  , (initPos, Inst.Push 0)
+                                                  , (initPos, Inst.Return)
+                                                  ]
                               , _funcConstTable = S.singleton (ConstInteger 1)
                               , _funcVarNames   = S.singleton "값"
                               }
@@ -88,10 +86,10 @@ spec = do
                           S.singleton $ ConstFunc
                             (FuncObject
                               { _arity          = 1
-                              , _insts = [ (sourceLine initPos, Inst.Store 0)
-                                         , (sourceLine initPos, Inst.Load 0)
-                                         , (sourceLine initPos, Inst.Return)
-                                         ]
+                              , _insts          = [ (initPos, Inst.Store 0)
+                                                  , (initPos, Inst.Load 0)
+                                                  , (initPos, Inst.Return)
+                                                  ]
                               , _funcConstTable = S.empty
                               , _funcVarNames   = S.singleton "값"
                               }
@@ -107,10 +105,10 @@ spec = do
                           S.singleton $ ConstFunc
                             (FuncObject
                               { _arity          = 1
-                              , _insts = [ (sourceLine initPos, Inst.Store 0)
-                                         , (sourceLine initPos, Inst.Load 0)
-                                         , (sourceLine initPos, Inst.Return)
-                                         ]
+                              , _insts          = [ (initPos, Inst.Store 0)
+                                                  , (initPos, Inst.Load 0)
+                                                  , (initPos, Inst.Return)
+                                                  ]
                               , _funcConstTable = S.empty
                               , _funcVarNames   = S.singleton "값"
                               }
@@ -131,10 +129,10 @@ spec = do
                           , ConstFunc
                             (FuncObject
                               { _arity          = 1
-                              , _insts = [ (sourceLine initPos, Inst.Store 1)
-                                         , (sourceLine initPos, Inst.Push 0)
-                                         , (sourceLine initPos, Inst.Return)
-                                         ]
+                              , _insts          = [ (initPos, Inst.Store 1)
+                                                  , (initPos, Inst.Push 0)
+                                                  , (initPos, Inst.Return)
+                                                  ]
                               , _funcConstTable = S.fromList [ConstInteger 20]
                               , _funcVarNames   = S.fromList ["수", "값"]
                               }
