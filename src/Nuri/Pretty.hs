@@ -15,6 +15,8 @@ import           Nuri.Literal
 import           Nuri.Expr
 import           Nuri.Stmt
 
+import qualified Haneul.Instruction            as Inst
+
 instance Pretty Literal where
   pretty (LitInteger v) = "LitInteger" <> parens (pretty v)
   pretty (LitReal    v) = "LitReal" <> parens (pretty v)
@@ -77,3 +79,6 @@ instance Pretty Stmt where
     , "[args]" <+> pretty args
     , "[body]" <+> pretty body
     ]
+
+instance Pretty Inst.Instruction where
+  pretty = show
