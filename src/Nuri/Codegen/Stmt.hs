@@ -65,6 +65,5 @@ compileStmt (FuncDecl pos funcName argNames body) = do
     [ (sourceLine pos, Inst.Push funcObjectIndex)
     , (sourceLine pos, Inst.Store funcNameIndex)
     ]
-  return ()
 
 

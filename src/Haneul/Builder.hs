@@ -6,6 +6,7 @@ import           Control.Lens                             ( makeLenses
                                                           , use
                                                           )
 import           Control.Lens.TH                          ( )
+import qualified Data.Set.Ordered              as S
 import           Data.Set.Ordered                         ( OSet
                                                           , (|>)
                                                           , findIndex
@@ -20,6 +21,9 @@ data BuilderInternal = BuilderInternal {_constTable :: OSet Constant, _varNames 
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)
+
+defaultInternal :: BuilderInternal
+defaultInternal = BuilderInternal S.empty S.empty
 
 addVarName :: Text -> Builder Int
 addVarName ident = do

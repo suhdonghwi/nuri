@@ -13,4 +13,4 @@ main = do
       content <- readFile filePath
       result  <- runRepl (parseInput (toText content))
                          (ReplState ">> " (toText filePath))
-      print result
+      printResult result

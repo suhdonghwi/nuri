@@ -15,4 +15,4 @@ shouldBuild actual expected = do
   (internal, snd <$> insts) `shouldBe` expected
 
 defaultI :: BuilderInternal
-defaultI = BuilderInternal S.empty S.empty
+defaultI = defaultInternal
