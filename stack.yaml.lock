@@ -5,26 +5,26 @@
 
 packages:
 - completed:
-    hackage: megaparsec-7.0.5@sha256:45e1f1348fab2783646fdb4d9e6097568981a740951c7356d36d794e2baba305,3902
+    hackage: megaparsec-8.0.0@sha256:362f85e243ecbcb550e1de6e5c74ba5a50c09edaa1208c99bc5b9fd242227fc6,3808
     pantry-tree:
-      size: 1428
-      sha256: 1f8baf6e07326f8c8a2dd31de6b2860427f158b0892c52ba5fe9ffeb6cd3bf7f
+      size: 1446
+      sha256: 955117c00a86970f2d0c215f33cf5293b16589c04678a0a790c03368ab6fd0aa
   original:
-    hackage: megaparsec-7.0.5
+    hackage: megaparsec-8.0.0
 - completed:
-    hackage: relude-0.5.0@sha256:8b9d5659c4c82dbd46883cfff24bb7cc71e21aaea868162921b691e06a3e8263,8706
+    hackage: relude-0.6.0.0@sha256:094ad587b28fa8dcc78fd0fba8927b970e5e4a9bb10a3126c0ca32a7ee61f3ca,8681
     pantry-tree:
-      size: 3939
-      sha256: fce7c7016b612ef8919105980df3203e40bfc575dc296d11bf989232169325aa
+      size: 4101
+      sha256: 79a99fd25ca55b12910780ed52fa60f3b19d97be03cb6ad5ad96abaf4f428478
   original:
-    hackage: relude-0.5.0
+    hackage: relude-0.6.0.0
 - completed:
-    hackage: prettyprinter-1.3.0@sha256:ec5617044a1088a37d009d005ed84159b67f18f47bfdac85fb428ec2a80c0788,5503
+    hackage: prettyprinter-1.5.1@sha256:fca87c3e2611d3499a0341a59857e9b424a23f31646e4737d535a18582284f96,5375
     pantry-tree:
-      size: 2105
-      sha256: 4377e72f4341cd9810a9f70137c21075e2b444a317784bb6f3d3f5ba2f463a6d
+      size: 2106
+      sha256: 86fd583112db41bac5ac9ecf258ec402ad615253e9c5eabc56ec127bfb94c096
   original:
-    hackage: prettyprinter-1.3.0
+    hackage: prettyprinter-1.5.1
 - completed:
     hackage: ordered-containers-0.2.2@sha256:ebf2be3f592d9cf148ea6b8375f8af97148d44f82d8d04476899285e965afdbf,810
     pantry-tree:
@@ -32,6 +32,13 @@ packages:
       sha256: 757fd75227afa0107f8eb3ebb467856b1d7456276eb501d510c9b06cb5395fbc
   original:
     hackage: ordered-containers-0.2.2
+- completed:
+    hackage: hspec-megaparsec-2.1.0@sha256:e4dfe9f9c750352f4ffaef4137ea907e457c5ac9042197e11f411f263296372a,2106
+    pantry-tree:
+      size: 385
+      sha256: 17337afa3964b6caee5d2e713a82c38a8909a509bea74c6d6855e1800c638f99
+  original:
+    hackage: hspec-megaparsec-2.1.0
 snapshots:
 - completed:
     size: 498155
