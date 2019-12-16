@@ -21,22 +21,20 @@ import           Nuri.Codegen.Stmt
 
 import           Haneul.Builder
 
-data ReplState = ReplState { _prompt :: Text, _fileName :: Text }
+data ReplState = ReplState { _prompt :: Text }
 
 $(makeLenses ''ReplState)
 
 newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
-parseInput :: Text -> Repl (Maybe Stmts)
-parseInput input = do
-  st <- get
-  case runParser (parseStmts <* eof) (toString $ view fileName st) input of
+parseInput :: Text -> Text -> MaybeT IO Stmts
+parseInput input fileName = do
+  case runParser (parseStmts <* eof) (toString fileName) input of
     Left err -> do
       liftIO $ (putTextLn . toText . errorBundlePretty) err
-      return Nothing
-    Right parseResult -> do
-      return (Just parseResult)
+      MaybeT $ return Nothing
+    Right parseResult -> return parseResult
 
 printResult :: Maybe Stmts -> IO ()
 printResult result = case result of
@@ -55,7 +53,7 @@ repl = forever $ do
     hFlush stdout
   input <- strip <$> liftIO getLine
   liftIO $ when (input == ":quit") exitSuccess
-  result <- parseInput input
+  result <- liftIO $ runMaybeT $ parseInput input "(반응형)"
   liftIO $ printResult result
 
 runRepl :: Repl a -> ReplState -> IO a

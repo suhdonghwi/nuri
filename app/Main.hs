@@ -8,9 +8,8 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    []           -> runRepl repl (ReplState ">> " "(반응형)")
+    []           -> runRepl repl (ReplState ">> ")
     filePath : _ -> do
       content <- readFile filePath
-      result  <- runRepl (parseInput (toText content))
-                         (ReplState ">> " (toText filePath))
+      result  <- runMaybeT $ parseInput (toText content) (toText filePath)
       printResult result
