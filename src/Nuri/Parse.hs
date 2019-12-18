@@ -27,7 +27,10 @@ symbol :: Text -> Parser Text
 symbol = L.symbol sc
 
 reserved :: Text -> Parser ()
-reserved s = (lexeme . P.try) (P.string s *> P.notFollowedBy hangulSyllable)
+reserved s =
+  (lexeme . P.try)
+      (sequence (P.char <$> toString s) *> P.notFollowedBy hangulSyllable)
+    <?> concat ["'", toString s, "'"]
 
 hangulSyllable :: Parser Char
 hangulSyllable = P.oneOf ['가' .. '힣'] <?> "한글"
