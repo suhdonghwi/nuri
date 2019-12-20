@@ -6,11 +6,16 @@ import           Text.Megaparsec.Pos                      ( SourcePos )
 import           Nuri.ASTNode
 import           Nuri.Literal
 
-data Expr = Lit SourcePos Literal
-          | Var SourcePos Text
-          | App SourcePos Expr [Expr]
-          | BinaryOp SourcePos BinaryOperator Expr Expr
-          | UnaryOp SourcePos UnaryOperator Expr
+data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
+              Lit SourcePos Literal
+            -- 변수 읽기 표현식 : 코드 위치, 변수명 
+            | Var SourcePos Text
+            -- 함수 호출 표현식 : 코드 위치, 함수식, 함수 인자 리스트
+            | App SourcePos Expr [Expr]
+            -- 이항 연산 표현식 : 코드 위치, 이항 연산자, 피연산자(좌), 피연산자(우)
+            | BinaryOp SourcePos BinaryOperator Expr Expr
+            -- 단항 연산 표현식 : 코드 위치, 단항 연산자, 피연산자
+            | UnaryOp SourcePos UnaryOperator Expr
           deriving (Show)
 
 instance Eq Expr where
