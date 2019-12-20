@@ -57,11 +57,14 @@ parseNestedFuncCalls = do
   return $ foldl1' addArg calls
 
 parseFuncCall :: Parser Expr
-parseFuncCall = do
-  args <- P.many parseTerm
-  pos  <- P.getSourcePos
-  func <- parseFuncIdentifier
-  return $ App pos (Var pos func) args
+parseFuncCall =
+  (do
+      args <- P.many (parseTerm <?> "함수 인수")
+      pos  <- P.getSourcePos
+      func <- parseFuncIdentifier
+      return $ App pos (Var pos func) args
+    )
+    <?> "함수 호출식"
 
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier =
