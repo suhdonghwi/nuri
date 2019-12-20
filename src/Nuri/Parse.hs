@@ -13,12 +13,14 @@ lineComment = L.skipLineComment "#"
 blockComment :: Parser ()
 blockComment = L.skipBlockComment "(*" "*)"
 
-scn :: Parser ()
-scn = L.space P.space1 lineComment blockComment
-
+-- Space Consumer, 공백 문자 (개행 문자 제외) 를 스킵할 때 쓰입니다.
 sc :: Parser ()
 sc = L.space (void $ P.takeWhile1P Nothing isSpace) lineComment blockComment
   where isSpace x = x == ' ' || x == '\t'
+
+-- Space Consumer with Newline, 개행 문자를 포함한 공백 문자를 스킵할 때 쓰입니다.
+scn :: Parser ()
+scn = L.space P.space1 lineComment blockComment
 
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme sc
