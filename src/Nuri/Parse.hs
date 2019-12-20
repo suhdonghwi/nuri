@@ -17,8 +17,8 @@ scn :: Parser ()
 scn = L.space P.space1 lineComment blockComment
 
 sc :: Parser ()
-sc = L.space (void $ P.takeWhile1P Nothing f) lineComment blockComment
-  where f x = x == ' ' || x == '\t'
+sc = L.space (void $ P.takeWhile1P Nothing isSpace) lineComment blockComment
+  where isSpace x = x == ' ' || x == '\t'
 
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme sc
