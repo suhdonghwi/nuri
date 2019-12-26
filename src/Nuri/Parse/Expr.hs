@@ -67,32 +67,17 @@ parseFuncCall :: Parser Expr
 parseFuncCall = do
   args <- P.many (parseTerm <?> "함수 인수")
   pos  <- P.getSourcePos
-  func <- parseFuncIdentifier
+  func <- parseFuncIdentifier <?> "함수 이름"
   return $ App pos (Var pos func) args
 
 parseFuncIdentifier :: Parser Text
-parseFuncIdentifier =
-  lexeme
-      (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
-                               (P.char ' ')
-      )
-    <?> "함수 이름"
+parseFuncIdentifier = lexeme
+  (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
+                           (P.char ' ')
+  )
  where
-  keywords =
-    [ "반환하다"
-    , "함수"
-    , "참"
-    , "거짓"
-    , "만약"
-    , "면"
-    , "이면"
-    , "이라면"
-    , "아니고"
-    , "아니면"
-    , "반복"
-    , "인 동안"
-    ]
-  keyword    = P.choice $ fmap reserved keywords
+  keywords = ["반환하다", "함수", "참", "거짓", "만약", "이라면", "아니고", "아니면", "반복", "인 동안"]
+  keyword = P.choice $ fmap reserved keywords
   hangulWord = toText <$> P.some hangulSyllable
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 

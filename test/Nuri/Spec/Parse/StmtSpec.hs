@@ -33,12 +33,12 @@ spec = do
 
   describe "조건문 파싱" $ do
     it "만약 1개 (단일 조건) 조건문" $ do
-      testParse parseIfStmt "만약 1 1 같다 면:\n  [값] = 1"
+      testParse parseIfStmt "만약 1 1 같다 이라면:\n  [값] = 1"
         `shouldParse` ifStmt (app (var "같다") [litInteger 1, litInteger 1])
                              [assign "값" (litInteger 1)]
                              Nothing
     it "만약 ~ 아니고 ~ 면 조건문" $ do
-      testParse parseIfStmt "만약 참 이면:\n  [값] = 1\n아니고 참 이면: \n [값] = 2"
+      testParse parseIfStmt "만약 참 이라면:\n  [값] = 1\n아니고 참 이라면: \n [값] = 2"
         `shouldParse` ifStmt
                         (litBool True)
                         [assign "값" (litInteger 1)]
@@ -50,7 +50,7 @@ spec = do
                         )
     it "만약 ~ 아니고 ~ 면 ~ 아니면 조건문" $ do
       testParse parseIfStmt
-                "만약 참 이면:\n  [값] = 1\n아니고 참 이면:\n  [값] = 2\n아니면:\n  [값] = 3"
+                "만약 참 이라면:\n  [값] = 1\n아니고 참 이라면:\n  [값] = 2\n아니면:\n  [값] = 3"
         `shouldParse` ifStmt
                         (litBool True)
                         [assign "값" (litInteger 1)]
@@ -63,7 +63,7 @@ spec = do
     it "만약 ~ 아니고 ~ 면 ~ 아니고 ~ 면 ~ 아니면 조건문" $ do
       testParse
           parseIfStmt
-          "만약 참 이면:\n  [값] = 1\n아니고 참 이면:\n  [값] = 2\n아니고 참 이면:\n  [값] = 3\n아니면:\n  [값] = 4"
+          "만약 참 이라면:\n  [값] = 1\n아니고 참 이라면:\n  [값] = 2\n아니고 참 이라면:\n  [값] = 3\n아니면:\n  [값] = 4"
         `shouldParse` ifStmt
                         (litBool True)
                         [assign "값" (litInteger 1)]
@@ -98,7 +98,7 @@ spec = do
 
     it "함수 이름에 띄어쓰기가 포함된 함수" $ do
       testParse parseFuncDecl
-                "함수 [값1] [값2] 피보나치 구하다:\n  만약 참 이면:\n    [값2] 반환하다"
+                "함수 [값1] [값2] 피보나치 구하다:\n  만약 참 이라면:\n    [값2] 반환하다"
         `shouldParse` funcDecl
                         "피보나치 구하다"
                         ["값1", "값2"]
@@ -141,7 +141,7 @@ spec = do
     it "조건문 파싱" $ do
       testParse
           parseStmt
-          "만약 참 이면:\n  [값] = 1\n아니고 참 이면:\n  [값] = 2\n아니고 참 이면:\n  [값] = 3\n아니면:\n  [값] = 4"
+          "만약 참 이라면:\n  [값] = 1\n아니고 참 이라면:\n  [값] = 2\n아니고 참 이라면:\n  [값] = 3\n아니면:\n  [값] = 4"
         `shouldParse` ifStmt
                         (litBool True)
                         [assign "값" (litInteger 1)]
