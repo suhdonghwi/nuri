@@ -25,7 +25,14 @@ parseExpr = parseArithmetic
 
 parseArithmetic :: Parser Expr
 parseArithmetic = makeExprParser
-  ((parseNestedFuncCalls <|> parseTerm) <?> "표현식")
+  (   (   P.try
+          (  parseTerm
+          <* P.notFollowedBy (void parseTerm <|> void parseFuncIdentifier) -- 후에 조사로 변경
+          )
+      <|> parseNestedFuncCalls
+      )
+  <?> "표현식"
+  )
   table
  where
   table =
@@ -51,20 +58,17 @@ parseArithmetic = makeExprParser
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  calls <- P.sepBy1 (P.try parseFuncCall) (symbol ",")
+  calls <- P.sepBy1 (parseFuncCall <?> "함수 호출식") (symbol ",")
   let addArg arg (App pos func args) = App pos func (arg : args)
       addArg _   _                   = error "불가능한 상황"
   return $ foldl1' addArg calls
 
 parseFuncCall :: Parser Expr
-parseFuncCall =
-  (do
-      args <- P.many (parseTerm <?> "함수 인수")
-      pos  <- P.getSourcePos
-      func <- parseFuncIdentifier
-      return $ App pos (Var pos func) args
-    )
-    <?> "함수 호출식"
+parseFuncCall = do
+  args <- P.many (parseTerm <?> "함수 인수")
+  pos  <- P.getSourcePos
+  func <- parseFuncIdentifier
+  return $ App pos (Var pos func) args
 
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier =
