@@ -71,7 +71,7 @@ instance Pretty Stmt where
     , "[then]" <+> pretty thenStmts
     , "[else]" <+> pretty elseStmts
     ]
-  pretty (While condition body) = nest' $ vsep
+  pretty (While _ condition body) = nest' $ vsep
     ["While", "[condition]" <+> pretty condition, "[body]" <+> pretty body]
   pretty (FuncDecl _ name args body) = nest' $ vsep
     [ "FuncDecl"

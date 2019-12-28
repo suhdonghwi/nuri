@@ -37,7 +37,7 @@ compileStmt (Assign pos ident expr) = do
       tell [(pos, Inst.Store (length names))]
     Just index -> tell [(pos, Inst.Store index)]
 compileStmt (If _ _ _ _                         ) = undefined
-compileStmt (While _ _                          ) = undefined
+compileStmt (While _ _ _                        ) = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
   let funcBuilder = do
         indices <- sequence (addVarName <$> argNames)

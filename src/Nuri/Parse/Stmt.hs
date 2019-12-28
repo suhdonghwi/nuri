@@ -8,8 +8,8 @@ import           Nuri.Parse.Expr
 import           Nuri.Stmt
 import           Nuri.Expr
 
-parseIndent :: Parser (L.IndentOpt Parser a b) -> Parser a
-parseIndent = L.indentBlock scn
+indent :: Parser (L.IndentOpt Parser a b) -> Parser a
+indent = L.indentBlock scn
 
 parseStmts :: Parser Stmts
 parseStmts = fromList <$> P.some (parseStmt <* scn)
@@ -37,9 +37,9 @@ parseAssignment = do
 
 parseIfStmt :: Parser Stmt
 parseIfStmt = do
-  ifPart   <- parseIndent (ifLine "만약")
-  elifPart <- P.many $ parseIndent (ifLine "아니고")
-  elsePart <- optional $ fromList <$> parseIndent (elseLine "아니면")
+  ifPart   <- indent (ifLine "만약")
+  elifPart <- P.many $ indent (ifLine "아니고")
+  elsePart <- optional $ fromList <$> indent (elseLine "아니면")
   return $ ifPart (foldr ($) elsePart (fmap (Just . one) <$> elifPart))
  where
   ifLine s = do
@@ -55,15 +55,16 @@ parseIfStmt = do
     return (L.IndentSome Nothing return parseStmt)
 
 parseWhileStmt :: Parser Stmt
-parseWhileStmt = parseIndent $ do
-  P.try $ reserved "반복"
-  e <- parseExpr
-  _ <- reserved "인 동안"
-  _ <- symbol ":"
-  return (L.IndentSome Nothing (return . While e . fromList) parseStmt)
+parseWhileStmt = indent $ do
+  pos <- P.getSourcePos
+  _   <- reserved "반복"
+  e   <- parseExpr
+  _   <- reserved "인 동안"
+  _   <- symbol ":"
+  return (L.IndentSome Nothing (return . While pos e . fromList) parseStmt)
 
 parseFuncDecl :: Parser Stmt
-parseFuncDecl = parseIndent argsLine
+parseFuncDecl = indent argsLine
  where
   argsLine = do
     pos <- P.getSourcePos

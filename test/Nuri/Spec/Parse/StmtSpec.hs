@@ -124,11 +124,11 @@ spec = do
   describe "~인 동안 반복문 파싱" $ do
     it "반복 참 인 동안:" $ do
       testParse parseWhileStmt "반복 참 인 동안:\n  1 보여주다"
-        `shouldParse` While
+        `shouldParse` while
                         (litBool True)
                         [ExprStmt $ app (var "보여주다") [litInteger 1]]
     it "반복 1 == 1 인 동안:" $ do
-      testParse parseWhileStmt "반복 1 == 1 인 동안:\n  1 보여주다" `shouldParse` While
+      testParse parseWhileStmt "반복 1 == 1 인 동안:\n  1 보여주다" `shouldParse` while
         (binaryOp Equal (litInteger 1) (litInteger 1))
         [ExprStmt $ app (var "보여주다") [litInteger 1]]
 
@@ -166,7 +166,7 @@ spec = do
                         , Return (var "값")
                         ]
     it "반복문 파싱" $ do
-      testParse parseStmt "반복 1 == 1 인 동안:\n  1 보여주다" `shouldParse` While
+      testParse parseStmt "반복 1 == 1 인 동안:\n  1 보여주다" `shouldParse` while
         (binaryOp Equal (litInteger 1) (litInteger 1))
         [ExprStmt $ app (var "보여주다") [litInteger 1]]
 

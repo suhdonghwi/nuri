@@ -21,4 +21,5 @@ app = App initPos
 
 assign = Assign initPos
 ifStmt = If initPos
+while = While initPos
 funcDecl = FuncDecl initPos
