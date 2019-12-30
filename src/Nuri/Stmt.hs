@@ -32,9 +32,8 @@ instance Eq Stmt where
   _ == _ = False
 
 instance ASTNode Stmt where
-  srcPos (ExprStmt expr     ) = srcPos expr
-  srcPos (Return   expr     ) = srcPos expr
-  srcPos (Assign pos _ _    ) = pos
-  srcPos (If pos _ _ _      ) = pos
-  srcPos (While pos _ _     ) = pos
-  srcPos (FuncDecl pos _ _ _) = pos
+  srcPos (ExprStmt expr ) = srcPos expr
+  srcPos (Return   expr ) = srcPos expr
+  srcPos (Assign pos _ _) = pos
+  srcPos (If pos _ _ _  ) = pos
+  srcPos (While pos _ _ ) = pos

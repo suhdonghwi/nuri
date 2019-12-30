@@ -36,15 +36,15 @@ compileStmt (Assign pos ident expr) = do
       modifying varNames (|> ident)
       tell [(pos, Inst.Store (length names))]
     Just index -> tell [(pos, Inst.Store index)]
-compileStmt (If _ _ _ _                         ) = undefined
-compileStmt (While _ _ _                        ) = undefined
+compileStmt If{}                                  = undefined
+compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
   let funcBuilder = do
         indices <- sequence (addVarName <$> argNames)
-        _       <- sequence
+        sequence_
           ((\index -> tell [(pos, Inst.Store index)]) <$> reverse indices)
-        _ <- sequence (compileStmt <$> body)
-        return ()
+        sequence_ (compileStmt <$> body)
+        pass
   st <- get
   let (internal, instructions) =
         execRWS funcBuilder () (st { _constTable = S.empty })
