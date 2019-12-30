@@ -59,7 +59,7 @@ spec = do
                         }
                       , [Inst.Push 0, Inst.Push 1, Inst.Add, Inst.Store 0]
                       )
-  describe "함수 선언 코드 생성" $ do
+  {- describe "함수 선언 코드 생성" $ do
     it "상수 함수 코드 생성" $ do
       compileStmt (funcDecl "더하다" ["값"] [Return (litInteger 1)])
         `shouldBuild` ( defaultI
@@ -142,3 +142,4 @@ spec = do
                       }
                     , [Inst.Push 0, Inst.Store 0, Inst.Push 1, Inst.Store 1]
                     )
+                    -}

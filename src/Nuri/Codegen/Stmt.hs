@@ -1,14 +1,10 @@
 module Nuri.Codegen.Stmt where
 
-import           Control.Monad.RWS                        ( tell
-                                                          , execRWS
-                                                          )
+import           Control.Monad.RWS                        ( tell )
 import           Control.Lens                             ( modifying
                                                           , use
-                                                          , view
                                                           )
 
-import qualified Data.Set.Ordered              as S
 import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
                                                           )
@@ -18,7 +14,6 @@ import           Nuri.ASTNode
 import           Nuri.Codegen.Expr
 
 import           Haneul.Builder
-import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
 
 compileStmt :: Stmt -> Builder ()
@@ -36,27 +31,8 @@ compileStmt (Assign pos ident expr) = do
       modifying varNames (|> ident)
       tell [(pos, Inst.Store (length names))]
     Just index -> tell [(pos, Inst.Store index)]
-compileStmt If{}                                  = undefined
-compileStmt While{}                               = undefined
-compileStmt (FuncDecl pos funcName argNames body) = do
-  let funcBuilder = do
-        indices <- sequence (addVarName <$> argNames)
-        sequence_
-          ((\index -> tell [(pos, Inst.Store index)]) <$> reverse indices)
-        sequence_ (compileStmt <$> body)
-        pass
-  st <- get
-  let (internal, instructions) =
-        execRWS funcBuilder () (st { _constTable = S.empty })
-      funcObject = ConstFunc
-        (FuncObject { _arity          = fromIntegral (length argNames)
-                    , _insts          = instructions
-                    , _funcConstTable = view constTable internal
-                    , _funcVarNames   = view varNames internal
-                    }
-        )
-  funcObjectIndex <- addConstant funcObject
-  funcNameIndex   <- addVarName funcName
-  tell [(pos, Inst.Push funcObjectIndex), (pos, Inst.Store funcNameIndex)]
+compileStmt If{}       = undefined
+compileStmt While{}    = undefined
+compileStmt FuncDecl{} = undefined
 
 

@@ -22,6 +22,8 @@ data BuilderInternal = BuilderInternal {_constTable :: OSet Constant, _varNames 
 
 $(makeLenses ''BuilderInternal)
 
+type Builder = RWS () [(SourcePos, Instruction)] BuilderInternal
+
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal S.empty S.empty
 
@@ -39,4 +41,3 @@ addConstant value = do
   let (Just index) = findIndex value names
   return index
 
-type Builder = RWS () [(SourcePos, Instruction)] BuilderInternal
