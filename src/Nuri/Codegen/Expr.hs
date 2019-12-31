@@ -32,7 +32,7 @@ compileExpr (Var pos ident) = do
       _ <- addVarName ident
       tell [(pos, Inst.LoadBuiltin (length names))]
     Just index -> tell [(pos, Inst.Load index)]
-compileExpr App{}                     = undefined
+compileExpr FuncCall{}                = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs

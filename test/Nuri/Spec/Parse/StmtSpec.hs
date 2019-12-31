@@ -34,9 +34,10 @@ spec = do
   describe "조건문 파싱" $ do
     it "만약 1개 (단일 조건) 조건문" $ do
       testParse parseIfStmt "만약 1 1 같다 이라면:\n  [값] = 1"
-        `shouldParse` ifStmt (app (var "같다") [litInteger 1, litInteger 1])
-                             [assign "값" (litInteger 1)]
-                             Nothing
+        `shouldParse` ifStmt
+                        (funccall (var "같다") [litInteger 1, litInteger 1])
+                        [assign "값" (litInteger 1)]
+                        Nothing
     it "만약 ~ 아니고 ~ 면 조건문" $ do
       testParse parseIfStmt "만약 참 이라면:\n  [값] = 1\n아니고 참 이라면: \n [값] = 2"
         `shouldParse` ifStmt
@@ -86,7 +87,8 @@ spec = do
         `shouldParse` funcDecl
                         "증가하다"
                         ["값"]
-                        [ ExprStmt $ app (var "더하다") [var "값", litInteger 1]
+                        [ ExprStmt
+                          $ funccall (var "더하다") [var "값", litInteger 1]
                         , Return (var "값")
                         ]
 
@@ -123,19 +125,18 @@ spec = do
 
   describe "~인 동안 반복문 파싱" $ do
     it "반복 참 인 동안:" $ do
-      testParse parseWhileStmt "반복 참 인 동안:\n  1 보여주다"
-        `shouldParse` while
-                        (litBool True)
-                        [ExprStmt $ app (var "보여주다") [litInteger 1]]
+      testParse parseWhileStmt "반복 참 인 동안:\n  1 보여주다" `shouldParse` while
+        (litBool True)
+        [ExprStmt $ funccall (var "보여주다") [litInteger 1]]
     it "반복 1 == 1 인 동안:" $ do
       testParse parseWhileStmt "반복 1 == 1 인 동안:\n  1 보여주다" `shouldParse` while
         (binaryOp Equal (litInteger 1) (litInteger 1))
-        [ExprStmt $ app (var "보여주다") [litInteger 1]]
+        [ExprStmt $ funccall (var "보여주다") [litInteger 1]]
 
   describe "구문 파싱" $ do
     it "표현식 구문 파싱" $ do
       testParse parseStmt "1 + 2 줄이다" `shouldParse` ExprStmt
-        (binaryOp Add (litInteger 1) (app (var "줄이다") [litInteger 2]))
+        (binaryOp Add (litInteger 1) (funccall (var "줄이다") [litInteger 2]))
     it "반환 구문 파싱" $ do
       testParse parseStmt "1 반환하다" `shouldParse` Return (litInteger 1)
     it "조건문 파싱" $ do
@@ -162,13 +163,14 @@ spec = do
         `shouldParse` funcDecl
                         "증가하다"
                         ["값"]
-                        [ ExprStmt $ app (var "더하다") [var "값", litInteger 1]
+                        [ ExprStmt
+                          $ funccall (var "더하다") [var "값", litInteger 1]
                         , Return (var "값")
                         ]
     it "반복문 파싱" $ do
       testParse parseStmt "반복 1 == 1 인 동안:\n  1 보여주다" `shouldParse` while
         (binaryOp Equal (litInteger 1) (litInteger 1))
-        [ExprStmt $ app (var "보여주다") [litInteger 1]]
+        [ExprStmt $ funccall (var "보여주다") [litInteger 1]]
 
   describe "구문 여러 개 파싱" $ do
     it "표현식 구문 여러 개 파싱" $ do
@@ -176,9 +178,9 @@ spec = do
         `shouldParse` [ ExprStmt
                         (binaryOp Add
                                   (litInteger 1)
-                                  (app (var "줄이다") [litInteger 2])
+                                  (funccall (var "줄이다") [litInteger 2])
                         )
-                      , ExprStmt (app (var "증가하다") [litInteger 3])
+                      , ExprStmt (funccall (var "증가하다") [litInteger 3])
                       ]
     it "함수 여러 개 선언 파싱" $ do
       testParse parseStmts "함수 [값] 더하다:\n  1 반환하다\n함수 [값] 빼다:\n  2 반환하다"

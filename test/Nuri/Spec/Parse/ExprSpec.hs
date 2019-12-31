@@ -189,22 +189,26 @@ spec = do
   describe "함수 호출식 파싱" $ do
     it "인자가 2개인 함수 호출식" $ do
       testParse parseFuncCall "1 2 더하다"
-        `shouldParse` app (var "더하다") [litInteger 1, litInteger 2]
+        `shouldParse` funccall (var "더하다") [litInteger 1, litInteger 2]
     it "인자가 없는 함수 호출식" $ do
-      testParse parseFuncCall "깨우다" `shouldParse` app (var "깨우다") []
+      testParse parseFuncCall "깨우다" `shouldParse` funccall (var "깨우다") []
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4 2 합 구하고, 2 나누다" `shouldParse` app
+      testParse parseNestedFuncCalls "4 2 합 구하고, 2 나누다" `shouldParse` funccall
         (var "나누다")
-        [app (var "합 구하고") [litInteger 4, litInteger 2], litInteger 2]
+        [funccall (var "합 구하고") [litInteger 4, litInteger 2], litInteger 2]
     it "두 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4 2 더하고, 2 나누고, 3 더하다" `shouldParse` app
-        (var "더하다")
-        [ app (var "나누고")
-              [app (var "더하고") [litInteger 4, litInteger 2], litInteger 2]
-        , litInteger 3
-        ]
+      testParse parseNestedFuncCalls "4 2 더하고, 2 나누고, 3 더하다"
+        `shouldParse` funccall
+                        (var "더하다")
+                        [ funccall
+                          (var "나누고")
+                          [ funccall (var "더하고") [litInteger 4, litInteger 2]
+                          , litInteger 2
+                          ]
+                        , litInteger 3
+                        ]
 
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
@@ -216,9 +220,9 @@ spec = do
       testParse parseExpr "1 + 1 2 더하다" `shouldParse` binaryOp
         Add
         (litInteger 1)
-        (app (var "더하다") [litInteger 1, litInteger 2])
+        (funccall (var "더하다") [litInteger 1, litInteger 2])
     it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
-      testParse parseExpr "(1 + 1) 2 더하다" `shouldParse` app
+      testParse parseExpr "(1 + 1) 2 더하다" `shouldParse` funccall
         (var "더하다")
         [binaryOp Add (litInteger 1) (litInteger 1), litInteger 2]
 

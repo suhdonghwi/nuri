@@ -17,7 +17,7 @@ litBool v = Lit initPos (LitBool v)
 binaryOp = BinaryOp initPos
 unaryOp = UnaryOp initPos
 var = Var initPos
-app = App initPos
+funccall = FuncCall initPos
 
 assign = Assign initPos
 ifStmt = If initPos

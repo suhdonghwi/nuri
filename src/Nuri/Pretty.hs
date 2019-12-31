@@ -44,9 +44,9 @@ nest' :: Doc a -> Doc a
 nest' = nest 4
 
 instance Pretty Expr where
-  pretty (Lit _ l        ) = pretty l
-  pretty (Var _ ident    ) = "Var" <+> parens ((dquotes . pretty) ident)
-  pretty (App _ func args) = nest' $ vsep
+  pretty (Lit _ l             ) = pretty l
+  pretty (Var _ ident         ) = "Var" <+> parens ((dquotes . pretty) ident)
+  pretty (FuncCall _ func args) = nest' $ vsep
     [ "App"
     , "[func]" <+> pretty func
     , "[args]" <+> align (vsep (pretty <$> args))

@@ -59,8 +59,8 @@ parseArithmetic = makeExprParser
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
   calls <- P.sepBy1 (parseFuncCall <?> "함수 호출식") (symbol ",")
-  let addArg arg (App pos func args) = App pos func (arg : args)
-      addArg _   _                   = error "불가능한 상황"
+  let addArg arg (FuncCall pos func args) = FuncCall pos func (arg : args)
+      addArg _   _                        = error "불가능한 상황"
   return $ foldl1' addArg calls
 
 parseFuncCall :: Parser Expr
@@ -68,7 +68,7 @@ parseFuncCall = do
   args <- P.many (parseTerm <?> "함수 인수")
   pos  <- P.getSourcePos
   func <- parseFuncIdentifier <?> "함수 이름"
-  return $ App pos (Var pos func) args
+  return $ FuncCall pos (Var pos func) args
 
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme
