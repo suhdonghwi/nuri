@@ -1,9 +1,6 @@
 module Nuri.Codegen.Expr where
 
 import           Control.Monad.RWS                        ( tell )
-import           Control.Lens                             ( use )
-
-import           Data.Set.Ordered                         ( findIndex )
 
 import           Nuri.Expr
 import           Nuri.Literal
@@ -21,17 +18,11 @@ litToConst (LitBool    v) = ConstBool v
 compileExpr :: Expr -> Builder ()
 compileExpr (Lit pos lit) = do
   let value = litToConst lit
-  _     <- addConstant value
-  table <- use constTable
-  let (Just index) = findIndex value table
+  index <- addConstant value
   tell [(pos, Inst.Push index)]
 compileExpr (Var pos ident) = do
-  names <- use varNames
-  case findIndex ident names of
-    Nothing -> do
-      _ <- addVarName ident
-      tell [(pos, Inst.LoadBuiltin (length names))]
-    Just index -> tell [(pos, Inst.Load index)]
+  index <- addVarName ident
+  tell [(pos, Inst.LoadBuiltin index)]
 compileExpr FuncCall{}                = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs

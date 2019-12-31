@@ -1,13 +1,6 @@
 module Nuri.Codegen.Stmt where
 
 import           Control.Monad.RWS                        ( tell )
-import           Control.Lens                             ( modifying
-                                                          , use
-                                                          )
-
-import           Data.Set.Ordered                         ( (|>)
-                                                          , findIndex
-                                                          )
 
 import           Nuri.Stmt
 import           Nuri.ASTNode
@@ -25,14 +18,10 @@ compileStmt stmt@(Return expr) = do
   tell [(srcPos stmt, Inst.Return)]
 compileStmt (Assign pos ident expr) = do
   compileExpr expr
-  names <- use varNames
-  case findIndex ident names of
-    Nothing -> do
-      modifying varNames (|> ident)
-      tell [(pos, Inst.Store (length names))]
-    Just index -> tell [(pos, Inst.Store index)]
-compileStmt If{}       = undefined
-compileStmt While{}    = undefined
-compileStmt FuncDecl{} = undefined
+  index <- addVarName ident
+  tell [(pos, Inst.Store index)]
+compileStmt If{}    = undefined
+compileStmt While{} = undefined
+compileStmt stmt@(FuncDecl pos funcName funcArgs body) = undefined
 
 
