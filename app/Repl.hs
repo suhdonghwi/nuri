@@ -33,7 +33,7 @@ parseInput input fileName = do
   case runParser (parseStmts <* eof) (toString fileName) input of
     Left err -> do
       liftIO $ (putTextLn . toText . errorBundlePretty) err
-      MaybeT $ return Nothing
+      hoistMaybe Nothing
     Right parseResult -> return parseResult
 
 printResult :: Maybe Stmts -> IO ()
