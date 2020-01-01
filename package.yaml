@@ -31,6 +31,10 @@ dependencies:
   - lens 
   - prettyprinter 
   - ordered-containers 
+  # Since ghcide does not support multi cradle projects yet, these two dependencies have to be added here.
+  # This is just temporary fix, and should be removed later.
+  - hspec 
+  - hspec-megaparsec
 
 default-extensions:
   - OverloadedStrings

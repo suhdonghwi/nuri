@@ -22,7 +22,7 @@ compileExpr (Lit pos lit) = do
   tell [(pos, Inst.Push index)]
 compileExpr (Var pos ident) = do
   index <- addVarName ident
-  tell [(pos, Inst.LoadBuiltin index)]
+  tell [(pos, Inst.Load index)]
 compileExpr FuncCall{}                = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
