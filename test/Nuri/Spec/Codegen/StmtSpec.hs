@@ -63,16 +63,13 @@ spec = do
     it "상수 함수 코드 생성" $ do
       compileStmt (funcDecl "더하다" ["값"] [Return (litInteger 1)])
         `shouldBuild` ( defaultI { _constTable = S.singleton (ConstInteger 1)
-                                 , _varNames   = S.singleton "값"
                                  , _labels     = S.singleton "더하다"
                                  }
                       , [Inst.Label 0, Inst.Store 0, Inst.Push 0, Inst.Return]
                       )
     it "항등 함수 코드 생성" $ do
       compileStmt (funcDecl "더하다" ["값"] [Return (var "값")])
-        `shouldBuild` ( defaultI { _varNames = S.singleton "값"
-                                 , _labels   = S.singleton "더하다"
-                                 }
+        `shouldBuild` ( defaultI { _labels = S.singleton "더하다" }
                       , [Inst.Label 0, Inst.Store 0, Inst.Load 0, Inst.Return]
                       )
 

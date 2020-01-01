@@ -1,6 +1,9 @@
 module Nuri.Codegen.Stmt where
 
 import           Control.Monad.RWS                        ( tell )
+import           Control.Lens                             ( use
+                                                          , assign
+                                                          )
 
 import           Text.Megaparsec.Pos                      ( SourcePos )
 
@@ -24,10 +27,12 @@ compileStmt (Assign pos ident expr) = do
 compileStmt If{}                                  = undefined
 compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName funcArgs body) = do
+  vars  <- use varNames
   index <- addLabel funcName
   tell [(pos, Inst.Label index)]
   sequence_ (storeVar pos <$> funcArgs)
   sequence_ (compileStmt <$> body)
+  assign varNames vars
 
 storeVar :: SourcePos -> Text -> Builder ()
 storeVar pos ident = do
