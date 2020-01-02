@@ -88,3 +88,31 @@ spec = do
       compileExpr (var "값")
         `shouldBuild` (defaultI { _varNames = S.singleton "값" }, [Inst.Load 0])
 
+  describe "함수 호출 코드 생성" $ do
+    it "인수가 하나인 함수 호출 코드 생성" $ do
+      compileExpr (funcCall "던지다" [litInteger 10])
+        `shouldBuild` ( defaultI { _constTable = S.singleton (ConstInteger 10)
+                                 , _varNames   = S.singleton "던지다"
+                                 }
+                      , [Inst.Load 0, Inst.Push 0, Inst.Call 1]
+                      )
+    it "인수가 3개인 함수 호출 코드 생성" $ do
+      compileExpr (funcCall "던지다" [litInteger 10, litInteger 10, litInteger 0])
+        `shouldBuild` ( defaultI
+                        { _constTable = S.fromList
+                                          [ConstInteger 10, ConstInteger 0]
+                        , _varNames   = S.singleton "던지다"
+                        }
+                      , [ Inst.Load 0
+                        , Inst.Push 0
+                        , Inst.Push 0
+                        , Inst.Push 1
+                        , Inst.Call 3
+                        ]
+                      )
+    it "인수가 없는 함수 호출 코드 생성" $ do
+      compileExpr (funcCall "던지다" [])
+        `shouldBuild` ( defaultI { _varNames = S.singleton "던지다" }
+                      , [Inst.Load 0, Inst.Call 0]
+                      )
+
