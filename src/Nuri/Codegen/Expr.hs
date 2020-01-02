@@ -23,9 +23,7 @@ compileExpr (Lit pos lit) = do
 compileExpr (Var pos ident) = do
   index <- addVarName ident
   tell [(pos, Inst.Load index)]
-compileExpr (FuncCall pos func args) = do
-  sequence_ (compileExpr <$> reverse args)
-  pass
+compileExpr FuncCall{}                = undefined
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs

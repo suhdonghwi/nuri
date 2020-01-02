@@ -17,7 +17,7 @@ import           Text.Megaparsec.Pos                      ( SourcePos )
 import           Haneul.Instruction
 import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal {_constTable :: OSet Constant, _varNames :: OSet Text, _labels :: OSet Text}
+data BuilderInternal = BuilderInternal {_constTable :: OSet Constant, _varNames :: OSet Text }
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)
@@ -25,7 +25,7 @@ $(makeLenses ''BuilderInternal)
 type Builder = RWS () [(SourcePos, Instruction)] BuilderInternal
 
 defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal S.empty S.empty S.empty
+defaultInternal = BuilderInternal S.empty S.empty
 
 addVarName :: Text -> Builder Int
 addVarName ident = do
@@ -39,12 +39,5 @@ addConstant value = do
   modifying constTable (|> value)
   names <- use constTable
   let (Just index) = findIndex value names
-  return index
-
-addLabel :: Text -> Builder Int
-addLabel label = do
-  modifying labels (|> label)
-  names <- use labels
-  let (Just index) = findIndex label names
   return index
 
