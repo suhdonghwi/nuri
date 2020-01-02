@@ -5,6 +5,6 @@ data Instruction = Push Int | Pop
                  | Call Int
                  | Return
                  | Add | Subtract | Multiply | Divide | Mod
-                 | Equal | Inequal | LessThan | GreaterThan | LessThanEqual | GreaterThanEqual
+                 | Equal | LessThan | GreaterThan
                  | Negate
                  deriving (Eq, Show, Ord)

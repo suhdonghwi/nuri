@@ -38,11 +38,11 @@ compileExpr (BinaryOp pos op lhs rhs) = do
     Divide           -> tell [(pos, Inst.Divide)]
     Mod              -> tell [(pos, Inst.Mod)]
     Equal            -> tell [(pos, Inst.Equal)]
-    Inequal          -> tell [(pos, Inst.Inequal)]
+    Inequal          -> tell [(pos, Inst.Equal), (pos, Inst.Negate)]
     LessThan         -> tell [(pos, Inst.LessThan)]
     GreaterThan      -> tell [(pos, Inst.GreaterThan)]
-    LessThanEqual    -> tell [(pos, Inst.LessThanEqual)]
-    GreaterThanEqual -> tell [(pos, Inst.GreaterThanEqual)]
+    LessThanEqual    -> tell [(pos, Inst.GreaterThan), (pos, Inst.Negate)]
+    GreaterThanEqual -> tell [(pos, Inst.LessThan), (pos, Inst.Negate)]
 compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of
