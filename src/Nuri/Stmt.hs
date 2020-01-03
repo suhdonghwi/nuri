@@ -19,7 +19,7 @@ data Stmt = -- 표현식 구문 : 표현식
             | FuncDecl SourcePos Text [Text] Stmts
           deriving (Show)
 
-type Stmts = NonEmpty Stmt
+type Stmts = [Stmt]
 
 instance Eq Stmt where
   ExprStmt e1    == ExprStmt e2    = e1 == e2

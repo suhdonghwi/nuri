@@ -46,5 +46,5 @@ compileExpr (BinaryOp pos op lhs rhs) = do
 compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of
-    Positive -> tell []
+    Positive -> pass
     Negative -> tell [(pos, Inst.Negate)]

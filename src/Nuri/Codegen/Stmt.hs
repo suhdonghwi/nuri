@@ -28,6 +28,16 @@ compileStmt (Assign pos ident expr) = do
   compileExpr expr
   storeVar pos ident
 compileStmt If{}                                  = undefined
+{- do
+  compileExpr cond
+  st <- get
+  let (thenInternal, thenInsts) =
+        execRWS (sequence_ (compileStmt <$> thenStmt)) () st
+      (elseInternal, elseInsts) =
+        execRWS (sequence_ (compileStmt <$> fromMaybe [] elseStmt)) () st
+  tell [(pos, Inst.PopJmpIfFalse $ sum (getInstSize . snd <$> thenInsts))]
+  put thenInternal
+  tell thenInsts -}
 compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
   let (internal, instructions) = execRWS
