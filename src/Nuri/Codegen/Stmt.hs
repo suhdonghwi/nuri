@@ -40,9 +40,10 @@ compileStmt If{}                                  = undefined
   tell thenInsts -}
 compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
+  fileName <- ask
   let (internal, instructions) = execRWS
         (sequence_ (compileStmt <$> body))
-        ()
+        fileName
         (defaultInternal { _varNames = S.fromList argNames })
       funcObject = ConstFunc
         (FuncObject { _arity          = fromIntegral (length argNames)

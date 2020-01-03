@@ -40,7 +40,9 @@ printResult :: Maybe Stmts -> IO ()
 printResult result = case result of
   Just val -> do
     (liftIO . print . vsep . toList) (pretty <$> val)
-    let code = execRWS (sequence $ compileStmt <$> val) () defaultInternal
+    let
+      code =
+        execRWS (sequence $ compileStmt <$> val) "(interactive)" defaultInternal
     putStrLn "---------------"
     print code
   Nothing -> pass

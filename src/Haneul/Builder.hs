@@ -17,12 +17,12 @@ import           Text.Megaparsec.Pos                      ( SourcePos )
 import           Haneul.Instruction
 import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal {_constTable :: OSet Constant, _varNames :: OSet Text }
+data BuilderInternal = BuilderInternal { _constTable :: OSet Constant, _varNames :: OSet Text }
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)
 
-type Builder = RWS () [(SourcePos, Instruction)] BuilderInternal
+type Builder = RWS Text [(SourcePos, Instruction)] BuilderInternal
 
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal S.empty S.empty
