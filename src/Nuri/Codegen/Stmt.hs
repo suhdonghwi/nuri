@@ -19,6 +19,8 @@ import qualified Haneul.Instruction            as Inst
 import           Haneul.Instruction                       ( AnnInstruction
                                                             ( AnnInst
                                                             )
+                                                          , getInstSize
+                                                          , instruction
                                                           )
 
 compileStmt :: Stmt -> Builder ()
@@ -31,17 +33,22 @@ compileStmt stmt@(Return expr) = do
 compileStmt (Assign pos ident expr) = do
   compileExpr expr
   storeVar pos ident
-compileStmt If{}                                  = undefined
-{- do
+compileStmt (If pos cond thenStmt elseStmt) = do
   compileExpr cond
-  st <- get
+  st       <- get
+  fileName <- ask
   let (thenInternal, thenInsts) =
-        execRWS (sequence_ (compileStmt <$> thenStmt)) () st
+        execRWS (sequence_ (compileStmt <$> thenStmt)) fileName st
       (elseInternal, elseInsts) =
-        execRWS (sequence_ (compileStmt <$> fromMaybe [] elseStmt)) () st
-  tell [(pos, Inst.PopJmpIfFalse $ sum (getInstSize . snd <$> thenInsts))]
+        execRWS (sequence_ (compileStmt <$> fromMaybe [] elseStmt)) fileName st
+  tell
+    [ AnnInst
+        pos
+        (Inst.PopJmpIfFalse $ sum (getInstSize . view instruction <$> thenInsts)
+        )
+    ]
   put thenInternal
-  tell thenInsts -}
+  tell thenInsts
 compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
   fileName <- ask

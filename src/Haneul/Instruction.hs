@@ -1,6 +1,8 @@
 module Haneul.Instruction where
 
-import           Control.Lens                             ( makeLenses )
+import           Control.Lens                             ( makeLenses
+                                                          , view
+                                                          )
 
 import           Text.Megaparsec.Pos                      ( Pos )
 
@@ -20,6 +22,8 @@ data AnnInstruction = AnnInst { _lineNumber :: Pos, _instruction :: Instruction 
 
 $(makeLenses ''AnnInstruction)
 
+type Code = [AnnInstruction]
+
 opcodeSize :: Int
 opcodeSize = 1
 
@@ -34,3 +38,6 @@ getInstSize (Call          _) = opcodeSize + operandSize
 getInstSize (JmpForward    _) = opcodeSize + operandSize
 getInstSize (PopJmpIfFalse _) = opcodeSize + operandSize
 getInstSize (_              ) = opcodeSize
+
+getCodeSize :: Code -> Int
+getCodeSize code = sum $ (getInstSize . view instruction) <$> code

@@ -19,7 +19,7 @@ data BuilderInternal = BuilderInternal { _constTable :: OSet Constant, _varNames
 
 $(makeLenses ''BuilderInternal)
 
-type Builder = RWS Text [AnnInstruction] BuilderInternal
+type Builder = RWS Text Code BuilderInternal
 
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal S.empty S.empty
