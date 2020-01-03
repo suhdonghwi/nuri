@@ -1,5 +1,9 @@
 module Haneul.Instruction where
 
+import           Control.Lens                             ( makeLenses )
+
+import           Text.Megaparsec.Pos                      ( Pos )
+
 data Instruction = Push Int {- 상수 테이블 인덱스 -} | Pop
                  | Store Int {- 변수 테이블 인덱스 -} | Load Int {- 변수 테이블 인덱스 -}
                  | Call Int {- 인수의 개수 -}
@@ -10,6 +14,11 @@ data Instruction = Push Int {- 상수 테이블 인덱스 -} | Pop
                  | Equal | LessThan | GreaterThan
                  | Negate
                  deriving (Eq, Show, Ord)
+
+data AnnInstruction = AnnInst { _lineNumber :: Pos, _instruction :: Instruction }
+  deriving (Eq, Show, Ord)
+
+$(makeLenses ''AnnInstruction)
 
 opcodeSize :: Int
 opcodeSize = 1

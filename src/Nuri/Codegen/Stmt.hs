@@ -16,14 +16,18 @@ import           Nuri.Codegen.Expr
 import           Haneul.Builder
 import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
+import           Haneul.Instruction                       ( AnnInstruction
+                                                            ( AnnInst
+                                                            )
+                                                          )
 
 compileStmt :: Stmt -> Builder ()
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
-  tell [(getSourceLine stmt, Inst.Pop)]
+  tell [AnnInst (getSourceLine stmt) Inst.Pop]
 compileStmt stmt@(Return expr) = do
   compileExpr expr
-  tell [(getSourceLine stmt, Inst.Return)]
+  tell [AnnInst (getSourceLine stmt) Inst.Return]
 compileStmt (Assign pos ident expr) = do
   compileExpr expr
   storeVar pos ident
@@ -54,11 +58,14 @@ compileStmt (FuncDecl pos funcName argNames body) = do
         )
   funcObjectIndex <- addConstant funcObject
   funcNameIndex   <- addVarName funcName
-  tell [(pos, Inst.Push funcObjectIndex), (pos, Inst.Store funcNameIndex)]
+  tell
+    [ AnnInst pos (Inst.Push funcObjectIndex)
+    , AnnInst pos (Inst.Store funcNameIndex)
+    ]
 
 storeVar :: Pos -> Text -> Builder ()
 storeVar pos ident = do
   index <- addVarName ident
-  tell [(pos, Inst.Store index)]
+  tell [AnnInst pos (Inst.Store index)]
 
 

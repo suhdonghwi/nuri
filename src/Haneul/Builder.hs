@@ -5,14 +5,11 @@ import           Control.Lens                             ( makeLenses
                                                           , modifying
                                                           , use
                                                           )
-import           Control.Lens.TH                          ( )
 import qualified Data.Set.Ordered              as S
 import           Data.Set.Ordered                         ( OSet
                                                           , (|>)
                                                           , findIndex
                                                           )
-
-import           Text.Megaparsec.Pos                      ( Pos )
 
 import           Haneul.Instruction
 import           Haneul.Constant
@@ -22,7 +19,7 @@ data BuilderInternal = BuilderInternal { _constTable :: OSet Constant, _varNames
 
 $(makeLenses ''BuilderInternal)
 
-type Builder = RWS Text [(Pos, Instruction)] BuilderInternal
+type Builder = RWS Text [AnnInstruction] BuilderInternal
 
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal S.empty S.empty

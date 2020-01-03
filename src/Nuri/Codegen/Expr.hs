@@ -8,6 +8,10 @@ import           Nuri.Literal
 import           Haneul.Builder
 import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
+import           Haneul.Instruction                       ( AnnInstruction
+                                                            ( AnnInst
+                                                            )
+                                                          )
 
 litToConst :: Literal -> Constant
 litToConst (LitInteger v) = ConstInteger v
@@ -19,32 +23,34 @@ compileExpr :: Expr -> Builder ()
 compileExpr (Lit pos lit) = do
   let value = litToConst lit
   index <- addConstant value
-  tell [(pos, Inst.Push index)]
+  tell [AnnInst pos (Inst.Push index)]
 compileExpr (Var pos ident) = do
   index <- addVarName ident
-  tell [(pos, Inst.Load index)]
+  tell [AnnInst pos (Inst.Load index)]
 compileExpr (FuncCall pos func args) = do
   funcIndex <- addVarName func
-  tell [(pos, Inst.Load funcIndex)]
+  tell [AnnInst pos (Inst.Load funcIndex)]
   sequence_ (compileExpr <$> args)
-  tell [(pos, Inst.Call $ length args)]
+  tell [AnnInst pos (Inst.Call $ length args)]
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs
   case op of
-    Add              -> tell [(pos, Inst.Add)]
-    Subtract         -> tell [(pos, Inst.Subtract)]
-    Multiply         -> tell [(pos, Inst.Multiply)]
-    Divide           -> tell [(pos, Inst.Divide)]
-    Mod              -> tell [(pos, Inst.Mod)]
-    Equal            -> tell [(pos, Inst.Equal)]
-    Inequal          -> tell [(pos, Inst.Equal), (pos, Inst.Negate)]
-    LessThan         -> tell [(pos, Inst.LessThan)]
-    GreaterThan      -> tell [(pos, Inst.GreaterThan)]
-    LessThanEqual    -> tell [(pos, Inst.GreaterThan), (pos, Inst.Negate)]
-    GreaterThanEqual -> tell [(pos, Inst.LessThan), (pos, Inst.Negate)]
+    Add         -> tell [AnnInst pos Inst.Add]
+    Subtract    -> tell [AnnInst pos Inst.Subtract]
+    Multiply    -> tell [AnnInst pos Inst.Multiply]
+    Divide      -> tell [AnnInst pos Inst.Divide]
+    Mod         -> tell [AnnInst pos Inst.Mod]
+    Equal       -> tell [AnnInst pos Inst.Equal]
+    Inequal     -> tell [AnnInst pos Inst.Equal, AnnInst pos Inst.Negate]
+    LessThan    -> tell [AnnInst pos Inst.LessThan]
+    GreaterThan -> tell [AnnInst pos Inst.GreaterThan]
+    LessThanEqual ->
+      tell [AnnInst pos Inst.GreaterThan, AnnInst pos Inst.Negate]
+    GreaterThanEqual ->
+      tell [AnnInst pos Inst.LessThan, AnnInst pos Inst.Negate]
 compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of
     Positive -> pass
-    Negative -> tell [(pos, Inst.Negate)]
+    Negative -> tell [AnnInst pos Inst.Negate]
