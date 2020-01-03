@@ -50,10 +50,10 @@ parseArithmetic = makeExprParser
       ]
     ]
   binaryOp opStr op = P.hidden $ do
-    pos <- P.getSourcePos
+    pos <- getSourceLine
     BinaryOp pos op <$ L.symbol sc opStr
   unaryOp opStr op = P.hidden $ do
-    pos <- P.getSourcePos
+    pos <- getSourceLine
     UnaryOp pos op <$ L.symbol sc opStr
 
 parseNestedFuncCalls :: Parser Expr
@@ -66,7 +66,7 @@ parseNestedFuncCalls = do
 parseFuncCall :: Parser Expr
 parseFuncCall = do
   args <- P.many (parseTerm <?> "함수 인수")
-  pos  <- P.getSourcePos
+  pos  <- getSourceLine
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos func args
 
@@ -94,7 +94,7 @@ parseParens :: Parser Expr
 parseParens = P.between (symbol "(") (symbol ")") parseExpr
 
 parseIdentifierExpr :: Parser Expr
-parseIdentifierExpr = Var <$> P.getSourcePos <*> parseIdentifier
+parseIdentifierExpr = Var <$> getSourceLine <*> parseIdentifier
 
 parseIdentifier :: Parser Text
 parseIdentifier =
@@ -112,7 +112,7 @@ parseIdentifier =
 
 parseIntegerExpr :: Parser Expr
 parseIntegerExpr = lexeme $ do
-  pos <- P.getSourcePos
+  pos <- getSourceLine
   val <- zeroNumber <|> parseDecimal
   return $ Lit pos (LitInteger val)
  where
@@ -120,13 +120,13 @@ parseIntegerExpr = lexeme $ do
     P.char '0' >> parseHexadecimal <|> parseOctal <|> parseBinary <|> return 0
 
 parseRealExpr :: Parser Expr
-parseRealExpr = Lit <$> P.getSourcePos <*> (LitReal <$> parseReal)
+parseRealExpr = Lit <$> getSourceLine <*> (LitReal <$> parseReal)
 
 parseCharExpr :: Parser Expr
-parseCharExpr = Lit <$> P.getSourcePos <*> (LitChar <$> parseChar)
+parseCharExpr = Lit <$> getSourceLine <*> (LitChar <$> parseChar)
 
 parseBoolExpr :: Parser Expr
-parseBoolExpr = Lit <$> P.getSourcePos <*> (LitBool <$> parseBool)
+parseBoolExpr = Lit <$> getSourceLine <*> (LitBool <$> parseBool)
 
 parseBinary :: Parser Integer
 parseBinary = P.char' 'b' >> (L.binary <?> "2진수")

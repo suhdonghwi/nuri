@@ -5,7 +5,7 @@ import           Control.Monad.RWS                        ( tell
                                                           )
 import           Control.Lens                             ( view )
 
-import           Text.Megaparsec.Pos                      ( SourcePos )
+import           Text.Megaparsec.Pos                      ( Pos )
 
 import qualified Data.Set.Ordered              as S
 
@@ -20,10 +20,10 @@ import qualified Haneul.Instruction            as Inst
 compileStmt :: Stmt -> Builder ()
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
-  tell [(srcPos stmt, Inst.Pop)]
+  tell [(getSourceLine stmt, Inst.Pop)]
 compileStmt stmt@(Return expr) = do
   compileExpr expr
-  tell [(srcPos stmt, Inst.Return)]
+  tell [(getSourceLine stmt, Inst.Return)]
 compileStmt (Assign pos ident expr) = do
   compileExpr expr
   storeVar pos ident
@@ -56,7 +56,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
   funcNameIndex   <- addVarName funcName
   tell [(pos, Inst.Push funcObjectIndex), (pos, Inst.Store funcNameIndex)]
 
-storeVar :: SourcePos -> Text -> Builder ()
+storeVar :: Pos -> Text -> Builder ()
 storeVar pos ident = do
   index <- addVarName ident
   tell [(pos, Inst.Store index)]

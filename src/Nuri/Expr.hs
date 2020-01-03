@@ -1,21 +1,21 @@
 module Nuri.Expr where
 
 
-import           Text.Megaparsec.Pos                      ( SourcePos )
+import           Text.Megaparsec.Pos                      ( Pos )
 
 import           Nuri.ASTNode
 import           Nuri.Literal
 
 data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
-              Lit SourcePos Literal
+              Lit Pos Literal
             -- 변수 읽기 표현식 : 코드 위치, 변수명 
-            | Var SourcePos Text
+            | Var Pos Text
             -- 함수 호출 표현식 : 코드 위치, 함수 이름, 함수 인자 리스트
-            | FuncCall SourcePos Text [Expr]
+            | FuncCall Pos Text [Expr]
             -- 이항 연산 표현식 : 코드 위치, 이항 연산자, 피연산자(좌), 피연산자(우)
-            | BinaryOp SourcePos BinaryOperator Expr Expr
+            | BinaryOp Pos BinaryOperator Expr Expr
             -- 단항 연산 표현식 : 코드 위치, 단항 연산자, 피연산자
-            | UnaryOp SourcePos UnaryOperator Expr
+            | UnaryOp Pos UnaryOperator Expr
           deriving (Show)
 
 instance Eq Expr where
@@ -28,11 +28,11 @@ instance Eq Expr where
   _                == _                = False
 
 instance ASTNode Expr where
-  srcPos (Lit pos _         ) = pos
-  srcPos (Var pos _         ) = pos
-  srcPos (FuncCall pos _ _  ) = pos
-  srcPos (BinaryOp pos _ _ _) = pos
-  srcPos (UnaryOp pos _ _   ) = pos
+  getSourceLine (Lit pos _         ) = pos
+  getSourceLine (Var pos _         ) = pos
+  getSourceLine (FuncCall pos _ _  ) = pos
+  getSourceLine (BinaryOp pos _ _ _) = pos
+  getSourceLine (UnaryOp pos _ _   ) = pos
 
 data BinaryOperator = Add | Subtract | Multiply | Divide | Mod
                     | Equal | Inequal

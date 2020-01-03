@@ -2,7 +2,7 @@ module Haneul.Constant where
 
 import           Control.Lens                             ( makeLenses )
 import           Data.Set.Ordered                         ( OSet )
-import           Text.Megaparsec.Pos                      ( SourcePos )
+import           Text.Megaparsec.Pos                      ( Pos )
 
 import           Haneul.Instruction                       ( Instruction )
 
@@ -15,7 +15,7 @@ data Constant = ConstInteger Integer
 
 
 data FuncObject = FuncObject { _arity :: Integer,
-                               _insts :: [(SourcePos, Instruction)],
+                               _insts :: [(Pos, Instruction)],
                                _funcConstTable :: OSet Constant,
                                _funcVarNames :: OSet Text
                              }

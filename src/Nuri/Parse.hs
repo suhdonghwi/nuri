@@ -39,3 +39,6 @@ hangulSyllable = P.oneOf ['가' .. '힣'] <?> "한글"
 
 hangulJamo :: Parser Char
 hangulJamo = P.oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ']) <?> "한글"
+
+getSourceLine :: Parser P.Pos
+getSourceLine = P.sourceLine <$> P.getSourcePos

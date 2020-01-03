@@ -7,8 +7,8 @@ import           Nuri.Expr
 import           Nuri.Stmt
 import           Nuri.Literal
 
-initPos :: SourcePos
-initPos = initialPos "(test)"
+initPos :: Pos
+initPos = pos1
 
 litInteger v = Lit initPos (LitInteger v)
 litChar v = Lit initPos (LitChar v)

@@ -1,6 +1,6 @@
 module Nuri.Stmt where
 
-import           Text.Megaparsec.Pos                      ( SourcePos )
+import           Text.Megaparsec.Pos                      ( Pos )
 
 import           Nuri.Expr
 import           Nuri.ASTNode
@@ -10,13 +10,13 @@ data Stmt = -- 표현식 구문 : 표현식
             -- 반환 구문 : 표현식
             | Return Expr
             -- 대입 구문 : 코드 위치, 대입 대상 식별자, 대입하는 식
-            | Assign SourcePos Text Expr
+            | Assign Pos Text Expr
             -- 조건 분기 구문 : 코드 위치, 조건식, True시 실행 구문 집합, False시 실행 구문 집합
-            | If SourcePos Expr Stmts (Maybe Stmts)
+            | If Pos Expr Stmts (Maybe Stmts)
             -- 조건 반복 구문 : 조건식, 반복할 구문 집합
-            | While SourcePos Expr Stmts
+            | While Pos Expr Stmts
             -- 함수 선언 구문 : 코드 위치, 함수 이름, 함수 인자 이름, 함수 내부 구문 집합
-            | FuncDecl SourcePos Text [Text] Stmts
+            | FuncDecl Pos Text [Text] Stmts
           deriving (Show)
 
 type Stmts = [Stmt]
@@ -32,9 +32,9 @@ instance Eq Stmt where
   _ == _ = False
 
 instance ASTNode Stmt where
-  srcPos (ExprStmt expr     ) = srcPos expr
-  srcPos (Return   expr     ) = srcPos expr
-  srcPos (Assign pos _ _    ) = pos
-  srcPos (If pos _ _ _      ) = pos
-  srcPos (While pos _ _     ) = pos
-  srcPos (FuncDecl pos _ _ _) = pos
+  getSourceLine (ExprStmt expr     ) = getSourceLine expr
+  getSourceLine (Return   expr     ) = getSourceLine expr
+  getSourceLine (Assign pos _ _    ) = pos
+  getSourceLine (If pos _ _ _      ) = pos
+  getSourceLine (While pos _ _     ) = pos
+  getSourceLine (FuncDecl pos _ _ _) = pos

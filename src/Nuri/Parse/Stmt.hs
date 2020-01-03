@@ -31,7 +31,7 @@ parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
 
 parseAssignment :: Parser Stmt
 parseAssignment = do
-  pos         <- P.getSourcePos
+  pos         <- getSourceLine
   Var _ ident <- P.try $ parseIdentifierExpr <* symbol "="
   Assign pos ident <$> parseExpr
 
@@ -43,7 +43,7 @@ parseIfStmt = do
   return $ ifPart (foldr ($) elsePart (fmap (Just . one) <$> elifPart))
  where
   ifLine s = do
-    pos <- P.getSourcePos
+    pos <- getSourceLine
     _   <- reserved s
     e   <- parseExpr
     _   <- reserved "이라면"
@@ -56,7 +56,7 @@ parseIfStmt = do
 
 parseWhileStmt :: Parser Stmt
 parseWhileStmt = indent $ do
-  pos <- P.getSourcePos
+  pos <- getSourceLine
   _   <- reserved "반복"
   e   <- parseExpr
   _   <- reserved "인 동안"
@@ -67,7 +67,7 @@ parseFuncDecl :: Parser Stmt
 parseFuncDecl = indent argsLine
  where
   argsLine = do
-    pos <- P.getSourcePos
+    pos <- getSourceLine
     P.try $ reserved "함수"
     args     <- P.many parseIdentifier
     funcName <- parseFuncIdentifier
