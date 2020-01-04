@@ -14,17 +14,17 @@ import           Data.Set.Ordered                         ( OSet
 import           Haneul.Instruction
 import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal { _constTable :: OSet Constant, _varNames :: OSet Text }
+data BuilderInternal = BuilderInternal { _constTable :: OSet Constant, _varNames :: OSet String }
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)
 
-type Builder = RWS Text Code BuilderInternal
+type Builder = RWS String Code BuilderInternal
 
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal S.empty S.empty
 
-addVarName :: Text -> Builder Int32
+addVarName :: String -> Builder Int32
 addVarName ident = do
   modifying varNames (|> ident)
   names <- use varNames

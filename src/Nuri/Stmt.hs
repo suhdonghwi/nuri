@@ -10,13 +10,13 @@ data Stmt = -- 표현식 구문 : 표현식
             -- 반환 구문 : 표현식
             | Return Expr
             -- 대입 구문 : 코드 위치, 대입 대상 식별자, 대입하는 식
-            | Assign Pos Text Expr
+            | Assign Pos String Expr
             -- 조건 분기 구문 : 코드 위치, 조건식, True시 실행 구문 집합, False시 실행 구문 집합
             | If Pos Expr Stmts (Maybe Stmts)
             -- 조건 반복 구문 : 조건식, 반복할 구문 집합
             | While Pos Expr Stmts
             -- 함수 선언 구문 : 코드 위치, 함수 이름, 함수 인자 이름, 함수 내부 구문 집합
-            | FuncDecl Pos Text [Text] Stmts
+            | FuncDecl Pos String [String] Stmts
           deriving (Show)
 
 type Stmts = [Stmt]

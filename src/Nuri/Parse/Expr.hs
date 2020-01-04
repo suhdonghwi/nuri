@@ -1,7 +1,9 @@
 module Nuri.Parse.Expr where
 
+import           Prelude                           hiding ( unwords )
 
 import           Data.List                                ( foldl1' )
+import           Data.String                              ( unwords )
 
 import qualified Text.Megaparsec               as P
 import           Text.Megaparsec                          ( (<?>) )
@@ -70,7 +72,7 @@ parseFuncCall = do
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos func args
 
-parseFuncIdentifier :: Parser Text
+parseFuncIdentifier :: Parser String
 parseFuncIdentifier = lexeme
   (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
                            (P.char ' ')
@@ -78,7 +80,7 @@ parseFuncIdentifier = lexeme
  where
   keywords = ["반환하다", "함수", "참", "거짓", "만약", "이라면", "아니고", "아니면", "반복", "인 동안"]
   keyword = P.choice $ reserved <$> keywords
-  hangulWord = toText <$> P.some hangulSyllable
+  hangulWord = P.some hangulSyllable
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 
 parseTerm :: Parser Expr
@@ -96,10 +98,10 @@ parseParens = P.between (symbol "(") (symbol ")") parseExpr
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = Var <$> getSourceLine <*> parseIdentifier
 
-parseIdentifier :: Parser Text
+parseIdentifier :: Parser String
 parseIdentifier =
   lexeme
-      (toText <$> P.between
+      (P.between
         (P.char '[')
         (P.char ']')
         ((++) <$> P.some allowedChars <*> P.many

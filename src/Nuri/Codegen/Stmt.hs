@@ -76,7 +76,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
     , AnnInst pos (Inst.Store funcNameIndex)
     ]
 
-storeVar :: Pos -> Text -> Builder ()
+storeVar :: Pos -> String -> Builder ()
 storeVar pos ident = do
   index <- addVarName ident
   tell [AnnInst pos (Inst.Store index)]

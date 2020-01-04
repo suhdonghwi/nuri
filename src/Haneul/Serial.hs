@@ -60,12 +60,12 @@ instance Binary FuncObject where
     put (view arity obj)
     put (view insts obj)
     put (toList $ view funcConstTable obj)
-    put (toString <$> toList (view funcVarNames obj))
+    put (toList $ view funcVarNames obj)
   get = do
     arity'      <- get
     insts'      <- get
     constTable' <- fromList <$> get
-    varNames'   <- fromList <$> (fmap toText <$> (get :: Get [String]))
+    varNames'   <- fromList <$> get
     return (FuncObject arity' insts' constTable' varNames')
 
 instance Binary Instruction where

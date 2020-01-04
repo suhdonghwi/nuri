@@ -17,6 +17,7 @@ import           Data.Binary                              ( encode
                                                           )
 
 import           Text.Megaparsec
+import           Text.Printf
 
 import           Nuri.Stmt
 import           Nuri.Pretty                              ( )
@@ -54,7 +55,10 @@ printResult val = do
   putStrLn "---------------"
   let encodedInternal = encode internal
       encodedInsts    = encode insts
-  print $ encodedInternal <> encodedInsts
+
+  putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes
+    (encodedInternal <> encodedInsts)
+
   when ((decode encodedInternal :: BuilderInternal) == internal)
        (putStrLn "Internal valid")
   when ((decode encodedInsts :: Code) == insts) (putStrLn "Insts valid")
