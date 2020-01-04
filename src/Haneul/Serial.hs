@@ -29,7 +29,6 @@ instance Binary BuilderInternal where
     names  <- fromList <$> get
     return (BuilderInternal consts names)
 
-
 instance Binary Constant where
   put (ConstInteger v) = do
     put (0 :: Word8)
@@ -61,12 +60,12 @@ instance Binary FuncObject where
     put (view arity obj)
     put (view insts obj)
     put (toList $ view funcConstTable obj)
-    put (toList $ view funcVarNames obj)
+    put (toString <$> toList (view funcVarNames obj))
   get = do
     arity'      <- get
     insts'      <- get
     constTable' <- fromList <$> get
-    varNames'   <- fromList <$> get
+    varNames'   <- fromList <$> (fmap toText <$> (get :: Get [String]))
     return (FuncObject arity' insts' constTable' varNames')
 
 instance Binary Instruction where
@@ -134,8 +133,8 @@ instance Binary Instruction where
 
 instance Binary AnnInstruction  where
   put AnnInst { _lineNumber = line, _instruction = inst } = do
-    put (unPos line)
+    put (fromIntegral (unPos line) :: Word32)
     put inst
   get = do
-    line <- mkPos <$> get
-    AnnInst line <$> get
+    line <- get :: Get Word32
+    AnnInst (mkPos $ fromIntegral line) <$> get

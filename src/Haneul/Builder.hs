@@ -24,17 +24,17 @@ type Builder = RWS Text Code BuilderInternal
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal S.empty S.empty
 
-addVarName :: Text -> Builder Int
+addVarName :: Text -> Builder Int32
 addVarName ident = do
   modifying varNames (|> ident)
   names <- use varNames
   let (Just index) = findIndex ident names
-  return index
+  return $ fromIntegral index
 
-addConstant :: Constant -> Builder Int
+addConstant :: Constant -> Builder Int32
 addConstant value = do
   modifying constTable (|> value)
   names <- use constTable
   let (Just index) = findIndex value names
-  return index
+  return $ fromIntegral index
 

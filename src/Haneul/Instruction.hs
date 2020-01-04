@@ -8,11 +8,11 @@ import           Control.Lens                             ( makeLenses
 
 import           Text.Megaparsec.Pos                      ( Pos )
 
-data Instruction = Push Int {- 상수 테이블 인덱스 -} | Pop
-                 | Store Int {- 변수 테이블 인덱스 -} | Load Int {- 변수 테이블 인덱스 -}
-                 | Call Int {- 인수의 개수 -}
-                 | JmpForward Int {- 주소 오프셋 -}
-                 | PopJmpIfFalse Int {- 주소 오프셋 -}
+data Instruction = Push Int32 {- 상수 테이블 인덱스 -} | Pop
+                 | Store Int32 {- 변수 테이블 인덱스 -} | Load Int32 {- 변수 테이블 인덱스 -}
+                 | Call Int32 {- 인수의 개수 -}
+                 | JmpForward Int32 {- 주소 오프셋 -}
+                 | PopJmpIfFalse Int32 {- 주소 오프셋 -}
                  | Return
                  | Add | Subtract | Multiply | Divide | Mod
                  | Equal | LessThan | GreaterThan
@@ -41,8 +41,9 @@ getInstSize (JmpForward    _) = opcodeSize + operandSize
 getInstSize (PopJmpIfFalse _) = opcodeSize + operandSize
 getInstSize _                 = opcodeSize
 
-getCodeSize :: Code -> Int
-getCodeSize code = sum $ getInstSize . view instruction <$> code
+getCodeSize :: Code -> Int32
+getCodeSize code =
+  (fromIntegral . sum) (getInstSize . view instruction <$> code)
 
 prependInst :: Pos -> Instruction -> Code -> Code
 prependInst defaultPos inst [] = [AnnInst defaultPos inst]

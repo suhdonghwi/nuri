@@ -31,7 +31,7 @@ compileExpr (FuncCall pos func args) = do
   funcIndex <- addVarName func
   tell [AnnInst pos (Inst.Load funcIndex)]
   sequence_ (compileExpr <$> args)
-  tell [AnnInst pos (Inst.Call $ length args)]
+  tell [AnnInst pos (Inst.Call $ (fromIntegral . length) args)]
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs

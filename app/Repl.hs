@@ -54,7 +54,7 @@ printResult val = do
   putStrLn "---------------"
   let encodedInternal = encode internal
       encodedInsts    = encode insts
-  print (unpackBytes encodedInternal, unpackBytes encodedInsts)
+  print $ encodedInternal <> encodedInsts
   when ((decode encodedInternal :: BuilderInternal) == internal)
        (putStrLn "Internal valid")
   when ((decode encodedInsts :: Code) == insts) (putStrLn "Insts valid")

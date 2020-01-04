@@ -13,7 +13,7 @@ data Constant = ConstInteger Integer
   deriving (Eq, Show, Ord)
 
 
-data FuncObject = FuncObject { _arity :: Integer,
+data FuncObject = FuncObject { _arity :: Word16,
                                _insts :: [AnnInstruction],
                                _funcConstTable :: OSet Constant,
                                _funcVarNames :: OSet Text
