@@ -7,8 +7,6 @@ import           Data.Text.Prettyprint.Doc                ( Pretty
                                                           , pretty
                                                           , vsep
                                                           , nest
-                                                          , dquotes
-                                                          , parens
                                                           , align
                                                           , (<+>)
                                                           )
@@ -30,7 +28,7 @@ instance Pretty Constant where
     , "[arity]" <+> pretty (view arity obj)
     , "[const table]" <+> pretty (view funcConstTable obj)
     , "[var names]" <+> pretty (view funcVarNames obj)
-    , "[insts]" <+> (nest 8 . vsep) (pretty <$> view insts obj)
+    , "[insts]" <+> (align . vsep) (pretty <$> view insts obj)
     ]
   pretty v = show v
 
