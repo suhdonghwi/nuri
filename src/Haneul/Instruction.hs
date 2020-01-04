@@ -30,7 +30,7 @@ opcodeSize :: Int
 opcodeSize = 1
 
 operandSize :: Int
-operandSize = 3
+operandSize = 4
 
 getInstSize :: Instruction -> Int
 getInstSize (Push          _) = opcodeSize + operandSize
@@ -39,10 +39,10 @@ getInstSize (Load          _) = opcodeSize + operandSize
 getInstSize (Call          _) = opcodeSize + operandSize
 getInstSize (JmpForward    _) = opcodeSize + operandSize
 getInstSize (PopJmpIfFalse _) = opcodeSize + operandSize
-getInstSize (_              ) = opcodeSize
+getInstSize _                 = opcodeSize
 
 getCodeSize :: Code -> Int
-getCodeSize code = sum $ (getInstSize . view instruction) <$> code
+getCodeSize code = sum $ getInstSize . view instruction <$> code
 
 prependInst :: Pos -> Instruction -> Code -> Code
 prependInst defaultPos inst [] = [AnnInst defaultPos inst]

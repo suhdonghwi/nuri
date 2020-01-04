@@ -11,6 +11,9 @@ import           Control.Lens.TH                          ( )
 import           Data.Text.Prettyprint.Doc                ( pretty
                                                           , vsep
                                                           )
+import           Data.Binary                              ( encode
+                                                          , decode
+                                                          )
 
 import           Text.Megaparsec
 
@@ -20,7 +23,9 @@ import           Nuri.Parse.Stmt
 import           Nuri.Codegen.Stmt
 
 import           Haneul.Builder
+import           Haneul.Instruction
 import           Haneul.Pretty                            ( )
+import           Haneul.Serial                            ( )
 
 data ReplState = ReplState { _prompt :: Text }
 
@@ -45,6 +50,13 @@ printResult val = do
   putStrLn "---------------"
   print $ pretty internal
   (print . vsep) (pretty <$> insts)
+  putStrLn "---------------"
+  let encodedInternal = encode internal
+      encodedInsts    = encode insts
+  print (encodedInternal, encodedInsts)
+  when ((decode encodedInternal :: BuilderInternal) == internal)
+       (putStrLn "Internal valid")
+  when ((decode encodedInsts :: Code) == insts) (putStrLn "Insts valid")
 
 repl :: Repl ()
 repl = forever $ do

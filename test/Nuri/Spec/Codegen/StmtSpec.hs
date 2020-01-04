@@ -128,7 +128,7 @@ spec = do
                         , _varNames   = S.singleton "던지다"
                         }
                       , [ Inst.Push 0
-                        , Inst.PopJmpIfFalse 13
+                        , Inst.PopJmpIfFalse 16
                         , Inst.Load 0
                         , Inst.Push 1
                         , Inst.Call 1
@@ -148,12 +148,12 @@ spec = do
                         , _varNames   = S.fromList ["던지다", "밟다"]
                         }
                       , [ Inst.Push 0
-                        , Inst.PopJmpIfFalse 17
+                        , Inst.PopJmpIfFalse 21
                         , Inst.Load 0
                         , Inst.Push 1
                         , Inst.Call 1
                         , Inst.Pop
-                        , Inst.JmpForward 13
+                        , Inst.JmpForward 16
                         , Inst.Load 1
                         , Inst.Push 2
                         , Inst.Call 1
