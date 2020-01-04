@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Nuri.Pretty where
 
 import           Data.Text.Prettyprint.Doc                ( Pretty

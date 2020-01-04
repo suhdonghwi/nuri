@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Haneul.Pretty where
 
 import           Control.Lens                             ( view )
