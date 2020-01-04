@@ -12,4 +12,6 @@ main = do
     filePath : _ -> do
       content <- readFile filePath
       result  <- runMaybeT $ parseInput (toText content) (toText filePath)
-      printResult result
+      case result of
+        Just stmts -> printResult stmts
+        Nothing    -> pass

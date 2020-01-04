@@ -115,4 +115,49 @@ spec = do
                       }
                     , [Inst.Push 0, Inst.Store 0, Inst.Push 1, Inst.Store 1]
                     )
+  describe "조건문 코드 생성" $ do
+    it "else문이 없는 조건문 코드 생성" $ do
+      compileStmt
+          (ifStmt (litBool True)
+                  [ExprStmt $ funcCall "던지다" [litInteger 10]]
+                  Nothing
+          )
+        `shouldBuild` ( defaultI
+                        { _constTable = S.fromList
+                                          [ConstBool True, ConstInteger 10]
+                        , _varNames   = S.singleton "던지다"
+                        }
+                      , [ Inst.Push 0
+                        , Inst.PopJmpIfFalse 13
+                        , Inst.Load 0
+                        , Inst.Push 1
+                        , Inst.Call 1
+                        , Inst.Pop
+                        ]
+                      )
+    it "else문이 있는 조건문 코드 생성" $ do
+      compileStmt
+          (ifStmt (litBool False)
+                  [ExprStmt $ funcCall "던지다" [litInteger 10]]
+                  (Just [ExprStmt $ funcCall "밟다" [litInteger 5]])
+          )
+        `shouldBuild` ( defaultI
+                        { _constTable =
+                          S.fromList
+                            [ConstBool False, ConstInteger 10, ConstInteger 5]
+                        , _varNames   = S.fromList ["던지다", "밟다"]
+                        }
+                      , [ Inst.Push 0
+                        , Inst.PopJmpIfFalse 17
+                        , Inst.Load 0
+                        , Inst.Push 1
+                        , Inst.Call 1
+                        , Inst.Pop
+                        , Inst.JmpForward 13
+                        , Inst.Load 1
+                        , Inst.Push 2
+                        , Inst.Call 1
+                        , Inst.Pop
+                        ]
+                      )
 

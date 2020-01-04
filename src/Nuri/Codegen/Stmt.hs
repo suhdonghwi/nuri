@@ -19,8 +19,8 @@ import qualified Haneul.Instruction            as Inst
 import           Haneul.Instruction                       ( AnnInstruction
                                                             ( AnnInst
                                                             )
-                                                          , getInstSize
-                                                          , instruction
+                                                          , getCodeSize
+                                                          , prependInst
                                                           )
 
 compileStmt :: Stmt -> Builder ()
@@ -33,22 +33,28 @@ compileStmt stmt@(Return expr) = do
 compileStmt (Assign pos ident expr) = do
   compileExpr expr
   storeVar pos ident
-compileStmt (If pos cond thenStmt elseStmt) = do
+compileStmt (If pos cond thenStmt elseStmt') = do
   compileExpr cond
   st       <- get
   fileName <- ask
   let (thenInternal, thenInsts) =
         execRWS (sequence_ (compileStmt <$> thenStmt)) fileName st
-      (elseInternal, elseInsts) =
-        execRWS (sequence_ (compileStmt <$> fromMaybe [] elseStmt)) fileName st
-  tell
-    [ AnnInst
-        pos
-        (Inst.PopJmpIfFalse $ sum (getInstSize . view instruction <$> thenInsts)
-        )
-    ]
-  put thenInternal
-  tell thenInsts
+  case elseStmt' of
+    Just elseStmt -> do
+      let (elseInternal, elseInsts) =
+            execRWS (sequence_ (compileStmt <$> elseStmt)) fileName thenInternal
+          thenInsts' =
+            prependInst pos (Inst.JmpForward (getCodeSize elseInsts)) thenInsts
+      tell [AnnInst pos (Inst.PopJmpIfFalse (getCodeSize thenInsts'))]
+      put thenInternal
+      tell thenInsts'
+      put elseInternal
+      tell elseInsts
+    Nothing -> do
+      tell [AnnInst pos (Inst.PopJmpIfFalse (getCodeSize thenInsts))]
+      put thenInternal
+      tell thenInsts
+
 compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
   fileName <- ask

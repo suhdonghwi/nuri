@@ -1,5 +1,7 @@
 module Haneul.Instruction where
 
+import qualified Data.List.NonEmpty            as NE
+
 import           Control.Lens                             ( makeLenses
                                                           , view
                                                           )
@@ -28,7 +30,7 @@ opcodeSize :: Int
 opcodeSize = 1
 
 operandSize :: Int
-operandSize = 4
+operandSize = 3
 
 getInstSize :: Instruction -> Int
 getInstSize (Push          _) = opcodeSize + operandSize
@@ -41,3 +43,8 @@ getInstSize (_              ) = opcodeSize
 
 getCodeSize :: Code -> Int
 getCodeSize code = sum $ (getInstSize . view instruction) <$> code
+
+prependInst :: Pos -> Instruction -> Code -> Code
+prependInst defaultPos inst [] = [AnnInst defaultPos inst]
+prependInst _ inst code =
+  code ++ [AnnInst (view lineNumber $ last (NE.fromList code)) inst]
