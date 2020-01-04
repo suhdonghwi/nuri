@@ -130,6 +130,7 @@ instance Binary Instruction where
       14 -> return LessThan
       15 -> return GreaterThan
       16 -> return Negate
+      _  -> fail "invalid instruction opcode type"
 
 instance Binary AnnInstruction  where
   put AnnInst { _lineNumber = line, _instruction = inst } = do

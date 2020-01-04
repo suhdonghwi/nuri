@@ -3,6 +3,7 @@ module Repl where
 import           System.IO                                ( hFlush )
 
 import           Data.Text                                ( strip )
+import           Data.ByteString.Lazy.Internal            ( unpackBytes )
 
 import           Control.Monad.RWS                        ( execRWS )
 import           Control.Lens
@@ -53,7 +54,7 @@ printResult val = do
   putStrLn "---------------"
   let encodedInternal = encode internal
       encodedInsts    = encode insts
-  print (encodedInternal, encodedInsts)
+  print (unpackBytes encodedInternal, unpackBytes encodedInsts)
   when ((decode encodedInternal :: BuilderInternal) == internal)
        (putStrLn "Internal valid")
   when ((decode encodedInsts :: Code) == insts) (putStrLn "Insts valid")
