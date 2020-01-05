@@ -3,7 +3,7 @@ module Haneul.Constant where
 import           Control.Lens                             ( makeLenses )
 import           Data.Set.Ordered                         ( OSet )
 
-import           Haneul.Instruction                       ( AnnInstruction )
+import           Haneul.Instruction                       ( Code )
 
 data Constant = ConstInteger Integer
               | ConstReal Double
@@ -13,8 +13,8 @@ data Constant = ConstInteger Integer
   deriving (Eq, Show, Ord)
 
 
-data FuncObject = FuncObject { _arity :: Word16,
-                               _insts :: [AnnInstruction],
+data FuncObject = FuncObject { _funcArity :: Word16,
+                               _funcBody :: Code,
                                _funcConstTable :: OSet Constant,
                                _funcVarNames :: OSet String
                              }

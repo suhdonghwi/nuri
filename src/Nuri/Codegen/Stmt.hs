@@ -58,15 +58,15 @@ compileStmt (If pos cond thenStmt elseStmt') = do
 compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
   fileName <- ask
-  let (internal, instructions) = execRWS
+  let (internal, code) = execRWS
         (sequence_ (compileStmt <$> body))
         fileName
-        (defaultInternal { _varNames = S.fromList argNames })
+        (defaultInternal { _internalVarNames = S.fromList argNames })
       funcObject = ConstFunc
-        (FuncObject { _arity          = fromIntegral (length argNames)
-                    , _insts          = instructions
-                    , _funcConstTable = view constTable internal
-                    , _funcVarNames   = view varNames internal
+        (FuncObject { _funcArity      = fromIntegral (length argNames)
+                    , _funcBody       = code
+                    , _funcConstTable = view internalConstTable internal
+                    , _funcVarNames   = view internalVarNames internal
                     }
         )
   funcObjectIndex <- addConstant funcObject

@@ -26,17 +26,17 @@ instance (Show a, Pretty a) => Pretty (OSet a) where
 instance Pretty Constant where
   pretty (ConstFunc obj) = nest' $ vsep
     [ "ConstFunc"
-    , "[arity]" <+> pretty (view arity obj)
+    , "[arity]" <+> pretty (view funcArity obj)
     , "[const table]" <+> pretty (view funcConstTable obj)
     , "[var names]" <+> pretty (view funcVarNames obj)
-    , "[insts]" <+> (align . vsep) (pretty <$> view insts obj)
+    , "[body]" <+> (align . vsep) (pretty <$> view funcBody obj)
     ]
   pretty v = show v
 
 instance Pretty BuilderInternal where
   pretty val = vsep
-    [ "[const table]" <+> pretty (view constTable val)
-    , "[var names]" <+> pretty (view varNames val)
+    [ "[const table]" <+> pretty (view internalConstTable val)
+    , "[var names]" <+> pretty (view internalVarNames val)
     ]
 
 instance Pretty Instruction where

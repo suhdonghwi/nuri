@@ -25,43 +25,44 @@ import           Nuri.Parse.Stmt
 import           Nuri.Codegen.Stmt
 
 import           Haneul.Builder
-import           Haneul.Instruction
 import           Haneul.Pretty                            ( )
 import           Haneul.Serial                            ( )
 
-data ReplState = ReplState { _prompt :: Text }
+newtype ReplState = ReplState { _prompt :: Text }
 
 $(makeLenses ''ReplState)
 
 newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
-parseInput :: Text -> Text -> MaybeT IO Stmts
+parseInput :: String -> String -> MaybeT IO Stmts
 parseInput input fileName = do
-  case runParser (parseStmts <* eof) (toString fileName) input of
+  case runParser (parseStmts <* eof) fileName input of
     Left err -> do
       (liftIO . putTextLn . toText . errorBundlePretty) err
       hoistMaybe Nothing
     Right parseResult -> return parseResult
 
+compileStmts :: Stmts -> Program
+compileStmts stmts = uncurry Program
+  $ execRWS (sequence_ $ compileStmt <$> stmts) "(반응형)" defaultInternal
+
 printResult :: Stmts -> IO ()
-printResult val = do
-  (liftIO . print . vsep . toList) (pretty <$> val)
-  let (internal, insts) =
-        execRWS (sequence $ compileStmt <$> val) "(반응형)" defaultInternal
-  putStrLn "---------------"
-  print $ pretty internal
-  (print . vsep) (pretty <$> insts)
-  putStrLn "---------------"
-  let encodedInternal = encode internal
-      encodedInsts    = encode insts
+printResult stmts = do
+  (liftIO . print . vsep . toList) (pretty <$> stmts)
+  let program          = compileStmts stmts
+      compiledCode     = view programCode program
+      compiledInternal = view programInternal program
 
-  putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes
-    (encodedInternal <> encodedInsts)
+  putStrLn "---------------"
+  print $ pretty compiledInternal
+  (print . vsep) (pretty <$> compiledCode)
+  putStrLn "---------------"
 
-  when ((decode encodedInternal :: BuilderInternal) == internal)
-       (putStrLn "Internal valid")
-  when ((decode encodedInsts :: Code) == insts) (putStrLn "Insts valid")
+  let encodedProgram = encode program
+  putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes encodedProgram
+  when ((decode encodedProgram :: Program) == program)
+       (putStrLn "Program encoding is valid")
 
 repl :: Repl ()
 repl = forever $ do
@@ -69,7 +70,7 @@ repl = forever $ do
   liftIO $ do
     putText (view prompt st)
     hFlush stdout
-  input <- strip <$> liftIO getLine
+  input <- toString . strip <$> liftIO getLine
   liftIO $ when (input == ":quit") exitSuccess
   result <- (liftIO . runMaybeT . parseInput input) "(반응형)"
   case result of

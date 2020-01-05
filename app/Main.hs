@@ -11,5 +11,5 @@ main = do
     []           -> runRepl repl (ReplState ">> ")
     filePath : _ -> do
       content <- readFile filePath
-      result  <- runMaybeT $ parseInput (toText content) (toText filePath)
+      result  <- runMaybeT $ parseInput content filePath
       whenJust result printResult

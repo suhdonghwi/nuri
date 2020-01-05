@@ -21,13 +21,10 @@ import           Haneul.Constant
 import           Haneul.Instruction
 
 instance Binary BuilderInternal where
-  put BuilderInternal { _constTable = consts, _varNames = names } = do
-    put (toList consts)
-    put (toList names)
-  get = do
-    consts <- fromList <$> get
-    names  <- fromList <$> get
-    return (BuilderInternal consts names)
+  put v = do
+    put (toList $ view internalConstTable v)
+    put (toList $ view internalVarNames v)
+  get = liftA2 BuilderInternal (fromList <$> get) (fromList <$> get)
 
 instance Binary Constant where
   put (ConstInteger v) = do
@@ -57,8 +54,8 @@ instance Binary Constant where
 
 instance Binary FuncObject where
   put obj = do
-    put (view arity obj)
-    put (view insts obj)
+    put (view funcArity obj)
+    put (view funcBody obj)
     put (toList $ view funcConstTable obj)
     put (toList $ view funcVarNames obj)
   get = do
@@ -132,9 +129,16 @@ instance Binary Instruction where
       _  -> fail "invalid instruction opcode type"
 
 instance Binary AnnInstruction  where
-  put AnnInst { _lineNumber = line, _instruction = inst } = do
-    put (fromIntegral (unPos line) :: Word32)
-    put inst
+  put v = do
+    let linePos = view lineNumber v
+    put (fromIntegral (unPos linePos) :: Word32)
+    put (view instruction v)
   get = do
     line <- get :: Get Word32
     AnnInst (mkPos $ fromIntegral line) <$> get
+
+instance Binary Program where
+  put p = do
+    put (view programInternal p)
+    put (view programCode p)
+  get = liftA2 Program get get
