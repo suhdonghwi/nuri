@@ -19,7 +19,6 @@ import qualified Haneul.Instruction            as Inst
 import           Haneul.Instruction                       ( AnnInstruction
                                                             ( AnnInst
                                                             )
-                                                          , getCodeSize
                                                           , prependInst
                                                           )
 
@@ -43,15 +42,17 @@ compileStmt (If pos cond thenStmt elseStmt') = do
     Just elseStmt -> do
       let (elseInternal, elseInsts) =
             execRWS (sequence_ (compileStmt <$> elseStmt)) fileName thenInternal
-          thenInsts' =
-            prependInst pos (Inst.JmpForward (getCodeSize elseInsts)) thenInsts
-      tell [AnnInst pos (Inst.PopJmpIfFalse (getCodeSize thenInsts'))]
+          thenInsts' = prependInst
+            pos
+            (Inst.JmpForward (fromIntegral $ length elseInsts))
+            thenInsts
+      tell [AnnInst pos (Inst.PopJmpIfFalse (fromIntegral $ length thenInsts'))]
       put thenInternal
       tell thenInsts'
       put elseInternal
       tell elseInsts
     Nothing -> do
-      tell [AnnInst pos (Inst.PopJmpIfFalse (getCodeSize thenInsts))]
+      tell [AnnInst pos (Inst.PopJmpIfFalse (fromIntegral $ length thenInsts))]
       put thenInternal
       tell thenInsts
 
