@@ -40,7 +40,7 @@ parseIfStmt = do
   ifPart   <- indent (ifLine "만약")
   elifPart <- P.many $ indent (ifLine "아니고")
   elsePart <- optional $ indent (elseLine "아니면")
-  return $ ifPart (foldr ($) elsePart (fmap Just <$> elifPart))
+  return $ ifPart (foldr ($) elsePart (fmap (Just . one) <$> elifPart))
  where
   ifLine s = do
     pos <- getSourceLine
@@ -48,12 +48,11 @@ parseIfStmt = do
     e   <- parseExpr
     _   <- reserved "이라면"
     _   <- symbol ":"
-    return (L.IndentSome Nothing (return . If pos e . Scope pos) parseStmt)
+    return (L.IndentSome Nothing (return . If pos e) parseStmt)
   elseLine s = do
-    pos <- getSourceLine
-    _   <- reserved s
-    _   <- symbol ":"
-    return (L.IndentSome Nothing (return . Scope pos) parseStmt)
+    _ <- reserved s
+    _ <- symbol ":"
+    return (L.IndentSome Nothing return parseStmt)
 
 parseWhileStmt :: Parser Stmt
 parseWhileStmt = indent $ do
@@ -74,7 +73,4 @@ parseFuncDecl = indent argsLine
     funcName <- parseFuncIdentifier
     _        <- symbol ":"
     return
-      (L.IndentSome Nothing
-                    (return . FuncDecl pos funcName args . Scope pos)
-                    parseStmt
-      )
+      (L.IndentSome Nothing (return . FuncDecl pos funcName args) parseStmt)

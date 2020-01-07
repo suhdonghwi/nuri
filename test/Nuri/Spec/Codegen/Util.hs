@@ -13,7 +13,7 @@ import           Haneul.Instruction
 
 shouldBuild :: Builder () -> (BuilderInternal, [Instruction]) -> Expectation
 shouldBuild actual expected = do
-  let (internal, insts) = execRWS actual "(test)" defaultInternal
+  let (internal, insts) = execRWS actual 0 defaultInternal
   (internal, view instruction <$> insts) `shouldBe` expected
 
 defaultI :: BuilderInternal

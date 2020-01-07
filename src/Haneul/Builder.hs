@@ -14,7 +14,7 @@ import           Data.Set.Ordered                         ( OSet
 import           Haneul.Instruction
 import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal { _internalConstTable :: OSet Constant, _internalVarNames :: OSet String }
+data BuilderInternal = BuilderInternal { _internalConstTable :: OSet Constant, _internalVarNames :: OSet (String, Int) }
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)
@@ -24,16 +24,17 @@ data Program = Program { _programInternal :: BuilderInternal, _programCode :: Co
 
 $(makeLenses ''Program)
 
-type Builder = RWS Integer Code BuilderInternal
+type Builder = RWS Int Code BuilderInternal
 
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal S.empty S.empty
 
 addVarName :: String -> Builder Int32
 addVarName ident = do
-  modifying internalVarNames (|> ident)
+  depth <- ask
+  modifying internalVarNames (|> (ident, depth))
   names <- use internalVarNames
-  let (Just index) = findIndex ident names
+  let (Just index) = findIndex (ident, depth) names
   return $ fromIntegral index
 
 addConstant :: Constant -> Builder Int32

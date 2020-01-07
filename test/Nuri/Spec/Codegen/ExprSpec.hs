@@ -92,7 +92,7 @@ spec = do
   describe "변수 접근 코드 생성" $ do
     it "선언되지 않은 변수 이름에 대해 Load 코드 생성" $ do
       compileExpr (var "값")
-        `shouldBuild` ( defaultI { _internalVarNames = S.singleton "값" }
+        `shouldBuild` ( defaultI { _internalVarNames = S.singleton ("값", 0) }
                       , [Inst.Load 0]
                       )
 
@@ -101,7 +101,7 @@ spec = do
       compileExpr (funcCall "던지다" [litInteger 10])
         `shouldBuild` ( defaultI
                         { _internalConstTable = S.singleton (ConstInteger 10)
-                        , _internalVarNames   = S.singleton "던지다"
+                        , _internalVarNames   = S.singleton ("던지다", 0)
                         }
                       , [Inst.Load 0, Inst.Push 0, Inst.Call 1]
                       )
@@ -110,7 +110,7 @@ spec = do
         `shouldBuild` ( defaultI
                         { _internalConstTable =
                           S.fromList [ConstInteger 10, ConstInteger 0]
-                        , _internalVarNames   = S.singleton "던지다"
+                        , _internalVarNames   = S.singleton ("던지다", 0)
                         }
                       , [ Inst.Load 0
                         , Inst.Push 0
@@ -121,7 +121,7 @@ spec = do
                       )
     it "인수가 없는 함수 호출 코드 생성" $ do
       compileExpr (funcCall "던지다" [])
-        `shouldBuild` ( defaultI { _internalVarNames = S.singleton "던지다" }
+        `shouldBuild` ( defaultI { _internalVarNames = S.singleton ("던지다", 0) }
                       , [Inst.Load 0, Inst.Call 0]
                       )
 

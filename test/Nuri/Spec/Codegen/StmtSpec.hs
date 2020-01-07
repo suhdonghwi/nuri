@@ -49,7 +49,7 @@ spec = do
       compileStmt (assign "값" (litInteger 10))
         `shouldBuild` ( defaultI
                         { _internalConstTable = S.singleton (ConstInteger 10)
-                        , _internalVarNames   = S.singleton "값"
+                        , _internalVarNames   = S.singleton ("값", 0)
                         }
                       , [Inst.Push 0, Inst.Store 0]
                       )
@@ -58,7 +58,7 @@ spec = do
         `shouldBuild` ( defaultI
                         { _internalConstTable =
                           S.fromList [ConstInteger 10, ConstInteger 20]
-                        , _internalVarNames   = S.singleton "값"
+                        , _internalVarNames   = S.singleton ("값", 0)
                         }
                       , [Inst.Push 0, Inst.Push 1, Inst.Add, Inst.Store 0]
                       )
@@ -72,10 +72,11 @@ spec = do
                               { _funcArity      = 1
                               , _funcBody = [ann (Inst.Push 0), ann Inst.Return]
                               , _funcConstTable = S.singleton (ConstInteger 1)
-                              , _funcVarNames   = S.singleton "값"
+                              , _funcVarNames   = S.fromList
+                                                    [("더하다", 0), ("값", 1)]
                               }
                             )
-                        , _internalVarNames   = S.singleton "더하다"
+                        , _internalVarNames   = S.singleton ("더하다", 0)
                         }
                       , [Inst.Push 0, Inst.Store 0]
                       )
@@ -86,12 +87,13 @@ spec = do
                           S.singleton $ ConstFunc
                             (FuncObject
                               { _funcArity      = 1
-                              , _funcBody = [ann (Inst.Load 0), ann Inst.Return]
+                              , _funcBody = [ann (Inst.Load 1), ann Inst.Return]
                               , _funcConstTable = S.empty
-                              , _funcVarNames   = S.singleton "값"
+                              , _funcVarNames   = S.fromList
+                                                    [("더하다", 0), ("값", 1)]
                               }
                             )
-                        , _internalVarNames   = S.singleton "더하다"
+                        , _internalVarNames   = S.singleton ("더하다", 0)
                         }
                       , [Inst.Push 0, Inst.Store 0]
                       )
@@ -109,11 +111,12 @@ spec = do
                               { _funcArity      = 1
                               , _funcBody = [ann (Inst.Push 0), ann Inst.Return]
                               , _funcConstTable = S.fromList [ConstInteger 20]
-                              , _funcVarNames   = S.fromList ["값"]
+                              , _funcVarNames   =
+                                S.fromList [("수", 0), ("더하다", 0), ("값", 1)]
                               }
                             )
                           ]
-                      , _internalVarNames   = S.fromList ["수", "더하다"]
+                      , _internalVarNames   = S.fromList [("수", 0), ("더하다", 0)]
                       }
                     , [Inst.Push 0, Inst.Store 0, Inst.Push 1, Inst.Store 1]
                     )
@@ -127,7 +130,7 @@ spec = do
         `shouldBuild` ( defaultI
                         { _internalConstTable =
                           S.fromList [ConstBool True, ConstInteger 10]
-                        , _internalVarNames   = S.singleton "던지다"
+                        , _internalVarNames   = S.singleton ("던지다", 1)
                         }
                       , [ Inst.Push 0
                         , Inst.PopJmpIfFalse 4
@@ -147,7 +150,7 @@ spec = do
                         { _internalConstTable =
                           S.fromList
                             [ConstBool False, ConstInteger 10, ConstInteger 5]
-                        , _internalVarNames   = S.fromList ["던지다", "밟다"]
+                        , _internalVarNames = S.fromList [("던지다", 1), ("밟다", 1)]
                         }
                       , [ Inst.Push 0
                         , Inst.PopJmpIfFalse 5
