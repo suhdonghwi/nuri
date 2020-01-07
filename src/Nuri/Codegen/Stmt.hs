@@ -43,12 +43,12 @@ compileStmt (If pos cond thenStmts elseStmts) = do
   depth <- ask
   let (thenInternal, thenInsts) =
         execRWS (compileStmts thenStmts) (depth + 1) st
+  assign internalConstTable (view internalConstTable thenInternal)
+  st' <- get
   case elseStmts of
     Just elseStmts' -> do
-      let (elseInternal, elseInsts) = execRWS
-            (compileStmts elseStmts')
-            (depth + 1)
-            st { _internalConstTable = view internalConstTable thenInternal }
+      let (elseInternal, elseInsts) =
+            execRWS (compileStmts elseStmts') (depth + 1) st'
           thenInsts' = prependInst
             pos
             (Inst.JmpForward (fromIntegral $ length elseInsts))
