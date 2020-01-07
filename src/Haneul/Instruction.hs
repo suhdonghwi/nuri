@@ -26,7 +26,7 @@ $(makeLenses ''AnnInstruction)
 
 type Code = [AnnInstruction]
 
-prependInst :: Pos -> Instruction -> Code -> Code
-prependInst defaultPos inst [] = [AnnInst defaultPos inst]
-prependInst _ inst code =
+appendInst :: Pos -> Instruction -> Code -> Code
+appendInst defaultPos inst [] = [AnnInst defaultPos inst]
+appendInst _ inst code =
   code ++ [AnnInst (view lineNumber $ last (NE.fromList code)) inst]

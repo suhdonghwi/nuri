@@ -24,7 +24,7 @@ import qualified Haneul.Instruction            as Inst
 import           Haneul.Instruction                       ( AnnInstruction
                                                             ( AnnInst
                                                             )
-                                                          , prependInst
+                                                          , appendInst
                                                           )
 
 compileStmt :: Stmt -> Builder ()
@@ -51,7 +51,7 @@ compileStmt (If pos cond thenStmts elseStmts) = do
         (elseInternal, elseInsts) =
           execRWS (compileStmts elseStmts') (depth + 1) st'
         thenInsts' =
-          prependInst pos (Inst.JmpForward $ genericLength elseInsts) thenInsts
+          appendInst pos (Inst.JmpForward $ genericLength elseInsts) thenInsts
       tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts')]
       assign internalConstTable (view internalConstTable thenInternal)
       tell thenInsts'
@@ -66,23 +66,24 @@ compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
   depth <- ask
   st    <- get
-  let
-    argCount         = length argNames
-    (internal, code) = execRWS
-      (compileStmts body)
-      depth
-      (defaultInternal
-        { _internalVarNames = (view internalVarNames st |> (funcName, depth))
-                                |<> S.fromList (fmap (, depth + 1) argNames)
-        }
-      )
-    funcObject = ConstFunc
-      (FuncObject { _funcArity      = fromIntegral argCount
-                  , _funcBody       = code
-                  , _funcConstTable = view internalConstTable internal
-                  , _funcVarNames   = view internalVarNames internal
-                  }
-      )
+  let argCount         = length argNames
+      funcVar          = (funcName, depth)
+      argVars          = S.fromList (fmap (, depth + 1) argNames)
+      (internal, code) = execRWS
+        (compileStmts body)
+        depth
+        (defaultInternal
+          { _internalVarNames = (view internalVarNames st |> funcVar)
+                                  |<> argVars
+          }
+        )
+      funcObject = ConstFunc
+        (FuncObject { _funcArity      = fromIntegral argCount
+                    , _funcBody       = code
+                    , _funcConstTable = view internalConstTable internal
+                    , _funcVarNames   = view internalVarNames internal
+                    }
+        )
   funcObjectIndex <- addConstant funcObject
   tell [AnnInst pos (Inst.Push funcObjectIndex)]
   storeVar pos funcName

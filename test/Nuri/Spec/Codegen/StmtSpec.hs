@@ -100,7 +100,7 @@ spec = do
     it "외부 변수가 존재할 때 함수 코드 생성"
       $             (do
                       compileStmt (assign "수" (litInteger 10))
-                      compileStmt (funcDecl "더하다" ["값"] [Return (litInteger 20)])
+                      compileStmt (funcDecl "더하다" ["값"] [Return (var "값")])
                       compileStmt (ExprStmt $ funcCall "더하다" [litInteger 10])
                     )
       `shouldBuild` ( defaultI
@@ -110,8 +110,8 @@ spec = do
                           , ConstFunc
                             (FuncObject
                               { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Push 0, Inst.Return]
-                              , _funcConstTable = S.fromList [ConstInteger 20]
+                              , _funcBody       = ann [Inst.Load 2, Inst.Return]
+                              , _funcConstTable = S.empty
                               , _funcVarNames   =
                                 S.fromList [("수", 0), ("더하다", 0), ("값", 1)]
                               }
