@@ -74,58 +74,66 @@ instance Binary Instruction where
   put (Store v) = do
     put (2 :: Word8)
     put v
-  put (Load v) = do
+  put (StoreGlobal v) = do
     put (3 :: Word8)
     put v
-  put (Call v) = do
+  put (Load v) = do
     put (4 :: Word8)
     put v
-  put (JmpForward v) = do
+  put (LoadGlobal v) = do
     put (5 :: Word8)
     put v
-  put (PopJmpIfFalse v) = do
+  put (Call v) = do
     put (6 :: Word8)
     put v
-  put Return = do
+  put (JmpForward v) = do
     put (7 :: Word8)
-  put Add = do
+    put v
+  put (PopJmpIfFalse v) = do
     put (8 :: Word8)
-  put Subtract = do
+    put v
+  put Return = do
     put (9 :: Word8)
-  put Multiply = do
+  put Add = do
     put (10 :: Word8)
-  put Divide = do
+  put Subtract = do
     put (11 :: Word8)
-  put Mod = do
+  put Multiply = do
     put (12 :: Word8)
-  put Equal = do
+  put Divide = do
     put (13 :: Word8)
-  put LessThan = do
+  put Mod = do
     put (14 :: Word8)
-  put GreaterThan = do
+  put Equal = do
     put (15 :: Word8)
-  put Negate = do
+  put LessThan = do
     put (16 :: Word8)
+  put GreaterThan = do
+    put (17 :: Word8)
+  put Negate = do
+    put (18 :: Word8)
   get = do
     inst <- get :: Get Word8
     case inst of
       0  -> Push <$> get
       1  -> return Pop
       2  -> Store <$> get
-      3  -> Load <$> get
-      4  -> Call <$> get
-      5  -> JmpForward <$> get
-      6  -> PopJmpIfFalse <$> get
-      7  -> return Return
-      8  -> return Add
-      9  -> return Subtract
-      10 -> return Multiply
-      11 -> return Divide
-      12 -> return Mod
-      13 -> return Equal
-      14 -> return LessThan
-      15 -> return GreaterThan
-      16 -> return Negate
+      3  -> StoreGlobal <$> get
+      4  -> Load <$> get
+      5  -> LoadGlobal <$> get
+      6  -> Call <$> get
+      7  -> JmpForward <$> get
+      8  -> PopJmpIfFalse <$> get
+      9  -> return Return
+      10 -> return Add
+      11 -> return Subtract
+      12 -> return Multiply
+      13 -> return Divide
+      14 -> return Mod
+      15 -> return Equal
+      16 -> return LessThan
+      17 -> return GreaterThan
+      18 -> return Negate
       _  -> fail "invalid instruction opcode type"
 
 instance Binary AnnInstruction  where
