@@ -101,6 +101,7 @@ spec = do
       $             (do
                       compileStmt (assign "수" (litInteger 10))
                       compileStmt (funcDecl "더하다" ["값"] [Return (litInteger 20)])
+                      compileStmt (ExprStmt $ funcCall "더하다" [litInteger 10])
                     )
       `shouldBuild` ( defaultI
                       { _internalConstTable =
@@ -118,7 +119,15 @@ spec = do
                           ]
                       , _internalVarNames   = S.fromList [("수", 0), ("더하다", 0)]
                       }
-                    , [Inst.Push 0, Inst.Store 0, Inst.Push 1, Inst.Store 1]
+                    , [ Inst.Push 0
+                      , Inst.Store 0
+                      , Inst.Push 1
+                      , Inst.Store 1
+                      , Inst.Load 1
+                      , Inst.Push 0
+                      , Inst.Call 1
+                      , Inst.Pop
+                      ]
                     )
   describe "조건문 코드 생성" $ do
     it "else문이 없는 조건문 코드 생성" $ do
