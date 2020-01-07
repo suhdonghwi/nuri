@@ -165,4 +165,30 @@ spec = do
                         , Inst.Pop
                         ]
                       )
+    it "조건문 스코프 코드 생성" $ do
+      compileStmt
+          (ifStmt
+            (litBool True)
+            [assign "값" (litInteger 10), ExprStmt $ funcCall "던지다" [var "값"]]
+            (Just [assign "값2" (litInteger 20)])
+          )
+        `shouldBuild` ( defaultI
+                        { _internalConstTable =
+                          S.fromList
+                            [ConstBool True, ConstInteger 10, ConstInteger 20]
+                        , _internalVarNames   = S.empty
+                        }
+                      , [ Inst.Push 0
+                        , Inst.PopJmpIfFalse 7
+                        , Inst.Push 1
+                        , Inst.Store 0
+                        , Inst.LoadGlobal "던지다"
+                        , Inst.Load 0
+                        , Inst.Call 1
+                        , Inst.Pop
+                        , Inst.JmpForward 2
+                        , Inst.Push 2
+                        , Inst.Store 0
+                        ]
+                      )
 
