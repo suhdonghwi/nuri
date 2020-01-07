@@ -35,7 +35,7 @@ compileExpr (Var pos ident) = do
 compileExpr (FuncCall pos func args) = do
   compileExpr (Var pos func)
   sequence_ (compileExpr <$> args)
-  tell [AnnInst pos (Inst.Call $ (fromIntegral . length) args)]
+  tell [AnnInst pos (Inst.Call $ genericLength args)]
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs

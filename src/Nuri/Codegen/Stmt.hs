@@ -47,19 +47,18 @@ compileStmt (If pos cond thenStmts elseStmts) = do
   st' <- get
   case elseStmts of
     Just elseStmts' -> do
-      let (elseInternal, elseInsts) =
-            execRWS (compileStmts elseStmts') (depth + 1) st'
-          thenInsts' = prependInst
-            pos
-            (Inst.JmpForward (fromIntegral $ length elseInsts))
-            thenInsts
-      tell [AnnInst pos (Inst.PopJmpIfFalse (fromIntegral $ length thenInsts'))]
+      let
+        (elseInternal, elseInsts) =
+          execRWS (compileStmts elseStmts') (depth + 1) st'
+        thenInsts' =
+          prependInst pos (Inst.JmpForward $ genericLength elseInsts) thenInsts
+      tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts')]
       assign internalConstTable (view internalConstTable thenInternal)
       tell thenInsts'
       assign internalConstTable (view internalConstTable elseInternal)
       tell elseInsts
     Nothing -> do
-      tell [AnnInst pos (Inst.PopJmpIfFalse (fromIntegral $ length thenInsts))]
+      tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts)]
       put thenInternal
       tell thenInsts
 
