@@ -10,9 +10,7 @@ import           Control.Lens                             ( view
 import           Text.Megaparsec.Pos                      ( Pos )
 
 import qualified Data.Set.Ordered              as S
-import           Data.Set.Ordered                         ( (|<>)
-                                                          , (|>)
-                                                          )
+import           Data.Set.Ordered                         ( (|<>) )
 
 import           Nuri.Stmt
 import           Nuri.ASTNode
@@ -68,24 +66,23 @@ compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
   depth <- ask
   st    <- get
-  let argCount         = length argNames
-      funcVar          = (funcName, depth)
-      argVars          = S.fromList (fmap (, depth + 1) argNames)
-      (internal, code) = execRWS
-        (compileStmts body)
-        depth
-        (defaultInternal
-          { _internalVarNames = (view internalVarNames st |> funcVar)
-                                  |<> argVars
-          }
-        )
-      funcObject = ConstFunc
-        (FuncObject { _funcArity      = fromIntegral argCount
-                    , _funcBody       = code
-                    , _funcConstTable = view internalConstTable internal
-                    , _funcVarNames   = view internalVarNames internal
-                    }
-        )
+  let
+    argCount         = length argNames
+    argVars          = S.fromList (fmap (, depth + 1) argNames)
+    (internal, code) = execRWS
+      (compileStmts body)
+      depth
+      (defaultInternal
+        { _internalVarNames = view internalVarNames st |<> argVars
+        }
+      )
+    funcObject = ConstFunc
+      (FuncObject { _funcArity      = fromIntegral argCount
+                  , _funcBody       = code
+                  , _funcConstTable = view internalConstTable internal
+                  , _funcVarNames   = view internalVarNames internal
+                  }
+      )
   funcObjectIndex <- addConstant funcObject
   tell [AnnInst pos (Inst.Push funcObjectIndex)]
   storeVar pos funcName
@@ -95,7 +92,11 @@ compileStmts s = sequence_ (compileStmt <$> s)
 
 storeVar :: Pos -> String -> Builder ()
 storeVar pos ident = do
-  index <- addVarName ident
-  tell [AnnInst pos (Inst.Store index)]
+  depth <- ask
+  if depth == 0
+    then tell [AnnInst pos (Inst.StoreGlobal ident)]
+    else do
+      index <- addVarName ident
+      tell [AnnInst pos (Inst.Store index)]
 
 

@@ -49,18 +49,22 @@ spec = do
       compileStmt (assign "값" (litInteger 10))
         `shouldBuild` ( defaultI
                         { _internalConstTable = S.singleton (ConstInteger 10)
-                        , _internalVarNames   = S.singleton ("값", 0)
+                        , _internalVarNames   = S.empty
                         }
-                      , [Inst.Push 0, Inst.Store 0]
+                      , [Inst.Push 0, Inst.StoreGlobal "값"]
                       )
     it "연산식 대입 코드 생성" $ do
       compileStmt (assign "값" (binaryOp Add (litInteger 10) (litInteger 20)))
         `shouldBuild` ( defaultI
                         { _internalConstTable =
                           S.fromList [ConstInteger 10, ConstInteger 20]
-                        , _internalVarNames   = S.singleton ("값", 0)
+                        , _internalVarNames   = S.empty
                         }
-                      , [Inst.Push 0, Inst.Push 1, Inst.Add, Inst.Store 0]
+                      , [ Inst.Push 0
+                        , Inst.Push 1
+                        , Inst.Add
+                        , Inst.StoreGlobal "값"
+                        ]
                       )
   describe "함수 선언 코드 생성" $ do
     it "상수 함수 코드 생성" $ do
@@ -72,13 +76,12 @@ spec = do
                               { _funcArity      = 1
                               , _funcBody       = ann [Inst.Push 0, Inst.Return]
                               , _funcConstTable = S.singleton (ConstInteger 1)
-                              , _funcVarNames   = S.fromList
-                                                    [("더하다", 0), ("값", 1)]
+                              , _funcVarNames   = S.fromList [("값", 1)]
                               }
                             )
-                        , _internalVarNames   = S.singleton ("더하다", 0)
+                        , _internalVarNames   = S.empty
                         }
-                      , [Inst.Push 0, Inst.Store 0]
+                      , [Inst.Push 0, Inst.StoreGlobal "더하다"]
                       )
     it "항등 함수 코드 생성" $ do
       compileStmt (funcDecl "더하다" ["값"] [Return (var "값")])
@@ -87,15 +90,14 @@ spec = do
                           S.singleton $ ConstFunc
                             (FuncObject
                               { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Load 1, Inst.Return]
+                              , _funcBody       = ann [Inst.Load 0, Inst.Return]
                               , _funcConstTable = S.empty
-                              , _funcVarNames   = S.fromList
-                                                    [("더하다", 0), ("값", 1)]
+                              , _funcVarNames   = S.fromList [("값", 1)]
                               }
                             )
-                        , _internalVarNames   = S.singleton ("더하다", 0)
+                        , _internalVarNames   = S.empty
                         }
-                      , [Inst.Push 0, Inst.Store 0]
+                      , [Inst.Push 0, Inst.StoreGlobal "더하다"]
                       )
     it "외부 변수가 존재할 때 함수 코드 생성"
       $             (do
@@ -110,20 +112,19 @@ spec = do
                           , ConstFunc
                             (FuncObject
                               { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Load 2, Inst.Return]
+                              , _funcBody       = ann [Inst.Load 0, Inst.Return]
                               , _funcConstTable = S.empty
-                              , _funcVarNames   =
-                                S.fromList [("수", 0), ("더하다", 0), ("값", 1)]
+                              , _funcVarNames   = S.fromList [("값", 1)]
                               }
                             )
                           ]
-                      , _internalVarNames   = S.fromList [("수", 0), ("더하다", 0)]
+                      , _internalVarNames   = S.fromList []
                       }
                     , [ Inst.Push 0
-                      , Inst.Store 0
+                      , Inst.StoreGlobal "수"
                       , Inst.Push 1
-                      , Inst.Store 1
-                      , Inst.Load 1
+                      , Inst.StoreGlobal "더하다"
+                      , Inst.LoadGlobal "더하다"
                       , Inst.Push 0
                       , Inst.Call 1
                       , Inst.Pop
@@ -210,14 +211,14 @@ spec = do
                       { _internalConstTable =
                         S.fromList
                           [ConstInteger 0, ConstBool True, ConstInteger 10]
-                      , _internalVarNames   = S.singleton ("값", 0)
+                      , _internalVarNames   = S.empty
                       }
                     , [ Inst.Push 0
-                      , Inst.Store 0
+                      , Inst.StoreGlobal "값"
                       , Inst.Push 1
                       , Inst.PopJmpIfFalse 2
                       , Inst.Push 2
-                      , Inst.Store 1
+                      , Inst.Store 0
                       ]
                     )
 
