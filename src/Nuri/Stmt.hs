@@ -17,8 +17,6 @@ data Stmt = -- 표현식 구문 : 표현식
             | While Pos Expr Stmts
             -- 함수 선언 구문 : 코드 위치, 함수 이름, 함수 인자 이름, 함수 내부 구문 집합
             | FuncDecl Pos String [String] [Stmt]
-            -- 스코프 구문 : 구문 집합
-            | Scope Pos Stmts
           deriving (Show)
 
 type Stmts = [Stmt]
@@ -31,8 +29,7 @@ instance Eq Stmt where
   While _ e1 s1  == While _ e2 s2  = (e1 == e2) && (s1 == s2)
   FuncDecl _ f1 a1 b1 == FuncDecl _ f2 a2 b2 =
     (f1 == f2) && (a1 == a2) && (b1 == b2)
-  Scope _ s1 == Scope _ s2 = s1 == s2
-  _          == _          = False
+  _ == _ = False
 
 instance ASTNode Stmt where
   getSourceLine (ExprStmt expr     ) = getSourceLine expr
@@ -41,4 +38,3 @@ instance ASTNode Stmt where
   getSourceLine (If pos _ _ _      ) = pos
   getSourceLine (While pos _ _     ) = pos
   getSourceLine (FuncDecl pos _ _ _) = pos
-  getSourceLine (Scope pos _       ) = pos

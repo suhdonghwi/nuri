@@ -69,7 +69,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
   let
     argCount         = length argNames
     (internal, code) = execRWS
-      (compileStmt $ Scope pos body)
+      (compileStmts body)
       depth
       (defaultInternal
         { _internalVarNames =
@@ -90,8 +90,6 @@ compileStmt (FuncDecl pos funcName argNames body) = do
     [ AnnInst pos (Inst.Push funcObjectIndex)
     , AnnInst pos (Inst.Store funcNameIndex)
     ]
-compileStmt (Scope _ stmts) = local (+ 1) $ do
-  sequence_ (compileStmt <$> stmts)
 
 compileStmts :: Stmts -> Builder ()
 compileStmts s = sequence_ (compileStmt <$> s)
