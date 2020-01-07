@@ -47,7 +47,7 @@ parseInput input fileName = do
 
 compileStmts :: Stmts -> Program
 compileStmts stmts = uncurry Program
-  $ execRWS (sequence_ $ compileStmt <$> stmts) "(반응형)" defaultInternal
+  $ execRWS (sequence_ $ compileStmt <$> stmts) 0 defaultInternal
 
 printResult :: Stmts -> IO ()
 printResult stmts = do

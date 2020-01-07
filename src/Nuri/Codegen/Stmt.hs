@@ -34,18 +34,21 @@ compileStmt (Assign pos ident expr) = do
   storeVar pos ident
 compileStmt (If pos cond thenStmt elseStmt') = do
   compileExpr cond
-  st       <- get
-  fileName <- ask
+  st    <- get
+  depth <- ask
   let (thenInternal, thenInsts) =
-        execRWS (sequence_ (compileStmt <$> thenStmt)) fileName st
+        execRWS (sequence_ (compileStmt <$> thenStmt)) (depth + 1) st
   case elseStmt' of
     Just elseStmt -> do
-      let (elseInternal, elseInsts) =
-            execRWS (sequence_ (compileStmt <$> elseStmt)) fileName thenInternal
-          thenInsts' = prependInst
-            pos
-            (Inst.JmpForward (fromIntegral $ length elseInsts))
-            thenInsts
+      let
+        (elseInternal, elseInsts) = execRWS
+          (sequence_ (compileStmt <$> elseStmt))
+          (depth + 1)
+          thenInternal
+        thenInsts' = prependInst
+          pos
+          (Inst.JmpForward (fromIntegral $ length elseInsts))
+          thenInsts
       tell [AnnInst pos (Inst.PopJmpIfFalse (fromIntegral $ length thenInsts'))]
       put thenInternal
       tell thenInsts'
@@ -58,10 +61,10 @@ compileStmt (If pos cond thenStmt elseStmt') = do
 
 compileStmt While{}                               = undefined
 compileStmt (FuncDecl pos funcName argNames body) = do
-  fileName <- ask
+  depth <- ask
   let (internal, code) = execRWS
         (sequence_ (compileStmt <$> body))
-        fileName
+        (depth + 1)
         (defaultInternal { _internalVarNames = S.fromList argNames })
       funcObject = ConstFunc
         (FuncObject { _funcArity      = fromIntegral (length argNames)

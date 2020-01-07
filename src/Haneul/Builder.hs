@@ -24,7 +24,7 @@ data Program = Program { _programInternal :: BuilderInternal, _programCode :: Co
 
 $(makeLenses ''Program)
 
-type Builder = RWS String Code BuilderInternal
+type Builder = RWS Integer Code BuilderInternal
 
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal S.empty S.empty
