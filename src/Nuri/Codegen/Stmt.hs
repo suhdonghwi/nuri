@@ -72,9 +72,8 @@ compileStmt (FuncDecl pos funcName argNames body) = do
       (compileStmts body)
       depth
       (defaultInternal
-        { _internalVarNames =
-          (view internalVarNames st |> (funcName, depth))
-            |<> S.fromList (zip argNames (replicate argCount $ depth + 1))
+        { _internalVarNames = (view internalVarNames st |> (funcName, depth))
+                                |<> S.fromList (fmap (, depth + 1) argNames)
         }
       )
     funcObject = ConstFunc
@@ -85,11 +84,8 @@ compileStmt (FuncDecl pos funcName argNames body) = do
                   }
       )
   funcObjectIndex <- addConstant funcObject
-  funcNameIndex   <- addVarName funcName
-  tell
-    [ AnnInst pos (Inst.Push funcObjectIndex)
-    , AnnInst pos (Inst.Store funcNameIndex)
-    ]
+  tell [AnnInst pos (Inst.Push funcObjectIndex)]
+  storeVar pos funcName
 
 compileStmts :: Stmts -> Builder ()
 compileStmts s = sequence_ (compileStmt <$> s)
