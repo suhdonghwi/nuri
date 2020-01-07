@@ -1,6 +1,9 @@
 module Nuri.Codegen.Expr where
 
 import           Control.Monad.RWS                        ( tell )
+import           Control.Lens                             ( use )
+
+import           Data.List                                ( elemIndex )
 
 import           Nuri.Expr
 import           Nuri.Literal
@@ -25,11 +28,12 @@ compileExpr (Lit pos lit) = do
   index <- addConstant value
   tell [AnnInst pos (Inst.Push index)]
 compileExpr (Var pos ident) = do
-  index <- addVarName ident
-  tell [AnnInst pos (Inst.Load index)]
+  names <- fmap fst . toList <$> use internalVarNames
+  case elemIndex ident names of
+    Just index -> tell [AnnInst pos (Inst.Load $ fromIntegral index)]
+    Nothing    -> tell [AnnInst pos (Inst.LoadGlobal ident)]
 compileExpr (FuncCall pos func args) = do
-  funcIndex <- addVarName func
-  tell [AnnInst pos (Inst.Load funcIndex)]
+  compileExpr (Var pos func)
   sequence_ (compileExpr <$> args)
   tell [AnnInst pos (Inst.Call $ (fromIntegral . length) args)]
 compileExpr (BinaryOp pos op lhs rhs) = do

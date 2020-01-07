@@ -9,7 +9,7 @@ import           Control.Lens                             ( makeLenses
 import           Text.Megaparsec.Pos                      ( Pos )
 
 data Instruction = Push Int32 {- 상수 테이블 인덱스 -} | Pop
-                 | Store Int32 {- 변수 테이블 인덱스 -} | Load Int32 {- 변수 테이블 인덱스 -}
+                 | Store Int32 {- 변수 테이블 인덱스 -} | Load Int32 {- 변수 테이블 인덱스 -} | LoadGlobal String {- 글로벌 변수 이름 -}
                  | Call Int32 {- 인수의 개수 -}
                  | JmpForward Int32 {- 주소 오프셋 -}
                  | PopJmpIfFalse Int32 {- 주소 오프셋 -}

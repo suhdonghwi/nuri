@@ -3,7 +3,9 @@ module Nuri.Codegen.Stmt where
 import           Control.Monad.RWS                        ( tell
                                                           , execRWS
                                                           )
-import           Control.Lens                             ( view )
+import           Control.Lens                             ( view
+                                                          , assign
+                                                          )
 
 import           Text.Megaparsec.Pos                      ( Pos )
 
@@ -39,22 +41,22 @@ compileStmt (If pos cond thenStmts elseStmts) = do
   compileExpr cond
   st    <- get
   depth <- ask
-  let thenScope                 = Scope pos thenStmts
-      (thenInternal, thenInsts) = execRWS (compileStmt thenScope) depth st
+  let (thenInternal, thenInsts) =
+        execRWS (compileStmts thenStmts) (depth + 1) st
   case elseStmts of
     Just elseStmts' -> do
-      let
-        elseScope = Scope pos elseStmts'
-        (elseInternal, elseInsts) =
-          execRWS (compileStmt elseScope) depth thenInternal
-        thenInsts' = prependInst
-          pos
-          (Inst.JmpForward (fromIntegral $ length elseInsts))
-          thenInsts
+      let (elseInternal, elseInsts) = execRWS
+            (compileStmts elseStmts')
+            (depth + 1)
+            st { _internalConstTable = view internalConstTable thenInternal }
+          thenInsts' = prependInst
+            pos
+            (Inst.JmpForward (fromIntegral $ length elseInsts))
+            thenInsts
       tell [AnnInst pos (Inst.PopJmpIfFalse (fromIntegral $ length thenInsts'))]
-      put thenInternal
+      assign internalConstTable (view internalConstTable thenInternal)
       tell thenInsts'
-      put elseInternal
+      assign internalConstTable (view internalConstTable elseInternal)
       tell elseInsts
     Nothing -> do
       tell [AnnInst pos (Inst.PopJmpIfFalse (fromIntegral $ length thenInsts))]
@@ -91,6 +93,9 @@ compileStmt (FuncDecl pos funcName argNames body) = do
     ]
 compileStmt (Scope _ stmts) = local (+ 1) $ do
   sequence_ (compileStmt <$> stmts)
+
+compileStmts :: Stmts -> Builder ()
+compileStmts s = sequence_ (compileStmt <$> s)
 
 storeVar :: Pos -> String -> Builder ()
 storeVar pos ident = do

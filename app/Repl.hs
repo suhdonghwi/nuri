@@ -45,14 +45,14 @@ parseInput input fileName = do
       hoistMaybe Nothing
     Right parseResult -> return parseResult
 
-compileStmts :: Stmts -> Program
-compileStmts stmts = uncurry Program
+compileToProgram :: Stmts -> Program
+compileToProgram stmts = uncurry Program
   $ execRWS (sequence_ $ compileStmt <$> stmts) 0 defaultInternal
 
 printResult :: Stmts -> IO ()
 printResult stmts = do
   (liftIO . print . vsep . toList) (pretty <$> stmts)
-  let program          = compileStmts stmts
+  let program          = compileToProgram stmts
       compiledCode     = view programCode program
       compiledInternal = view programInternal program
 

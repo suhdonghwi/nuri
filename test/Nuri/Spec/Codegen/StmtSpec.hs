@@ -130,11 +130,11 @@ spec = do
         `shouldBuild` ( defaultI
                         { _internalConstTable =
                           S.fromList [ConstBool True, ConstInteger 10]
-                        , _internalVarNames   = S.singleton ("던지다", 1)
+                        , _internalVarNames   = S.empty
                         }
                       , [ Inst.Push 0
                         , Inst.PopJmpIfFalse 4
-                        , Inst.Load 0
+                        , Inst.LoadGlobal "던지다"
                         , Inst.Push 1
                         , Inst.Call 1
                         , Inst.Pop
@@ -150,16 +150,16 @@ spec = do
                         { _internalConstTable =
                           S.fromList
                             [ConstBool False, ConstInteger 10, ConstInteger 5]
-                        , _internalVarNames = S.fromList [("던지다", 1), ("밟다", 1)]
+                        , _internalVarNames   = S.empty
                         }
                       , [ Inst.Push 0
                         , Inst.PopJmpIfFalse 5
-                        , Inst.Load 0
+                        , Inst.LoadGlobal "던지다"
                         , Inst.Push 1
                         , Inst.Call 1
                         , Inst.Pop
                         , Inst.JmpForward 4
-                        , Inst.Load 1
+                        , Inst.LoadGlobal "밟다"
                         , Inst.Push 2
                         , Inst.Call 1
                         , Inst.Pop
