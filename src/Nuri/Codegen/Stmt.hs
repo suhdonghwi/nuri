@@ -28,7 +28,7 @@ import           Haneul.Instruction                       ( AnnInstruction
                                                           )
 
 scope :: Builder () -> Builder ()
-scope builder = do
+scope builder = local (+ 1) $ do
   st <- get
   builder
   assign internalVarNames (view internalVarNames st)
@@ -48,12 +48,12 @@ compileStmt (If pos cond thenStmts elseStmts) = do
   st    <- get
   depth <- ask
   let (thenInternal, thenInsts) =
-        execRWS (scope $ compileStmts thenStmts) (depth + 1) st
+        execRWS (scope $ compileStmts thenStmts) depth st
   put thenInternal
   case elseStmts of
     Just elseStmts' -> do
       let (elseInternal, elseInsts) =
-            execRWS (scope $ compileStmts elseStmts') (depth + 1) thenInternal
+            execRWS (scope $ compileStmts elseStmts') depth thenInternal
           thenInsts' =
             appendInst pos (Inst.JmpForward $ genericLength elseInsts) thenInsts
       tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts')]

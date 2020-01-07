@@ -200,4 +200,24 @@ spec = do
                         , Inst.Store 0
                         ]
                       )
+    it "같은 이름의 외부 변수가 존재할 때 조건문 코드 생성"
+      $             (do
+                      compileStmt (assign "값" (litInteger 0))
+                      compileStmt
+                        (ifStmt (litBool True) [assign "값" (litInteger 10)] Nothing)
+                    )
+      `shouldBuild` ( defaultI
+                      { _internalConstTable =
+                        S.fromList
+                          [ConstInteger 0, ConstBool True, ConstInteger 10]
+                      , _internalVarNames   = S.singleton ("값", 0)
+                      }
+                    , [ Inst.Push 0
+                      , Inst.Store 0
+                      , Inst.Push 1
+                      , Inst.PopJmpIfFalse 2
+                      , Inst.Push 2
+                      , Inst.Store 1
+                      ]
+                    )
 
