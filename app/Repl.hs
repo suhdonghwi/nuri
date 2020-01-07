@@ -1,5 +1,7 @@
 module Repl where
 
+import           Prelude                           hiding ( writeFile )
+
 import           System.IO                                ( hFlush )
 
 import           Data.Text                                ( strip )
@@ -60,6 +62,7 @@ printResult stmts = do
   putStrLn "---------------"
 
   let encodedProgram = encode program
+  writeFileLBS "./test.hn" encodedProgram
   putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes encodedProgram
   when ((decode encodedProgram :: Program) == program)
        (putStrLn "Program encoding is valid")

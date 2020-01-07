@@ -17,6 +17,7 @@ data Instruction = Push Int32 {- 상수 테이블 인덱스 -} | Pop
                  | Add | Subtract | Multiply | Divide | Mod
                  | Equal | LessThan | GreaterThan
                  | Negate
+                 | Label String
                  deriving (Eq, Show, Ord)
 
 data AnnInstruction = AnnInst { _lineNumber :: Pos, _instruction :: Instruction }
@@ -25,25 +26,6 @@ data AnnInstruction = AnnInst { _lineNumber :: Pos, _instruction :: Instruction 
 $(makeLenses ''AnnInstruction)
 
 type Code = [AnnInstruction]
-
-opcodeSize :: Int
-opcodeSize = 1
-
-operandSize :: Int
-operandSize = 4
-
-getInstSize :: Instruction -> Int
-getInstSize (Push          _) = opcodeSize + operandSize
-getInstSize (Store         _) = opcodeSize + operandSize
-getInstSize (Load          _) = opcodeSize + operandSize
-getInstSize (Call          _) = opcodeSize + operandSize
-getInstSize (JmpForward    _) = opcodeSize + operandSize
-getInstSize (PopJmpIfFalse _) = opcodeSize + operandSize
-getInstSize _                 = opcodeSize
-
-getCodeSize :: Code -> Int32
-getCodeSize code =
-  (fromIntegral . sum) (getInstSize . view instruction <$> code)
 
 prependInst :: Pos -> Instruction -> Code -> Code
 prependInst defaultPos inst [] = [AnnInst defaultPos inst]
