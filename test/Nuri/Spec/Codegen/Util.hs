@@ -19,5 +19,5 @@ shouldBuild actual expected = do
 defaultI :: BuilderInternal
 defaultI = defaultInternal
 
-ann :: Instruction -> AnnInstruction
-ann = AnnInst initPos
+ann :: [Instruction] -> [AnnInstruction]
+ann = fmap (AnnInst initPos)
