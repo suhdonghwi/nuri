@@ -27,6 +27,12 @@ import           Haneul.Instruction                       ( AnnInstruction
                                                           , appendInst
                                                           )
 
+scope :: Builder () -> Builder ()
+scope builder = do
+  st <- get
+  builder
+  assign internalVarNames (view internalVarNames st)
+
 compileStmt :: Stmt -> Builder ()
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
@@ -42,24 +48,20 @@ compileStmt (If pos cond thenStmts elseStmts) = do
   st    <- get
   depth <- ask
   let (thenInternal, thenInsts) =
-        execRWS (compileStmts thenStmts) (depth + 1) st
-  assign internalConstTable (view internalConstTable thenInternal)
-  st' <- get
+        execRWS (scope $ compileStmts thenStmts) (depth + 1) st
+  put thenInternal
   case elseStmts of
     Just elseStmts' -> do
-      let
-        (elseInternal, elseInsts) =
-          execRWS (compileStmts elseStmts') (depth + 1) st'
-        thenInsts' =
-          appendInst pos (Inst.JmpForward $ genericLength elseInsts) thenInsts
+      let (elseInternal, elseInsts) =
+            execRWS (scope $ compileStmts elseStmts') (depth + 1) thenInternal
+          thenInsts' =
+            appendInst pos (Inst.JmpForward $ genericLength elseInsts) thenInsts
       tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts')]
-      assign internalConstTable (view internalConstTable thenInternal)
       tell thenInsts'
-      assign internalConstTable (view internalConstTable elseInternal)
+      put elseInternal
       tell elseInsts
     Nothing -> do
       tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts)]
-      put thenInternal
       tell thenInsts
 
 compileStmt While{}                               = undefined
