@@ -17,7 +17,6 @@ data Instruction = Push Int32 {- 상수 테이블 인덱스 -} | Pop
                  | Add | Subtract | Multiply | Divide | Mod
                  | Equal | LessThan | GreaterThan
                  | Negate
-                 | Label String
                  deriving (Eq, Show, Ord)
 
 data AnnInstruction = AnnInst { _lineNumber :: Pos, _instruction :: Instruction }
