@@ -74,7 +74,8 @@ spec = do
                           S.singleton $ ConstFunc
                             (FuncObject
                               { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Push 0, Inst.Return]
+                              , _funcBody       =
+                                ann [Inst.Push 0, Inst.Return, Inst.Pop]
                               , _funcConstTable = S.singleton (ConstInteger 1)
                               , _funcVarNames   = S.fromList [("값", 1)]
                               }
@@ -90,7 +91,8 @@ spec = do
                           S.singleton $ ConstFunc
                             (FuncObject
                               { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Load 0, Inst.Return]
+                              , _funcBody       =
+                                ann [Inst.Load 0, Inst.Return, Inst.Pop]
                               , _funcConstTable = S.empty
                               , _funcVarNames   = S.fromList [("값", 1)]
                               }
@@ -112,7 +114,8 @@ spec = do
                           , ConstFunc
                             (FuncObject
                               { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Load 0, Inst.Return]
+                              , _funcBody       =
+                                ann [Inst.Load 0, Inst.Return, Inst.Pop]
                               , _funcConstTable = S.empty
                               , _funcVarNames   = S.fromList [("값", 1)]
                               }
