@@ -25,10 +25,17 @@ import           Haneul.Instruction                       ( AnnInstruction
                                                           , appendInst
                                                           )
 
-scope :: Builder () -> Builder ()
-scope builder = local (+ 1) $ do
+scope :: Pos -> Builder () -> Builder ()
+scope pos builder = do
   st <- get
-  builder
+  local (+ 1) $ do
+    builder
+    st'          <- get
+    currentDepth <- ask
+    let varCount = genericLength $ filter
+          (\(_, depth) -> depth == currentDepth)
+          (toList $ view internalVarNames st')
+    replicateM_ varCount (tell [AnnInst pos Inst.Pop])
   assign internalVarNames (view internalVarNames st)
 
 compileStmt :: Stmt -> Builder ()
@@ -46,12 +53,12 @@ compileStmt (If pos cond thenStmts elseStmts) = do
   st    <- get
   depth <- ask
   let (thenInternal, thenInsts) =
-        execRWS (scope $ compileStmts thenStmts) depth st
+        execRWS (scope pos $ compileStmts thenStmts) depth st
   put thenInternal
   case elseStmts of
     Just elseStmts' -> do
       let (elseInternal, elseInsts) =
-            execRWS (scope $ compileStmts elseStmts') depth thenInternal
+            execRWS (scope pos $ compileStmts elseStmts') depth thenInternal
           thenInsts' =
             appendInst pos (Inst.JmpForward $ genericLength elseInsts) thenInsts
       tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts')]
