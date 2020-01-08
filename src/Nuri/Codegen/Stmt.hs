@@ -84,11 +84,13 @@ compileStmt (FuncDecl pos funcName argNames body) = do
         }
       )
     funcObject = ConstFunc
-      (FuncObject { _funcArity      = fromIntegral argCount
-                  , _funcBody       = code
-                  , _funcConstTable = view internalConstTable internal
-                  , _funcVarNames   = view internalVarNames internal
-                  }
+      (FuncObject
+        { _funcArity      = fromIntegral argCount
+        , _funcBody       = code
+        , _funcConstTable = view internalConstTable internal
+        , _funcVarNames   = S.fromList $ fst <$> toList
+                              (view internalVarNames internal)
+        }
       )
   funcObjectIndex <- addConstant funcObject
   tell [AnnInst pos (Inst.Push funcObjectIndex)]

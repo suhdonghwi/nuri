@@ -16,7 +16,7 @@ data Constant = ConstInteger Integer
 data FuncObject = FuncObject { _funcArity :: Word16,
                                _funcBody :: Code,
                                _funcConstTable :: OSet Constant,
-                               _funcVarNames :: OSet (String, Int)
+                               _funcVarNames :: OSet String
                              }
   deriving (Eq, Show, Ord)
 
