@@ -77,7 +77,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
     argCount         = length argNames
     argVars          = S.fromList (fmap (, depth + 1) argNames)
     (internal, code) = execRWS
-      (scope pos $ compileStmts body)
+      (compileStmts body)
       depth
       (defaultInternal
         { _internalVarNames = view internalVarNames st |<> argVars
