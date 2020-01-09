@@ -78,14 +78,16 @@ parseFuncIdentifier = lexeme
                            (P.char ' ')
   )
  where
-  keywords = ["반환하다", "함수", "참", "거짓", "만약", "이라면", "아니고", "아니면", "반복", "인 동안"]
-  keyword = P.choice $ reserved <$> keywords
+  keywords =
+    ["반환하다", "함수", "없음", "참", "거짓", "만약", "이라면", "아니고", "아니면", "반복", "인 동안"]
+  keyword    = P.choice $ reserved <$> keywords
   hangulWord = P.some hangulSyllable
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 
 parseTerm :: Parser Expr
 parseTerm =
-  parseBoolExpr
+  parseNoneExpr
+    <|> parseBoolExpr
     <|> parseStringExpr
     <|> P.try parseRealExpr
     <|> parseIntegerExpr
@@ -111,6 +113,12 @@ parseIdentifier =
     <?> "변수 이름"
  where
   allowedChars = hangulSyllable <|> hangulJamo <|> (P.letterChar <?> "영문")
+
+parseNoneExpr :: Parser Expr
+parseNoneExpr = lexeme $ do
+  pos <- getSourceLine
+  reserved "없음"
+  return $ Lit pos LitNone
 
 parseIntegerExpr :: Parser Expr
 parseIntegerExpr = lexeme $ do

@@ -10,6 +10,7 @@ import           Nuri.Literal
 initPos :: Pos
 initPos = pos1
 
+litNone = Lit initPos LitNone
 litInteger v = Lit initPos (LitInteger v)
 litString v = Lit initPos (LitString v)
 litReal v = Lit initPos (LitReal v)

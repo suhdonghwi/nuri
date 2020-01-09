@@ -13,6 +13,10 @@ import           Nuri.Spec.Parse.Util
 
 spec :: Spec
 spec = do
+  describe "없음(None) 파싱" $ do
+    it "없음을 없음으로 파싱" $ do
+      testParse parseNoneExpr "없음" `shouldParse` litNone
+
   describe "정수 파싱" $ do
     describe "2진수 파싱" $ do
       it "0b1010을 10으로 파싱" $ do
