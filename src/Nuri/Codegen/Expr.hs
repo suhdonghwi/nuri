@@ -17,6 +17,7 @@ import           Haneul.Instruction                       ( AnnInstruction
                                                           )
 
 litToConst :: Literal -> Constant
+litToConst LitNone        = ConstNone
 litToConst (LitInteger v) = ConstInteger v
 litToConst (LitReal    v) = ConstReal v
 litToConst (LitString  v) = ConstString v

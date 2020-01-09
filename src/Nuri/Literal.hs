@@ -1,7 +1,8 @@
 module Nuri.Literal where
 
 
-data Literal = LitInteger Integer
+data Literal = LitNone
+             | LitInteger Integer
              | LitReal Double
              | LitString String
              | LitBool Bool
