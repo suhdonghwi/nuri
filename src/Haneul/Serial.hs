@@ -27,29 +27,32 @@ instance Binary BuilderInternal where
   get = liftA2 BuilderInternal (fromList <$> get) (fromList <$> get)
 
 instance Binary Constant where
-  put (ConstInteger v) = do
+  put ConstNone = do
     put (0 :: Word8)
-    put v
-  put (ConstReal v) = do
+  put (ConstInteger v) = do
     put (1 :: Word8)
     put v
-  put (ConstString v) = do
+  put (ConstReal v) = do
     put (2 :: Word8)
     put v
-  put (ConstBool v) = do
+  put (ConstString v) = do
     put (3 :: Word8)
     put v
-  put (ConstFunc v) = do
+  put (ConstBool v) = do
     put (4 :: Word8)
+    put v
+  put (ConstFunc v) = do
+    put (5 :: Word8)
     put v
   get = do
     t <- get :: Get Word8
     case t of
-      0 -> ConstInteger <$> get
-      1 -> ConstReal <$> get
-      2 -> ConstString <$> get
-      3 -> ConstBool <$> get
-      4 -> ConstFunc <$> get
+      0 -> return ConstNone
+      1 -> ConstInteger <$> get
+      2 -> ConstReal <$> get
+      3 -> ConstString <$> get
+      4 -> ConstBool <$> get
+      5 -> ConstFunc <$> get
       _ -> fail "invalid constant type"
 
 instance Binary FuncObject where

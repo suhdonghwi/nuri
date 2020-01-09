@@ -5,7 +5,8 @@ import           Data.Set.Ordered                         ( OSet )
 
 import           Haneul.Instruction                       ( Code )
 
-data Constant = ConstInteger Integer
+data Constant = ConstNone
+              | ConstInteger Integer
               | ConstReal Double
               | ConstString String
               | ConstBool Bool
