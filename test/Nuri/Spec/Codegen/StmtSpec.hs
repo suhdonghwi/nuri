@@ -22,9 +22,10 @@ spec = do
     it "일반 연산 표현식 구문" $ do
       compileStmt (ExprStmt (litInteger 10))
         `shouldBuild` ( defaultI
-                        { _internalConstTable = S.singleton (ConstInteger 10)
+                        { _internalConstTable = S.fromList
+                                                  [ConstNone, ConstInteger 10]
                         }
-                      , [Inst.Push 0, Inst.Pop]
+                      , [Inst.Push 1, Inst.Pop]
                       )
     it "1개 이상의 일반 연산 표현식 구문"
       $             (do
@@ -34,12 +35,16 @@ spec = do
       `shouldBuild` ( defaultI
                       { _internalConstTable =
                         S.fromList
-                          [ConstInteger 10, ConstInteger 20, ConstInteger 30]
+                          [ ConstNone
+                          , ConstInteger 10
+                          , ConstInteger 20
+                          , ConstInteger 30
+                          ]
                       }
-                    , [ Inst.Push 0
+                    , [ Inst.Push 1
                       , Inst.Pop
-                      , Inst.Push 1
                       , Inst.Push 2
+                      , Inst.Push 3
                       , Inst.Add
                       , Inst.Pop
                       ]
@@ -48,20 +53,22 @@ spec = do
     it "정수 대입 코드 생성" $ do
       compileStmt (assign "값" (litInteger 10))
         `shouldBuild` ( defaultI
-                        { _internalConstTable = S.singleton (ConstInteger 10)
+                        { _internalConstTable = S.fromList
+                                                  [ConstNone, ConstInteger 10]
                         , _internalVarNames   = S.empty
                         }
-                      , [Inst.Push 0, Inst.StoreGlobal "값"]
+                      , [Inst.Push 1, Inst.StoreGlobal "값"]
                       )
     it "연산식 대입 코드 생성" $ do
       compileStmt (assign "값" (binaryOp Add (litInteger 10) (litInteger 20)))
         `shouldBuild` ( defaultI
                         { _internalConstTable =
-                          S.fromList [ConstInteger 10, ConstInteger 20]
+                          S.fromList
+                            [ConstNone, ConstInteger 10, ConstInteger 20]
                         , _internalVarNames   = S.empty
                         }
-                      , [ Inst.Push 0
-                        , Inst.Push 1
+                      , [ Inst.Push 1
+                        , Inst.Push 2
                         , Inst.Add
                         , Inst.StoreGlobal "값"
                         ]
@@ -71,33 +78,40 @@ spec = do
       compileStmt (funcDecl "더하다" ["값"] [Return (litInteger 1)])
         `shouldBuild` ( defaultI
                         { _internalConstTable =
-                          S.singleton $ ConstFunc
-                            (FuncObject
-                              { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Push 0, Inst.Return]
-                              , _funcConstTable = S.singleton (ConstInteger 1)
-                              , _funcVarNames   = S.fromList ["값"]
-                              }
-                            )
+                          S.fromList
+                            [ ConstNone
+                            , ConstFunc
+                              (FuncObject
+                                { _funcArity      = 1
+                                , _funcBody = ann [Inst.Push 1, Inst.Return]
+                                , _funcConstTable =
+                                  S.fromList [ConstNone, ConstInteger 1]
+                                , _funcVarNames   = S.fromList ["값"]
+                                }
+                              )
+                            ]
                         , _internalVarNames   = S.empty
                         }
-                      , [Inst.Push 0, Inst.StoreGlobal "더하다"]
+                      , [Inst.Push 1, Inst.StoreGlobal "더하다"]
                       )
     it "항등 함수 코드 생성" $ do
       compileStmt (funcDecl "더하다" ["값"] [Return (var "값")])
         `shouldBuild` ( defaultI
                         { _internalConstTable =
-                          S.singleton $ ConstFunc
-                            (FuncObject
-                              { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Load 0, Inst.Return]
-                              , _funcConstTable = S.empty
-                              , _funcVarNames   = S.fromList ["값"]
-                              }
-                            )
+                          S.fromList
+                            [ ConstNone
+                            , ConstFunc
+                              (FuncObject
+                                { _funcArity      = 1
+                                , _funcBody = ann [Inst.Load 0, Inst.Return]
+                                , _funcConstTable = S.singleton ConstNone
+                                , _funcVarNames   = S.fromList ["값"]
+                                }
+                              )
+                            ]
                         , _internalVarNames   = S.empty
                         }
-                      , [Inst.Push 0, Inst.StoreGlobal "더하다"]
+                      , [Inst.Push 1, Inst.StoreGlobal "더하다"]
                       )
     it "외부 변수가 존재할 때 함수 코드 생성"
       $             (do
@@ -108,24 +122,25 @@ spec = do
       `shouldBuild` ( defaultI
                       { _internalConstTable =
                         S.fromList
-                          [ ConstInteger 10
+                          [ ConstNone
+                          , ConstInteger 10
                           , ConstFunc
                             (FuncObject
                               { _funcArity      = 1
                               , _funcBody       = ann [Inst.Load 0, Inst.Return]
-                              , _funcConstTable = S.empty
+                              , _funcConstTable = S.singleton ConstNone
                               , _funcVarNames   = S.fromList ["값"]
                               }
                             )
                           ]
                       , _internalVarNames   = S.fromList []
                       }
-                    , [ Inst.Push 0
+                    , [ Inst.Push 1
                       , Inst.StoreGlobal "수"
-                      , Inst.Push 1
+                      , Inst.Push 2
                       , Inst.StoreGlobal "더하다"
                       , Inst.LoadGlobal "더하다"
-                      , Inst.Push 0
+                      , Inst.Push 1
                       , Inst.Call 1
                       , Inst.Pop
                       ]
@@ -139,13 +154,14 @@ spec = do
           )
         `shouldBuild` ( defaultI
                         { _internalConstTable =
-                          S.fromList [ConstBool True, ConstInteger 10]
+                          S.fromList
+                            [ConstNone, ConstBool True, ConstInteger 10]
                         , _internalVarNames   = S.empty
                         }
-                      , [ Inst.Push 0
+                      , [ Inst.Push 1
                         , Inst.PopJmpIfFalse 4
                         , Inst.LoadGlobal "던지다"
-                        , Inst.Push 1
+                        , Inst.Push 2
                         , Inst.Call 1
                         , Inst.Pop
                         ]
@@ -159,18 +175,22 @@ spec = do
         `shouldBuild` ( defaultI
                         { _internalConstTable =
                           S.fromList
-                            [ConstBool False, ConstInteger 10, ConstInteger 5]
+                            [ ConstNone
+                            , ConstBool False
+                            , ConstInteger 10
+                            , ConstInteger 5
+                            ]
                         , _internalVarNames   = S.empty
                         }
-                      , [ Inst.Push 0
+                      , [ Inst.Push 1
                         , Inst.PopJmpIfFalse 5
                         , Inst.LoadGlobal "던지다"
-                        , Inst.Push 1
+                        , Inst.Push 2
                         , Inst.Call 1
                         , Inst.Pop
                         , Inst.JmpForward 4
                         , Inst.LoadGlobal "밟다"
-                        , Inst.Push 2
+                        , Inst.Push 3
                         , Inst.Call 1
                         , Inst.Pop
                         ]
@@ -185,12 +205,16 @@ spec = do
         `shouldBuild` ( defaultI
                         { _internalConstTable =
                           S.fromList
-                            [ConstBool True, ConstInteger 10, ConstInteger 20]
+                            [ ConstNone
+                            , ConstBool True
+                            , ConstInteger 10
+                            , ConstInteger 20
+                            ]
                         , _internalVarNames   = S.empty
                         }
-                      , [ Inst.Push 0
+                      , [ Inst.Push 1
                         , Inst.PopJmpIfFalse 8
-                        , Inst.Push 1
+                        , Inst.Push 2
                         , Inst.Store 0
                         , Inst.LoadGlobal "던지다"
                         , Inst.Load 0
@@ -198,7 +222,7 @@ spec = do
                         , Inst.Pop
                         , Inst.Pop
                         , Inst.JmpForward 3
-                        , Inst.Push 2
+                        , Inst.Push 3
                         , Inst.Store 0
                         , Inst.Pop
                         ]
@@ -212,14 +236,18 @@ spec = do
       `shouldBuild` ( defaultI
                       { _internalConstTable =
                         S.fromList
-                          [ConstInteger 0, ConstBool True, ConstInteger 10]
+                          [ ConstNone
+                          , ConstInteger 0
+                          , ConstBool True
+                          , ConstInteger 10
+                          ]
                       , _internalVarNames   = S.empty
                       }
-                    , [ Inst.Push 0
+                    , [ Inst.Push 1
                       , Inst.StoreGlobal "값"
-                      , Inst.Push 1
-                      , Inst.PopJmpIfFalse 3
                       , Inst.Push 2
+                      , Inst.PopJmpIfFalse 3
+                      , Inst.Push 3
                       , Inst.Store 0
                       , Inst.Pop
                       ]

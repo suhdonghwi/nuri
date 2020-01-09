@@ -27,7 +27,7 @@ $(makeLenses ''Program)
 type Builder = RWS Int Code BuilderInternal
 
 defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal S.empty S.empty
+defaultInternal = BuilderInternal (S.singleton ConstNone) S.empty
 
 addVarName :: String -> Builder Int32
 addVarName ident = do
