@@ -55,14 +55,14 @@ instance Binary Constant where
 instance Binary FuncObject where
   put obj = do
     put (view funcArity obj)
-    put (view funcBody obj)
     put (toList $ view funcConstTable obj)
     put (toList $ view funcVarNames obj)
+    put (view funcBody obj)
   get = do
     arity'      <- get
-    insts'      <- get
     constTable' <- fromList <$> get
     varNames'   <- fromList <$> get
+    insts'      <- get
     return (FuncObject arity' insts' constTable' varNames')
 
 instance Binary Instruction where
