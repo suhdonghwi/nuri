@@ -19,7 +19,7 @@ import           Haneul.Instruction                       ( AnnInstruction
 litToConst :: Literal -> Constant
 litToConst (LitInteger v) = ConstInteger v
 litToConst (LitReal    v) = ConstReal v
-litToConst (LitChar    v) = ConstChar v
+litToConst (LitString  v) = ConstString v
 litToConst (LitBool    v) = ConstBool v
 
 compileExpr :: Expr -> Builder ()

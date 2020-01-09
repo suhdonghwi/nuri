@@ -27,23 +27,23 @@ spec = do
     it "리터럴 여러개 코드 생성"
       $             (do
                       compileExpr (litInteger 10)
-                      compileExpr (litChar 'a')
+                      compileExpr (litString "a")
                     )
       `shouldBuild` ( defaultI
-                      { _internalConstTable = S.fromList
-                                                [ConstInteger 10, ConstChar 'a']
+                      { _internalConstTable =
+                        S.fromList [ConstInteger 10, ConstString "a"]
                       }
                     , [Inst.Push 0, Inst.Push 1]
                     )
     it "리터럴 여러개 코드 생성 (중복 포함)"
       $             (do
                       compileExpr (litInteger 10)
-                      compileExpr (litChar 'a')
+                      compileExpr (litString "a")
                       compileExpr (litInteger 10)
                     )
       `shouldBuild` ( defaultI
-                      { _internalConstTable = S.fromList
-                                                [ConstInteger 10, ConstChar 'a']
+                      { _internalConstTable =
+                        S.fromList [ConstInteger 10, ConstString "a"]
                       }
                     , [Inst.Push 0, Inst.Push 1, Inst.Push 0]
                     )

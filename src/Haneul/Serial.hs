@@ -33,7 +33,7 @@ instance Binary Constant where
   put (ConstReal v) = do
     put (1 :: Word8)
     put v
-  put (ConstChar v) = do
+  put (ConstString v) = do
     put (2 :: Word8)
     put v
   put (ConstBool v) = do
@@ -47,7 +47,7 @@ instance Binary Constant where
     case t of
       0 -> ConstInteger <$> get
       1 -> ConstReal <$> get
-      2 -> ConstChar <$> get
+      2 -> ConstString <$> get
       3 -> ConstBool <$> get
       4 -> ConstFunc <$> get
       _ -> fail "invalid constant type"

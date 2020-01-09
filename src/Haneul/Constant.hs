@@ -7,7 +7,7 @@ import           Haneul.Instruction                       ( Code )
 
 data Constant = ConstInteger Integer
               | ConstReal Double
-              | ConstChar Char
+              | ConstString String
               | ConstBool Bool
               | ConstFunc FuncObject
   deriving (Eq, Show, Ord)

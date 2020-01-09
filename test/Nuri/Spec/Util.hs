@@ -11,7 +11,7 @@ initPos :: Pos
 initPos = pos1
 
 litInteger v = Lit initPos (LitInteger v)
-litChar v = Lit initPos (LitChar v)
+litString v = Lit initPos (LitString v)
 litReal v = Lit initPos (LitReal v)
 litBool v = Lit initPos (LitBool v)
 binaryOp = BinaryOp initPos
