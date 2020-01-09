@@ -22,7 +22,7 @@ import qualified Haneul.Instruction            as Inst
 import           Haneul.Instruction                       ( AnnInstruction
                                                             ( AnnInst
                                                             )
-                                                          , appendInst
+                                                          , appendInsts
                                                           )
 
 scope :: Pos -> Builder () -> Builder ()
@@ -59,8 +59,10 @@ compileStmt (If pos cond thenStmts elseStmts) = do
     Just elseStmts' -> do
       let (elseInternal, elseInsts) =
             execRWS (scope pos $ compileStmts elseStmts') depth thenInternal
-          thenInsts' =
-            appendInst pos (Inst.JmpForward $ genericLength elseInsts) thenInsts
+          thenInsts' = appendInsts
+            pos
+            [Inst.JmpForward $ genericLength elseInsts]
+            thenInsts
       tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts')]
       tell thenInsts'
       put elseInternal
@@ -86,7 +88,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
     funcObject = ConstFunc
       (FuncObject
         { _funcArity      = fromIntegral argCount
-        , _funcBody       = code
+        , _funcBody       = appendInsts pos [Inst.Push 0, Inst.Return] code
         , _funcConstTable = view internalConstTable internal
         , _funcVarNames   = S.fromList $ fst <$> toList
                               (view internalVarNames internal)

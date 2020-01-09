@@ -83,7 +83,13 @@ spec = do
                             , ConstFunc
                               (FuncObject
                                 { _funcArity      = 1
-                                , _funcBody = ann [Inst.Push 1, Inst.Return]
+                                , _funcBody       =
+                                  ann
+                                    [ Inst.Push 1
+                                    , Inst.Return
+                                    , Inst.Push 0
+                                    , Inst.Return
+                                    ]
                                 , _funcConstTable =
                                   S.fromList [ConstNone, ConstInteger 1]
                                 , _funcVarNames   = S.fromList ["값"]
@@ -103,7 +109,13 @@ spec = do
                             , ConstFunc
                               (FuncObject
                                 { _funcArity      = 1
-                                , _funcBody = ann [Inst.Load 0, Inst.Return]
+                                , _funcBody       =
+                                  ann
+                                    [ Inst.Load 0
+                                    , Inst.Return
+                                    , Inst.Push 0
+                                    , Inst.Return
+                                    ]
                                 , _funcConstTable = S.singleton ConstNone
                                 , _funcVarNames   = S.fromList ["값"]
                                 }
@@ -127,7 +139,13 @@ spec = do
                           , ConstFunc
                             (FuncObject
                               { _funcArity      = 1
-                              , _funcBody       = ann [Inst.Load 0, Inst.Return]
+                              , _funcBody       =
+                                ann
+                                  [ Inst.Load 0
+                                  , Inst.Return
+                                  , Inst.Push 0
+                                  , Inst.Return
+                                  ]
                               , _funcConstTable = S.singleton ConstNone
                               , _funcVarNames   = S.fromList ["값"]
                               }
