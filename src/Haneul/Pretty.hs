@@ -28,7 +28,6 @@ instance Pretty Constant where
     [ "ConstFunc"
     , "[arity]" <+> pretty (view funcArity obj)
     , "[const table]" <+> pretty (view funcConstTable obj)
-    , "[var names]" <+> pretty (view funcVarNames obj)
     , "[body]" <+> (align . vsep) (pretty <$> view funcBody obj)
     ]
   pretty v = show v

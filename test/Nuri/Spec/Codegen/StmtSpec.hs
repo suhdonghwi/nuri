@@ -92,7 +92,6 @@ spec = do
                                     ]
                                 , _funcConstTable =
                                   S.fromList [ConstNone, ConstInteger 1]
-                                , _funcVarNames   = S.fromList ["값"]
                                 }
                               )
                             ]
@@ -117,7 +116,6 @@ spec = do
                                     , Inst.Return
                                     ]
                                 , _funcConstTable = S.singleton ConstNone
-                                , _funcVarNames   = S.fromList ["값"]
                                 }
                               )
                             ]
@@ -147,7 +145,6 @@ spec = do
                                   , Inst.Return
                                   ]
                               , _funcConstTable = S.singleton ConstNone
-                              , _funcVarNames   = S.fromList ["값"]
                               }
                             )
                           ]

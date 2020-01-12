@@ -59,14 +59,12 @@ instance Binary FuncObject where
   put obj = do
     put (view funcArity obj)
     put (toList $ view funcConstTable obj)
-    put (toList $ view funcVarNames obj)
     put (view funcBody obj)
   get = do
     arity'      <- get
     constTable' <- fromList <$> get
-    varNames'   <- fromList <$> get
     insts'      <- get
-    return (FuncObject arity' insts' constTable' varNames')
+    return (FuncObject arity' insts' constTable')
 
 instance Binary Instruction where
   put (Push v) = do
