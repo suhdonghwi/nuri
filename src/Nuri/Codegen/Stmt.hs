@@ -52,13 +52,12 @@ compileStmt (If pos cond thenStmts elseStmts) = do
   compileExpr cond
   st    <- get
   depth <- ask
-  let (thenInternal, thenInsts) =
-        execRWS (scope pos $ compileStmts thenStmts) depth st
+  let (thenInternal, thenInsts) = execRWS (compileStmts thenStmts) depth st
   put thenInternal
   case elseStmts of
     Just elseStmts' -> do
       let (elseInternal, elseInsts) =
-            execRWS (scope pos $ compileStmts elseStmts') depth thenInternal
+            execRWS (compileStmts elseStmts') depth thenInternal
           thenInsts' = appendInsts
             pos
             [Inst.JmpForward $ genericLength elseInsts]

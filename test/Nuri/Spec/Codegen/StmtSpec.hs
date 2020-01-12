@@ -228,18 +228,16 @@ spec = do
                         , _internalVarNames   = S.empty
                         }
                       , [ Inst.Push 1
-                        , Inst.PopJmpIfFalse 8
+                        , Inst.PopJmpIfFalse 7
                         , Inst.Push 2
-                        , Inst.Store 0
+                        , Inst.StoreGlobal "값"
                         , Inst.LoadGlobal "던지다"
-                        , Inst.Load 0
+                        , Inst.LoadGlobal "값"
                         , Inst.Call 1
                         , Inst.Pop
-                        , Inst.Pop
-                        , Inst.JmpForward 3
+                        , Inst.JmpForward 2
                         , Inst.Push 3
-                        , Inst.Store 0
-                        , Inst.Pop
+                        , Inst.StoreGlobal "값2"
                         ]
                       )
     it "같은 이름의 외부 변수가 존재할 때 조건문 코드 생성"
@@ -261,10 +259,9 @@ spec = do
                     , [ Inst.Push 1
                       , Inst.StoreGlobal "값"
                       , Inst.Push 2
-                      , Inst.PopJmpIfFalse 3
+                      , Inst.PopJmpIfFalse 2
                       , Inst.Push 3
-                      , Inst.Store 0
-                      , Inst.Pop
+                      , Inst.StoreGlobal "값"
                       ]
                     )
 
