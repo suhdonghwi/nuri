@@ -127,7 +127,7 @@ instance Binary Instruction where
       5  -> LoadGlobal <$> get
       6  -> Call <$> get
       7  -> JmpForward <$> get
-      8  -> JmpForward <$> get
+      8  -> JmpBackward <$> get
       9  -> PopJmpIfFalse <$> get
       10 -> return Return
       11 -> return Add
