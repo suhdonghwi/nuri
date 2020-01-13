@@ -10,6 +10,7 @@ import           Data.Binary                              ( Binary(put, get)
                                                           , Get
                                                           )
 import           Data.Set.Ordered                         ( fromList )
+import qualified Data.Set.Ordered              as S
 import           Control.Lens                             ( view )
 
 import           Text.Megaparsec.Pos                      ( unPos
@@ -23,8 +24,7 @@ import           Haneul.Instruction
 instance Binary BuilderInternal where
   put v = do
     put (toList $ view internalConstTable v)
-    put (toList $ view internalVarNames v)
-  get = liftA2 BuilderInternal (fromList <$> get) (fromList <$> get)
+  get = liftA2 BuilderInternal (fromList <$> get) (pure S.empty)
 
 instance Binary Constant where
   put ConstNone = do
