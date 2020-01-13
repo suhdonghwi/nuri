@@ -90,29 +90,32 @@ instance Binary Instruction where
   put (JmpForward v) = do
     put (7 :: Word8)
     put v
-  put (PopJmpIfFalse v) = do
+  put (JmpBackward v) = do
     put (8 :: Word8)
     put v
-  put Return = do
+  put (PopJmpIfFalse v) = do
     put (9 :: Word8)
-  put Add = do
+    put v
+  put Return = do
     put (10 :: Word8)
-  put Subtract = do
+  put Add = do
     put (11 :: Word8)
-  put Multiply = do
+  put Subtract = do
     put (12 :: Word8)
-  put Divide = do
+  put Multiply = do
     put (13 :: Word8)
-  put Mod = do
+  put Divide = do
     put (14 :: Word8)
-  put Equal = do
+  put Mod = do
     put (15 :: Word8)
-  put LessThan = do
+  put Equal = do
     put (16 :: Word8)
-  put GreaterThan = do
+  put LessThan = do
     put (17 :: Word8)
-  put Negate = do
+  put GreaterThan = do
     put (18 :: Word8)
+  put Negate = do
+    put (19 :: Word8)
   get = do
     inst <- get :: Get Word8
     case inst of
@@ -124,17 +127,18 @@ instance Binary Instruction where
       5  -> LoadGlobal <$> get
       6  -> Call <$> get
       7  -> JmpForward <$> get
-      8  -> PopJmpIfFalse <$> get
-      9  -> return Return
-      10 -> return Add
-      11 -> return Subtract
-      12 -> return Multiply
-      13 -> return Divide
-      14 -> return Mod
-      15 -> return Equal
-      16 -> return LessThan
-      17 -> return GreaterThan
-      18 -> return Negate
+      8  -> JmpForward <$> get
+      9  -> PopJmpIfFalse <$> get
+      10 -> return Return
+      11 -> return Add
+      12 -> return Subtract
+      13 -> return Multiply
+      14 -> return Divide
+      15 -> return Mod
+      16 -> return Equal
+      17 -> return LessThan
+      18 -> return GreaterThan
+      19 -> return Negate
       _  -> fail "invalid instruction opcode type"
 
 instance Binary AnnInstruction  where

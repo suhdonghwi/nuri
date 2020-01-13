@@ -70,7 +70,26 @@ compileStmt (If pos cond thenStmts elseStmts) = do
       tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts)]
       tell thenInsts
 
-compileStmt While{}                               = undefined
+compileStmt (While pos cond body) = do
+  st    <- get
+  depth <- ask
+  let (condInternal, condInsts) = execRWS (compileExpr cond) depth st
+  put condInternal
+  tell condInsts
+  let (bodyInternal, bodyInsts) =
+        execRWS (compileStmts body) depth condInternal
+      bodyInsts' = appendInsts
+        pos
+        [ Inst.JmpBackward
+          $ genericLength condInsts
+          + genericLength bodyInsts
+          + 1
+        ]
+        bodyInsts
+  tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength bodyInsts')]
+  put bodyInternal
+  tell bodyInsts'
+  pass
 compileStmt (FuncDecl pos funcName argNames body) = do
   depth <- ask
   st    <- get

@@ -264,4 +264,60 @@ spec = do
                       , Inst.StoreGlobal "값"
                       ]
                     )
+  describe "반복문 코드 생성" $ do
+    it "무한 반복문 코드 생성" $ do
+      compileStmt
+          (while (litBool True) [ExprStmt $ funcCall "보여주다" [litString "안녕하세요"]]
+          )
+        `shouldBuild` ( defaultI
+                        { _internalConstTable =
+                          S.fromList
+                            [ConstNone, ConstBool True, ConstString "안녕하세요"]
+                        }
+                      , [ Inst.Push 1
+                        , Inst.PopJmpIfFalse 5
+                        , Inst.LoadGlobal "보여주다"
+                        , Inst.Push 2
+                        , Inst.Call 1
+                        , Inst.Pop
+                        , Inst.JmpBackward 6
+                        ]
+                      )
+    it "증감하는 반복문 코드 생성"
+      $             (do
+                      compileStmt (assign "값" (litInteger 0))
+                      compileStmt
+                        (while
+                          (binaryOp LessThan (var "값") (litInteger 10))
+                          [ ExprStmt $ funcCall "보여주다" [var "값"]
+                          , assign "값" (binaryOp Add (var "값") (litInteger 1))
+                          ]
+                        )
+                    )
+      `shouldBuild` ( defaultI
+                      { _internalConstTable =
+                        S.fromList
+                          [ ConstNone
+                          , ConstInteger 0
+                          , ConstInteger 10
+                          , ConstInteger 1
+                          ]
+                      }
+                    , [ Inst.Push 1
+                      , Inst.StoreGlobal "값"
+                      , Inst.LoadGlobal "값"
+                      , Inst.Push 2
+                      , Inst.LessThan
+                      , Inst.PopJmpIfFalse 9
+                      , Inst.LoadGlobal "보여주다"
+                      , Inst.LoadGlobal "값"
+                      , Inst.Call 1
+                      , Inst.Pop
+                      , Inst.LoadGlobal "값"
+                      , Inst.Push 3
+                      , Inst.Add
+                      , Inst.StoreGlobal "값"
+                      , Inst.JmpBackward 12
+                      ]
+                    )
 
