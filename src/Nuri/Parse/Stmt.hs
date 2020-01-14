@@ -19,7 +19,8 @@ parseStmt =
   parseIfStmt
     <|> parseWhileStmt
     <|> P.try parseReturnStmt
-    <|> parseAssignment
+    <|> P.try parseAssignment
+    <|> P.try parseComplexAssignment
     <|> parseFuncDecl
     <|> parseExprStmt
 
@@ -32,8 +33,28 @@ parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
 parseAssignment :: Parser Stmt
 parseAssignment = do
   pos         <- getSourceLine
-  Var _ ident <- P.try $ parseIdentifierExpr <* symbol "="
+  Var _ ident <- parseIdentifierExpr <* symbol "="
   Assign pos ident <$> parseExpr
+
+parseComplexAssignment :: Parser Stmt
+parseComplexAssignment = do
+  pos         <- getSourceLine
+  Var _ ident <- parseIdentifierExpr
+  op          <- P.choice
+    [ Add <$ symbol "+="
+    , Subtract <$ symbol "-="
+    , Multiply <$ symbol "*="
+    , Divide <$ symbol "/="
+    , Mod <$ symbol "%="
+    ]
+  Assign pos ident . BinaryOp pos op (Var pos ident) <$> parseExpr
+
+
+parseMinusAssignment :: Parser Stmt
+parseMinusAssignment = do
+  pos         <- getSourceLine
+  Var _ ident <- P.try $ parseIdentifierExpr <* symbol "-="
+  Assign pos ident . BinaryOp pos Subtract (Var pos ident) <$> parseExpr
 
 parseIfStmt :: Parser Stmt
 parseIfStmt = do
