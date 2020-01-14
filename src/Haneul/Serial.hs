@@ -121,6 +121,9 @@ instance Binary Instruction where
     put (18 :: Word8)
   put Negate = do
     put (19 :: Word8)
+  put (BuildList v) = do
+    put (20 :: Word8)
+    put v
   get = do
     inst <- get :: Get Word8
     case inst of
@@ -144,6 +147,7 @@ instance Binary Instruction where
       17 -> return LessThan
       18 -> return GreaterThan
       19 -> return Negate
+      20 -> BuildList <$> get
       _  -> fail "invalid instruction opcode type"
 
 instance Binary AnnInstruction  where

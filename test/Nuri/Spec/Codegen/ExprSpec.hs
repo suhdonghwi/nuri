@@ -120,7 +120,6 @@ spec = do
                         { _internalConstTable =
                           S.fromList
                             [ConstNone, ConstInteger 10, ConstInteger 0]
-                        , _internalVarNames   = S.empty
                         }
                       , [ Inst.LoadGlobal "던지다"
                         , Inst.Push 1
@@ -133,5 +132,44 @@ spec = do
       compileExpr (funcCall "던지다" [])
         `shouldBuild` ( defaultI { _internalVarNames = S.empty }
                       , [Inst.LoadGlobal "던지다", Inst.Call 0]
+                      )
+  describe "목록 표현식 코드 생성" $ do
+    it "원소가 정수 하나인 목록 코드 생성" $ do
+      compileExpr (list [litInteger 10])
+        `shouldBuild` ( defaultI
+                        { _internalConstTable = S.fromList
+                                                  [ConstNone, ConstInteger 10]
+                        }
+                      , [Inst.Push 1, Inst.BuildList 1]
+                      )
+    it "원소가 정수 두 개인 목록 코드 생성" $ do
+      compileExpr (list [litInteger 10, litInteger 20])
+        `shouldBuild` ( defaultI
+                        { _internalConstTable =
+                          S.fromList
+                            [ConstNone, ConstInteger 10, ConstInteger 20]
+                        }
+                      , [Inst.Push 1, Inst.Push 2, Inst.BuildList 2]
+                      )
+    it "표현식이 포함된 목록 코드 생성" $ do
+      compileExpr
+          (list [binaryOp Add (litInteger 10) (litInteger 20), litInteger 20])
+        `shouldBuild` ( defaultI
+                        { _internalConstTable =
+                          S.fromList
+                            [ConstNone, ConstInteger 10, ConstInteger 20]
+                        }
+                      , [ Inst.Push 1
+                        , Inst.Push 2
+                        , Inst.Add
+                        , Inst.Push 2
+                        , Inst.BuildList 2
+                        ]
+                      )
+    it "비어있는 목록 코드 생성" $ do
+      compileExpr (list [])
+        `shouldBuild` ( defaultI { _internalConstTable = S.fromList [ConstNone]
+                                 }
+                      , [Inst.BuildList 0]
                       )
 
