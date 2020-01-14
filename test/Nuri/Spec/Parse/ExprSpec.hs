@@ -218,6 +218,20 @@ spec = do
                         , litInteger 3
                         ]
 
+  describe "목록 표현식 파싱" $ do
+    it "원소가 정수 하나인 목록식" $ do
+      testParse parseList "{1}" `shouldParse` list [litInteger 1]
+    it "원소가 정수 두 개인 목록식" $ do
+      testParse parseList "{1, 2}"
+        `shouldParse` list [litInteger 1, litInteger 2]
+    it "계산식이 포함된 목록식" $ do
+      testParse parseList "{1+2, 2 2 더하다}" `shouldParse` list
+        [ binaryOp Add (litInteger 1) (litInteger 2)
+        , funcCall "더하다" [litInteger 2, litInteger 2]
+        ]
+    it "비어있는 목록식" $ do
+      testParse parseList "{}" `shouldParse` list []
+
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
       testParse parseExpr "(1 + 1) / 2" `shouldParse` binaryOp

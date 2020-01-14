@@ -24,3 +24,4 @@ assign = Assign initPos
 ifStmt = If initPos
 while = While initPos
 funcDecl = FuncDecl initPos
+list = List initPos
