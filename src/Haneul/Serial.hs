@@ -34,7 +34,9 @@ instance Binary Constant where
     put v
   put (ConstReal v) = do
     put (2 :: Word8)
-    put v
+    let (base, e) = decodeFloat v
+    put (fromIntegral base :: Int64)
+    put e
   put (ConstString v) = do
     put (3 :: Word8)
     put v
@@ -49,7 +51,10 @@ instance Binary Constant where
     case t of
       0 -> return ConstNone
       1 -> ConstInteger <$> get
-      2 -> ConstReal <$> get
+      2 -> do
+        base <- get :: Get Int64
+        e    <- get :: Get Int
+        return $ ConstReal (encodeFloat (fromIntegral base) e)
       3 -> ConstString <$> get
       4 -> ConstBool <$> get
       5 -> ConstFunc <$> get

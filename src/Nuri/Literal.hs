@@ -2,7 +2,7 @@ module Nuri.Literal where
 
 
 data Literal = LitNone
-             | LitInteger Integer
+             | LitInteger Int64
              | LitReal Double
              | LitString String
              | LitBool Bool

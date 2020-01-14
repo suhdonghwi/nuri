@@ -138,16 +138,16 @@ parseStringExpr = Lit <$> getSourceLine <*> (LitString <$> parseString)
 parseBoolExpr :: Parser Expr
 parseBoolExpr = Lit <$> getSourceLine <*> (LitBool <$> parseBool)
 
-parseBinary :: Parser Integer
+parseBinary :: Parser Int64
 parseBinary = P.char' 'b' >> (L.binary <?> "2진수")
 
-parseOctal :: Parser Integer
+parseOctal :: Parser Int64
 parseOctal = L.octal <?> "8진수"
 
-parseDecimal :: Parser Integer
+parseDecimal :: Parser Int64
 parseDecimal = L.decimal <?> "정수"
 
-parseHexadecimal :: Parser Integer
+parseHexadecimal :: Parser Int64
 parseHexadecimal = P.char' 'x' >> (L.hexadecimal <?> "16진수")
 
 parseReal :: Parser Double
