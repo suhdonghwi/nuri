@@ -21,6 +21,7 @@ instance Pretty Literal where
   pretty (LitReal    v) = "LitReal" <> parens (pretty v)
   pretty (LitString  v) = "LitString" <> parens (pretty v)
   pretty (LitBool    v) = "LitBool" <> parens (pretty v)
+  pretty LitNone        = "LitNone"
 
 instance Pretty BinaryOperator where
   pretty Add              = "(+)"
