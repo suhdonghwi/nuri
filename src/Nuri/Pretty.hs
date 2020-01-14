@@ -45,11 +45,8 @@ nest' = nest 4
 instance Pretty Expr where
   pretty (Lit _ l             ) = pretty l
   pretty (Var _ ident         ) = "Var" <+> parens ((dquotes . pretty) ident)
-  pretty (FuncCall _ func args) = nest' $ vsep
-    [ "App"
-    , "[func]" <+> pretty func
-    , "[args]" <+> align (vsep (pretty <$> args))
-    ]
+  pretty (FuncCall _ func args) = nest'
+    $ vsep ["App", "[func]" <+> pretty func, "[args]" <+> align (pretty args)]
   pretty (BinaryOp _ op lhs rhs) = nest' $ vsep
     [ "BinaryOp"
     , "[op]" <+> pretty op
@@ -58,6 +55,7 @@ instance Pretty Expr where
     ]
   pretty (UnaryOp _ op val) =
     nest' $ vsep ["UnaryOp", "[op]" <+> pretty op, "[val]" <+> pretty val]
+  pretty (List _ list) = nest' $ vsep ["List", "[elements]" <+> pretty list]
 
 instance Pretty Stmt where
   pretty (ExprStmt expr) = nest' $ vsep ["ExprStmt", "[expr]" <+> pretty expr]
