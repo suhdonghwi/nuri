@@ -238,13 +238,14 @@ spec = do
         Divide
         (binaryOp Add (litInteger 1) (litInteger 1))
         (litInteger 2)
-    it "함수 호출식이 사칙연산식보다 우선순위 높음" $ do
-      testParse parseExpr "1 + 1 2 더하다" `shouldParse` binaryOp
+    it "사칙연산식이 함수 호출식보다 우선순위 높음" $ do
+      testParse parseExpr "1 + 1 2 더하다" `shouldParse` funcCall
+        "더하다"
+        [binaryOp Add (litInteger 1) (litInteger 1), litInteger 2]
+    it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
+      testParse parseExpr "1 + (1 2 더하다)" `shouldParse` binaryOp
         Add
         (litInteger 1)
         (funcCall "더하다" [litInteger 1, litInteger 2])
-    it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
-      testParse parseExpr "(1 + 1) 2 더하다" `shouldParse` funcCall
-        "더하다"
-        [binaryOp Add (litInteger 1) (litInteger 1), litInteger 2]
+
 

@@ -152,7 +152,7 @@ spec = do
   describe "구문 파싱" $ do
     it "표현식 구문 파싱" $ do
       testParse parseStmt "1 + 2 줄이다" `shouldParse` ExprStmt
-        (binaryOp Add (litInteger 1) (funcCall "줄이다" [litInteger 2]))
+        (funcCall "줄이다" [binaryOp Add (litInteger 1) (litInteger 2)])
     it "반환 구문 파싱" $ do
       testParse parseStmt "1 반환하다" `shouldParse` Return (litInteger 1)
     it "조건문 파싱" $ do
@@ -191,9 +191,8 @@ spec = do
     it "표현식 구문 여러 개 파싱" $ do
       testParse parseStmts "1 + 2 줄이다\n3 증가하다"
         `shouldParse` [ ExprStmt
-                        (binaryOp Add
-                                  (litInteger 1)
-                                  (funcCall "줄이다" [litInteger 2])
+                        (funcCall "줄이다"
+                                  [binaryOp Add (litInteger 1) (litInteger 2)]
                         )
                       , ExprStmt (funcCall "증가하다" [litInteger 3])
                       ]
