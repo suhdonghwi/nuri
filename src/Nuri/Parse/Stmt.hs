@@ -49,13 +49,6 @@ parseComplexAssignment = do
     ]
   Assign pos ident . BinaryOp pos op (Var pos ident) <$> parseExpr
 
-
-parseMinusAssignment :: Parser Stmt
-parseMinusAssignment = do
-  pos         <- getSourceLine
-  Var _ ident <- P.try $ parseIdentifierExpr <* symbol "-="
-  Assign pos ident . BinaryOp pos Subtract (Var pos ident) <$> parseExpr
-
 parseIfStmt :: Parser Stmt
 parseIfStmt = do
   ifPart   <- indent (ifLine "만약")
@@ -66,7 +59,7 @@ parseIfStmt = do
   ifLine s = do
     pos <- getSourceLine
     _   <- reserved s
-    e   <- parseExpr
+    e   <- parseArithmetic
     _   <- reserved "이라면"
     _   <- symbol ":"
     return (L.IndentSome Nothing (return . If pos e) parseStmt)
@@ -79,7 +72,7 @@ parseWhileStmt :: Parser Stmt
 parseWhileStmt = indent $ do
   pos <- getSourceLine
   _   <- reserved "반복"
-  e   <- parseExpr
+  e   <- parseArithmetic
   _   <- reserved "인 동안"
   _   <- symbol ":"
   return (L.IndentSome Nothing (return . While pos e . fromList) parseStmt)

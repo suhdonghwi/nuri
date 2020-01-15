@@ -50,7 +50,7 @@ spec = do
 
   describe "조건문 파싱" $ do
     it "만약 1개 (단일 조건) 조건문" $ do
-      testParse parseIfStmt "만약 1 1 같다 이라면:\n  [값] = 1"
+      testParse parseIfStmt "만약 (1 1 같다) 이라면:\n  [값] = 1"
         `shouldParse` ifStmt (funcCall "같다" [litInteger 1, litInteger 1])
                              [assign "값" (litInteger 1)]
                              Nothing

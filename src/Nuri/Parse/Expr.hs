@@ -45,8 +45,7 @@ parseFuncIdentifier = lexeme
                            (P.char ' ')
   )
  where
-  keywords =
-    ["반환하다", "함수", "없음", "참", "거짓", "만약", "이라면", "아니고", "아니면", "반복", "인 동안"]
+  keywords   = ["반환하다", "함수", "없음", "참", "거짓", "만약", "반복"]
   keyword    = P.choice $ reserved <$> keywords
   hangulWord = P.some hangulSyllable
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
