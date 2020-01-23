@@ -1,6 +1,5 @@
 module Nuri.Codegen.Expr where
 
-import           Control.Monad.RWS                        ( tell )
 import           Control.Lens                             ( use )
 
 import           Data.List                                ( elemIndex )
@@ -23,36 +22,36 @@ compileExpr :: Expr -> Builder ()
 compileExpr (Lit pos lit) = do
   let value = litToConst lit
   index <- addConstant value
-  tell [(pos, Inst.Push $ fromIntegral index)]
+  tellCode [(pos, Inst.Push $ fromIntegral index)]
 compileExpr (Var pos ident) = do
   names <- fmap fst . toList <$> use internalVarNames
   case elemIndex ident names of
-    Just index -> tell [(pos, Inst.Load $ fromIntegral index)]
-    Nothing    -> tell [(pos, Inst.LoadGlobal $ Identity ident)]
+    Just index -> tellCode [(pos, Inst.Load $ fromIntegral index)]
+    Nothing    -> tellCode [(pos, Inst.LoadGlobal $ Identity ident)]
 compileExpr (FuncCall pos func args) = do
   compileExpr (Var pos func)
   sequence_ (compileExpr <$> args)
-  tell [(pos, Inst.Call $ genericLength args)]
+  tellCode [(pos, Inst.Call $ genericLength args)]
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs
   case op of
-    Add              -> tell [(pos, Inst.Add)]
-    Subtract         -> tell [(pos, Inst.Subtract)]
-    Multiply         -> tell [(pos, Inst.Multiply)]
-    Divide           -> tell [(pos, Inst.Divide)]
-    Mod              -> tell [(pos, Inst.Mod)]
-    Equal            -> tell [(pos, Inst.Equal)]
-    Inequal          -> tell [(pos, Inst.Equal), (pos, Inst.Negate)]
-    LessThan         -> tell [(pos, Inst.LessThan)]
-    GreaterThan      -> tell [(pos, Inst.GreaterThan)]
-    LessThanEqual    -> tell [(pos, Inst.GreaterThan), (pos, Inst.Negate)]
-    GreaterThanEqual -> tell [(pos, Inst.LessThan), (pos, Inst.Negate)]
+    Add              -> tellCode [(pos, Inst.Add)]
+    Subtract         -> tellCode [(pos, Inst.Subtract)]
+    Multiply         -> tellCode [(pos, Inst.Multiply)]
+    Divide           -> tellCode [(pos, Inst.Divide)]
+    Mod              -> tellCode [(pos, Inst.Mod)]
+    Equal            -> tellCode [(pos, Inst.Equal)]
+    Inequal          -> tellCode [(pos, Inst.Equal), (pos, Inst.Negate)]
+    LessThan         -> tellCode [(pos, Inst.LessThan)]
+    GreaterThan      -> tellCode [(pos, Inst.GreaterThan)]
+    LessThanEqual    -> tellCode [(pos, Inst.GreaterThan), (pos, Inst.Negate)]
+    GreaterThanEqual -> tellCode [(pos, Inst.LessThan), (pos, Inst.Negate)]
 compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of
     Positive -> pass
-    Negative -> tell [(pos, Inst.Negate)]
+    Negative -> tellCode [(pos, Inst.Negate)]
 compileExpr (List pos list) = do
   sequence_ $ compileExpr <$> list
-  tell [(pos, Inst.BuildList $ genericLength list)]
+  tellCode [(pos, Inst.BuildList $ genericLength list)]

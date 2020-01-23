@@ -1,6 +1,8 @@
 module Haneul.Builder where
 
-import           Control.Monad.RWS                        ( RWS )
+import           Control.Monad.RWS                        ( RWS
+                                                          , tell
+                                                          )
 import           Control.Lens                             ( makeLenses
                                                           , modifying
                                                           , use
@@ -14,8 +16,11 @@ import           Data.Set.Ordered                         ( OSet
 import           Haneul.Instruction
 import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal { _internalConstTable :: OSet Constant, _internalVarNames :: OSet (String, Int) }
-  deriving (Eq, Show)
+data BuilderInternal = BuilderInternal { _internalConstTable :: OSet Constant, _internalVarNames :: OSet (String, Int), _internalOffset :: Int32 }
+  deriving (Show)
+
+instance Eq BuilderInternal where
+  BuilderInternal t1 v1 _ == BuilderInternal t2 v2 _ = (t1 == t2) && (v1 == v2)
 
 $(makeLenses ''BuilderInternal)
 
@@ -27,7 +32,7 @@ $(makeLenses ''Program)
 type Builder = RWS Int Code BuilderInternal
 
 defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal (S.singleton ConstNone) S.empty
+defaultInternal = BuilderInternal (S.singleton ConstNone) S.empty 0
 
 addVarName :: String -> Builder Int32
 addVarName ident = do
@@ -43,4 +48,10 @@ addConstant value = do
   names <- use internalConstTable
   let (Just index) = findIndex value names
   return $ fromIntegral index
+
+tellCode :: Code -> Builder ()
+tellCode code = do
+  modifying internalOffset (+ genericLength code)
+  tell code
+
 
