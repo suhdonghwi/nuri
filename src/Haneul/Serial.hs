@@ -71,7 +71,7 @@ instance Binary FuncObject where
     insts'      <- get
     return (FuncObject arity' insts' constTable')
 
-instance Binary Instruction where
+instance (Binary (f Int32), Binary (f String)) => Binary (InstructionF f) where
   put (Push v) = do
     put (0 :: Word8)
     put v

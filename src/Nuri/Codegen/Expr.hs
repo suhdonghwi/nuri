@@ -27,12 +27,12 @@ compileExpr :: Expr -> Builder ()
 compileExpr (Lit pos lit) = do
   let value = litToConst lit
   index <- addConstant value
-  tell [AnnInst pos (Inst.Push index)]
+  tell [AnnInst pos (Inst.Push $ fromIntegral index)]
 compileExpr (Var pos ident) = do
   names <- fmap fst . toList <$> use internalVarNames
   case elemIndex ident names of
     Just index -> tell [AnnInst pos (Inst.Load $ fromIntegral index)]
-    Nothing    -> tell [AnnInst pos (Inst.LoadGlobal ident)]
+    Nothing    -> tell [AnnInst pos (Inst.LoadGlobal $ Identity ident)]
 compileExpr (FuncCall pos func args) = do
   compileExpr (Var pos func)
   sequence_ (compileExpr <$> args)

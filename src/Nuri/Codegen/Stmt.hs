@@ -110,7 +110,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
                   }
       )
   funcObjectIndex <- addConstant funcObject
-  tell [AnnInst pos (Inst.Push funcObjectIndex)]
+  tell [AnnInst pos (Inst.Push $ fromIntegral funcObjectIndex)]
   storeVar pos funcName
 
 compileStmts :: Stmts -> Builder ()
@@ -120,9 +120,9 @@ storeVar :: Pos -> String -> Builder ()
 storeVar pos ident = do
   depth <- ask
   if depth == 0
-    then tell [AnnInst pos (Inst.StoreGlobal ident)]
+    then tell [AnnInst pos (Inst.StoreGlobal $ Identity ident)]
     else do
       index <- addVarName ident
-      tell [AnnInst pos (Inst.Store index)]
+      tell [AnnInst pos (Inst.Store $ Identity index)]
 
 
