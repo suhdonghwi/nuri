@@ -6,6 +6,7 @@ import           Control.Monad.RWS                        ( RWS
 import           Control.Lens                             ( makeLenses
                                                           , modifying
                                                           , use
+                                                          , uses
                                                           )
 import qualified Data.Set.Ordered              as S
 import           Data.Set.Ordered                         ( OSet
@@ -49,6 +50,11 @@ addConstant value = do
   names <- use internalConstTable
   let (Just index) = findIndex value names
   return $ fromIntegral index
+
+addMark :: Int32 -> Builder Int32
+addMark mark = do
+  modifying internalMarks (++ [mark])
+  uses internalMarks (flip (-) 1 . genericLength)
 
 tellCode :: Code -> Builder ()
 tellCode code = do
