@@ -46,8 +46,10 @@ parseInput input fileName = do
     Right parseResult -> return parseResult
 
 compileToProgram :: Stmts -> Program
-compileToProgram stmts = uncurry Program
-  $ execRWS (sequence_ $ compileStmt <$> stmts) 0 defaultInternal
+compileToProgram stmts =
+  uncurry Program
+    $   fst
+    <$> execRWS (sequence_ $ compileStmt <$> stmts) 0 defaultInternal
 
 printResult :: Stmts -> IO ()
 printResult stmts = do

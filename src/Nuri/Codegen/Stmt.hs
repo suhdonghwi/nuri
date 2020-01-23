@@ -46,11 +46,12 @@ compileStmt (If pos cond thenStmts elseStmts) = do
   compileExpr cond
   st    <- get
   depth <- ask
-  let (thenInternal, thenInsts) = execRWS (compileStmts thenStmts) depth st
+  let (thenInternal, (thenInsts, _)) =
+        execRWS (compileStmts thenStmts) depth st
   put thenInternal
   case elseStmts of
     Just elseStmts' -> do
-      let (elseInternal, elseInsts) =
+      let (elseInternal, (elseInsts, _)) =
             execRWS (compileStmts elseStmts') depth thenInternal
           thenInsts' = appendInsts
             pos
@@ -67,10 +68,10 @@ compileStmt (If pos cond thenStmts elseStmts) = do
 compileStmt (While pos cond body) = do
   st    <- get
   depth <- ask
-  let (condInternal, condInsts) = execRWS (compileExpr cond) depth st
+  let (condInternal, (condInsts, _)) = execRWS (compileExpr cond) depth st
   put condInternal
   tellCode condInsts
-  let (bodyInternal, bodyInsts) =
+  let (bodyInternal, (bodyInsts, _)) =
         execRWS (compileStmts body) depth condInternal
       bodyInsts' = appendInsts
         pos
@@ -88,9 +89,9 @@ compileStmt (FuncDecl pos funcName argNames body) = do
   depth <- ask
   st    <- get
   let
-    argCount         = length argNames
-    argVars          = S.fromList (fmap (, depth + 1) argNames)
-    (internal, code) = execRWS
+    argCount              = length argNames
+    argVars               = S.fromList (fmap (, depth + 1) argNames)
+    (internal, (code, _)) = execRWS
       (local (+ 1) $ compileStmts body)
       depth
       (defaultInternal
