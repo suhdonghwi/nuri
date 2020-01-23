@@ -19,11 +19,7 @@ import           Nuri.Codegen.Expr
 import           Haneul.Builder
 import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
-import           Haneul.Instruction                       ( AnnInstruction
-                                                            ( AnnInst
-                                                            )
-                                                          , appendInsts
-                                                          )
+import           Haneul.Instruction                       ( appendInsts )
 
 scope :: Pos -> Builder () -> Builder ()
 scope pos builder = do
@@ -35,16 +31,16 @@ scope pos builder = do
     let varCount = genericLength $ filter
           (\(_, depth) -> depth == currentDepth)
           (toList $ view internalVarNames st')
-    replicateM_ varCount (tell [AnnInst pos Inst.Pop])
+    replicateM_ varCount (tell [(pos, Inst.Pop)])
   assign internalVarNames (view internalVarNames st)
 
 compileStmt :: Stmt -> Builder ()
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
-  tell [AnnInst (getSourceLine stmt) Inst.Pop]
+  tell [(getSourceLine stmt, Inst.Pop)]
 compileStmt stmt@(Return expr) = do
   compileExpr expr
-  tell [AnnInst (getSourceLine stmt) Inst.Return]
+  tell [(getSourceLine stmt, Inst.Return)]
 compileStmt (Assign pos ident expr) = do
   compileExpr expr
   storeVar pos ident
@@ -62,12 +58,12 @@ compileStmt (If pos cond thenStmts elseStmts) = do
             pos
             [Inst.JmpForward $ genericLength elseInsts]
             thenInsts
-      tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts')]
+      tell [(pos, Inst.PopJmpIfFalse $ genericLength thenInsts')]
       tell thenInsts'
       put elseInternal
       tell elseInsts
     Nothing -> do
-      tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength thenInsts)]
+      tell [(pos, Inst.PopJmpIfFalse $ genericLength thenInsts)]
       tell thenInsts
 
 compileStmt (While pos cond body) = do
@@ -86,7 +82,7 @@ compileStmt (While pos cond body) = do
           + 1
         ]
         bodyInsts
-  tell [AnnInst pos (Inst.PopJmpIfFalse $ genericLength bodyInsts')]
+  tell [(pos, Inst.PopJmpIfFalse $ genericLength bodyInsts')]
   put bodyInternal
   tell bodyInsts'
   pass
@@ -110,7 +106,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
                   }
       )
   funcObjectIndex <- addConstant funcObject
-  tell [AnnInst pos (Inst.Push $ fromIntegral funcObjectIndex)]
+  tell [(pos, Inst.Push $ fromIntegral funcObjectIndex)]
   storeVar pos funcName
 
 compileStmts :: Stmts -> Builder ()
@@ -120,9 +116,9 @@ storeVar :: Pos -> String -> Builder ()
 storeVar pos ident = do
   depth <- ask
   if depth == 0
-    then tell [AnnInst pos (Inst.StoreGlobal $ Identity ident)]
+    then tell [(pos, Inst.StoreGlobal $ Identity ident)]
     else do
       index <- addVarName ident
-      tell [AnnInst pos (Inst.Store $ Identity index)]
+      tell [(pos, Inst.Store $ Identity index)]
 
 

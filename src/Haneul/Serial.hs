@@ -15,6 +15,7 @@ import           Control.Lens                             ( view )
 
 import           Text.Megaparsec.Pos                      ( unPos
                                                           , mkPos
+                                                          , Pos
                                                           )
 
 import           Haneul.Builder
@@ -150,14 +151,12 @@ instance (Binary (f Int32), Binary (f String)) => Binary (InstructionF f) where
       20 -> BuildList <$> get
       _  -> fail "invalid instruction opcode type"
 
-instance Binary AnnInstruction  where
+instance Binary Pos  where
   put v = do
-    let linePos = view lineNumber v
-    put (fromIntegral (unPos linePos) :: Word32)
-    put (view instruction v)
+    put (fromIntegral (unPos v) :: Word32)
   get = do
     line <- get :: Get Word32
-    AnnInst (mkPos $ fromIntegral line) <$> get
+    return (mkPos $ fromIntegral line)
 
 instance Binary Program where
   put p = do

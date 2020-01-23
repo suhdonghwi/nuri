@@ -13,6 +13,10 @@ import           Data.Text.Prettyprint.Doc                ( Pretty
                                                           )
 import           Data.Set.Ordered                         ( OSet )
 
+import           Text.Megaparsec.Pos                      ( Pos
+                                                          , unPos
+                                                          )
+
 import           Haneul.Builder
 import           Haneul.Constant
 import           Haneul.Instruction
@@ -22,6 +26,9 @@ nest' = nest 4
 
 instance (Show a, Pretty a) => Pretty (OSet a) where
   pretty set = pretty $ toList set
+
+instance Pretty Pos where
+  pretty p = pretty $ unPos p
 
 instance Pretty Constant where
   pretty (ConstFunc obj) = nest' $ vsep
@@ -40,7 +47,3 @@ instance Pretty BuilderInternal where
 
 instance (Show (f Int32), Show (f String)) => Pretty (InstructionF f) where
   pretty = show
-
-instance Pretty AnnInstruction where
-  pretty inst =
-    show (view lineNumber inst) <+> "|" <+> pretty (view instruction inst)
