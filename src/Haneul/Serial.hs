@@ -25,7 +25,12 @@ import           Haneul.Instruction
 instance Binary BuilderInternal where
   put v = do
     put (toList $ view internalConstTable v)
-  get = liftA3 BuilderInternal (fromList <$> get) (pure S.empty) (pure 0)
+  get =
+    BuilderInternal
+      <$> (fromList <$> get)
+      <*> pure S.empty
+      <*> pure 0
+      <*> pure []
 
 instance Binary Constant where
   put ConstNone = do

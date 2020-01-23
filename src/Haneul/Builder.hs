@@ -16,11 +16,12 @@ import           Data.Set.Ordered                         ( OSet
 import           Haneul.Instruction
 import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal { _internalConstTable :: OSet Constant, _internalVarNames :: OSet (String, Int), _internalOffset :: Int32 }
+data BuilderInternal = BuilderInternal { _internalConstTable :: OSet Constant, _internalVarNames :: OSet (String, Int), _internalOffset :: Int32, _internalMarks :: [Int32] }
   deriving (Show)
 
 instance Eq BuilderInternal where
-  BuilderInternal t1 v1 _ == BuilderInternal t2 v2 _ = (t1 == t2) && (v1 == v2)
+  BuilderInternal t1 v1 _ m1 == BuilderInternal t2 v2 _ m2 =
+    (t1 == t2) && (v1 == v2) && (m1 == m2)
 
 $(makeLenses ''BuilderInternal)
 
@@ -32,7 +33,7 @@ $(makeLenses ''Program)
 type Builder = RWS Int Code BuilderInternal
 
 defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal (S.singleton ConstNone) S.empty 0
+defaultInternal = BuilderInternal (S.singleton ConstNone) S.empty 0 []
 
 addVarName :: String -> Builder Int32
 addVarName ident = do
