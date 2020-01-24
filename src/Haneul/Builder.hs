@@ -7,17 +7,22 @@ import           Control.Lens                             ( makeLenses
                                                           , modifying
                                                           , use
                                                           , uses
+                                                          , element
+                                                          , (.~)
+                                                          , view
                                                           )
 import qualified Data.Set.Ordered              as S
 import           Data.Set.Ordered                         ( OSet
                                                           , (|>)
                                                           , findIndex
                                                           )
+import           Data.List                                ( (!!) )
 
 import           Haneul.Instruction
 import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal { _internalConstTable :: OSet Constant, _internalVarNames :: OSet (String, Int), _internalOffset :: Int32, _internalMarks :: [Int32] }
+type ConstTable = OSet Constant
+data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable, _internalVarNames :: OSet (String, Int), _internalOffset :: Int32, _internalMarks :: [Int32] }
   deriving (Show)
 
 instance Eq BuilderInternal where
@@ -25,11 +30,6 @@ instance Eq BuilderInternal where
     (t1 == t2) && (v1 == v2) && (m1 == m2)
 
 $(makeLenses ''BuilderInternal)
-
-data Program = Program { _programInternal :: BuilderInternal, _programCode :: Code }
-  deriving (Eq, Show)
-
-$(makeLenses ''Program)
 
 type Builder = RWS Int Code BuilderInternal
 
@@ -51,10 +51,28 @@ addConstant value = do
   let (Just index) = findIndex value names
   return $ fromIntegral index
 
-addMark :: Int32 -> Builder Int32
-addMark mark = do
-  modifying internalMarks (++ [mark])
+createMark :: Builder Int32
+createMark = do
+  modifying internalMarks (++ [0])
   uses internalMarks (flip (-) 1 . genericLength)
+
+setMark :: Int32 -> Builder ()
+setMark markIndex = do
+  offset <- use internalOffset
+  modifying internalMarks (element (fromIntegral markIndex) .~ offset)
+
+clearMarks :: BuilderInternal -> Code -> Code
+clearMarks internal markedCode = fmap (unmarkInst internal) <$> markedCode
+
+unmarkInst :: BuilderInternal -> Instruction -> Instruction
+unmarkInst internal inst = case inst of
+  Jmp           v -> Jmp (Value $ unmark v)
+  PopJmpIfFalse v -> PopJmpIfFalse (Value $ unmark v)
+  v               -> v
+ where
+  unmark (Mark index) =
+    let marks = view internalMarks internal in marks !! fromIntegral index
+  unmark (Value v) = v
 
 tellCode :: Code -> Builder ()
 tellCode code = do

@@ -44,8 +44,6 @@ default-extensions:
   - GeneralizedNewtypeDeriving
   - TemplateHaskell
   - TupleSections
-  - StandaloneDeriving
-  - UndecidableInstances
 
 library:
   source-dirs: src

@@ -4,19 +4,19 @@ import           Test.Hspec
 
 import           Nuri.Spec.Util
 
-import           Control.Monad.RWS
-
 import           Haneul.Builder
 import           Haneul.Instruction
+import           Haneul.Program
 
 
-shouldBuild :: Builder () -> (BuilderInternal, [Instruction]) -> Expectation
+shouldBuild :: Builder () -> (ConstTable, [Instruction]) -> Expectation
 shouldBuild actual expected = do
-  let (internal, insts) = execRWS actual 0 defaultInternal
-  (internal, snd <$> insts) `shouldBe` expected
+  let Program { _programConstTable = constTable, _programCode = insts } =
+        toProgram actual
+  (constTable, snd <$> insts) `shouldBe` expected
 
 defaultI :: BuilderInternal
 defaultI = defaultInternal
 
-ann :: [Instruction] -> [AnnInstruction]
+ann :: [Instruction] -> [Ann Instruction]
 ann = fmap (initPos, )

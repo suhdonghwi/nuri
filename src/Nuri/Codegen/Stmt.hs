@@ -17,7 +17,9 @@ import           Nuri.Codegen.Expr
 import           Haneul.Builder
 import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
-import           Haneul.Instruction                       ( appendInsts )
+import           Haneul.Instruction                       ( appendInsts
+                                                          , Marked(Mark)
+                                                          )
 
 scope :: Pos -> Builder () -> Builder ()
 scope pos builder = do
@@ -36,54 +38,40 @@ compileStmt :: Stmt -> Builder ()
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
   tellCode [(getSourceLine stmt, Inst.Pop)]
+
 compileStmt stmt@(Return expr) = do
   compileExpr expr
   tellCode [(getSourceLine stmt, Inst.Return)]
+
 compileStmt (Assign pos ident expr) = do
   compileExpr expr
   storeVar pos ident
-compileStmt (If pos cond thenStmts elseStmts) = do
+
+compileStmt (If pos cond thenStmts elseStmts') = do
   compileExpr cond
-  st    <- get
-  depth <- ask
-  let (thenInternal, thenInsts) = execRWS (compileStmts thenStmts) depth st
-  put thenInternal
-  case elseStmts of
-    Just elseStmts' -> do
-      let (elseInternal, elseInsts) =
-            execRWS (compileStmts elseStmts') depth thenInternal
-          thenInsts' = appendInsts
-            pos
-            [Inst.JmpForward $ genericLength elseInsts]
-            thenInsts
-      tellCode [(pos, Inst.PopJmpIfFalse $ genericLength thenInsts')]
-      tellCode thenInsts'
-      put elseInternal
-      tellCode elseInsts
+  whenFalseMark <- createMark
+  tellCode [(pos, Inst.PopJmpIfFalse $ Mark whenFalseMark)]
+  compileStmts thenStmts
+  case elseStmts' of
+    Just elseStmts -> do
+      afterElseMark <- createMark
+      tellCode [(pos, Inst.Jmp $ Mark afterElseMark)]
+      setMark whenFalseMark
+      compileStmts elseStmts
+      setMark afterElseMark
     Nothing -> do
-      tellCode [(pos, Inst.PopJmpIfFalse $ genericLength thenInsts)]
-      tellCode thenInsts
+      setMark whenFalseMark
 
 compileStmt (While pos cond body) = do
-  st    <- get
-  depth <- ask
-  let (condInternal, condInsts) = execRWS (compileExpr cond) depth st
-  put condInternal
-  tellCode condInsts
-  let (bodyInternal, bodyInsts) =
-        execRWS (compileStmts body) depth condInternal
-      bodyInsts' = appendInsts
-        pos
-        [ Inst.JmpBackward
-          $ genericLength condInsts
-          + genericLength bodyInsts
-          + 1
-        ]
-        bodyInsts
-  tellCode [(pos, Inst.PopJmpIfFalse $ genericLength bodyInsts')]
-  put bodyInternal
-  tellCode bodyInsts'
-  pass
+  beforeCondMark <- createMark
+  setMark beforeCondMark
+  compileExpr cond
+  whenFalseMark <- createMark
+  tellCode [(pos, Inst.PopJmpIfFalse $ Mark whenFalseMark)]
+  compileStmts body
+  tellCode [(pos, Inst.Jmp $ Mark beforeCondMark)]
+  setMark whenFalseMark
+
 compileStmt (FuncDecl pos funcName argNames body) = do
   depth <- ask
   st    <- get
@@ -104,7 +92,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
                   }
       )
   funcObjectIndex <- addConstant funcObject
-  tellCode [(pos, Inst.Push $ fromIntegral funcObjectIndex)]
+  tellCode [(pos, Inst.Push funcObjectIndex)]
   storeVar pos funcName
 
 compileStmts :: Stmts -> Builder ()
@@ -114,9 +102,9 @@ storeVar :: Pos -> String -> Builder ()
 storeVar pos ident = do
   depth <- ask
   if depth == 0
-    then tellCode [(pos, Inst.StoreGlobal $ Identity ident)]
+    then tellCode [(pos, Inst.StoreGlobal ident)]
     else do
       index <- addVarName ident
-      tellCode [(pos, Inst.Store $ Identity index)]
+      tellCode [(pos, Inst.Store index)]
 
 

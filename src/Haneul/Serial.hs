@@ -10,7 +10,6 @@ import           Data.Binary                              ( Binary(put, get)
                                                           , Get
                                                           )
 import           Data.Set.Ordered                         ( fromList )
-import qualified Data.Set.Ordered              as S
 import           Control.Lens                             ( view )
 
 import           Text.Megaparsec.Pos                      ( unPos
@@ -18,19 +17,19 @@ import           Text.Megaparsec.Pos                      ( unPos
                                                           , Pos
                                                           )
 
-import           Haneul.Builder
 import           Haneul.Constant
 import           Haneul.Instruction
+import           Haneul.Program
 
-instance Binary BuilderInternal where
-  put v = do
-    put (toList $ view internalConstTable v)
-  get =
-    BuilderInternal
-      <$> (fromList <$> get)
-      <*> pure S.empty
-      <*> pure 0
-      <*> pure []
+-- instance Binary BuilderInternal where
+--   put v = do
+--     put (toList $ view internalConstTable v)
+--   get =
+--     BuilderInternal
+--       <$> (fromList <$> get)
+--       <*> pure S.empty
+--       <*> pure 0
+--       <*> pure []
 
 instance Binary Constant where
   put ConstNone = do
@@ -77,7 +76,12 @@ instance Binary FuncObject where
     insts'      <- get
     return (FuncObject arity' insts' constTable')
 
-instance (Binary (f Int32), Binary (f String)) => Binary (InstructionF f) where
+instance (Binary a) => Binary (Marked a) where
+  put (Mark  _) = error "mark가 전처리 되지 않았습니다."
+  put (Value v) = put v
+  get = Value <$> get
+
+instance Binary Instruction where
   put (Push v) = do
     put (0 :: Word8)
     put v
@@ -98,37 +102,34 @@ instance (Binary (f Int32), Binary (f String)) => Binary (InstructionF f) where
   put (Call v) = do
     put (6 :: Word8)
     put v
-  put (JmpForward v) = do
+  put (Jmp v) = do
     put (7 :: Word8)
     put v
-  put (JmpBackward v) = do
+  put (PopJmpIfFalse v) = do
     put (8 :: Word8)
     put v
-  put (PopJmpIfFalse v) = do
-    put (9 :: Word8)
-    put v
   put Return = do
-    put (10 :: Word8)
+    put (9 :: Word8)
   put Add = do
-    put (11 :: Word8)
+    put (10 :: Word8)
   put Subtract = do
-    put (12 :: Word8)
+    put (11 :: Word8)
   put Multiply = do
-    put (13 :: Word8)
+    put (12 :: Word8)
   put Divide = do
-    put (14 :: Word8)
+    put (13 :: Word8)
   put Mod = do
-    put (15 :: Word8)
+    put (14 :: Word8)
   put Equal = do
-    put (16 :: Word8)
+    put (15 :: Word8)
   put LessThan = do
-    put (17 :: Word8)
+    put (16 :: Word8)
   put GreaterThan = do
-    put (18 :: Word8)
+    put (17 :: Word8)
   put Negate = do
-    put (19 :: Word8)
+    put (18 :: Word8)
   put (BuildList v) = do
-    put (20 :: Word8)
+    put (19 :: Word8)
     put v
   get = do
     inst <- get :: Get Word8
@@ -140,20 +141,19 @@ instance (Binary (f Int32), Binary (f String)) => Binary (InstructionF f) where
       4  -> Load <$> get
       5  -> LoadGlobal <$> get
       6  -> Call <$> get
-      7  -> JmpForward <$> get
-      8  -> JmpBackward <$> get
-      9  -> PopJmpIfFalse <$> get
-      10 -> return Return
-      11 -> return Add
-      12 -> return Subtract
-      13 -> return Multiply
-      14 -> return Divide
-      15 -> return Mod
-      16 -> return Equal
-      17 -> return LessThan
-      18 -> return GreaterThan
-      19 -> return Negate
-      20 -> BuildList <$> get
+      7  -> Jmp <$> get
+      8  -> PopJmpIfFalse <$> get
+      9  -> return Return
+      10 -> return Add
+      11 -> return Subtract
+      12 -> return Multiply
+      13 -> return Divide
+      14 -> return Mod
+      15 -> return Equal
+      16 -> return LessThan
+      17 -> return GreaterThan
+      18 -> return Negate
+      19 -> BuildList <$> get
       _  -> fail "invalid instruction opcode type"
 
 instance Binary Pos  where
@@ -165,6 +165,6 @@ instance Binary Pos  where
 
 instance Binary Program where
   put p = do
-    put (view programInternal p)
+    put (toList $ view programConstTable p)
     put (view programCode p)
-  get = liftA2 Program get get
+  get = liftA2 Program (fromList <$> get) get

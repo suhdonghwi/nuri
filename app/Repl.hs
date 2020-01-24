@@ -7,7 +7,6 @@ import           System.IO                                ( hFlush )
 import           Data.Text                                ( strip )
 import           Data.ByteString.Lazy.Internal            ( unpackBytes )
 
-import           Control.Monad.RWS                        ( execRWS )
 import           Control.Lens
 import           Control.Lens.TH                          ( )
 
@@ -22,11 +21,11 @@ import           Text.Megaparsec
 import           Text.Printf
 
 import           Nuri.Stmt
+import           Nuri.Codegen.Stmt
 import           Nuri.Pretty                              ( )
 import           Nuri.Parse.Stmt
-import           Nuri.Codegen.Stmt
 
-import           Haneul.Builder
+import           Haneul.Program
 import           Haneul.Pretty                            ( )
 import           Haneul.Serial                            ( )
 
@@ -45,19 +44,16 @@ parseInput input fileName = do
       hoistMaybe Nothing
     Right parseResult -> return parseResult
 
-compileToProgram :: Stmts -> Program
-compileToProgram stmts = uncurry Program
-  $ execRWS (sequence_ $ compileStmt <$> stmts) 0 defaultInternal
 
 printResult :: Stmts -> IO ()
 printResult stmts = do
   (liftIO . print . vsep . toList) (pretty <$> stmts)
-  let program          = compileToProgram stmts
-      compiledCode     = view programCode program
-      compiledInternal = view programInternal program
+  let program       = (toProgram . compileStmts) stmts
+      compiledCode  = view programCode program
+      compiledTable = view programConstTable program
 
   putStrLn "---------------"
-  print $ pretty compiledInternal
+  print $ pretty compiledTable
   (print . vsep) (pretty <$> compiledCode)
   putStrLn "---------------"
 
