@@ -1,4 +1,3 @@
-{-# LANGUAGE GADTs #-}
 module Haneul.Instruction where
 
 import qualified Data.List.NonEmpty            as NE
