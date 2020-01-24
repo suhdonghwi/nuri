@@ -17,7 +17,7 @@ import           Text.Megaparsec.Pos                      ( Pos
                                                           , unPos
                                                           )
 
-import           Haneul.Builder
+import           Haneul.BuilderInternal
 import           Haneul.Constant
 import           Haneul.Instruction
 

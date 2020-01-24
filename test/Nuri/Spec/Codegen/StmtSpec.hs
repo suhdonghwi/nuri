@@ -14,7 +14,6 @@ import           Nuri.Codegen.Stmt
 
 import qualified Haneul.Instruction            as Inst
 import           Haneul.Instruction                       ( Marked(Value) )
-import           Haneul.Builder
 import           Haneul.Constant
 
 spec :: Spec

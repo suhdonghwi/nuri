@@ -3,38 +3,24 @@ module Haneul.Builder where
 import           Control.Monad.RWS                        ( RWS
                                                           , tell
                                                           )
-import           Control.Lens                             ( makeLenses
-                                                          , modifying
+import           Control.Lens                             ( modifying
                                                           , use
                                                           , uses
                                                           , element
                                                           , (.~)
                                                           , view
                                                           )
-import qualified Data.Set.Ordered              as S
-import           Data.Set.Ordered                         ( OSet
-                                                          , (|>)
+import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
                                                           )
 import           Data.List                                ( (!!) )
 
 import           Haneul.Instruction
 import           Haneul.Constant
+import           Haneul.BuilderInternal
 
-type ConstTable = OSet Constant
-data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable, _internalVarNames :: OSet (String, Int), _internalOffset :: Int32, _internalMarks :: [Int32] }
-  deriving (Show)
-
-instance Eq BuilderInternal where
-  BuilderInternal t1 v1 _ m1 == BuilderInternal t2 v2 _ m2 =
-    (t1 == t2) && (v1 == v2) && (m1 == m2)
-
-$(makeLenses ''BuilderInternal)
 
 type Builder = RWS Int Code BuilderInternal
-
-defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal (S.singleton ConstNone) S.empty 0 []
 
 addVarName :: String -> Builder Int32
 addVarName ident = do

@@ -8,6 +8,7 @@ import           Nuri.Expr
 import           Nuri.Literal
 
 import           Haneul.Builder
+import           Haneul.BuilderInternal
 import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
 
