@@ -13,7 +13,7 @@ import           Haneul.Constant
 shouldBuild :: Builder () -> (ConstTable, [Instruction]) -> Expectation
 shouldBuild actual expected = do
   let Program { _programConstTable = constTable, _programCode = insts } =
-        toProgram actual
+        toProgram 0 defaultInternal actual
   (constTable, snd <$> insts) `shouldBe` expected
 
 defaultI :: BuilderInternal

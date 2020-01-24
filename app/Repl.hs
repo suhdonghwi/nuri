@@ -26,6 +26,7 @@ import           Nuri.Pretty                              ( )
 import           Nuri.Parse.Stmt
 
 import           Haneul.Program
+import           Haneul.BuilderInternal
 import           Haneul.Pretty                            ( )
 import           Haneul.Serial                            ( )
 
@@ -48,7 +49,7 @@ parseInput input fileName = do
 printResult :: Stmts -> IO ()
 printResult stmts = do
   (liftIO . print . vsep . toList) (pretty <$> stmts)
-  let program       = (toProgram . compileStmts) stmts
+  let program       = (toProgram 0 defaultInternal . compileStmts) stmts
       compiledCode  = view programCode program
       compiledTable = view programConstTable program
 

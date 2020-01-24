@@ -13,9 +13,9 @@ import           Haneul.Constant
 data Program = Program { _programConstTable :: ConstTable, _programCode :: Code }
   deriving (Eq, Show)
 
-toProgram :: Builder () -> Program
-toProgram result =
-  let (internal, code) = execRWS result 0 defaultInternal
-  in  Program (view internalConstTable internal) (clearMarks internal code)
+toProgram :: Int -> BuilderInternal -> Builder () -> Program
+toProgram depth internal result =
+  let (internal', code) = execRWS result depth internal
+  in  Program (view internalConstTable internal') (clearMarks internal' code)
 
 $(makeLenses ''Program)

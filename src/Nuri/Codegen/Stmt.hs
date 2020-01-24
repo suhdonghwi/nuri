@@ -1,6 +1,5 @@
 module Nuri.Codegen.Stmt where
 
-import           Control.Monad.RWS                        ( execRWS )
 import           Control.Lens                             ( view
                                                           , assign
                                                           )
@@ -11,16 +10,17 @@ import qualified Data.Set.Ordered              as S
 import           Data.Set.Ordered                         ( (|<>) )
 
 import           Nuri.Stmt
+import           Nuri.Expr
+import           Nuri.Literal
 import           Nuri.ASTNode
 import           Nuri.Codegen.Expr
 
 import           Haneul.Builder
 import           Haneul.BuilderInternal
 import           Haneul.Constant
+import           Haneul.Program
 import qualified Haneul.Instruction            as Inst
-import           Haneul.Instruction                       ( appendInsts
-                                                          , Marked(Mark)
-                                                          )
+import           Haneul.Instruction                       ( Marked(Mark) )
 
 scope :: Pos -> Builder () -> Builder ()
 scope pos builder = do
@@ -77,19 +77,20 @@ compileStmt (FuncDecl pos funcName argNames body) = do
   depth <- ask
   st    <- get
   let
-    argCount         = length argNames
-    argVars          = S.fromList (fmap (, depth + 1) argNames)
-    (internal, code) = execRWS
-      (local (+ 1) $ compileStmts body)
-      depth
-      (defaultInternal
-        { _internalVarNames = view internalVarNames st |<> argVars
-        }
-      )
+    argCount = length argNames
+    argVars  = S.fromList ((, depth + 1) <$> argNames)
+    Program { _programConstTable = constTable, _programCode = code } =
+      toProgram
+        (depth + 1)
+        (defaultInternal
+          { _internalVarNames = view internalVarNames st |<> argVars
+          }
+        )
+        (compileStmts $ body ++ [Return (Lit pos LitNone)])
     funcObject = ConstFunc
-      (FuncObject { _funcArity = fromIntegral argCount
-                  , _funcBody = appendInsts pos [Inst.Push 0, Inst.Return] code
-                  , _funcConstTable = view internalConstTable internal
+      (FuncObject { _funcArity      = fromIntegral argCount
+                  , _funcBody       = code
+                  , _funcConstTable = constTable
                   }
       )
   funcObjectIndex <- addConstant funcObject
