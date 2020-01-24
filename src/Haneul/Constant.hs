@@ -13,10 +13,11 @@ data Constant = ConstNone
               | ConstFunc FuncObject
   deriving (Eq, Show, Ord)
 
+type ConstTable = OSet Constant
 
 data FuncObject = FuncObject { _funcArity :: Word16,
                                _funcBody :: Code,
-                               _funcConstTable :: OSet Constant
+                               _funcConstTable :: ConstTable
                              }
   deriving (Eq, Show, Ord)
 

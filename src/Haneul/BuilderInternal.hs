@@ -6,7 +6,6 @@ import qualified Data.Set.Ordered              as S
 import           Data.Set.Ordered                         ( OSet )
 
 import           Haneul.Constant
-import           Haneul.ConstTable
 
 data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable, _internalVarNames :: OSet (String, Int), _internalOffset :: Int32, _internalMarks :: [Int32] }
   deriving (Show)

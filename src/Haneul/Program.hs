@@ -8,7 +8,7 @@ import           Control.Monad.RWS                        ( execRWS )
 import           Haneul.Builder
 import           Haneul.BuilderInternal
 import           Haneul.Instruction
-import           Haneul.ConstTable
+import           Haneul.Constant
 
 data Program = Program { _programConstTable :: ConstTable, _programCode :: Code }
   deriving (Eq, Show)
