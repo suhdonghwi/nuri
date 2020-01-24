@@ -2,12 +2,10 @@ module Nuri.Codegen.Stmt where
 
 import           Control.Lens                             ( view
                                                           , assign
+                                                          , use
                                                           )
 
 import           Text.Megaparsec.Pos                      ( Pos )
-
-import qualified Data.Set.Ordered              as S
-import           Data.Set.Ordered                         ( (|<>) )
 
 import           Nuri.Stmt
 import           Nuri.Expr
@@ -74,19 +72,20 @@ compileStmt (While pos cond body) = do
   setMark whenFalseMark
 
 compileStmt (FuncDecl pos funcName argNames body) = do
-  depth <- ask
-  st    <- get
+  depth    <- ask
+  varNames <- use internalVarNames
   let
     argCount = length argNames
-    argVars  = S.fromList ((, depth + 1) <$> argNames)
+    argVars  = argNames
     Program { _programConstTable = constTable, _programCode = code } =
       toProgram
         (depth + 1)
-        (defaultInternal
-          { _internalVarNames = view internalVarNames st |<> argVars
-          }
+        (defaultInternal { _internalVarNames = varNames })
+        (do
+          sequence_ (addVarName <$> argVars)
+          compileStmts body
+          compileStmt $ Return (Lit pos LitNone)
         )
-        (compileStmts $ body ++ [Return (Lit pos LitNone)])
     funcObject = ConstFunc
       (FuncObject { _funcArity      = fromIntegral argCount
                   , _funcBody       = code
