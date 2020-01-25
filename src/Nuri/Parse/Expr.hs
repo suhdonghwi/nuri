@@ -23,35 +23,19 @@ import           Nuri.Expr
 import           Nuri.Literal
 
 parseExpr :: Parser Expr
-parseExpr = P.try parseNestedFuncCalls <|> parseArithmetic
-
-parseNestedFuncCalls :: Parser Expr
-parseNestedFuncCalls = do
-  calls <- P.sepBy1 (parseFuncCall <?> "함수 호출식") (symbol ",")
-  let addArg arg (FuncCall pos func args) = FuncCall pos func (arg : args)
-      addArg _   _                        = error "불가능한 상황"
-  return $ foldl1' addArg calls
-
-parseFuncCall :: Parser Expr
-parseFuncCall = do
-  args <- P.many (parseArithmetic <?> "함수 인수")
-  pos  <- getSourceLine
-  func <- parseFuncIdentifier <?> "함수 이름"
-  return $ FuncCall pos func args
-
-parseFuncIdentifier :: Parser String
-parseFuncIdentifier = lexeme
-  (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
-                           (P.char ' ')
-  )
- where
-  keywords   = ["반환하다", "함수", "없음", "참", "거짓", "만약", "반복"]
-  keyword    = P.choice $ reserved <$> keywords
-  hangulWord = P.some hangulSyllable
-    -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
+parseExpr = parseArithmetic
 
 parseArithmetic :: Parser Expr
-parseArithmetic = makeExprParser (parseTerm <?> "표현식") table
+parseArithmetic = makeExprParser
+  (   (   P.try
+          (  parseTerm
+          <* P.notFollowedBy (void parseTerm <|> void parseFuncIdentifier) -- 후에 조사로 변경
+          )
+      <|> parseNestedFuncCalls
+      )
+  <?> "표현식"
+  )
+  table
  where
   table =
     [ [Prefix $ unaryOp "+" Positive, Prefix $ unaryOp "-" Negative]
@@ -73,6 +57,32 @@ parseArithmetic = makeExprParser (parseTerm <?> "표현식") table
   unaryOp opStr op = P.hidden $ do
     pos <- getSourceLine
     UnaryOp pos op <$ L.symbol sc opStr
+
+parseNestedFuncCalls :: Parser Expr
+parseNestedFuncCalls = do
+  calls <- P.sepBy1 (parseFuncCall <?> "함수 호출식") (symbol ",")
+  let addArg arg (FuncCall pos func args) = FuncCall pos func (arg : args)
+      addArg _   _                        = error "불가능한 상황"
+  return $ foldl1' addArg calls
+
+parseFuncCall :: Parser Expr
+parseFuncCall = do
+  args <- P.many (parseTerm <?> "함수 인수")
+  pos  <- getSourceLine
+  func <- parseFuncIdentifier <?> "함수 이름"
+  return $ FuncCall pos func args
+
+parseFuncIdentifier :: Parser String
+parseFuncIdentifier = lexeme
+  (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
+                           (P.char ' ')
+  )
+ where
+  keywords =
+    ["반환하다", "함수", "없음", "참", "거짓", "만약", "이라면", "아니고", "아니면", "반복", "인 동안"]
+  keyword    = P.choice $ reserved <$> keywords
+  hangulWord = P.some hangulSyllable
+    -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 
 parseTerm :: Parser Expr
 parseTerm =
