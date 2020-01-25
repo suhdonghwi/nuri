@@ -20,19 +20,6 @@ import           Haneul.Program
 import qualified Haneul.Instruction            as Inst
 import           Haneul.Instruction                       ( Marked(Mark) )
 
-scope :: Pos -> Builder () -> Builder ()
-scope pos builder = do
-  st <- get
-  local (+ 1) $ do
-    builder
-    st'          <- get
-    currentDepth <- ask
-    let varCount = genericLength $ filter
-          (\(_, depth) -> depth == currentDepth)
-          (toList $ view internalVarNames st')
-    replicateM_ varCount (tellCode [(pos, Inst.Pop)])
-  assign internalVarNames (view internalVarNames st)
-
 compileStmt :: Stmt -> Builder ()
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
