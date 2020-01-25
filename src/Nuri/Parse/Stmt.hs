@@ -1,6 +1,8 @@
 module Nuri.Parse.Stmt where
 
 import qualified Text.Megaparsec               as P
+import           Text.Megaparsec                          ( (<?>) )
+import           Text.Megaparsec.Char                     ( eol )
 import qualified Text.Megaparsec.Char.Lexer    as L
 
 import           Nuri.Parse
@@ -25,7 +27,7 @@ parseStmt =
     <|> parseExprStmt
 
 parseExprStmt :: Parser Stmt
-parseExprStmt = ExprStmt <$> parseExpr
+parseExprStmt = ExprStmt <$> (parseExpr <* ((void eol <|> P.eof) <?> "줄의 끝"))
 
 parseReturnStmt :: Parser Stmt
 parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
