@@ -5,9 +5,6 @@ import           Control.Lens                             ( use )
 import           Text.Megaparsec.Pos                      ( Pos )
 
 import           Nuri.Stmt
-import           Nuri.Expr
-import           Nuri.Literal
-import           Nuri.ASTNode
 import           Nuri.Codegen.Expr
 
 import           Haneul.Builder
@@ -15,45 +12,44 @@ import           Haneul.BuilderInternal
 import           Haneul.Constant
 import           Haneul.Program
 import qualified Haneul.Instruction            as Inst
-import           Haneul.Instruction                       ( Marked(Mark) )
 
 compileStmt :: Stmt -> Builder ()
-compileStmt stmt@(ExprStmt expr) = do
-  compileExpr expr
-  tellCode [(getSourceLine stmt, Inst.Pop)]
+-- compileStmt stmt@(ExprStmt expr) = do
+--   compileExpr expr
+--   tellCode [(getSourceLine stmt, Inst.Pop)]
 
-compileStmt stmt@(Return expr) = do
-  compileExpr expr
-  tellCode [(getSourceLine stmt, Inst.Return)]
+-- compileStmt stmt@(Return expr) = do
+--   compileExpr expr
+--   tellCode [(getSourceLine stmt, Inst.Return)]
 
-compileStmt (Assign pos ident expr) = do
-  compileExpr expr
-  storeVar pos ident
+-- compileStmt (Assign pos ident expr) = do
+--   compileExpr expr
+--   storeVar pos ident
 
-compileStmt (If pos cond thenStmts elseStmts') = do
-  compileExpr cond
-  whenFalseMark <- createMark
-  tellCode [(pos, Inst.PopJmpIfFalse $ Mark whenFalseMark)]
-  compileStmts thenStmts
-  case elseStmts' of
-    Just elseStmts -> do
-      afterElseMark <- createMark
-      tellCode [(pos, Inst.Jmp $ Mark afterElseMark)]
-      setMark whenFalseMark
-      compileStmts elseStmts
-      setMark afterElseMark
-    Nothing -> do
-      setMark whenFalseMark
+-- compileStmt (If pos cond thenStmts elseStmts') = do
+--   compileExpr cond
+--   whenFalseMark <- createMark
+--   tellCode [(pos, Inst.PopJmpIfFalse $ Mark whenFalseMark)]
+--   compileStmts thenStmts
+--   case elseStmts' of
+--     Just elseStmts -> do
+--       afterElseMark <- createMark
+--       tellCode [(pos, Inst.Jmp $ Mark afterElseMark)]
+--       setMark whenFalseMark
+--       compileStmts elseStmts
+--       setMark afterElseMark
+--     Nothing -> do
+--       setMark whenFalseMark
 
-compileStmt (While pos cond body) = do
-  beforeCondMark <- createMark
-  setMark beforeCondMark
-  compileExpr cond
-  whenFalseMark <- createMark
-  tellCode [(pos, Inst.PopJmpIfFalse $ Mark whenFalseMark)]
-  compileStmts body
-  tellCode [(pos, Inst.Jmp $ Mark beforeCondMark)]
-  setMark whenFalseMark
+-- compileStmt (While pos cond body) = do
+--   beforeCondMark <- createMark
+--   setMark beforeCondMark
+--   compileExpr cond
+--   whenFalseMark <- createMark
+--   tellCode [(pos, Inst.PopJmpIfFalse $ Mark whenFalseMark)]
+--   compileStmts body
+--   tellCode [(pos, Inst.Jmp $ Mark beforeCondMark)]
+--   setMark whenFalseMark
 
 compileStmt (FuncDecl pos funcName argNames body) = do
   depth    <- ask
@@ -67,8 +63,7 @@ compileStmt (FuncDecl pos funcName argNames body) = do
         (defaultInternal { _internalVarNames = varNames })
         (do
           sequence_ (addVarName <$> argVars)
-          compileStmts body
-          compileStmt $ Return (Lit pos LitNone)
+          compileExpr body
         )
     funcObject = ConstFunc
       (FuncObject { _funcArity      = fromIntegral argCount

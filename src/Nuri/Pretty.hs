@@ -59,18 +59,6 @@ instance Pretty Expr where
   pretty (List _ list) = nest' $ vsep ["List", "[elements]" <+> pretty list]
 
 instance Pretty Stmt where
-  pretty (ExprStmt expr) = nest' $ vsep ["ExprStmt", "[expr]" <+> pretty expr]
-  pretty (Return   expr) = nest' $ vsep ["Return", "[expr]" <+> pretty expr]
-  pretty (Assign _ ident val) =
-    nest' $ vsep ["Assign", "[var]" <+> pretty ident, "[val]" <+> pretty val]
-  pretty (If _ condition thenStmts elseStmts) = nest' $ vsep
-    [ "If"
-    , "[condition]" <+> pretty condition
-    , "[then]" <+> pretty thenStmts
-    , "[else]" <+> pretty elseStmts
-    ]
-  pretty (While _ condition body) = nest' $ vsep
-    ["While", "[condition]" <+> pretty condition, "[body]" <+> pretty body]
   pretty (FuncDecl _ name args body) = nest' $ vsep
     [ "FuncDecl"
     , "[name]" <+> pretty name

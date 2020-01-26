@@ -20,8 +20,5 @@ unaryOp = UnaryOp initPos
 var = Var initPos
 funcCall = FuncCall initPos
 
-assign = Assign initPos
-ifStmt = If initPos
-while = While initPos
 funcDecl = FuncDecl initPos
 list = List initPos
