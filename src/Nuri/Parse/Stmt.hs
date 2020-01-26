@@ -8,7 +8,6 @@ import qualified Text.Megaparsec.Char.Lexer    as L
 import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
-import           Nuri.Expr
 
 indent :: Parser (L.IndentOpt Parser a b) -> Parser a
 indent = L.indentBlock scn
@@ -21,8 +20,6 @@ parseStmt =
   parseIfStmt
     <|> parseWhileStmt
     <|> P.try parseReturnStmt
-    <|> P.try parseAssignment
-    <|> P.try parseComplexAssignment
     <|> parseFuncDecl
     <|> parseExprStmt
 
@@ -31,25 +28,6 @@ parseExprStmt = ExprStmt <$> (parseExpr <* ((void eol <|> P.eof) <?> "줄의 끝
 
 parseReturnStmt :: Parser Stmt
 parseReturnStmt = Return <$> (parseExpr <* reserved "반환하다")
-
-parseAssignment :: Parser Stmt
-parseAssignment = do
-  pos         <- getSourceLine
-  Var _ ident <- parseIdentifierExpr <* symbol "="
-  Assign pos ident <$> parseExpr
-
-parseComplexAssignment :: Parser Stmt
-parseComplexAssignment = do
-  pos         <- getSourceLine
-  Var _ ident <- parseIdentifierExpr
-  op          <- P.choice
-    [ Add <$ symbol "+="
-    , Subtract <$ symbol "-="
-    , Multiply <$ symbol "*="
-    , Divide <$ symbol "/="
-    , Mod <$ symbol "%="
-    ]
-  Assign pos ident . BinaryOp pos op (Var pos ident) <$> parseExpr
 
 parseIfStmt :: Parser Stmt
 parseIfStmt = do

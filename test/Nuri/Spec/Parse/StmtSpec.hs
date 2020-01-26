@@ -13,34 +13,6 @@ import           Nuri.Spec.Parse.Util
 
 spec :: Spec
 spec = do
-  describe "대입 구문 파싱" $ do
-    it "단순 정수 대입" $ do
-      testParse parseAssignment "[상자] = 10"
-        `shouldParse` assign "상자" (litInteger 10)
-    it "(붙어있는) 단순 정수 대입" $ do
-      testParse parseAssignment "[상자]=10"
-        `shouldParse` assign "상자" (litInteger 10)
-    it "사칙연산식 대입" $ do
-      testParse parseAssignment "[상자] = 10 + 2"
-        `shouldParse` assign "상자" (binaryOp Add (litInteger 10) (litInteger 2))
-
-  describe "복합 대입 구문 파싱" $ do
-    it "더하기 대입" $ do
-      testParse parseComplexAssignment "[상자] += 10"
-        `shouldParse` assign "상자" (binaryOp Add (var "상자") (litInteger 10))
-    it "빼기 대입" $ do
-      testParse parseComplexAssignment "[상자] -= 10"
-        `shouldParse` assign "상자" (binaryOp Subtract (var "상자") (litInteger 10))
-    it "곱하기 대입" $ do
-      testParse parseComplexAssignment "[상자] *= 10"
-        `shouldParse` assign "상자" (binaryOp Multiply (var "상자") (litInteger 10))
-    it "나누기 대입" $ do
-      testParse parseComplexAssignment "[상자] /= 10"
-        `shouldParse` assign "상자" (binaryOp Divide (var "상자") (litInteger 10))
-    it "나머지 대입" $ do
-      testParse parseComplexAssignment "[상자] %= 10"
-        `shouldParse` assign "상자" (binaryOp Mod (var "상자") (litInteger 10))
-
   describe "반환 구문 파싱" $ do
     it "단일 정수 반환" $ do
       testParse parseReturnStmt "1 반환하다" `shouldParse` Return (litInteger 1)
