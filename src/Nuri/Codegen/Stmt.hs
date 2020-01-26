@@ -1,9 +1,6 @@
 module Nuri.Codegen.Stmt where
 
-import           Control.Lens                             ( view
-                                                          , assign
-                                                          , use
-                                                          )
+import           Control.Lens                             ( use )
 
 import           Text.Megaparsec.Pos                      ( Pos )
 
