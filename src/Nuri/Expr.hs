@@ -20,6 +20,8 @@ data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
             | UnaryOp Pos UnaryOperator Expr
             -- 목록 표현식 : 코드 위치, 표현식 목록
             | List Pos [Expr]
+            -- 표현식 시퀀스 : 표현식 목록
+            | Seq (NonEmpty Expr)
           deriving (Show)
 
 instance Eq Expr where
@@ -31,6 +33,7 @@ instance Eq Expr where
   If _ c1 t1 e1    == If _ c2 t2 e2    = (c1 == c2) && (t1 == t2) && (e1 == e2)
   UnaryOp _ op1 v1 == UnaryOp _ op2 v2 = (op1 == op2) && (v1 == v2)
   List _ v1        == List _ v2        = v1 == v2
+  Seq e1           == Seq e2           = e1 == e2
   _                == _                = False
 
 instance ASTNode Expr where
@@ -41,6 +44,7 @@ instance ASTNode Expr where
   getSourceLine (If       pos _ _ _) = pos
   getSourceLine (UnaryOp pos _ _   ) = pos
   getSourceLine (List pos _        ) = pos
+  getSourceLine (Seq (x :| _)      ) = getSourceLine x
 
 data BinaryOperator = Add | Subtract | Multiply | Divide | Mod
                     | Equal | Inequal

@@ -22,8 +22,21 @@ import           Nuri.Parse
 import           Nuri.Expr
 import           Nuri.Literal
 
+
 parseExpr :: Parser Expr
-parseExpr = parseIf <|> parseArithmetic
+parseExpr = parseExprChain <|> parseIf <|> parseArithmetic
+
+parseExprChain :: Parser Expr
+parseExprChain = do
+  reserved "순서대로"
+  P.newline
+  scn
+  level <- L.indentLevel
+  Seq . fromList <$> P.some
+    (do
+      L.indentGuard scn EQ level
+      parseExpr
+    )
 
 parseIf :: Parser Expr
 parseIf =

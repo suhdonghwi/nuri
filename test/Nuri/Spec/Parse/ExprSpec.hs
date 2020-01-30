@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLists #-}
 module Nuri.Spec.Parse.ExprSpec where
 
 import           Test.Hspec
@@ -253,6 +254,24 @@ spec = do
                         (litInteger 1)
                         (litInteger 2)
 
+  describe "표현식 시퀀스 파싱" $ do
+    it "단순 연산식 시퀀스" $ do
+      testParse parseExpr "순서대로\n  1 + 1\n  2 * 2" `shouldParse` Seq
+        [ binaryOp Add      (litInteger 1) (litInteger 1)
+        , binaryOp Multiply (litInteger 2) (litInteger 2)
+        ]
+    it "인덴트가 없는 단순 연산식 시퀀스" $ do
+      testParse parseExpr "순서대로\n1 + 1\n2 * 2" `shouldParse` Seq
+        [ binaryOp Add      (litInteger 1) (litInteger 1)
+        , binaryOp Multiply (litInteger 2) (litInteger 2)
+        ]
+    it "함수 호출식을 포함한 시퀀스" $ do
+      testParse parseExpr "순서대로\n  1\n  1 던지다"
+        `shouldParse` Seq [litInteger 1, funcCall "던지다" [litInteger 1]]
+    -- it "표현식 중간에 시퀀스 사용" $ do
+    --   testParse parseExpr "만약 참 이라면 순서대로 1\n 2. 아니라면 3"
+    --     `shouldParse` Seq [litInteger 1, funcCall "던지다" [litInteger 1]]
+
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
       testParse parseExpr "(1 + 1) / 2" `shouldParse` binaryOp
@@ -265,9 +284,8 @@ spec = do
         (litInteger 1)
         (funcCall "더하다" [litInteger 1, litInteger 2])
     it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
-      testParse parseExpr "1 + (1 2 더하다)" `shouldParse` binaryOp
-        Add
-        (litInteger 1)
-        (funcCall "더하다" [litInteger 1, litInteger 2])
+      testParse parseExpr "(1 + 1) 2 더하다" `shouldParse` funcCall
+        "더하다"
+        [binaryOp Add (litInteger 1) (litInteger 1), litInteger 2]
 
 
