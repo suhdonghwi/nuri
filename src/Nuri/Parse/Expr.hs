@@ -26,14 +26,17 @@ parseExpr :: Parser Expr
 parseExpr = parseIf <|> parseArithmetic
 
 parseIf :: Parser Expr
-parseIf = do
-  pos <- getSourceLine
-  reserved "만약"
-  condExpr <- parseArithmetic
-  reserved "이라면"
-  thenExpr <- parseArithmetic
-  reserved "아니라면"
-  If pos condExpr thenExpr <$> parseArithmetic
+parseIf =
+  (do
+      pos <- getSourceLine
+      reserved "만약"
+      condExpr <- parseArithmetic
+      reserved "이라면"
+      thenExpr <- parseArithmetic
+      reserved "아니라면"
+      If pos condExpr thenExpr <$> parseArithmetic
+    )
+    <?> "조건식"
 
 parseArithmetic :: Parser Expr
 parseArithmetic = makeExprParser
