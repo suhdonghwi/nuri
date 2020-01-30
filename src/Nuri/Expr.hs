@@ -12,6 +12,8 @@ data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
             | Var Pos String
             -- 함수 호출 표현식 : 코드 위치, 함수 이름, 함수 인자 리스트
             | FuncCall Pos String [Expr]
+            -- 조건 분기 표현식 : 코드 위치, 조건식, then문, else문
+            | If Pos Expr Expr Expr
             -- 이항 연산 표현식 : 코드 위치, 이항 연산자, 피연산자(좌), 피연산자(우)
             | BinaryOp Pos BinaryOperator Expr Expr
             -- 단항 연산 표현식 : 코드 위치, 단항 연산자, 피연산자
@@ -26,6 +28,7 @@ instance Eq Expr where
   FuncCall _ f1 a1 == FuncCall _ f2 a2 = (f1 == f2) && (a1 == a2)
   BinaryOp _ op1 l1 r1 == BinaryOp _ op2 l2 r2 =
     (op1 == op2) && (l1 == l2) && (r1 == r2)
+  If _ c1 t1 e1    == If _ c2 t2 e2    = (c1 == c2) && (t1 == t2) && (e1 == e2)
   UnaryOp _ op1 v1 == UnaryOp _ op2 v2 = (op1 == op2) && (v1 == v2)
   List _ v1        == List _ v2        = v1 == v2
   _                == _                = False
@@ -35,6 +38,7 @@ instance ASTNode Expr where
   getSourceLine (Var pos _         ) = pos
   getSourceLine (FuncCall pos _ _  ) = pos
   getSourceLine (BinaryOp pos _ _ _) = pos
+  getSourceLine (If       pos _ _ _) = pos
   getSourceLine (UnaryOp pos _ _   ) = pos
   getSourceLine (List pos _        ) = pos
 

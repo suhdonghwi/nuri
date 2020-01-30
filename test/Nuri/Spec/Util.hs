@@ -15,6 +15,7 @@ litInteger v = Lit initPos (LitInteger v)
 litString v = Lit initPos (LitString v)
 litReal v = Lit initPos (LitReal v)
 litBool v = Lit initPos (LitBool v)
+ifExpr = If initPos
 binaryOp = BinaryOp initPos
 unaryOp = UnaryOp initPos
 var = Var initPos
