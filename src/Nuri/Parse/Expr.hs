@@ -23,7 +23,17 @@ import           Nuri.Expr
 import           Nuri.Literal
 
 parseExpr :: Parser Expr
-parseExpr = parseArithmetic
+parseExpr = parseIf <|> parseArithmetic
+
+parseIf :: Parser Expr
+parseIf = do
+  pos <- getSourceLine
+  reserved "만약"
+  condExpr <- parseArithmetic
+  reserved "이라면"
+  thenExpr <- parseArithmetic
+  reserved "아니라면"
+  If pos condExpr thenExpr <$> parseArithmetic
 
 parseArithmetic :: Parser Expr
 parseArithmetic = makeExprParser
@@ -78,9 +88,8 @@ parseFuncIdentifier = lexeme
                            (P.char ' ')
   )
  where
-  keywords =
-    ["반환하다", "함수", "없음", "참", "거짓", "만약", "이라면", "아니고", "아니면", "반복", "인 동안"]
-  keyword    = P.choice $ reserved <$> keywords
+  keywords = ["반환하다", "함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "반복", "인 동안"]
+  keyword = P.choice $ reserved <$> keywords
   hangulWord = P.some hangulSyllable
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 

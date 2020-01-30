@@ -232,6 +232,21 @@ spec = do
     it "비어있는 목록식" $ do
       testParse parseList "{}" `shouldParse` list []
 
+  describe "목록 표현식 파싱" $ do
+    it "단순 조건문 파싱" $ do
+      testParse parseIf "만약 참 이라면 1 아니라면 2"
+        `shouldParse` ifExpr (litBool True) (litInteger 1) (litInteger 2)
+    it "연산식이 포함된 조건문 파싱" $ do
+      testParse parseIf "만약 1 + 2 이라면 1 * 2 아니라면 2 / 3" `shouldParse` ifExpr
+        (binaryOp Add (litInteger 1) (litInteger 2))
+        (binaryOp Multiply (litInteger 1) (litInteger 2))
+        (binaryOp Divide (litInteger 2) (litInteger 3))
+    it "함수 호출식 포함된 조건문 파싱" $ do
+      testParse parseIf "만약 1 2 던지고 받다 이라면 3 들고, 받다 아니라면 2 들다"
+        `shouldParse` ifExpr (funcCall "던지고 받다" [litInteger 1, litInteger 2])
+                             (funcCall "받다" [funcCall "들고" [litInteger 3]])
+                             (funcCall "들다" [litInteger 2])
+
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
       testParse parseExpr "(1 + 1) / 2" `shouldParse` binaryOp
