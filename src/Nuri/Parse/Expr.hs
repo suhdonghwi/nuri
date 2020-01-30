@@ -33,9 +33,11 @@ parseExprChain = do
   scn
   level <- L.indentLevel
   Seq . fromList <$> P.some
-    (do
-      L.indentGuard scn EQ level
-      parseExpr
+    (P.try
+      (do
+        L.indentGuard scn EQ level
+        parseExpr
+      )
     )
 
 parseIf :: Parser Expr
@@ -104,8 +106,9 @@ parseFuncIdentifier = lexeme
                            (P.char ' ')
   )
  where
-  keywords = ["반환하다", "함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "반복", "인 동안"]
-  keyword = P.choice $ reserved <$> keywords
+  keywords =
+    ["반환하다", "함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "반복", "인 동안", "순서대로"]
+  keyword    = P.choice $ reserved <$> keywords
   hangulWord = P.some hangulSyllable
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 

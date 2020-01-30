@@ -23,4 +23,5 @@ parseFuncDecl = do
   args     <- P.many parseIdentifier
   funcName <- parseFuncIdentifier
   _        <- symbol ":"
+  scn
   FuncDecl pos funcName args <$> parseExpr

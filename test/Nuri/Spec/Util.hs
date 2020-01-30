@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 module Nuri.Spec.Util where
 
+
 import           Text.Megaparsec.Pos
 
 import           Nuri.Expr

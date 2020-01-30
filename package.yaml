@@ -23,20 +23,21 @@ dependencies:
   - base-noprelude >= 4.12
   - relude
   - megaparsec
-  - parser-combinators 
+  - parser-combinators
   - text
-  - containers 
+  - containers
   - mtl
-  - transformers 
-  - lens 
-  - prettyprinter 
-  - ordered-containers 
+  - transformers
+  - lens
+  - prettyprinter
+  - ordered-containers
   - binary
   - bytestring
   # Since ghcide does not support multi cradle projects yet, these two dependencies have to be added here.
   # This is just temporary fix, and should be removed later.
-  - hspec 
+  - hspec
   - hspec-megaparsec
+  - neat-interpolation
 
 default-extensions:
   - OverloadedStrings
@@ -44,6 +45,7 @@ default-extensions:
   - GeneralizedNewtypeDeriving
   - TemplateHaskell
   - TupleSections
+  - QuasiQuotes
 
 library:
   source-dirs: src
@@ -73,5 +75,6 @@ tests:
       - -Wno-orphans
     dependencies:
       - nuri
-      - hspec 
+      - hspec
       - hspec-megaparsec
+      - neat-interpolation

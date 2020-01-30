@@ -1,6 +1,9 @@
 {-# LANGUAGE OverloadedLists #-}
 module Nuri.Spec.Parse.ExprSpec where
 
+import           NeatInterpolation
+import           Data.Text                                ( unpack )
+
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
 
@@ -256,17 +259,38 @@ spec = do
 
   describe "표현식 시퀀스 파싱" $ do
     it "단순 연산식 시퀀스" $ do
-      testParse parseExpr "순서대로\n  1 + 1\n  2 * 2" `shouldParse` Seq
-        [ binaryOp Add      (litInteger 1) (litInteger 1)
-        , binaryOp Multiply (litInteger 2) (litInteger 2)
-        ]
-    it "인덴트가 없는 단순 연산식 시퀀스" $ do
-      testParse parseExpr "순서대로\n1 + 1\n2 * 2" `shouldParse` Seq
-        [ binaryOp Add      (litInteger 1) (litInteger 1)
-        , binaryOp Multiply (litInteger 2) (litInteger 2)
-        ]
+      testParse
+          parseExpr
+          (unpack [text| 
+            순서대로 
+              1 + 1 
+              2 * 2
+          |]
+          )
+        `shouldParse` Seq
+                        [ binaryOp Add      (litInteger 1) (litInteger 1)
+                        , binaryOp Multiply (litInteger 2) (litInteger 2)
+                        ]
     it "함수 호출식을 포함한 시퀀스" $ do
-      testParse parseExpr "순서대로\n  1\n  1 던지다"
+      testParse
+          parseExpr
+          (unpack [text| 
+            순서대로
+                1
+                1 던지다
+          |]
+          )
+        `shouldParse` Seq [litInteger 1, funcCall "던지다" [litInteger 1]]
+    it "중간에 비어있는 라인을 포함한 시퀀스" $ do
+      testParse
+          parseExpr
+          (unpack [text|
+            순서대로
+              1
+                                          
+              1 던지다
+          |]
+          )
         `shouldParse` Seq [litInteger 1, funcCall "던지다" [litInteger 1]]
     -- it "표현식 중간에 시퀀스 사용" $ do
     --   testParse parseExpr "만약 참 이라면 순서대로 1\n 2. 아니라면 3"
