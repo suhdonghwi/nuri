@@ -4,4 +4,4 @@ import           Text.Megaparsec
 import           Nuri.Parse
 
 testParse :: Parser a -> String -> Either (ParseErrorBundle String Void) a
-testParse parser = runParser (scn *> parser <* scn) "(test)"
+testParse parser = runParser (scn *> parser <* scn <* eof) "(test)"
