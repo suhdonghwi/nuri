@@ -36,7 +36,7 @@ parseExprChain = do
     (P.try
       (do
         L.indentGuard scn EQ level
-        parseExpr
+        parseExpr <* P.newline
       )
     )
 
@@ -45,11 +45,11 @@ parseIf =
   (do
       pos <- getSourceLine
       reserved "만약"
-      condExpr <- parseArithmetic
+      condExpr <- parseExpr
       reserved "이라면"
-      thenExpr <- parseArithmetic
+      thenExpr <- parseExpr
       reserved "아니라면"
-      If pos condExpr thenExpr <$> parseArithmetic
+      If pos condExpr thenExpr <$> parseExpr
     )
     <?> "조건식"
 

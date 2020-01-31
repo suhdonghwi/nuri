@@ -292,9 +292,19 @@ spec = do
           |]
           )
         `shouldParse` Seq [litInteger 1, funcCall "던지다" [litInteger 1]]
-    -- it "표현식 중간에 시퀀스 사용" $ do
-    --   testParse parseExpr "만약 참 이라면 순서대로 1\n 2. 아니라면 3"
-    --     `shouldParse` Seq [litInteger 1, funcCall "던지다" [litInteger 1]]
+    it "표현식 중간에 시퀀스 사용" $ do
+      testParse
+          parseExpr
+          (unpack [text|
+            만약 참 이라면 순서대로 
+                1
+                2
+            아니라면 3
+          |]
+          )
+        `shouldParse` ifExpr (litBool True)
+                             (Seq [litInteger 1, litInteger 2])
+                             (litInteger 3)
 
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
