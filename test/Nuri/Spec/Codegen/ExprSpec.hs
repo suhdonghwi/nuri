@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedLists #-}
 module Nuri.Spec.Codegen.ExprSpec where
 
 import           Test.Hspec
@@ -121,4 +122,13 @@ spec = do
     it "비어있는 목록 코드 생성" $ do
       compileExpr (list [])
         `shouldBuild` (S.singleton ConstNone, [Inst.BuildList 0])
+  describe "표현식 시퀀스 코드 생성" $ do
+    it "표현식이 1개인 시퀀스 코드 생성" $ do
+      compileExpr (Seq [litInteger 10])
+        `shouldBuild` (S.fromList [ConstNone, ConstInteger 10], [Inst.Push 1])
+    it "표현식이 2개인 시퀀스 코드 생성" $ do
+      compileExpr (Seq [litInteger 10, litBool True])
+        `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10, ConstBool True]
+                      , [Inst.Push 1, Inst.Pop, Inst.Push 2]
+                      )
 

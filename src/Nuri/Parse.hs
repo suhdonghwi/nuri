@@ -28,11 +28,11 @@ lexeme = L.lexeme sc
 symbol :: String -> Parser String
 symbol = L.symbol sc
 
-reserved :: Text -> Parser ()
+reserved :: String -> Parser ()
 reserved s =
   (lexeme . P.try)
       (sequence (P.char <$> toString s) *> P.notFollowedBy hangulSyllable)
-    <?> concat ["'", toString s, "'"]
+    <?> concat ["'", s, "'"]
 
 hangulSyllable :: Parser Char
 hangulSyllable = P.oneOf ['가' .. '힣'] <?> "한글"

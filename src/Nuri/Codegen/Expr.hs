@@ -6,6 +6,7 @@ import           Data.List                                ( elemIndex )
 
 import           Nuri.Expr
 import           Nuri.Literal
+import           Nuri.ASTNode
 
 import           Haneul.Builder
 import           Haneul.BuilderInternal
@@ -33,6 +34,13 @@ compileExpr (FuncCall pos func args) = do
   compileExpr (Var pos func)
   sequence_ (compileExpr <$> args)
   tellCode [(pos, Inst.Call $ genericLength args)]
+compileExpr (Seq (x :| xs)) = do
+  case nonEmpty xs of
+    Nothing   -> compileExpr x
+    Just rest -> do
+      compileExpr x
+      tellCode [(getSourceLine x, Inst.Pop)]
+      compileExpr (Seq rest)
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs
