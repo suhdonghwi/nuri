@@ -52,12 +52,9 @@ parseExprChain = do
 
 parseExprs :: Pos -> Parser Expr
 parseExprs level = Seq <$> some
-  (P.try
-    (do
-      L.indentGuard scn EQ level
-      (parseExpr <* P.newline)
-        <|> (declToLet <$> parseDecl <*> parseExprs level)
-    )
+  (do
+    L.indentGuard scn EQ level
+    (parseExpr <* P.newline) <|> (declToLet <$> parseDecl <*> parseExprs level)
   )
 
 parseExpr :: Parser Expr
