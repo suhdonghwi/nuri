@@ -21,6 +21,8 @@ binaryOp = BinaryOp initPos
 unaryOp = UnaryOp initPos
 var = Var initPos
 funcCall = FuncCall initPos
+letExpr = Let initPos
+lambda = Lambda initPos
 
 funcDecl = FuncDecl initPos
 list = List initPos

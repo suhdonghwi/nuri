@@ -30,7 +30,10 @@ parseStmts :: Parser (NonEmpty Stmt)
 parseStmts = some (parseStmt <* scn)
 
 parseStmt :: Parser Stmt
-parseStmt = DeclStmt <$> parseFuncDecl
+parseStmt = DeclStmt <$> parseDecl
+
+parseDecl :: Parser Decl
+parseDecl = parseFuncDecl
 
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
@@ -41,6 +44,10 @@ parseFuncDecl = do
   _        <- symbol ":"
   scn
   FuncDecl pos funcName args <$> parseExpr
+
+declToLet :: Decl -> (Expr -> Expr)
+declToLet decl = case decl of
+  FuncDecl pos funcName args body -> Let pos funcName (Lambda pos args body)
 
 parseExprChain :: Parser Expr
 parseExprChain = do
@@ -54,7 +61,8 @@ parseExprs level = Seq <$> some
   (P.try
     (do
       L.indentGuard scn EQ level
-      parseExpr <* P.newline
+      (parseExpr <* P.newline)
+        <|> (declToLet <$> parseDecl <*> parseExprs level)
     )
   )
 

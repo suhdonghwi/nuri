@@ -305,6 +305,53 @@ spec = do
         `shouldParse` ifExpr (litBool True)
                              (Seq [litInteger 1, litInteger 2])
                              (litInteger 3)
+    it "표현식 중간에 함수 선언" $ do
+      testParse
+          parseExpr
+          (unpack [text|
+            순서대로
+              함수 [값] 더하다:
+                [값] + 1
+              1
+          |]
+          )
+        `shouldParse` Seq
+                        [ letExpr
+                            "더하다"
+                            (lambda ["값"]
+                                    (binaryOp Add (var "값") (litInteger 1))
+                            )
+                            (Seq [litInteger 1])
+                        ]
+    it "표현식 중간에 함수 2개 선언" $ do
+      testParse
+          parseExpr
+          (unpack [text|
+            순서대로
+              1 + 1
+              함수 [값] 더하다:
+                [값] + 1
+              함수 [값] 빼다:
+                [값] - 1
+              1
+          |]
+          )
+        `shouldParse` Seq
+                        [ binaryOp Add (litInteger 1) (litInteger 1)
+                        , letExpr
+                          "더하다"
+                          (lambda ["값"] (binaryOp Add (var "값") (litInteger 1)))
+                          (Seq
+                            [ letExpr
+                                "빼다"
+                                (lambda
+                                  ["값"]
+                                  (binaryOp Subtract (var "값") (litInteger 1))
+                                )
+                                (Seq [litInteger 1])
+                            ]
+                          )
+                        ]
 
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
