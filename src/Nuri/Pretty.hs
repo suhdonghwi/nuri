@@ -15,6 +15,7 @@ import           Data.Text.Prettyprint.Doc                ( Pretty
 import           Nuri.Literal
 import           Nuri.Expr
 import           Nuri.Stmt
+import           Nuri.Decl
 
 instance Pretty Literal where
   pretty (LitInteger v) = "LitInteger" <> parens (pretty v)

@@ -23,8 +23,8 @@ import           Control.Monad.Combinators.NonEmpty       ( some )
 
 import           Nuri.Parse
 import           Nuri.Expr
-import           Nuri.Stmt
 import           Nuri.Literal
+import           Nuri.Decl
 
 parseDecl :: Parser Decl
 parseDecl = parseFuncDecl

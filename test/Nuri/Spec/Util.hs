@@ -5,8 +5,8 @@ module Nuri.Spec.Util where
 import           Text.Megaparsec.Pos
 
 import           Nuri.Expr
-import           Nuri.Stmt
 import           Nuri.Literal
+import           Nuri.Decl
 
 initPos :: Pos
 initPos = pos1
