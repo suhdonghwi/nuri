@@ -48,6 +48,7 @@ instance ASTNode Expr where
   getSourceLine (UnaryOp pos _ _   ) = pos
   getSourceLine (List pos _        ) = pos
   getSourceLine (Seq (x :| _)      ) = getSourceLine x
+  getSourceLine (Lambda pos _ _    ) = pos
 
 data BinaryOperator = Add | Subtract | Multiply | Divide | Mod
                     | Equal | Inequal
