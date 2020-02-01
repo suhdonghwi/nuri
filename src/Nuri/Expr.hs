@@ -24,6 +24,8 @@ data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
             | Seq (NonEmpty Expr)
             -- 람다 표현식 : 코드 위치, 인수 목록, 함수 본문
             | Lambda Pos [String] Expr
+            -- 상수 선언 표현식 : 코드 위치, 상수 이름, 상수 값, 표현식
+            | Let Pos String Expr Expr
           deriving (Show)
 
 instance Eq Expr where
@@ -37,6 +39,7 @@ instance Eq Expr where
   List _ v1        == List _ v2        = v1 == v2
   Seq e1           == Seq e2           = e1 == e2
   Lambda _ a1 b1   == Lambda _ a2 b2   = (a1 == a2) && (b1 == b2)
+  Let _ n1 v1 e1   == Let _ n2 v2 e2   = (n1 == n2) && (v1 == v2) && (e1 == e2)
   _                == _                = False
 
 instance ASTNode Expr where
@@ -49,6 +52,7 @@ instance ASTNode Expr where
   getSourceLine (List pos _        ) = pos
   getSourceLine (Seq (x :| _)      ) = getSourceLine x
   getSourceLine (Lambda pos _ _    ) = pos
+  getSourceLine (Let pos _ _ _     ) = pos
 
 data BinaryOperator = Add | Subtract | Multiply | Divide | Mod
                     | Equal | Inequal
