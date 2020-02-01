@@ -23,7 +23,7 @@ import           Text.Printf
 import           Nuri.Stmt
 import           Nuri.Codegen.Stmt
 import           Nuri.Pretty                              ( )
-import           Nuri.Parse.Expr
+import           Nuri.Parse.Stmt
 
 import           Haneul.Program
 import           Haneul.BuilderInternal

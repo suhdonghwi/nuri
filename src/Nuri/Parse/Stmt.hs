@@ -1,8 +1,14 @@
 module Nuri.Parse.Stmt where
 
-import qualified Text.Megaparsec               as P
-import qualified Text.Megaparsec.Char.Lexer    as L
+import           Control.Monad.Combinators.NonEmpty       ( some )
 
 import           Nuri.Parse
 import           Nuri.Parse.Expr
 import           Nuri.Stmt
+
+
+parseStmts :: Parser (NonEmpty Stmt)
+parseStmts = some (parseStmt <* scn)
+
+parseStmt :: Parser Stmt
+parseStmt = DeclStmt <$> parseDecl

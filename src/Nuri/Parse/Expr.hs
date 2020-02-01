@@ -26,12 +26,6 @@ import           Nuri.Expr
 import           Nuri.Stmt
 import           Nuri.Literal
 
-parseStmts :: Parser (NonEmpty Stmt)
-parseStmts = some (parseStmt <* scn)
-
-parseStmt :: Parser Stmt
-parseStmt = DeclStmt <$> parseDecl
-
 parseDecl :: Parser Decl
 parseDecl = parseFuncDecl
 
@@ -46,8 +40,8 @@ parseFuncDecl = do
   FuncDecl pos funcName args <$> parseExpr
 
 declToLet :: Decl -> (Expr -> Expr)
-declToLet decl = case decl of
-  FuncDecl pos funcName args body -> Let pos funcName (Lambda pos args body)
+declToLet (FuncDecl pos funcName args body) =
+  Let pos funcName (Lambda pos args body)
 
 parseExprChain :: Parser Expr
 parseExprChain = do
