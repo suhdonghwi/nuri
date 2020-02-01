@@ -44,7 +44,7 @@ nest' :: Doc a -> Doc a
 nest' = nest 4
 
 instance Pretty Expr where
-  pretty (Lit _ l             ) = pretty l
+  pretty (Lit _ lit           ) = pretty lit
   pretty (Var _ ident         ) = "Var" <+> parens ((dquotes . pretty) ident)
   pretty (FuncCall _ func args) = nest'
     $ vsep ["App", "[func]" <+> pretty func, "[args]" <+> align (pretty args)]
@@ -59,6 +59,9 @@ instance Pretty Expr where
   pretty (List _ list) = nest' $ vsep ["List", "[elements]" <+> pretty list]
 
 instance Pretty Stmt where
+  pretty (DeclStmt decl) = nest' $ vsep ["DeclStmt", pretty decl]
+
+instance Pretty Decl where
   pretty (FuncDecl _ name args body) = nest' $ vsep
     [ "FuncDecl"
     , "[name]" <+> pretty name

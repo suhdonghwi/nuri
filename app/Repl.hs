@@ -23,7 +23,7 @@ import           Text.Printf
 import           Nuri.Stmt
 import           Nuri.Codegen.Stmt
 import           Nuri.Pretty                              ( )
-import           Nuri.Parse.Stmt
+import           Nuri.Parse.Expr
 
 import           Haneul.Program
 import           Haneul.BuilderInternal
@@ -37,7 +37,7 @@ $(makeLenses ''ReplState)
 newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
-parseInput :: String -> String -> MaybeT IO Stmts
+parseInput :: String -> String -> MaybeT IO (NonEmpty Stmt)
 parseInput input fileName = do
   case runParser (parseStmts <* eof) fileName input of
     Left err -> do
@@ -46,23 +46,23 @@ parseInput input fileName = do
     Right parseResult -> return parseResult
 
 
-printResult :: Stmts -> IO ()
+printResult :: (NonEmpty Stmt) -> IO ()
 printResult stmts = do
   (liftIO . print . vsep . toList) (pretty <$> stmts)
-  let program       = (toProgram 0 defaultInternal . compileStmts) stmts
-      compiledCode  = view programCode program
-      compiledTable = view programConstTable program
+  -- let program       = (toProgram 0 defaultInternal . compileStmts) stmts
+  --     compiledCode  = view programCode program
+  --     compiledTable = view programConstTable program
 
-  putStrLn "---------------"
-  print $ pretty compiledTable
-  (print . vsep) (pretty <$> compiledCode)
-  putStrLn "---------------"
+  -- putStrLn "---------------"
+  -- print $ pretty compiledTable
+  -- (print . vsep) (pretty <$> compiledCode)
+  -- putStrLn "---------------"
 
-  let encodedProgram = encode program
-  writeFileLBS "./test.hn" encodedProgram
-  putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes encodedProgram
-  when ((decode encodedProgram :: Program) == program)
-       (putStrLn "Program encoding is valid")
+  -- let encodedProgram = encode program
+  -- writeFileLBS "./test.hn" encodedProgram
+  -- putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes encodedProgram
+  -- when ((decode encodedProgram :: Program) == program)
+  --      (putStrLn "Program encoding is valid")
 
 repl :: Repl ()
 repl = forever $ do

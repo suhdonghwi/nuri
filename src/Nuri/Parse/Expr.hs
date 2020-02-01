@@ -6,7 +6,9 @@ import           Data.List                                ( foldl1' )
 import           Data.String                              ( unwords )
 
 import qualified Text.Megaparsec               as P
-import           Text.Megaparsec                          ( (<?>) )
+import           Text.Megaparsec                          ( (<?>)
+                                                          , Pos
+                                                          )
 import qualified Text.Megaparsec.Char          as P
 
 import qualified Text.Megaparsec.Char.Lexer    as L
@@ -17,28 +19,47 @@ import           Control.Monad.Combinators.Expr           ( makeExprParser
                                                             , InfixL
                                                             )
                                                           )
+import           Control.Monad.Combinators.NonEmpty       ( some )
 
 import           Nuri.Parse
 import           Nuri.Expr
+import           Nuri.Stmt
 import           Nuri.Literal
 
+parseStmts :: Parser (NonEmpty Stmt)
+parseStmts = some (parseStmt <* scn)
 
-parseExpr :: Parser Expr
-parseExpr = parseExprChain <|> parseIf <|> parseArithmetic
+parseStmt :: Parser Stmt
+parseStmt = DeclStmt <$> parseFuncDecl
+
+parseFuncDecl :: Parser Decl
+parseFuncDecl = do
+  pos <- getSourceLine
+  P.try $ reserved "함수"
+  args     <- P.many parseIdentifier
+  funcName <- parseFuncIdentifier
+  _        <- symbol ":"
+  scn
+  FuncDecl pos funcName args <$> parseExpr
 
 parseExprChain :: Parser Expr
 parseExprChain = do
-  reserved "순서대로"
-  P.newline
+  reserved "순서대로" <* P.newline
   scn
   level <- L.indentLevel
-  Seq . fromList <$> P.some
-    (P.try
-      (do
-        L.indentGuard scn EQ level
-        parseExpr <* P.newline
-      )
+  parseExprs level
+
+parseExprs :: Pos -> Parser Expr
+parseExprs level = Seq <$> some
+  (P.try
+    (do
+      L.indentGuard scn EQ level
+      parseExpr <* P.newline
     )
+  )
+
+parseExpr :: Parser Expr
+parseExpr = parseExprChain <|> parseIf <|> parseArithmetic
 
 parseIf :: Parser Expr
 parseIf =

@@ -5,16 +5,19 @@ import           Text.Megaparsec.Pos                      ( Pos )
 import           Nuri.ASTNode
 import           Nuri.Expr
 
-data Stmt = -- 함수 선언 구문 : 코드 위치, 함수 이름, 함수 인자 이름, 함수 내부 구문 집합
-            FuncDecl Pos String [String] Expr
-          deriving (Show)
+data Stmt = DeclStmt Decl
+  deriving (Eq, Show)
 
-type Stmts = [Stmt]
+data Decl = FuncDecl Pos String [String] Expr
+  deriving (Show)
 
-instance Eq Stmt where
+instance Eq Decl where
   FuncDecl _ f1 a1 b1 == FuncDecl _ f2 a2 b2 =
     (f1 == f2) && (a1 == a2) && (b1 == b2)
   _ == _ = False
 
-instance ASTNode Stmt where
+instance ASTNode Decl where
   getSourceLine (FuncDecl pos _ _ _) = pos
+
+instance ASTNode Stmt where
+  getSourceLine (DeclStmt decl) = getSourceLine decl
