@@ -49,6 +49,31 @@ spec = do
       it "예약어로 시작하는 이름의 함수" $ do
         testParse parseDeclStmt "함수 [값] 거짓하다: 1"
           `shouldParse` funcDecl "거짓하다" ["값"] (litInteger 1)
+    describe "상수 선언문 파싱" $ do
+      it "단순 리터럴 상수 선언" $ do
+        testParse parseDeclStmt "상수 [값]: 1"
+          `shouldParse` constDecl "값" (litInteger 1)
+      it "계산식 상수 선언" $ do
+        testParse parseDeclStmt "상수 [값] : 1 * 2"
+          `shouldParse` constDecl
+                          "값"
+                          (binaryOp Multiply (litInteger 1) (litInteger 2))
+      it "시퀀스 식 상수 선어" $ do
+        testParse
+            parseDeclStmt
+            (unpack [text|
+              상수 [사과 한 박스]: 순서대로
+                10 던지다
+                1 * 2
+            |]
+            )
+          `shouldParse` constDecl
+                          "사과 한 박스"
+                          (Seq
+                            [ funcCall "던지다" [litInteger 10]
+                            , binaryOp Multiply (litInteger 1) (litInteger 2)
+                            ]
+                          )
 
   describe "표현식 구문 파싱" $ do
     it "계산식 구문" $ do

@@ -27,7 +27,7 @@ import           Nuri.Literal
 import           Nuri.Decl
 
 parseDecl :: Parser Decl
-parseDecl = parseFuncDecl
+parseDecl = parseFuncDecl <|> parseConstDecl
 
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
@@ -35,13 +35,22 @@ parseFuncDecl = do
   P.try $ reserved "함수"
   args     <- P.many parseIdentifier
   funcName <- parseFuncIdentifier
-  _        <- symbol ":"
+  symbol ":"
   scn
   FuncDecl pos funcName args <$> parseExpr
+
+parseConstDecl :: Parser Decl
+parseConstDecl = do
+  pos <- getSourceLine
+  P.try $ reserved "상수"
+  identifier <- parseIdentifier
+  symbol ":"
+  ConstDecl pos identifier <$> parseExpr
 
 declToLet :: Decl -> (Expr -> Expr)
 declToLet (FuncDecl pos funcName args body) =
   Let pos funcName (Lambda pos args body)
+declToLet (ConstDecl pos constName expr) = Let pos constName expr
 
 parseExprChain :: Parser Expr
 parseExprChain = do
