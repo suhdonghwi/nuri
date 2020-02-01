@@ -22,6 +22,8 @@ data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
             | List Pos [Expr]
             -- 표현식 시퀀스 : 표현식 목록
             | Seq (NonEmpty Expr)
+            -- 람다 표현식 : 코드 위치, 인수 목록, 함수 본문
+            | Lambda Pos [String] Expr
           deriving (Show)
 
 instance Eq Expr where
@@ -34,6 +36,7 @@ instance Eq Expr where
   UnaryOp _ op1 v1 == UnaryOp _ op2 v2 = (op1 == op2) && (v1 == v2)
   List _ v1        == List _ v2        = v1 == v2
   Seq e1           == Seq e2           = e1 == e2
+  Lambda _ a1 b1   == Lambda _ a2 b2   = (a1 == a2) && (b1 == b2)
   _                == _                = False
 
 instance ASTNode Expr where
