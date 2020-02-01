@@ -5,6 +5,7 @@ module Nuri.Spec.Util where
 import           Text.Megaparsec.Pos
 
 import           Nuri.Expr
+import           Nuri.Stmt
 import           Nuri.Literal
 import           Nuri.Decl
 
@@ -24,5 +25,5 @@ funcCall = FuncCall initPos
 letExpr = Let initPos
 lambda = Lambda initPos
 
-funcDecl = FuncDecl initPos
+funcDecl = ((DeclStmt .) .) . FuncDecl initPos
 list = List initPos

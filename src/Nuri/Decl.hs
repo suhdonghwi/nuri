@@ -1,6 +1,6 @@
 module Nuri.Decl where
 
-import           Text.Megaparsec.Pos
+import           Text.Megaparsec.Pos                      ( Pos )
 
 import           Nuri.ASTNode
 import           Nuri.Expr
