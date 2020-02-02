@@ -12,7 +12,7 @@ import           Haneul.Builder
 import           Haneul.BuilderInternal
 import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
-import           Haneul.Instruction                       ( Marked(Mark) )
+import           Haneul.Instruction                       ( Mark(Mark) )
 
 litToConst :: Literal -> Constant
 litToConst LitNone        = ConstNone
@@ -26,12 +26,15 @@ compileExpr (Lit pos lit) = do
   let value = litToConst lit
   index <- addConstant value
   tellCode [(pos, Inst.Push $ fromIntegral index)]
+
 compileExpr (Var pos ident) = do
   tellCode [(pos, Inst.Load ident)]
+
 compileExpr (FuncCall pos func args) = do
   compileExpr (Var pos func)
   sequence_ (compileExpr <$> args)
   tellCode [(pos, Inst.Call $ genericLength args)]
+
 compileExpr (Seq (x :| xs)) = do
   case nonEmpty xs of
     Nothing   -> compileExpr x
@@ -39,6 +42,7 @@ compileExpr (Seq (x :| xs)) = do
       compileExpr x
       tellCode [(getSourceLine x, Inst.Pop)]
       compileExpr (Seq rest)
+
 compileExpr (If pos condExpr thenExpr elseExpr) = do
   compileExpr condExpr
   whenFalseMark <- createMark
@@ -65,6 +69,7 @@ compileExpr (BinaryOp pos op lhs rhs) = do
     GreaterThan      -> tellCode [(pos, Inst.GreaterThan)]
     LessThanEqual    -> tellCode [(pos, Inst.GreaterThan), (pos, Inst.Negate)]
     GreaterThanEqual -> tellCode [(pos, Inst.LessThan), (pos, Inst.Negate)]
+
 compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of

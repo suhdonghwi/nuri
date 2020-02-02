@@ -45,5 +45,5 @@ instance Pretty BuilderInternal where
     , "[var names]" <+> pretty (view internalVarNames val)
     ]
 
-instance Pretty Instruction where
+instance (Show a) => Pretty (Instruction' a) where
   pretty = show

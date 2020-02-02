@@ -12,7 +12,6 @@ import           Nuri.Expr
 import           Nuri.Codegen.Expr
 
 import qualified Haneul.Instruction            as Inst
-import           Haneul.Instruction                       ( Marked(Value) )
 import           Haneul.Constant
 
 spec :: Spec
@@ -48,9 +47,9 @@ spec = do
                       , ConstInteger 2
                       ]
                     , [ Inst.Push 1
-                      , Inst.PopJmpIfFalse (Value 4)
+                      , Inst.PopJmpIfFalse 4
                       , Inst.Push 2
-                      , Inst.Jmp (Value 5)
+                      , Inst.Jmp 5
                       , Inst.Push 3
                       ]
                     )
@@ -71,11 +70,11 @@ spec = do
                     , [ Inst.Push 1
                       , Inst.Push 2
                       , Inst.Equal
-                      , Inst.PopJmpIfFalse (Value 8)
+                      , Inst.PopJmpIfFalse 8
                       , Inst.Push 3
                       , Inst.Push 4
                       , Inst.Add
-                      , Inst.Jmp (Value 9)
+                      , Inst.Jmp 9
                       , Inst.Push 5
                       ]
                     )

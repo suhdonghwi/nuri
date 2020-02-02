@@ -13,7 +13,6 @@ import           Nuri.Expr
 import           Nuri.Codegen.Stmt
 
 import qualified Haneul.Instruction            as Inst
-import           Haneul.Instruction                       ( Marked(Value) )
 import           Haneul.Constant
 
 spec :: Spec

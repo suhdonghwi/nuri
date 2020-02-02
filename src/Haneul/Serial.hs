@@ -76,12 +76,7 @@ instance Binary FuncObject where
     insts'      <- get
     return (FuncObject arity' insts' constTable')
 
-instance (Binary a) => Binary (Marked a) where
-  put (Mark  _) = error "mark가 전처리 되지 않았습니다."
-  put (Value v) = put v
-  get = Value <$> get
-
-instance Binary Instruction where
+instance (Binary a) => Binary (Instruction' a) where
   put (Push v) = do
     put (0 :: Word8)
     put v

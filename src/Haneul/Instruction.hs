@@ -4,14 +4,12 @@ import qualified Data.List.NonEmpty            as NE
 
 import           Text.Megaparsec.Pos                      ( Pos )
 
-data Marked a = Mark Int32 | Value a
-  deriving (Eq, Show, Ord)
 
-data Instruction = Push Int32 {- 상수 테이블 인덱스 -} | Pop
+data Instruction' a = Push Int32 {- 상수 테이블 인덱스 -} | Pop
                  | Store String {- 상수 이름 -} | Load String {- 상수 이름 -} | PopName
                  | Call Int32 {- 인수의 개수 -}
-                 | Jmp (Marked Int32) {- 주소 -}
-                 | PopJmpIfFalse (Marked Int32) {- 주소 -}
+                 | Jmp a  {- 주소 -}
+                 | PopJmpIfFalse a  {- 주소 -}
                  | Return
                  | Add | Subtract | Multiply | Divide | Mod
                  | Equal | LessThan | GreaterThan
@@ -19,7 +17,13 @@ data Instruction = Push Int32 {- 상수 테이블 인덱스 -} | Pop
                  | BuildList Int32 {- 원소의 개수 -}
   deriving (Eq, Show, Ord)
 
+newtype Mark = Mark Int32
+type MarkedInstruction = Instruction' Mark
+type Instruction = Instruction' Int32
+
 type Ann t = (Pos, t)
+
+type MarkedCode = [Ann MarkedInstruction]
 type Code = [Ann Instruction]
 
 appendInsts :: Pos -> [Instruction] -> Code -> Code
