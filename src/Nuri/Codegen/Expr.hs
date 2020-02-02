@@ -12,6 +12,7 @@ import           Haneul.Builder
 import           Haneul.BuilderInternal
 import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
+import           Haneul.Instruction                       ( Marked(Mark) )
 
 litToConst :: Literal -> Constant
 litToConst LitNone        = ConstNone
@@ -41,6 +42,17 @@ compileExpr (Seq (x :| xs)) = do
       compileExpr x
       tellCode [(getSourceLine x, Inst.Pop)]
       compileExpr (Seq rest)
+compileExpr (If pos condExpr thenExpr elseExpr) = do
+  compileExpr condExpr
+  whenFalseMark <- createMark
+  tellCode [(pos, Inst.PopJmpIfFalse $ Mark whenFalseMark)]
+  compileExpr thenExpr
+  thenJumpMark <- createMark
+  tellCode [(pos, Inst.Jmp $ Mark thenJumpMark)]
+  setMark whenFalseMark
+  compileExpr elseExpr
+  setMark thenJumpMark
+
 compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs

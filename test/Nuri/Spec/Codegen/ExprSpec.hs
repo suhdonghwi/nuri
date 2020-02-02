@@ -12,6 +12,7 @@ import           Nuri.Expr
 import           Nuri.Codegen.Expr
 
 import qualified Haneul.Instruction            as Inst
+import           Haneul.Instruction                       ( Marked(Value) )
 import           Haneul.Constant
 
 spec :: Spec
@@ -36,6 +37,47 @@ spec = do
                     )
       `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10, ConstChar 'a']
                     , [Inst.Push 1, Inst.Push 2, Inst.Push 1]
+                    )
+  describe "조건식 코드 생성" $ do
+    it "단순 리터럴에 대한 조건식 코드 생성"
+      $ compileExpr (ifExpr (litBool True) (litInteger 1) (litInteger 2))
+      `shouldBuild` ( S.fromList
+                      [ ConstNone
+                      , ConstBool True
+                      , ConstInteger 1
+                      , ConstInteger 2
+                      ]
+                    , [ Inst.Push 1
+                      , Inst.PopJmpIfFalse (Value 4)
+                      , Inst.Push 2
+                      , Inst.Jmp (Value 5)
+                      , Inst.Push 3
+                      ]
+                    )
+    it "계산식이 포함된 조건식 코드 생성"
+      $             compileExpr
+                      (ifExpr (binaryOp Equal (litInteger 1) (litInteger 2))
+                              (binaryOp Add (litInteger 3) (litInteger 4))
+                              (litInteger 5)
+                      )
+      `shouldBuild` ( S.fromList
+                      [ ConstNone
+                      , ConstInteger 1
+                      , ConstInteger 2
+                      , ConstInteger 3
+                      , ConstInteger 4
+                      , ConstInteger 5
+                      ]
+                    , [ Inst.Push 1
+                      , Inst.Push 2
+                      , Inst.Equal
+                      , Inst.PopJmpIfFalse (Value 8)
+                      , Inst.Push 3
+                      , Inst.Push 4
+                      , Inst.Add
+                      , Inst.Jmp (Value 9)
+                      , Inst.Push 5
+                      ]
                     )
   describe "이항 연산 코드 생성" $ do
     it "덧셈 코드 생성" $ do
