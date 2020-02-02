@@ -17,7 +17,7 @@ litToConst :: Literal -> Constant
 litToConst LitNone        = ConstNone
 litToConst (LitInteger v) = ConstInteger v
 litToConst (LitReal    v) = ConstReal v
-litToConst (LitString  v) = ConstString v
+litToConst (LitChar    v) = ConstChar v
 litToConst (LitBool    v) = ConstBool v
 
 compileExpr :: Expr -> Builder ()

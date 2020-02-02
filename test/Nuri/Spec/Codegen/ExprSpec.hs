@@ -23,18 +23,18 @@ spec = do
     it "리터럴 여러개 코드 생성"
       $             (do
                       compileExpr (litInteger 10)
-                      compileExpr (litString "a")
+                      compileExpr (litChar 'a')
                     )
-      `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10, ConstString "a"]
+      `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10, ConstChar 'a']
                     , [Inst.Push 1, Inst.Push 2]
                     )
     it "리터럴 여러개 코드 생성 (중복 포함)"
       $             (do
                       compileExpr (litInteger 10)
-                      compileExpr (litString "a")
+                      compileExpr (litChar 'a')
                       compileExpr (litInteger 10)
                     )
-      `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10, ConstString "a"]
+      `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10, ConstChar 'a']
                     , [Inst.Push 1, Inst.Push 2, Inst.Push 1]
                     )
   describe "이항 연산 코드 생성" $ do

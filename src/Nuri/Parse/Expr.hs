@@ -151,7 +151,7 @@ parseTerm :: Parser Expr
 parseTerm =
   parseNoneExpr
     <|> parseBoolExpr
-    <|> parseStringExpr
+    <|> parseCharExpr
     <|> P.try parseRealExpr
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
@@ -200,8 +200,8 @@ parseIntegerExpr = lexeme $ do
 parseRealExpr :: Parser Expr
 parseRealExpr = Lit <$> getSourceLine <*> (LitReal <$> parseReal)
 
-parseStringExpr :: Parser Expr
-parseStringExpr = Lit <$> getSourceLine <*> (LitString <$> parseString)
+parseCharExpr :: Parser Expr
+parseCharExpr = Lit <$> getSourceLine <*> (LitChar <$> parseChar)
 
 parseBoolExpr :: Parser Expr
 parseBoolExpr = Lit <$> getSourceLine <*> (LitBool <$> parseBool)
@@ -221,12 +221,12 @@ parseHexadecimal = P.char' 'x' >> (L.hexadecimal <?> "16진수")
 parseReal :: Parser Double
 parseReal = lexeme L.float
 
-parseString :: Parser String
-parseString =
+parseChar :: Parser Char
+parseChar =
   lexeme
       (P.between (symbol "\'")
                  (symbol "\'")
-                 (P.many (P.notFollowedBy (P.char '\'') *> L.charLiteral))
+                 (P.notFollowedBy (P.char '\'') *> L.charLiteral)
       )
     <?> "문자열"
 

@@ -64,21 +64,19 @@ spec = do
     it "0을 0.0으로 파싱" $ do
       testParse parseReal "0.0" `shouldParse` 0.0
 
-  describe "문자열 파싱" $ do
+  describe "문자 파싱" $ do
     it "'a'를 'a'로 파싱" $ do
-      testParse parseString "'a'" `shouldParse` "a"
+      testParse parseChar "'a'" `shouldParse` 'a'
     it "'가'를 '가'로 파싱" $ do
-      testParse parseString "'가'" `shouldParse` "가"
+      testParse parseChar "'가'" `shouldParse` '가'
     it "'\\''를 '\\''로 파싱" $ do
-      testParse parseString "'\\''" `shouldParse` "\'"
+      testParse parseChar "'\\''" `shouldParse` '\''
     it "'\\n를 '\\n로 파싱" $ do
-      testParse parseString "'\\n'" `shouldParse` "\n"
-    it "'ab'를 'ab'로 파싱" $ do
-      testParse parseString "'ab'" `shouldParse` "ab"
-    it "'안녕하세요 여러분!'을 '안녕하세요 여러분!'으로 파싱" $ do
-      testParse parseString "'안녕하세요 여러분!'" `shouldParse` "안녕하세요 여러분!"
+      testParse parseChar "'\\n'" `shouldParse` '\n'
+    it "'ab'에 대해서 오류" $ do
+      testParse (parseChar *> eof) `shouldFailOn` "'ab'"
     it "'''에 대해서 오류" $ do
-      testParse (parseString *> eof) `shouldFailOn` "'''"
+      testParse (parseChar *> eof) `shouldFailOn` "'''"
 
   describe "부울 파싱" $ do
     it "참을 True로 파싱" $ do

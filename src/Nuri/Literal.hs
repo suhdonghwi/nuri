@@ -4,6 +4,6 @@ module Nuri.Literal where
 data Literal = LitNone
              | LitInteger Int64
              | LitReal Double
-             | LitString String
+             | LitChar Char
              | LitBool Bool
     deriving(Eq, Show, Ord)

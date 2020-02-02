@@ -42,7 +42,7 @@ instance Binary Constant where
     let (base, e) = decodeFloat v
     put (fromIntegral base :: Int64)
     put e
-  put (ConstString v) = do
+  put (ConstChar v) = do
     put (3 :: Word8)
     put v
   put (ConstBool v) = do
@@ -60,7 +60,7 @@ instance Binary Constant where
         base <- get :: Get Int64
         e    <- get :: Get Int
         return $ ConstReal (encodeFloat (fromIntegral base) e)
-      3 -> ConstString <$> get
+      3 -> ConstChar <$> get
       4 -> ConstBool <$> get
       5 -> ConstFunc <$> get
       _ -> fail "invalid constant type"

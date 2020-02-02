@@ -20,7 +20,7 @@ import           Nuri.Decl
 instance Pretty Literal where
   pretty (LitInteger v) = "LitInteger" <> parens (pretty v)
   pretty (LitReal    v) = "LitReal" <> parens (pretty v)
-  pretty (LitString  v) = "LitString" <> parens (pretty v)
+  pretty (LitChar    v) = "LitChar" <> parens (pretty v)
   pretty (LitBool    v) = "LitBool" <> parens (pretty v)
   pretty LitNone        = "LitNone"
 

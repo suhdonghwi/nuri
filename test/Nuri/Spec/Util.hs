@@ -14,7 +14,7 @@ initPos = pos1
 
 litNone = Lit initPos LitNone
 litInteger v = Lit initPos (LitInteger v)
-litString v = Lit initPos (LitString v)
+litChar v = Lit initPos (LitChar v)
 litReal v = Lit initPos (LitReal v)
 litBool v = Lit initPos (LitBool v)
 ifExpr = If initPos
