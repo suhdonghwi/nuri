@@ -10,7 +10,6 @@ import           Text.Megaparsec                          ( (<?>)
                                                           , Pos
                                                           )
 import qualified Text.Megaparsec.Char          as P
-
 import qualified Text.Megaparsec.Char.Lexer    as L
 
 import           Control.Monad.Combinators.Expr           ( makeExprParser
@@ -63,7 +62,14 @@ parseExprs :: Pos -> Parser Expr
 parseExprs level = Seq <$> some
   (do
     P.try $ L.indentGuard scn EQ level
-    (parseExpr <* P.newline) <|> (declToLet <$> parseDecl <*> parseExprs level)
+    (do
+        decl   <- parseDecl
+        result <- P.observing (parseExprs level)
+        case result of
+          Left  _    -> fail "시퀀스의 끝은 표현식이어야 합니다."
+          Right expr -> return (declToLet decl $ expr)
+      )
+      <|> (parseExpr <* P.newline)
   )
 
 parseExpr :: Parser Expr
