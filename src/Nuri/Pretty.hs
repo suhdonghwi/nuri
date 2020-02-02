@@ -63,8 +63,7 @@ instance Pretty Expr where
     ]
   pretty (UnaryOp _ op val) =
     nest' $ vsep ["UnaryOp", "[op]" <+> pretty op, "[val]" <+> pretty val]
-  pretty (List _ list) = nest' $ vsep ["List", "[elements]" <+> pretty list]
-  pretty (Seq exprs  ) = nest' $ vsep ["Seq", pretty exprs]
+  pretty (Seq exprs) = nest' $ vsep ["Seq", pretty exprs]
   pretty (Lambda _ args body) =
     nest' $ vsep ["Lambda", "[args]" <+> pretty args, "[body]" <+> pretty body]
   pretty (Let _ name value expr) = nest' $ vsep

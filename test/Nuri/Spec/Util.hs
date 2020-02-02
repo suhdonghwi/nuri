@@ -27,4 +27,3 @@ lambda = Lambda initPos
 
 funcDecl = ((DeclStmt .) .) . FuncDecl initPos
 constDecl = (DeclStmt .) . ConstDecl initPos
-list = List initPos

@@ -18,8 +18,6 @@ data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
             | BinaryOp Pos BinaryOperator Expr Expr
             -- 단항 연산 표현식 : 코드 위치, 단항 연산자, 피연산자
             | UnaryOp Pos UnaryOperator Expr
-            -- 목록 표현식 : 코드 위치, 표현식 목록
-            | List Pos [Expr]
             -- 표현식 시퀀스 : 표현식 목록
             | Seq (NonEmpty Expr)
             -- 람다 표현식 : 코드 위치, 인수 목록, 함수 본문
@@ -36,7 +34,6 @@ instance Eq Expr where
     (op1 == op2) && (l1 == l2) && (r1 == r2)
   If _ c1 t1 e1    == If _ c2 t2 e2    = (c1 == c2) && (t1 == t2) && (e1 == e2)
   UnaryOp _ op1 v1 == UnaryOp _ op2 v2 = (op1 == op2) && (v1 == v2)
-  List _ v1        == List _ v2        = v1 == v2
   Seq e1           == Seq e2           = e1 == e2
   Lambda _ a1 b1   == Lambda _ a2 b2   = (a1 == a2) && (b1 == b2)
   Let _ n1 v1 e1   == Let _ n2 v2 e2   = (n1 == n2) && (v1 == v2) && (e1 == e2)
@@ -49,7 +46,6 @@ instance ASTNode Expr where
   getSourceLine (BinaryOp pos _ _ _) = pos
   getSourceLine (If       pos _ _ _) = pos
   getSourceLine (UnaryOp pos _ _   ) = pos
-  getSourceLine (List pos _        ) = pos
   getSourceLine (Seq (x :| _)      ) = getSourceLine x
   getSourceLine (Lambda pos _ _    ) = pos
   getSourceLine (Let pos _ _ _     ) = pos

@@ -61,6 +61,3 @@ compileExpr (UnaryOp pos op value) = do
   case op of
     Positive -> pass
     Negative -> tellCode [(pos, Inst.Negate)]
-compileExpr (List pos list) = do
-  sequence_ $ compileExpr <$> list
-  tellCode [(pos, Inst.BuildList $ genericLength list)]

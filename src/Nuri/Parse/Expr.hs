@@ -156,11 +156,10 @@ parseTerm =
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
     <|> parseParens
-    <|> parseList
 
-parseList :: Parser Expr
-parseList = liftA2 List getSourceLine
-  $ P.between (symbol "{") (symbol "}") (P.sepBy parseExpr (symbol ","))
+-- parseList :: Parser Expr
+-- parseList = liftA2 List getSourceLine
+--   $ P.between (symbol "{") (symbol "}") (P.sepBy parseExpr (symbol ","))
 
 parseParens :: Parser Expr
 parseParens = P.between (symbol "(") (symbol ")") parseExpr
