@@ -22,13 +22,13 @@ import           Haneul.BuilderInternal
 
 type Builder = RWS Int MarkedCode BuilderInternal
 
-addVarName :: String -> Builder Int32
-addVarName ident = do
-  depth <- ask
-  modifying internalVarNames (|> (ident, depth))
-  names <- use internalVarNames
-  let (Just index) = findIndex (ident, depth) names
-  return $ fromIntegral index
+-- addVarName :: String -> Builder Int32
+-- addVarName ident = do
+--   depth <- ask
+--   modifying internalVarNames (|> (ident, depth))
+--   names <- use internalVarNames
+--   let (Just index) = findIndex (ident, depth) names
+--   return $ fromIntegral index
 
 addConstant :: Constant -> Builder Int32
 addConstant value = do

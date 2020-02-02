@@ -40,10 +40,7 @@ instance Pretty Constant where
   pretty v = show v
 
 instance Pretty BuilderInternal where
-  pretty val = vsep
-    [ "[const table]" <+> pretty (view internalConstTable val)
-    , "[var names]" <+> pretty (view internalVarNames val)
-    ]
+  pretty val = vsep ["[const table]" <+> pretty (view internalConstTable val)]
 
 instance (Show a) => Pretty (Instruction' a) where
   pretty = show
