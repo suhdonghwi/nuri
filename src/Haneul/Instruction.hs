@@ -8,8 +8,7 @@ data Marked a = Mark Int32 | Value a
   deriving (Eq, Show, Ord)
 
 data Instruction = Push Int32 {- 상수 테이블 인덱스 -} | Pop
-                 | Store Int32 {- 변수 테이블 인덱스 -} | StoreGlobal String {- 글로벌 변수 이름 -}
-                 | Load Int32 {- 변수 테이블 인덱스 -} | LoadGlobal String {- 글로벌 변수 이름 -}
+                 | Store String {- 상수 이름 -} | Load String {- 상수 이름 -} | PopName
                  | Call Int32 {- 인수의 개수 -}
                  | Jmp (Marked Int32) {- 주소 -}
                  | PopJmpIfFalse (Marked Int32) {- 주소 -}

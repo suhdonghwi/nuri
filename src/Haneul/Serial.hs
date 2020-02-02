@@ -90,32 +90,28 @@ instance Binary Instruction where
   put (Store v) = do
     put (2 :: Word8)
     put v
-  put (StoreGlobal v) = do
+  put (Load v) = do
     put (3 :: Word8)
     put v
-  put (Load v) = do
+  put PopName = do
     put (4 :: Word8)
-    put v
-  put (LoadGlobal v) = do
+  put (Call v) = do
     put (5 :: Word8)
     put v
-  put (Call v) = do
+  put (Jmp v) = do
     put (6 :: Word8)
     put v
-  put (Jmp v) = do
+  put (PopJmpIfFalse v) = do
     put (7 :: Word8)
     put v
-  put (PopJmpIfFalse v) = do
-    put (8 :: Word8)
-    put v
   put Return = do
-    put (9 :: Word8)
+    put (8 :: Word8)
   put Add = do
-    put (10 :: Word8)
+    put (9 :: Word8)
   put Subtract = do
-    put (11 :: Word8)
+    put (10 :: Word8)
   put Multiply = do
-    put (12 :: Word8)
+    put (11 :: Word8)
   put Divide = do
     put (13 :: Word8)
   put Mod = do
@@ -137,9 +133,8 @@ instance Binary Instruction where
       0  -> Push <$> get
       1  -> return Pop
       2  -> Store <$> get
-      3  -> StoreGlobal <$> get
       4  -> Load <$> get
-      5  -> LoadGlobal <$> get
+      5  -> return PopName
       6  -> Call <$> get
       7  -> Jmp <$> get
       8  -> PopJmpIfFalse <$> get

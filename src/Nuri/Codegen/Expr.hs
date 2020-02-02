@@ -27,10 +27,7 @@ compileExpr (Lit pos lit) = do
   index <- addConstant value
   tellCode [(pos, Inst.Push $ fromIntegral index)]
 compileExpr (Var pos ident) = do
-  names <- fmap fst . toList <$> use internalVarNames
-  case elemIndex ident names of
-    Just index -> tellCode [(pos, Inst.Load $ fromIntegral index)]
-    Nothing    -> tellCode [(pos, Inst.LoadGlobal ident)]
+  tellCode [(pos, Inst.Load ident)]
 compileExpr (FuncCall pos func args) = do
   compileExpr (Var pos func)
   sequence_ (compileExpr <$> args)

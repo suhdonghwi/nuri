@@ -78,13 +78,13 @@ import qualified Haneul.Instruction            as Inst
 -- compileStmts :: NonEmpty Stmt -> Builder ()
 -- compileStmts s = sequence_ (compileStmt <$> s)
 
-storeVar :: Pos -> String -> Builder ()
-storeVar pos ident = do
-  depth <- ask
-  if depth == 0
-    then tellCode [(pos, Inst.StoreGlobal ident)]
-    else do
-      index <- addVarName ident
-      tellCode [(pos, Inst.Store index)]
+-- storeVar :: Pos -> String -> Builder ()
+-- storeVar pos ident = do
+--   depth <- ask
+--   if depth == 0
+--     then tellCode [(pos, Inst.StoreGlobal ident)]
+--     else do
+--       index <- addVarName ident
+--       tellCode [(pos, Inst.Store index)]
 
 

@@ -113,21 +113,22 @@ spec = do
         `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10]
                       , [Inst.Push 1, Inst.Negate]
                       )
+
   describe "변수 접근 코드 생성" $ do
-    it "선언되지 않은 변수 이름에 대해 LoadGlobal 코드 생성" $ do
+    it "변수 이름 접근하는 Load 코드 생성" $ do
       compileExpr (var "값")
-        `shouldBuild` (S.singleton ConstNone, [Inst.LoadGlobal "값"])
+        `shouldBuild` (S.singleton ConstNone, [Inst.Load "값"])
 
   describe "함수 호출 코드 생성" $ do
     it "인수가 하나인 함수 호출 코드 생성" $ do
       compileExpr (funcCall "던지다" [litInteger 10])
         `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10]
-                      , [Inst.LoadGlobal "던지다", Inst.Push 1, Inst.Call 1]
+                      , [Inst.Load "던지다", Inst.Push 1, Inst.Call 1]
                       )
     it "인수가 3개인 함수 호출 코드 생성" $ do
       compileExpr (funcCall "던지다" [litInteger 10, litInteger 10, litInteger 0])
         `shouldBuild` ( S.fromList [ConstNone, ConstInteger 10, ConstInteger 0]
-                      , [ Inst.LoadGlobal "던지다"
+                      , [ Inst.Load "던지다"
                         , Inst.Push 1
                         , Inst.Push 1
                         , Inst.Push 2
@@ -136,9 +137,7 @@ spec = do
                       )
     it "인수가 없는 함수 호출 코드 생성" $ do
       compileExpr (funcCall "던지다" [])
-        `shouldBuild` ( S.singleton ConstNone
-                      , [Inst.LoadGlobal "던지다", Inst.Call 0]
-                      )
+        `shouldBuild` (S.singleton ConstNone, [Inst.Load "던지다", Inst.Call 0])
   describe "표현식 시퀀스 코드 생성" $ do
     it "표현식이 1개인 시퀀스 코드 생성" $ do
       compileExpr (Seq [litInteger 10])
