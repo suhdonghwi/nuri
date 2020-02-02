@@ -305,7 +305,7 @@ spec = do
         `shouldParse` ifExpr (litBool True)
                              (Seq [litInteger 1, litInteger 2])
                              (litInteger 3)
-    it "표현식 중간에 함수 선언" $ do
+    it "시퀀스 중간에 함수 선언" $ do
       testParse
           parseExpr
           (unpack [text|
@@ -323,7 +323,7 @@ spec = do
                             )
                             (Seq [litInteger 1])
                         ]
-    it "표현식 중간에 함수 2개 선언" $ do
+    it "시퀀스 중간에 함수 2개 선언" $ do
       testParse
           parseExpr
           (unpack [text|
@@ -354,6 +354,17 @@ spec = do
                             ]
                           )
                         ]
+
+    it "시퀀스 끝이 선언문일 경우 에러" $ do
+      testParse parseExpr
+        `shouldFailOn` (unpack [text|
+            순서대로
+              함수 [값] 더하다:
+                [값] + 1
+              1
+              상수 [수]: 10 + 10
+          |]
+                       )
 
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
