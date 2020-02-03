@@ -75,6 +75,7 @@ instance Pretty Expr where
 
 instance Pretty Stmt where
   pretty (DeclStmt decl) = nest' $ vsep ["DeclStmt", pretty decl]
+  pretty (ExprStmt expr) = nest' $ vsep ["ExprStmt", pretty expr]
 
 instance Pretty Decl where
   pretty (FuncDecl _ name args body) = nest' $ vsep
@@ -83,3 +84,5 @@ instance Pretty Decl where
     , "[args]" <+> pretty args
     , "[body]" <+> pretty body
     ]
+  pretty (ConstDecl _ name value) = nest'
+    $ vsep ["ConstDecl", "[name]" <+> pretty name, "[value]" <+> pretty value]

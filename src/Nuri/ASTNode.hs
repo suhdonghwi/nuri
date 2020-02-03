@@ -4,3 +4,4 @@ import           Text.Megaparsec.Pos                      ( Pos )
 
 class ASTNode a where
   getSourceLine :: a -> Pos
+
