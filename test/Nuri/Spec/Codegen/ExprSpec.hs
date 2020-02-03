@@ -147,3 +147,31 @@ spec = do
                       , [Inst.Push 1, Inst.Pop, Inst.Push 2]
                       )
 
+  describe "람다 코드 생성" $ do
+    it "인수가 하나인 람다 코드 생성" $ do
+      compileExpr (lambda ["값"] (binaryOp Add (var "값") (litInteger 1)))
+        `shouldBuild` ( S.fromList
+                        [ ConstNone
+                        , ConstFunc
+                          (FuncObject
+                            1
+                            (ann [Inst.Load "값", Inst.Push 1, Inst.Add])
+                            (S.fromList [ConstNone, ConstInteger 1])
+                          )
+                        ]
+                      , [Inst.Push 1]
+                      )
+    it "인수가 두 개인 람다 코드 생성" $ do
+      compileExpr (lambda ["수1", "수2"] (binaryOp Add (var "수1") (var "수2")))
+        `shouldBuild` ( S.fromList
+                        [ ConstNone
+                        , ConstFunc
+                          (FuncObject
+                            2
+                            (ann [Inst.Load "수1", Inst.Load "수2", Inst.Add])
+                            (S.fromList [ConstNone])
+                          )
+                        ]
+                      , [Inst.Push 1]
+                      )
+
