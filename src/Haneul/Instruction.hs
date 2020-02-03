@@ -14,7 +14,6 @@ data Instruction' a = Push Int32 {- 상수 테이블 인덱스 -} | Pop
                  | Add | Subtract | Multiply | Divide | Mod
                  | Equal | LessThan | GreaterThan
                  | Negate
-                 | BuildList Int32 {- 원소의 개수 -}
   deriving (Eq, Show, Ord)
 
 newtype Mark = Mark Int32

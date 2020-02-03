@@ -1,15 +1,10 @@
 module Nuri.Codegen.Expr where
 
-import           Control.Lens                             ( use )
-
-import           Data.List                                ( elemIndex )
-
 import           Nuri.Expr
 import           Nuri.Literal
 import           Nuri.ASTNode
 
 import           Haneul.Builder
-import           Haneul.BuilderInternal
 import           Haneul.Constant
 import qualified Haneul.Instruction            as Inst
 import           Haneul.Instruction                       ( Mark(Mark) )

@@ -20,7 +20,7 @@ import           Haneul.Constant
 import           Haneul.BuilderInternal
 
 
-type Builder = RWS Int MarkedCode BuilderInternal
+type Builder = RWS () MarkedCode BuilderInternal
 
 -- addVarName :: String -> Builder Int32
 -- addVarName ident = do
@@ -70,7 +70,6 @@ unmarkInst internal inst = case inst of
   LessThan        -> LessThan
   GreaterThan     -> GreaterThan
   Negate          -> Negate
-  BuildList v     -> BuildList v
  where
   unmark (Mark index) =
     let marks = view internalMarks internal in marks !! fromIntegral index

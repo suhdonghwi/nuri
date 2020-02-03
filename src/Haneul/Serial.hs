@@ -119,9 +119,6 @@ instance (Binary a) => Binary (Instruction' a) where
     put (17 :: Word8)
   put Negate = do
     put (18 :: Word8)
-  put (BuildList v) = do
-    put (19 :: Word8)
-    put v
   get = do
     inst <- get :: Get Word8
     case inst of
@@ -143,7 +140,6 @@ instance (Binary a) => Binary (Instruction' a) where
       16 -> return LessThan
       17 -> return GreaterThan
       18 -> return Negate
-      19 -> BuildList <$> get
       _  -> fail "invalid instruction opcode type"
 
 instance Binary Pos  where
