@@ -12,4 +12,4 @@ data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable, _int
 $(makeLenses ''BuilderInternal)
 
 defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal (S.singleton ConstNone) 0 []
+defaultInternal = BuilderInternal (S.empty) 0 []
