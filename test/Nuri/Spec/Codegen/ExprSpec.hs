@@ -174,4 +174,39 @@ spec = do
                         ]
                       , [Inst.Push 1]
                       )
+  describe "상수 선언문 코드 생성" $ do
+    it "하나의 값에 대한 상수 선언문 코드 생성" $ do
+      compileExpr
+          (letExpr "값" (litInteger 1) (binaryOp Add (var "값") (litInteger 2)))
+        `shouldBuild` ( S.fromList [ConstNone, ConstInteger 1, ConstInteger 2]
+                      , [ Inst.Push 1
+                        , Inst.Store "값"
+                        , Inst.Load "값"
+                        , Inst.Push 2
+                        , Inst.Add
+                        , Inst.PopName
+                        ]
+                      )
+    it "계산식 상수 선언문 코드 생성" $ do
+      compileExpr
+          (letExpr "값"
+                   (binaryOp Add (litInteger 1) (litInteger 2))
+                   (binaryOp Add (var "값") (litInteger 3))
+          )
+        `shouldBuild` ( S.fromList
+                        [ ConstNone
+                        , ConstInteger 1
+                        , ConstInteger 2
+                        , ConstInteger 3
+                        ]
+                      , [ Inst.Push 1
+                        , Inst.Push 2
+                        , Inst.Add
+                        , Inst.Store "값"
+                        , Inst.Load "값"
+                        , Inst.Push 3
+                        , Inst.Add
+                        , Inst.PopName
+                        ]
+                      )
 

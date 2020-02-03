@@ -80,6 +80,11 @@ compileExpr (Lambda pos argNames body) = do
       constTable       = view internalConstTable internal
       arity            = genericLength argNames
       funcObject       = FuncObject arity (clearMarks internal code) constTable
-
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
+
+compileExpr (Let pos name value expr) = do
+  compileExpr value
+  tellCode [(pos, Inst.Store name)]
+  compileExpr expr
+  tellCode [(pos, Inst.PopName)]
