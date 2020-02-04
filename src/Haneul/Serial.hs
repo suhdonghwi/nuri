@@ -108,39 +108,42 @@ instance (Binary a) => Binary (Instruction' a) where
   put Multiply = do
     put (11 :: Word8)
   put Divide = do
-    put (13 :: Word8)
+    put (12 :: Word8)
   put Mod = do
-    put (14 :: Word8)
+    put (13 :: Word8)
   put Equal = do
-    put (15 :: Word8)
+    put (14 :: Word8)
   put LessThan = do
-    put (16 :: Word8)
+    put (15 :: Word8)
   put GreaterThan = do
-    put (17 :: Word8)
+    put (16 :: Word8)
   put Negate = do
-    put (18 :: Word8)
+    put (17 :: Word8)
   get = do
     inst <- get :: Get Word8
-    case inst of
-      0  -> Push <$> get
-      1  -> return Pop
-      2  -> Store <$> get
-      4  -> Load <$> get
-      5  -> return PopName
-      6  -> Call <$> get
-      7  -> Jmp <$> get
-      8  -> PopJmpIfFalse <$> get
-      9  -> return Return
-      10 -> return Add
-      11 -> return Subtract
-      12 -> return Multiply
-      13 -> return Divide
-      14 -> return Mod
-      15 -> return Equal
-      16 -> return LessThan
-      17 -> return GreaterThan
-      18 -> return Negate
-      _  -> fail "invalid instruction opcode type"
+    let getterList =
+          [ Push <$> get
+          , return Pop
+          , Store <$> get
+          , Load <$> get
+          , return PopName
+          , Call <$> get
+          , Jmp <$> get
+          , PopJmpIfFalse <$> get
+          , return Return
+          , return Add
+          , return Subtract
+          , return Multiply
+          , return Divide
+          , return Mod
+          , return Equal
+          , return LessThan
+          , return GreaterThan
+          , return Negate
+          ]
+    case getterList !!? (fromIntegral inst) of
+      Just action -> action
+      Nothing     -> fail "invalid instruction opcode type"
 
 instance Binary Pos  where
   put v = do
