@@ -7,15 +7,21 @@ import           System.IO                                ( hFlush )
 import           Data.Text                                ( strip )
 import           Data.ByteString.Lazy.Internal            ( unpackBytes )
 
-import           Control.Lens
+import           Control.Lens                             ( makeLenses
+                                                          , view
+                                                          )
 import           Control.Lens.TH                          ( )
 
 import           Data.Binary                              ( encode
                                                           , decode
                                                           )
 
-import           Text.Megaparsec
-import           Text.Pretty.Simple
+import           Text.Megaparsec                          ( runParser
+                                                          , eof
+                                                          , errorBundlePretty
+                                                          )
+import           Text.Pretty.Simple                       ( pPrint )
+import           Text.Printf                              ( printf )
 
 import           Nuri.Stmt
 import           Nuri.Codegen.Stmt
@@ -44,20 +50,20 @@ parseInput input fileName = do
 printResult :: (NonEmpty Stmt) -> IO ()
 printResult stmts = do
   (liftIO . pPrint) stmts
-  -- let program       = (toProgram 0 defaultInternal . compileStmts) stmts
-  --     compiledCode  = view programCode program
-  --     compiledTable = view programConstTable program
+  let program       = (toProgram defaultInternal . compileStmts) stmts
+      compiledCode  = view programCode program
+      compiledTable = view programConstTable program
 
-  -- putStrLn "---------------"
-  -- print $ pretty compiledTable
-  -- (print . vsep) (pretty <$> compiledCode)
-  -- putStrLn "---------------"
+  putStrLn "---------------"
+  pPrint compiledTable
+  pPrint compiledCode
+  putStrLn "---------------"
 
-  -- let encodedProgram = encode program
-  -- writeFileLBS "./test.hn" encodedProgram
-  -- putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes encodedProgram
-  -- when ((decode encodedProgram :: Program) == program)
-  --      (putStrLn "Program encoding is valid")
+  let encodedProgram = encode program
+  writeFileLBS "./test.hn" encodedProgram
+  putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes encodedProgram
+  when ((decode encodedProgram :: Program) == program)
+       (putStrLn "Program encoding is valid")
 
 repl :: Repl ()
 repl = forever $ do

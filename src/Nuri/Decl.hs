@@ -18,3 +18,11 @@ instance Eq Decl where
 instance ASTNode Decl where
   getSourceLine (FuncDecl pos _ _ _) = pos
   getSourceLine (ConstDecl pos _ _ ) = pos
+
+declToExpr :: Decl -> (Pos, String, Expr)
+declToExpr (FuncDecl pos funcName args body) =
+  (pos, funcName, Lambda pos args body)
+declToExpr (ConstDecl pos constName expr) = (pos, constName, expr)
+
+declToLet :: Decl -> (Expr -> Expr)
+declToLet decl = let (pos, name, expr) = declToExpr decl in Let pos name expr

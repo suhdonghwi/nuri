@@ -46,11 +46,6 @@ parseConstDecl = do
   symbol ":"
   ConstDecl pos identifier <$> parseExpr
 
-declToLet :: Decl -> (Expr -> Expr)
-declToLet (FuncDecl pos funcName args body) =
-  Let pos funcName (Lambda pos args body)
-declToLet (ConstDecl pos constName expr) = Let pos constName expr
-
 parseExprChain :: Parser Expr
 parseExprChain = do
   reserved "순서대로" <* P.newline

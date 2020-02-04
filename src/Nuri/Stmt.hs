@@ -11,3 +11,5 @@ data Stmt = DeclStmt Decl
 instance ASTNode Stmt where
   getSourceLine (DeclStmt decl) = getSourceLine decl
   getSourceLine (ExprStmt expr) = getSourceLine expr
+
+
