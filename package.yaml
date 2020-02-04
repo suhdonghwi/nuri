@@ -29,10 +29,10 @@ dependencies:
   - mtl
   - transformers
   - lens
-  - prettyprinter
   - ordered-containers
   - binary
   - bytestring
+  - pretty-simple
   # Since ghcide does not support multi cradle projects yet, these two dependencies have to be added here.
   # This is just temporary fix, and should be removed later.
   - hspec

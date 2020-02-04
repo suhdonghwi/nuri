@@ -10,24 +10,19 @@ import           Data.ByteString.Lazy.Internal            ( unpackBytes )
 import           Control.Lens
 import           Control.Lens.TH                          ( )
 
-import           Data.Text.Prettyprint.Doc                ( pretty
-                                                          , vsep
-                                                          )
 import           Data.Binary                              ( encode
                                                           , decode
                                                           )
 
 import           Text.Megaparsec
-import           Text.Printf
+import           Text.Pretty.Simple
 
 import           Nuri.Stmt
 import           Nuri.Codegen.Stmt
-import           Nuri.Pretty                              ( )
 import           Nuri.Parse.Stmt
 
 import           Haneul.Program
 import           Haneul.BuilderInternal
-import           Haneul.Pretty                            ( )
 import           Haneul.Serial                            ( )
 
 newtype ReplState = ReplState { _prompt :: Text }
@@ -48,7 +43,7 @@ parseInput input fileName = do
 
 printResult :: (NonEmpty Stmt) -> IO ()
 printResult stmts = do
-  (liftIO . print . vsep . toList) (pretty <$> stmts)
+  (liftIO . pPrint) stmts
   -- let program       = (toProgram 0 defaultInternal . compileStmts) stmts
   --     compiledCode  = view programCode program
   --     compiledTable = view programConstTable program
