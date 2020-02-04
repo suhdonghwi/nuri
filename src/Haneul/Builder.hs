@@ -60,7 +60,6 @@ unmarkInst internal inst = case inst of
   Load  v         -> Load v
   PopName         -> PopName
   Call v          -> Call v
-  Return          -> Return
   Add             -> Add
   Subtract        -> Subtract
   Multiply        -> Multiply

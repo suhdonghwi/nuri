@@ -99,26 +99,24 @@ instance (Binary a) => Binary (Instruction' a) where
   put (PopJmpIfFalse v) = do
     put (7 :: Word8)
     put v
-  put Return = do
-    put (8 :: Word8)
   put Add = do
-    put (9 :: Word8)
+    put (8 :: Word8)
   put Subtract = do
-    put (10 :: Word8)
+    put (9 :: Word8)
   put Multiply = do
-    put (11 :: Word8)
+    put (10 :: Word8)
   put Divide = do
-    put (12 :: Word8)
+    put (11 :: Word8)
   put Mod = do
-    put (13 :: Word8)
+    put (12 :: Word8)
   put Equal = do
-    put (14 :: Word8)
+    put (13 :: Word8)
   put LessThan = do
-    put (15 :: Word8)
+    put (14 :: Word8)
   put GreaterThan = do
-    put (16 :: Word8)
+    put (15 :: Word8)
   put Negate = do
-    put (17 :: Word8)
+    put (16 :: Word8)
   get = do
     inst <- get :: Get Word8
     let getterList =
@@ -130,7 +128,6 @@ instance (Binary a) => Binary (Instruction' a) where
           , Call <$> get
           , Jmp <$> get
           , PopJmpIfFalse <$> get
-          , return Return
           , return Add
           , return Subtract
           , return Multiply
