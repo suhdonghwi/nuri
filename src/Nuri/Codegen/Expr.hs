@@ -77,9 +77,8 @@ compileExpr (Seq (x :| xs)) = do
 
 compileExpr (Lambda pos argNames body) = do
   let (internal, code) = execRWS (compileExpr body) () defaultInternal
-      constTable       = view internalConstTable internal
-      arity            = genericLength argNames
-      funcObject       = FuncObject arity (clearMarks internal code) constTable
+      constTable = view internalConstTable internal
+      funcObject = FuncObject argNames (clearMarks internal code) constTable
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
 

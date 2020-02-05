@@ -15,7 +15,7 @@ data Constant = ConstNone
 
 type ConstTable = OSet Constant
 
-data FuncObject = FuncObject { _funcArity :: Word16,
+data FuncObject = FuncObject { _funcArgNames :: [String],
                                _funcBody :: Code,
                                _funcConstTable :: ConstTable
                              }
