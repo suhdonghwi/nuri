@@ -6,7 +6,7 @@ import qualified Data.Set.Ordered              as S
 
 import           Haneul.Constant
 
-data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable, _internalOffset :: Int32, _internalMarks :: [Int32] }
+data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable, _internalOffset :: Word32, _internalMarks :: [Word32] }
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)

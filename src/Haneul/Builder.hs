@@ -30,19 +30,19 @@ type Builder = RWS () MarkedCode BuilderInternal
 --   let (Just index) = findIndex (ident, depth) names
 --   return $ fromIntegral index
 
-addConstant :: Constant -> Builder Int32
+addConstant :: Constant -> Builder Word32
 addConstant value = do
   modifying internalConstTable (|> value)
   names <- use internalConstTable
   let (Just index) = findIndex value names
   return $ fromIntegral index
 
-createMark :: Builder Int32
+createMark :: Builder Word32
 createMark = do
   modifying internalMarks (++ [0])
   uses internalMarks (flip (-) 1 . genericLength)
 
-setMark :: Int32 -> Builder ()
+setMark :: Word32 -> Builder ()
 setMark markIndex = do
   offset <- use internalOffset
   modifying internalMarks (element (fromIntegral markIndex) .~ offset)
