@@ -31,7 +31,7 @@ compileExpr (Var pos ident) = do
 
 compileExpr (FuncCall pos func args) = do
   compileExpr (Var pos func)
-  sequence_ (compileExpr <$> args)
+  (sequence_ . reverse) (compileExpr <$> args)
   tellCode [(pos, Inst.Call $ genericLength args)]
 
 compileExpr (If pos condExpr thenExpr elseExpr) = do

@@ -114,10 +114,10 @@ spec = do
                       )
     it "인수가 3개인 함수 호출 코드 생성" $ do
       compileExpr (funcCall "던지다" [litInteger 10, litInteger 10, litInteger 0])
-        `shouldBuild` ( S.fromList [ConstInteger 10, ConstInteger 0]
+        `shouldBuild` ( S.fromList [ConstInteger 0, ConstInteger 10]
                       , [ Inst.Load "던지다"
                         , Inst.Push 0
-                        , Inst.Push 0
+                        , Inst.Push 1
                         , Inst.Push 1
                         , Inst.Call 3
                         ]
