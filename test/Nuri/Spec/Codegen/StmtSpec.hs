@@ -25,7 +25,14 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["값"]
-                              (ann [Inst.Load "값", Inst.Push 0, Inst.Add])
+                              (ann
+                                [ Inst.Store "값"
+                                , Inst.Load "값"
+                                , Inst.Push 0
+                                , Inst.Add
+                                , Inst.PopName
+                                ]
+                              )
                               (S.fromList [ConstInteger 1])
                             )
                         ]
@@ -38,7 +45,16 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["수1", "수2"]
-                              (ann [Inst.Load "수1", Inst.Load "수2", Inst.Add])
+                              (ann
+                                [ Inst.Store "수1"
+                                , Inst.Store "수2"
+                                , Inst.Load "수1"
+                                , Inst.Load "수2"
+                                , Inst.Add
+                                , Inst.PopName
+                                , Inst.PopName
+                                ]
+                              )
                               S.empty
                             )
                         ]

@@ -76,9 +76,17 @@ compileExpr (Seq (x :| xs)) = do
       compileExpr (Seq rest)
 
 compileExpr (Lambda pos argNames body) = do
-  let (internal, code) = execRWS (compileExpr body) () defaultInternal
-      constTable = view internalConstTable internal
-      funcObject = FuncObject argNames (clearMarks internal code) constTable
+  let
+    (internal, code) = execRWS
+      (do
+        sequence_ ((\name -> tellCode [(pos, Inst.Store name)]) <$> argNames)
+        compileExpr body
+        replicateM_ (genericLength argNames) (tellCode [(pos, Inst.PopName)])
+      )
+      ()
+      defaultInternal
+    constTable = view internalConstTable internal
+    funcObject = FuncObject argNames (clearMarks internal code) constTable
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
 
