@@ -1,7 +1,11 @@
 module Nuri.Codegen.Expr where
 
-import           Control.Lens                             ( view )
+import           Control.Lens                             ( view
+                                                          , modifying
+                                                          , use
+                                                          )
 import           Control.Monad.RWS                        ( execRWS )
+import           Data.List                                ( elemIndex )
 
 import           Nuri.Expr
 import           Nuri.Literal
@@ -27,10 +31,14 @@ compileExpr (Lit pos lit) = do
   tellCode [(pos, Inst.Push $ fromIntegral index)]
 
 compileExpr (Var pos ident) = do
-  tellCode [(pos, Inst.Load ident)]
+  varNames <- use internalVarNames
+  case ident `elemIndex` varNames of
+    Just index ->
+      tellCode [(pos, Inst.Load $ fromIntegral $ length varNames - index - 1)]
+    Nothing -> tellCode [(pos, Inst.LoadGlobal ident)]
 
 compileExpr (FuncCall pos func args) = do
-  (sequence_ . reverse) (compileExpr <$> args)
+  sequence_ (compileExpr <$> args)
   compileExpr (Var pos func)
   tellCode [(pos, Inst.Call $ genericLength args)]
 
@@ -76,22 +84,23 @@ compileExpr (Seq (x :| xs)) = do
       compileExpr (Seq rest)
 
 compileExpr (Lambda pos argNames body) = do
-  let
-    (internal, code) = execRWS
-      (do
-        sequence_ ((\name -> tellCode [(pos, Inst.Store name)]) <$> argNames)
-        compileExpr body
-        replicateM_ (genericLength argNames) (tellCode [(pos, Inst.PopName)])
-      )
-      ()
-      defaultInternal
-    constTable = view internalConstTable internal
-    funcObject = FuncObject argNames (clearMarks internal code) constTable
+  let (internal, code) = execRWS
+        (do
+          sequence_ (addVarName <$> argNames)
+          compileExpr body
+          modifying internalVarNames (drop $ genericLength argNames)
+        )
+        ()
+        defaultInternal
+      constTable = view internalConstTable internal
+      funcObject = FuncObject argNames (clearMarks internal code) constTable
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
 
-compileExpr (Let pos name value expr) = do
-  compileExpr value
-  tellCode [(pos, Inst.Store name)]
-  compileExpr expr
-  tellCode [(pos, Inst.PopName)]
+compileExpr (Let pos name value expr) = undefined
+-- compileExpr (Let pos name value expr) = do
+--   compileExpr value
+--   index <- addVarName name
+--   tellCode [(pos, Inst.Store index)]
+--   compileExpr expr
+--   tellCode [(pos, Inst.Pop)]

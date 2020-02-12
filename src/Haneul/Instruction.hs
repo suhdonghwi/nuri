@@ -6,7 +6,8 @@ import           Text.Megaparsec.Pos                      ( Pos )
 
 
 data Instruction' a = Push Word32 {- 상수 테이블 인덱스 -} | Pop
-                 | Store String {- 상수 이름 -} | Load String {- 상수 이름 -} | PopName
+                 | Load Word32 {- 스택 인덱스 -}
+                 | StoreGlobal String | LoadGlobal String
                  | Call Word32 {- 인수의 개수 -}
                  | Jmp a  {- 주소 -}
                  | PopJmpIfFalse a  {- 주소 -}

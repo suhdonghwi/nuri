@@ -82,14 +82,9 @@ instance (Binary a) => Binary (Instruction' a) where
     put v
   put Pop = do
     put (1 :: Word8)
-  put (Store v) = do
-    put (2 :: Word8)
-    put v
   put (Load v) = do
     put (3 :: Word8)
     put v
-  put PopName = do
-    put (4 :: Word8)
   put (Call v) = do
     put (5 :: Word8)
     put v
@@ -122,9 +117,7 @@ instance (Binary a) => Binary (Instruction' a) where
     let getterList =
           [ Push <$> get
           , return Pop
-          , Store <$> get
           , Load <$> get
-          , return PopName
           , Call <$> get
           , Jmp <$> get
           , PopJmpIfFalse <$> get

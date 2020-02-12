@@ -25,18 +25,11 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["값"]
-                              (ann
-                                [ Inst.Store "값"
-                                , Inst.Load "값"
-                                , Inst.Push 0
-                                , Inst.Add
-                                , Inst.PopName
-                                ]
-                              )
+                              (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                               (S.fromList [ConstInteger 1])
                             )
                         ]
-                      , [Inst.Push 0, Inst.Store "더하다"]
+                      , [Inst.Push 0, Inst.StoreGlobal "더하다"]
                       )
       it "인자가 두 개인 함수 선언 코드 생성"
         $             compileStmt
@@ -45,30 +38,25 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["수1", "수2"]
-                              (ann
-                                [ Inst.Store "수1"
-                                , Inst.Store "수2"
-                                , Inst.Load "수1"
-                                , Inst.Load "수2"
-                                , Inst.Add
-                                , Inst.PopName
-                                , Inst.PopName
-                                ]
-                              )
+                              (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
                               S.empty
                             )
                         ]
-                      , [Inst.Push 0, Inst.Store "더하다"]
+                      , [Inst.Push 0, Inst.StoreGlobal "더하다"]
                       )
   describe "상수 선언문 코드 생성" $ do
     it "하나의 값에 대한 상수 선언문 코드 생성" $ do
       compileStmt (constDecl "값" (litInteger 1))
         `shouldBuild` ( S.fromList [ConstInteger 1]
-                      , [Inst.Push 0, Inst.Store "값"]
+                      , [Inst.Push 0, Inst.StoreGlobal "값"]
                       )
     it "계산식 상수 선언문 코드 생성" $ do
       compileStmt (constDecl "값" (binaryOp Add (litInteger 1) (litInteger 2)))
         `shouldBuild` ( S.fromList [ConstInteger 1, ConstInteger 2]
-                      , [Inst.Push 0, Inst.Push 1, Inst.Add, Inst.Store "값"]
+                      , [ Inst.Push 0
+                        , Inst.Push 1
+                        , Inst.Add
+                        , Inst.StoreGlobal "값"
+                        ]
                       )
 

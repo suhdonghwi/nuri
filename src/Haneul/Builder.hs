@@ -33,9 +33,14 @@ type Builder = RWS () MarkedCode BuilderInternal
 addConstant :: Constant -> Builder Word32
 addConstant value = do
   modifying internalConstTable (|> value)
-  names <- use internalConstTable
-  let (Just index) = findIndex value names
+  table <- use internalConstTable
+  let (Just index) = findIndex value table
   return $ fromIntegral index
+
+addVarName :: String -> Builder Word32
+addVarName value = do
+  modifying internalVarNames (value :)
+  uses internalVarNames genericLength
 
 createMark :: Builder Word32
 createMark = do
@@ -56,10 +61,10 @@ unmarkInst internal inst = case inst of
   PopJmpIfFalse v -> PopJmpIfFalse (unmark v)
   Push          v -> Push v
   Pop             -> Pop
-  Store v         -> Store v
-  Load  v         -> Load v
-  PopName         -> PopName
-  Call v          -> Call v
+  StoreGlobal v   -> StoreGlobal v
+  Load        v   -> Load v
+  LoadGlobal  v   -> LoadGlobal v
+  Call        v   -> Call v
   Add             -> Add
   Subtract        -> Subtract
   Multiply        -> Multiply
