@@ -141,7 +141,7 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
-                              ["값"]
+                              1
                               (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                               (S.fromList [ConstInteger 1])
                             )
@@ -153,7 +153,7 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
-                              ["수1", "수2"]
+                              2
                               (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
                               S.empty
                             )

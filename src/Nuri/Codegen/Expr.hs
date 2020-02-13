@@ -93,7 +93,8 @@ compileExpr (Lambda pos argNames body) = do
         ()
         defaultInternal
       constTable = view internalConstTable internal
-      funcObject = FuncObject argNames (clearMarks internal code) constTable
+      arity      = genericLength argNames
+      funcObject = FuncObject arity (clearMarks internal code) constTable
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
 

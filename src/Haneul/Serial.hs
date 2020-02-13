@@ -67,7 +67,7 @@ instance Binary Constant where
 
 instance Binary FuncObject where
   put obj = do
-    put (view funcArgNames obj)
+    put (view funcArity obj)
     put (toList $ view funcConstTable obj)
     put (view funcBody obj)
   get = do
@@ -83,7 +83,13 @@ instance (Binary a) => Binary (Instruction' a) where
   put Pop = do
     put (1 :: Word8)
   put (Load v) = do
+    put (2 :: Word8)
+    put v
+  put (StoreGlobal v) = do
     put (3 :: Word8)
+    put v
+  put (LoadGlobal v) = do
+    put (4 :: Word8)
     put v
   put (Call v) = do
     put (5 :: Word8)
@@ -118,6 +124,8 @@ instance (Binary a) => Binary (Instruction' a) where
           [ Push <$> get
           , return Pop
           , Load <$> get
+          , StoreGlobal <$> get
+          , LoadGlobal <$> get
           , Call <$> get
           , Jmp <$> get
           , PopJmpIfFalse <$> get
