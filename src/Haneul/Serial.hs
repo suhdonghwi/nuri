@@ -9,6 +9,9 @@ import           Prelude                           hiding ( put
 import           Data.Binary                              ( Binary(put, get)
                                                           , Get
                                                           )
+import           Data.Binary.Put                          ( putDoublebe )
+import           Data.Binary.Get                          ( getDoublebe )
+
 import           Data.Set.Ordered                         ( fromList )
 import           Control.Lens                             ( view )
 
@@ -39,9 +42,10 @@ instance Binary Constant where
     put v
   put (ConstReal v) = do
     put (2 :: Word8)
-    let (base, e) = decodeFloat v
-    put (fromIntegral base :: Int64)
-    put e
+    putDoublebe v
+    -- let (base, e) = decodeFloat v
+    -- put (fromIntegral base :: Int64)
+    -- put e
   put (ConstChar v) = do
     put (3 :: Word8)
     put v
@@ -56,10 +60,7 @@ instance Binary Constant where
     case t of
       0 -> return ConstNone
       1 -> ConstInteger <$> get
-      2 -> do
-        base <- get :: Get Int64
-        e    <- get :: Get Int
-        return $ ConstReal (encodeFloat (fromIntegral base) e)
+      2 -> ConstReal <$> getDoublebe
       3 -> ConstChar <$> get
       4 -> ConstBool <$> get
       5 -> ConstFunc <$> get
