@@ -8,9 +8,14 @@ import           Prelude                           hiding ( put
 
 import           Data.Binary                              ( Binary(put, get)
                                                           , Get
+                                                          , putWord8
+                                                          , getWord8
                                                           )
 import           Data.Binary.Put                          ( putDoublebe )
-import           Data.Char                                ( ord )
+import           Data.Binary.Get                          ( getDoublebe )
+import           Data.Char                                ( ord
+                                                          , chr
+                                                          )
 
 import           Data.Set.Ordered                         ( fromList )
 import           Control.Lens                             ( view )
@@ -36,33 +41,46 @@ import           Haneul.Program
 
 instance Binary Constant where
   put ConstNone = do
-    put (0 :: Word8)
+    putWord8 0
   put (ConstInteger v) = do
-    put (1 :: Word8)
+    putWord8 1
     put v
   put (ConstReal v) = do
-    put (2 :: Word8)
+    putWord8 2
     putDoublebe v
     -- let (base, e) = decodeFloat v
     -- put (fromIntegral base :: Int64)
     -- put e
   put (ConstChar v) = do
-    put (3 :: Word8)
+    putWord8 3
     put (fromIntegral (ord v) :: Word32)
   put (ConstBool v) = do
-    put (4 :: Word8)
+    putWord8 4
     put v
   put (ConstFunc v) = do
-    put (5 :: Word8)
+    putWord8 5
     put v
-  get = undefined
+  get = do
+    t <- getWord8
+    case t of
+      0 -> return ConstNone
+      1 -> ConstInteger <$> get
+      2 -> ConstReal <$> getDoublebe
+      3 -> (ConstChar . chr) <$> get
+      4 -> ConstBool <$> get
+      5 -> ConstFunc <$> get
+      _ -> fail "invalid constant type"
 
 instance Binary FuncObject where
   put obj = do
     put (view funcArity obj)
     put (toList $ view funcConstTable obj)
     put (view funcBody obj)
-  get = undefined
+  get = do
+    arity'      <- get
+    constTable' <- fromList <$> get
+    insts'      <- get
+    return (FuncObject arity' insts' constTable')
 
 instance (Binary a) => Binary (Instruction' a) where
   put (Push v) = do
@@ -106,7 +124,30 @@ instance (Binary a) => Binary (Instruction' a) where
     put (15 :: Word8)
   put Negate = do
     put (16 :: Word8)
-  get = undefined
+  get = do
+    inst <- get :: Get Word8
+    let getterList =
+          [ Push <$> get
+          , return Pop
+          , Load <$> get
+          , StoreGlobal <$> get
+          , LoadGlobal <$> get
+          , Call <$> get
+          , Jmp <$> get
+          , PopJmpIfFalse <$> get
+          , return Add
+          , return Subtract
+          , return Multiply
+          , return Divide
+          , return Mod
+          , return Equal
+          , return LessThan
+          , return GreaterThan
+          , return Negate
+          ]
+    case getterList !!? (fromIntegral inst) of
+      Just action -> action
+      Nothing     -> fail "invalid instruction opcode type"
 
 instance Binary Pos  where
   put v = do
