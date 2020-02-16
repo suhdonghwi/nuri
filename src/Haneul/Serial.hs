@@ -10,7 +10,7 @@ import           Data.Binary                              ( Binary(put, get)
                                                           , Get
                                                           )
 import           Data.Binary.Put                          ( putDoublebe )
-import           Data.Binary.Get                          ( getDoublebe )
+import           Data.Char                                ( ord )
 
 import           Data.Set.Ordered                         ( fromList )
 import           Control.Lens                             ( view )
@@ -48,34 +48,21 @@ instance Binary Constant where
     -- put e
   put (ConstChar v) = do
     put (3 :: Word8)
-    put v
+    put (fromIntegral (ord v) :: Word32)
   put (ConstBool v) = do
     put (4 :: Word8)
     put v
   put (ConstFunc v) = do
     put (5 :: Word8)
     put v
-  get = do
-    t <- get :: Get Word8
-    case t of
-      0 -> return ConstNone
-      1 -> ConstInteger <$> get
-      2 -> ConstReal <$> getDoublebe
-      3 -> ConstChar <$> get
-      4 -> ConstBool <$> get
-      5 -> ConstFunc <$> get
-      _ -> fail "invalid constant type"
+  get = undefined
 
 instance Binary FuncObject where
   put obj = do
     put (view funcArity obj)
     put (toList $ view funcConstTable obj)
     put (view funcBody obj)
-  get = do
-    arity'      <- get
-    constTable' <- fromList <$> get
-    insts'      <- get
-    return (FuncObject arity' insts' constTable')
+  get = undefined
 
 instance (Binary a) => Binary (Instruction' a) where
   put (Push v) = do
@@ -119,30 +106,7 @@ instance (Binary a) => Binary (Instruction' a) where
     put (15 :: Word8)
   put Negate = do
     put (16 :: Word8)
-  get = do
-    inst <- get :: Get Word8
-    let getterList =
-          [ Push <$> get
-          , return Pop
-          , Load <$> get
-          , StoreGlobal <$> get
-          , LoadGlobal <$> get
-          , Call <$> get
-          , Jmp <$> get
-          , PopJmpIfFalse <$> get
-          , return Add
-          , return Subtract
-          , return Multiply
-          , return Divide
-          , return Mod
-          , return Equal
-          , return LessThan
-          , return GreaterThan
-          , return Negate
-          ]
-    case getterList !!? (fromIntegral inst) of
-      Just action -> action
-      Nothing     -> fail "invalid instruction opcode type"
+  get = undefined
 
 instance Binary Pos  where
   put v = do
