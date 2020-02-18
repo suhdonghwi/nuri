@@ -77,8 +77,11 @@ parseIf =
       reserved "만약"
       condExpr <- parseExpr
       reserved "이라면"
+      scn
       thenExpr <- parseExpr
+      scn
       reserved "아니라면"
+      scn
       If pos condExpr thenExpr <$> parseExpr
     )
     <?> "조건식"
