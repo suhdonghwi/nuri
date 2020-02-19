@@ -44,6 +44,13 @@ addVarName value = do
   let (Just index) = findIndex value table
   return $ fromIntegral index
 
+addGlobalVarName :: String -> Builder Word32
+addGlobalVarName value = do
+  modifying internalGlobalVarNames (|> value)
+  table <- use internalGlobalVarNames
+  let (Just index) = findIndex value table
+  return $ fromIntegral index
+
 createMark :: Builder Word32
 createMark = do
   modifying internalMarks (++ [0])

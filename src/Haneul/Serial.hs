@@ -147,7 +147,7 @@ instance (Binary a) => Binary (Instruction' a) where
           ]
     case getterList !!? (fromIntegral inst) of
       Just action -> action
-      Nothing     -> fail "invalid instruction opcode type"
+      Nothing     -> fail $ "invalid instruction opcode type" ++ show inst
 
 instance Binary Pos  where
   put v = do
@@ -158,6 +158,7 @@ instance Binary Pos  where
 
 instance Binary Program where
   put p = do
+    put (view programGlobalVarNames p)
     put (toList $ view programConstTable p)
     put (view programCode p)
-  get = liftA2 Program (fromList <$> get) get
+  get = liftA3 Program get (fromList <$> get) get

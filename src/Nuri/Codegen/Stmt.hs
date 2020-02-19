@@ -13,7 +13,9 @@ compileStmt :: Stmt -> Builder ()
 compileStmt (DeclStmt decl) = do
   let (pos, name, expr) = declToExpr decl
   compileExpr expr
-  tellCode [(pos, Inst.StoreGlobal name)]
+
+  index <- addGlobalVarName name
+  tellCode [(pos, Inst.StoreGlobal index)]
 
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr

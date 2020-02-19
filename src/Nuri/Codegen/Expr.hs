@@ -34,7 +34,9 @@ compileExpr (Var pos ident) = do
   varNames <- use internalVarNames
   case ident `findIndex` varNames of
     Just index -> tellCode [(pos, Inst.Load $ fromIntegral $ index)]
-    Nothing    -> tellCode [(pos, Inst.LoadGlobal ident)]
+    Nothing    -> do
+      index <- addGlobalVarName ident
+      tellCode [(pos, Inst.LoadGlobal index)]
 
 compileExpr (FuncCall pos func args) = do
   sequence_ (compileExpr <$> args)
@@ -83,6 +85,7 @@ compileExpr (Seq (x :| xs)) = do
       compileExpr (Seq rest)
 
 compileExpr (Lambda pos argNames body) = do
+  globalVarNames <- use internalGlobalVarNames
   let (internal, code) = execRWS
         (do
           temp <- use internalVarNames
@@ -91,7 +94,7 @@ compileExpr (Lambda pos argNames body) = do
           assign internalVarNames temp
         )
         ()
-        defaultInternal
+        defaultInternal { _internalGlobalVarNames = globalVarNames }
       constTable = view internalConstTable internal
       arity      = genericLength argNames
       funcObject = FuncObject arity (clearMarks internal code) constTable

@@ -104,13 +104,13 @@ spec = do
 
   describe "변수 접근 코드 생성" $ do
     it "변수 이름 접근하는 LoadGlobal 코드 생성" $ do
-      compileExpr (var "값") `shouldBuild` (S.empty, [Inst.LoadGlobal "값"])
+      compileExpr (var "값") `shouldBuild` (S.empty, [Inst.LoadGlobal 0])
 
   describe "함수 호출 코드 생성" $ do
     it "인수가 하나인 함수 호출 코드 생성" $ do
       compileExpr (funcCall "던지다" [litInteger 10])
         `shouldBuild` ( S.fromList [ConstInteger 10]
-                      , [Inst.Push 0, Inst.LoadGlobal "던지다", Inst.Call 1]
+                      , [Inst.Push 0, Inst.LoadGlobal 0, Inst.Call 1]
                       )
     it "인수가 3개인 함수 호출 코드 생성" $ do
       compileExpr (funcCall "던지다" [litInteger 10, litInteger 10, litInteger 0])
@@ -118,13 +118,13 @@ spec = do
                       , [ Inst.Push 0
                         , Inst.Push 0
                         , Inst.Push 1
-                        , Inst.LoadGlobal "던지다"
+                        , Inst.LoadGlobal 0
                         , Inst.Call 3
                         ]
                       )
     it "인수가 없는 함수 호출 코드 생성" $ do
       compileExpr (funcCall "던지다" [])
-        `shouldBuild` (S.empty, [Inst.LoadGlobal "던지다", Inst.Call 0])
+        `shouldBuild` (S.empty, [Inst.LoadGlobal 0, Inst.Call 0])
   describe "표현식 시퀀스 코드 생성" $ do
     it "표현식이 1개인 시퀀스 코드 생성" $ do
       compileExpr (Seq [litInteger 10])
