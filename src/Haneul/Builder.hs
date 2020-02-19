@@ -39,8 +39,10 @@ addConstant value = do
 
 addVarName :: String -> Builder Word32
 addVarName value = do
-  modifying internalVarNames (value :)
-  uses internalVarNames genericLength
+  modifying internalVarNames (|> value)
+  table <- use internalVarNames
+  let (Just index) = findIndex value table
+  return $ fromIntegral index
 
 createMark :: Builder Word32
 createMark = do

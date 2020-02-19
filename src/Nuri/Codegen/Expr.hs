@@ -1,11 +1,11 @@
 module Nuri.Codegen.Expr where
 
 import           Control.Lens                             ( view
-                                                          , modifying
                                                           , use
+                                                          , assign
                                                           )
 import           Control.Monad.RWS                        ( execRWS )
-import           Data.List                                ( elemIndex )
+import           Data.Set.Ordered                         ( findIndex )
 
 import           Nuri.Expr
 import           Nuri.Literal
@@ -32,10 +32,9 @@ compileExpr (Lit pos lit) = do
 
 compileExpr (Var pos ident) = do
   varNames <- use internalVarNames
-  case ident `elemIndex` varNames of
-    Just index ->
-      tellCode [(pos, Inst.Load $ fromIntegral $ length varNames - index - 1)]
-    Nothing -> tellCode [(pos, Inst.LoadGlobal ident)]
+  case ident `findIndex` varNames of
+    Just index -> tellCode [(pos, Inst.Load $ fromIntegral $ index)]
+    Nothing    -> tellCode [(pos, Inst.LoadGlobal ident)]
 
 compileExpr (FuncCall pos func args) = do
   sequence_ (compileExpr <$> args)
@@ -86,9 +85,10 @@ compileExpr (Seq (x :| xs)) = do
 compileExpr (Lambda pos argNames body) = do
   let (internal, code) = execRWS
         (do
+          temp <- use internalVarNames
           sequence_ (addVarName <$> argNames)
           compileExpr body
-          modifying internalVarNames (drop $ genericLength argNames)
+          assign internalVarNames temp
         )
         ()
         defaultInternal
