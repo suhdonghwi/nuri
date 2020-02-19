@@ -10,8 +10,8 @@ data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
               Lit Pos Literal
             -- 변수 읽기 표현식 : 코드 위치, 변수명 
             | Var Pos String
-            -- 함수 호출 표현식 : 코드 위치, 함수 이름, 함수 인자 리스트
-            | FuncCall Pos String [Expr]
+            -- 함수 호출 표현식 : 코드 위치, 함수식, 함수 인자 리스트
+            | FuncCall Pos Expr [Expr]
             -- 조건 분기 표현식 : 코드 위치, 조건식, then문, else문
             | If Pos Expr Expr Expr
             -- 이항 연산 표현식 : 코드 위치, 이항 연산자, 피연산자(좌), 피연산자(우)

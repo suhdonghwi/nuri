@@ -16,6 +16,9 @@ data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable,
 
 $(makeLenses ''BuilderInternal)
 
+defaultGlobalNames :: [String]
+defaultGlobalNames = ["보여주다"]
+
 defaultInternal :: BuilderInternal
 defaultInternal =
-  BuilderInternal (S.empty) (S.empty) (S.fromList ["보여주다"]) 0 []
+  BuilderInternal (S.empty) (S.empty) (S.fromList defaultGlobalNames) 0 []

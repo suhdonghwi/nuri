@@ -20,11 +20,10 @@ spec = do
   describe "선언문 파싱" $ do
     describe "함수 선언문 파싱" $ do
       it "인자가 한 개인 함수" $ do
-        testParse parseDeclStmt "함수 [값] 증가하다: [값] 1 더하다"
-          `shouldParse` funcDecl
-                          "증가하다"
-                          ["값"]
-                          (funcCall "더하다" [var "값", litInteger 1])
+        testParse parseDeclStmt "함수 [값] 증가하다: [값] 1 더하다" `shouldParse` funcDecl
+          "증가하다"
+          ["값"]
+          (funcCall (var "더하다") [var "값", litInteger 1])
 
       it "인자가 여러 개인 함수" $ do
         testParse parseDeclStmt "함수 [값1] [값2] 더하다: [값1] + [값2]"
@@ -70,7 +69,7 @@ spec = do
           `shouldParse` constDecl
                           "사과 한 박스"
                           (Seq
-                            [ funcCall "던지다" [litInteger 10]
+                            [ funcCall (var "던지다") [litInteger 10]
                             , binaryOp Multiply (litInteger 1) (litInteger 2)
                             ]
                           )
@@ -85,11 +84,10 @@ spec = do
 
   describe "구문 파싱" $ do
     it "인자가 한 개인 함수" $ do
-      testParse parseStmt "함수 [값] 증가하다: [값] 1 더하다"
-        `shouldParse` funcDecl
-                        "증가하다"
-                        ["값"]
-                        (funcCall "더하다" [var "값", litInteger 1])
+      testParse parseStmt "함수 [값] 증가하다: [값] 1 더하다" `shouldParse` funcDecl
+        "증가하다"
+        ["값"]
+        (funcCall (var "더하다") [var "값", litInteger 1])
 
   describe "구문 여러 개 파싱" $ do
     it "함수 여러 개 선언 파싱" $ do
@@ -122,15 +120,15 @@ spec = do
                         "더하다"
                         ["값"]
                         (Seq
-                          [ funcCall "보여주다" [litInteger 1]
-                          , funcCall "보여주다" [litInteger 3]
+                          [ funcCall (var "보여주다") [litInteger 1]
+                          , funcCall (var "보여주다") [litInteger 3]
                           ]
                         )
                       , funcDecl
                         "빼다"
                         ["값"]
                         (Seq
-                          [ funcCall "보여주다" [litInteger 1]
+                          [ funcCall (var "보여주다") [litInteger 1]
                           , binaryOp Add (litInteger 2) (litInteger 3)
                           ]
                         )

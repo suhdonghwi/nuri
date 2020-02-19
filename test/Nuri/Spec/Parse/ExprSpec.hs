@@ -199,22 +199,22 @@ spec = do
   describe "함수 호출식 파싱" $ do
     it "인자가 2개인 함수 호출식" $ do
       testParse parseFuncCall "1 2 더하다"
-        `shouldParse` funcCall "더하다" [litInteger 1, litInteger 2]
+        `shouldParse` funcCall (var "더하다") [litInteger 1, litInteger 2]
     it "인자가 없는 함수 호출식" $ do
-      testParse parseFuncCall "깨우다" `shouldParse` funcCall "깨우다" []
+      testParse parseFuncCall "깨우다" `shouldParse` funcCall (var "깨우다") []
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
       testParse parseNestedFuncCalls "4 2 합 구하고, 2 나누다" `shouldParse` funcCall
-        "나누다"
-        [funcCall "합 구하고" [litInteger 4, litInteger 2], litInteger 2]
+        (var "나누다")
+        [funcCall (var "합 구하고") [litInteger 4, litInteger 2], litInteger 2]
     it "두 번 중첩된 식" $ do
       testParse parseNestedFuncCalls "4 2 더하고, 2 나누고, 3 더하다"
         `shouldParse` funcCall
-                        "더하다"
+                        (var "더하다")
                         [ funcCall
-                          "나누고"
-                          [ funcCall "더하고" [litInteger 4, litInteger 2]
+                          (var "나누고")
+                          [ funcCall (var "더하고") [litInteger 4, litInteger 2]
                           , litInteger 2
                           ]
                         , litInteger 3
@@ -231,9 +231,12 @@ spec = do
         (binaryOp Divide (litInteger 2) (litInteger 3))
     it "함수 호출식 포함된 조건식 파싱" $ do
       testParse parseIf "만약 1 2 던지고 받다 이라면 3 들고, 받다 아니라면 2 들다"
-        `shouldParse` ifExpr (funcCall "던지고 받다" [litInteger 1, litInteger 2])
-                             (funcCall "받다" [funcCall "들고" [litInteger 3]])
-                             (funcCall "들다" [litInteger 2])
+        `shouldParse` ifExpr
+                        (funcCall (var "던지고 받다") [litInteger 1, litInteger 2])
+                        (funcCall (var "받다")
+                                  [funcCall (var "들고") [litInteger 3]]
+                        )
+                        (funcCall (var "들다") [litInteger 2])
     it "중첩된 조건식 파싱" $ do
       testParse parseIf "만약 (만약 거짓 이라면 1 아니라면 2) 이라면 1 아니라면 2"
         `shouldParse` ifExpr
@@ -264,7 +267,7 @@ spec = do
                 1 던지다
           |]
           )
-        `shouldParse` Seq [litInteger 1, funcCall "던지다" [litInteger 1]]
+        `shouldParse` Seq [litInteger 1, funcCall (var "던지다") [litInteger 1]]
     it "중간에 비어있는 라인을 포함한 시퀀스" $ do
       testParse
           parseExpr
@@ -275,7 +278,7 @@ spec = do
               1 던지다
           |]
           )
-        `shouldParse` Seq [litInteger 1, funcCall "던지다" [litInteger 1]]
+        `shouldParse` Seq [litInteger 1, funcCall (var "던지다") [litInteger 1]]
     it "표현식 중간에 시퀀스 사용" $ do
       testParse
           parseExpr
@@ -360,10 +363,10 @@ spec = do
       testParse parseExpr "1 + 1 2 더하다" `shouldParse` binaryOp
         Add
         (litInteger 1)
-        (funcCall "더하다" [litInteger 1, litInteger 2])
+        (funcCall (var "더하다") [litInteger 1, litInteger 2])
     it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
       testParse parseExpr "(1 + 1) 2 더하다" `shouldParse` funcCall
-        "더하다"
+        (var "더하다")
         [binaryOp Add (litInteger 1) (litInteger 1), litInteger 2]
 
 

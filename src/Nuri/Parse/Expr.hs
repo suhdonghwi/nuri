@@ -131,7 +131,7 @@ parseFuncCall = do
   args <- P.many (parseTerm <?> "함수 인수")
   pos  <- getSourceLine
   func <- parseFuncIdentifier <?> "함수 이름"
-  return $ FuncCall pos func args
+  return $ FuncCall pos (Var pos func) args
 
 parseFuncIdentifier :: Parser String
 parseFuncIdentifier = lexeme

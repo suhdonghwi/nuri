@@ -40,7 +40,7 @@ compileExpr (Var pos ident) = do
 
 compileExpr (FuncCall pos func args) = do
   sequence_ (compileExpr <$> args)
-  compileExpr (Var pos func)
+  compileExpr func
   tellCode [(pos, Inst.Call $ genericLength args)]
 
 compileExpr (If pos condExpr thenExpr elseExpr) = do
@@ -101,10 +101,6 @@ compileExpr (Lambda pos argNames body) = do
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
 
-compileExpr (Let pos name value expr) = undefined
--- compileExpr (Let pos name value expr) = do
---   compileExpr value
---   index <- addVarName name
---   tellCode [(pos, Inst.Store index)]
---   compileExpr expr
---   tellCode [(pos, Inst.Pop)]
+-- compileExpr (Let pos name value expr) = undefined
+compileExpr (Let pos name value expr) = do
+  compileExpr (FuncCall pos (Lambda pos [name] expr) [value])
