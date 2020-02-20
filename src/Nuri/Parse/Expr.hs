@@ -9,6 +9,8 @@ import qualified Text.Megaparsec               as P
 import           Text.Megaparsec                          ( (<?>)
                                                           , Pos
                                                           )
+-- import           Text.Megaparsec.Debug
+
 import qualified Text.Megaparsec.Char          as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
@@ -54,18 +56,21 @@ parseExprChain = do
   parseExprs level
 
 parseExprs :: Pos -> Parser Expr
-parseExprs level = Seq <$> some
-  (do
-    P.try $ L.indentGuard scn EQ level
-    (do
-        decl   <- parseDecl
-        result <- P.observing (parseExprs level)
-        case result of
-          Left  _    -> fail "시퀀스의 끝은 표현식이어야 합니다."
-          Right expr -> return (declToLet decl $ expr)
-      )
-      <|> (parseExpr <* P.newline)
-  )
+parseExprs level =
+  Seq 
+    <$> (some
+          (P.try $ do
+            L.indentGuard scn EQ level
+            (parseExpr
+              <|> (do
+                    decl   <- parseDecl
+                    result <- P.observing (parseExprs level)
+                    case result of
+                      Left  _    -> fail "시퀀스의 끝은 표현식이어야 합니다."
+                      Right expr -> return (declToLet decl expr)
+                  )))
+          )
+        
 
 parseExpr :: Parser Expr
 parseExpr = parseExprChain <|> parseIf <|> parseArithmetic

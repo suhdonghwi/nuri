@@ -57,7 +57,7 @@ spec = do
           `shouldParse` constDecl
                           "값"
                           (binaryOp Multiply (litInteger 1) (litInteger 2))
-      it "시퀀스 식 상수 선어" $ do
+      it "시퀀스 식 상수 선언" $ do
         testParse
             parseDeclStmt
             (unpack [text|
@@ -94,6 +94,20 @@ spec = do
       testParse
           parseStmts
           (unpack [text|
+            순서대로
+              1 + 1
+              1|]
+          )
+        `shouldParse` [ ExprStmt
+                          $ Seq
+                              [ binaryOp Add (litInteger 1) (litInteger 1)
+                              , litInteger 1
+                              ]
+                      ]
+    it "함수 여러 개 선언 파싱" $ do
+      testParse
+          parseStmts
+          (unpack [text|
             함수 [값] 더하다: 1
             함수 [값] 빼다: 
               2
@@ -109,7 +123,6 @@ spec = do
             함수 [값] 더하다: 순서대로
               1 보여주다
               3 보여주다
-
             함수 [값] 빼다:
               순서대로
                 1 보여주다
