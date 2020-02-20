@@ -57,20 +57,21 @@ parseExprChain = do
 
 parseExprs :: Pos -> Parser Expr
 parseExprs level =
-  Seq 
+  Seq
     <$> (some
           (P.try $ do
             L.indentGuard scn EQ level
-            (parseExpr
-              <|> (do
-                    decl   <- parseDecl
-                    result <- P.observing (parseExprs level)
-                    case result of
-                      Left  _    -> fail "시퀀스의 끝은 표현식이어야 합니다."
-                      Right expr -> return (declToLet decl expr)
-                  )))
+            (do
+                decl   <- parseDecl
+                result <- P.observing (parseExprs level)
+                case result of
+                  Left  _    -> fail "시퀀스의 끝은 표현식이어야 합니다."
+                  Right expr -> return (declToLet decl expr)
+              )
+              <|> parseExpr
           )
-        
+        )
+
 
 parseExpr :: Parser Expr
 parseExpr = parseExprChain <|> parseIf <|> parseArithmetic
