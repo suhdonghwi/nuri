@@ -12,6 +12,7 @@ import           Control.Lens                             ( modifying
                                                           )
 import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
+                                                          , OSet
                                                           )
 import           Data.List                                ( (!!) )
 
@@ -20,7 +21,7 @@ import           Haneul.Constant
 import           Haneul.BuilderInternal
 
 
-type Builder = RWS () MarkedCode BuilderInternal
+type Builder = RWS [OSet String] MarkedCode BuilderInternal
 
 -- addVarName :: String -> Builder Int32
 -- addVarName ident = do

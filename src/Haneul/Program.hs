@@ -15,7 +15,7 @@ data Program = Program { _programGlobalVarNames :: [String], _programConstTable 
 
 toProgram :: BuilderInternal -> Builder () -> Program
 toProgram internal result =
-  let (internal', code) = execRWS result () internal
+  let (internal', code) = execRWS result [] internal
   in  Program (toList $ view internalGlobalVarNames internal')
               (view internalConstTable internal')
               (clearMarks internal' code)
