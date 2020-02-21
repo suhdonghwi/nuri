@@ -76,6 +76,44 @@ spec = do
                         ]
                       , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
                       )
+      it "외부 로컬 스코프에 있는 변수 캡쳐하는 클로저 함수 코드 생성"
+        $             do
+                        compileStmt
+                          (funcDecl
+                            "더하다"
+                            ["값1"]
+                            (letExpr "값2"
+                                     (litInteger 1)
+                                     (binaryOp Add (var "값1") (var "값2"))
+                            )
+                          )
+        `shouldBuild` ( S.fromList
+                        [ ConstFunc
+                            (FuncObject
+                              1
+                              (ann
+                                [ Inst.Push 0
+                                , Inst.Push 1
+                                , Inst.PushFreeVar (0, 0)
+                                , Inst.Call 1
+                                ]
+                              )
+                              (S.fromList
+                                [ ConstInteger 1
+                                , ConstFunc
+                                  (FuncObject
+                                    1
+                                    (ann
+                                      [Inst.LoadDeref 0, Inst.Load 0, Inst.Add]
+                                    )
+                                    S.empty
+                                  )
+                                ]
+                              )
+                            )
+                        ]
+                      , [Inst.Push 0, storeGlobal 0]
+                      )
   describe "상수 선언문 코드 생성" $ do
     it "하나의 값에 대한 상수 선언문 코드 생성" $ do
       compileStmt (constDecl "값" (litInteger 1))

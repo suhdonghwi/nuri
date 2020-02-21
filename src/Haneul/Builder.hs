@@ -52,6 +52,13 @@ addGlobalVarName value = do
   let (Just index) = findIndex value table
   return $ fromIntegral index
 
+addFreeVar :: (Word8, Word8) -> Builder Word32
+addFreeVar value = do
+  modifying internalFreeVars (|> value)
+  table <- use internalFreeVars
+  let (Just index) = findIndex value table
+  return $ fromIntegral index
+
 createMark :: Builder Word32
 createMark = do
   modifying internalMarks (++ [0])
@@ -73,8 +80,10 @@ unmarkInst internal inst = case inst of
   Pop             -> Pop
   StoreGlobal v   -> StoreGlobal v
   Load        v   -> Load v
+  LoadDeref   v   -> LoadDeref v
   LoadGlobal  v   -> LoadGlobal v
   Call        v   -> Call v
+  PushFreeVar v   -> PushFreeVar v
   Add             -> Add
   Subtract        -> Subtract
   Multiply        -> Multiply

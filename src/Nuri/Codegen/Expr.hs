@@ -5,7 +5,7 @@ import           Control.Lens                             ( view
                                                           , assign
                                                           )
 import           Control.Monad.RWS                        ( execRWS )
-import           Data.Set.Ordered                         ( findIndex )
+import qualified Data.Set.Ordered              as S
 
 import           Nuri.Expr
 import           Nuri.Literal
@@ -32,12 +32,24 @@ compileExpr (Lit pos lit) = do
 
 compileExpr (Var pos ident) = do
   varNames <- use internalVarNames
-  case ident `findIndex` varNames of
-    Just index -> tellCode [(pos, Inst.Load $ fromIntegral $ index)]
+  case ident `S.findIndex` varNames of
+    Just index -> tellCode [(pos, Inst.Load $ fromIntegral index)]
     Nothing    -> do
-      
-      index <- addGlobalVarName ident
-      tellCode [(pos, Inst.LoadGlobal index)]
+      outerVars <- ask
+      let result = viaNonEmpty
+            head
+            [ (i, j)
+            | (i, scope) <- zip [0 ..] outerVars
+            , (j, x    ) <- zip [0 ..] $ toList scope
+            , x == ident
+            ]
+      case result of
+        Just loc -> do
+          index <- addFreeVar loc
+          tellCode [(pos, Inst.LoadDeref index)]
+        Nothing -> do
+          index <- addGlobalVarName ident
+          tellCode [(pos, Inst.LoadGlobal index)]
 
 compileExpr (FuncCall pos func args) = do
   sequence_ (compileExpr <$> args)
@@ -104,6 +116,9 @@ compileExpr (Lambda pos argNames body) = do
   assign internalGlobalVarNames (view internalGlobalVarNames internal)
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
+
+  let freeVarList = toList $ view internalFreeVars internal
+  sequence_ (fmap (\x -> tellCode [(pos, Inst.PushFreeVar x)]) freeVarList)
 
 -- compileExpr (Let pos name value expr) = undefined
 compileExpr (Let pos name value expr) = do

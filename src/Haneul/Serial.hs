@@ -84,57 +84,65 @@ instance Binary FuncObject where
 
 instance (Binary a) => Binary (Instruction' a) where
   put (Push v) = do
-    put (0 :: Word8)
+    putWord8 0
     put v
   put Pop = do
-    put (1 :: Word8)
+    putWord8 1
   put (Load v) = do
-    put (2 :: Word8)
+    putWord8 2
+    put v
+  put (LoadDeref v) = do
+    putWord8 3
     put v
   put (StoreGlobal v) = do
-    put (3 :: Word8)
+    putWord8 4
     put v
   put (LoadGlobal v) = do
-    put (4 :: Word8)
+    putWord8 5
     put v
   put (Call v) = do
-    put (5 :: Word8)
+    putWord8 6
     put v
   put (Jmp v) = do
-    put (6 :: Word8)
+    putWord8 7
     put v
   put (PopJmpIfFalse v) = do
-    put (7 :: Word8)
+    putWord8 8
+    put v
+  put (PushFreeVar v) = do
+    putWord8 9
     put v
   put Add = do
-    put (8 :: Word8)
+    putWord8 10
   put Subtract = do
-    put (9 :: Word8)
+    putWord8 11
   put Multiply = do
-    put (10 :: Word8)
+    putWord8 12
   put Divide = do
-    put (11 :: Word8)
+    putWord8 13
   put Mod = do
-    put (12 :: Word8)
+    putWord8 14
   put Equal = do
-    put (13 :: Word8)
+    putWord8 15
   put LessThan = do
-    put (14 :: Word8)
+    putWord8 16
   put GreaterThan = do
-    put (15 :: Word8)
+    putWord8 17
   put Negate = do
-    put (16 :: Word8)
+    putWord8 18
   get = do
     inst <- get :: Get Word8
     let getterList =
           [ Push <$> get
           , return Pop
           , Load <$> get
+          , LoadDeref <$> get
           , StoreGlobal <$> get
           , LoadGlobal <$> get
           , Call <$> get
           , Jmp <$> get
           , PopJmpIfFalse <$> get
+          , PushFreeVar <$> get
           , return Add
           , return Subtract
           , return Multiply
