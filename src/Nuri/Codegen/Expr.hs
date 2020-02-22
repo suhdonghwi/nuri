@@ -116,9 +116,15 @@ compileExpr (Lambda pos argNames body) = do
   assign internalGlobalVarNames (view internalGlobalVarNames internal)
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
-
   let freeVarList = toList $ view internalFreeVars internal
-  sequence_ (fmap (\x -> tellCode [(pos, Inst.PushFreeVar x)]) freeVarList)
+  let processFreeVar (depth, localIndex) = if depth == 0
+        then tellCode [(pos, Inst.FreeVarLocal localIndex)]
+        else do
+          freeIndex <- addFreeVar (depth - 1, localIndex)
+          tellCode [(pos, Inst.FreeVarFree $ fromIntegral freeIndex)]
+
+  sequence_ (processFreeVar <$> freeVarList)
+  -- sequence_ (fmap (\x -> tellCode [(pos, Inst.PushFreeVar x)]) freeVarList)
 
 -- compileExpr (Let pos name value expr) = undefined
 compileExpr (Let pos name value expr) = do

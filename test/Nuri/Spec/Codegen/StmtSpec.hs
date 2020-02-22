@@ -94,7 +94,7 @@ spec = do
                               (ann
                                 [ Inst.Push 0
                                 , Inst.Push 1
-                                , Inst.PushFreeVar (0, 0)
+                                , Inst.FreeVarLocal 0
                                 , Inst.Call 1
                                 ]
                               )
@@ -113,6 +113,62 @@ spec = do
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
+                      )
+      it "3개 이상의 스코프가 중첩된 클로저 코드 생성"
+        $             do
+                        compileStmt
+                          (funcDecl
+                            "바깥"
+                            ["값"]
+                            (letExpr
+                              "중간"
+                              (lambda [] (letExpr "안쪽" (lambda [] (var "값")) (var "안쪽")))
+                              (var "중간")
+                            )
+                          )
+        `shouldBuild` ( S.fromList
+                        [ ConstFunc
+                            (FuncObject
+                              1
+                              (ann
+                                [ Inst.Push 0
+                                , Inst.FreeVarLocal 0
+                                , Inst.Push 1
+                                , Inst.Call 1
+                                ]
+                              )
+                              (S.fromList
+                                [ ConstFunc
+                                  (FuncObject
+                                    0
+                                    (ann
+                                      [ Inst.Push 0
+                                      , Inst.FreeVarFree 0
+                                      , Inst.Push 1
+                                      , Inst.Call 1
+                                      ]
+                                    )
+                                    (S.fromList
+                                      [ ConstFunc
+                                        (FuncObject 0
+                                                    (ann [Inst.LoadDeref 0])
+                                                    S.empty
+                                        )
+                                      , ConstFunc
+                                        (FuncObject 1
+                                                    (ann [Inst.Load 0])
+                                                    S.empty
+                                        )
+                                      ]
+                                    )
+                                  )
+                                , ConstFunc
+                                  (FuncObject 1 (ann [Inst.Load 0]) S.empty)
+                                ]
+                              )
+                            )
+                        ]
+                      , [Inst.Push 0, Inst.StoreGlobal 1]
                       )
   describe "상수 선언문 코드 생성" $ do
     it "하나의 값에 대한 상수 선언문 코드 생성" $ do

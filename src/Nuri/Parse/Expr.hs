@@ -63,10 +63,8 @@ parseExprs level =
             L.indentGuard scn EQ level
             (do
                 decl   <- parseDecl
-                result <- P.observing (parseExprs level)
-                case result of
-                  Left  _    -> fail "시퀀스의 끝은 표현식이어야 합니다."
-                  Right expr -> return (declToLet decl expr)
+                result <- parseExprs level
+                return (declToLet decl result)
               )
               <|> parseExpr
           )
