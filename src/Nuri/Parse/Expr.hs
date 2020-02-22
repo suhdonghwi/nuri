@@ -59,8 +59,8 @@ parseExprs :: Pos -> Parser Expr
 parseExprs level =
   Seq
     <$> (some
-          (P.try $ do
-            L.indentGuard scn EQ level
+          (do
+            P.try $ L.indentGuard scn EQ level
             (do
                 decl   <- parseDecl
                 result <- parseExprs level
@@ -80,6 +80,7 @@ parseIf =
       pos <- getSourceLine
       reserved "만약"
       condExpr <- parseExpr
+      scn
       reserved "이라면"
       scn
       thenExpr <- parseExpr
