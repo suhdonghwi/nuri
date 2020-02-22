@@ -17,7 +17,7 @@ parseStmt :: Parser Stmt
 parseStmt = parseDeclStmt <|> parseExprStmt
 
 parseDeclStmt :: Parser Stmt
-parseDeclStmt = DeclStmt <$> parseDecl <* (void P.newline <|> void P.eof)
+parseDeclStmt = DeclStmt <$> parseDecl
 
 parseExprStmt :: Parser Stmt
 parseExprStmt = ExprStmt <$> parseExpr

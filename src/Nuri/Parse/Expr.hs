@@ -9,7 +9,7 @@ import qualified Text.Megaparsec               as P
 import           Text.Megaparsec                          ( (<?>)
                                                           , Pos
                                                           )
--- import           Text.Megaparsec.Debug
+import           Text.Megaparsec.Debug
 
 import qualified Text.Megaparsec.Char          as P
 import qualified Text.Megaparsec.Char.Lexer    as L
@@ -33,12 +33,22 @@ parseDecl = parseFuncDecl <|> parseConstDecl
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
   pos <- getSourceLine
-  P.try $ reserved "함수"
-  args     <- P.many parseIdentifier
-  funcName <- parseFuncIdentifier
-  symbol ":"
-  scn
-  FuncDecl pos funcName args <$> parseExpr
+  L.indentBlock
+    scn
+    (do
+      P.try $ reserved "함수"
+      args     <- P.many parseIdentifier
+      funcName <- parseFuncIdentifier
+      symbol ":"
+      let listToExpr (l : []) = l
+          listToExpr l        = (Seq . fromList) l
+      return
+        (L.IndentSome Nothing
+                      (return . (FuncDecl pos funcName args) . listToExpr)
+                      parseExpr
+        )
+      -- FuncDecl pos funcName args <$> parseExpr
+    )
 
 parseConstDecl :: Parser Decl
 parseConstDecl = do
