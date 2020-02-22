@@ -1,7 +1,5 @@
 module Nuri.Parse.Stmt where
 
-import qualified Text.Megaparsec               as P
-import qualified Text.Megaparsec.Char          as P
 import           Text.Megaparsec.Char.Lexer               ( nonIndented )
 
 import           Control.Monad.Combinators.NonEmpty       ( some )

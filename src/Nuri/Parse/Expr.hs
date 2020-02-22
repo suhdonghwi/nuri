@@ -1,15 +1,19 @@
 module Nuri.Parse.Expr where
 
-import           Prelude                           hiding ( unwords )
+import           Prelude                           hiding ( unwords
+                                                          , fromList
+                                                          )
 
-import           Data.List                                ( foldl1' )
+import           Data.List                                ( foldl1'
+                                                          , groupBy
+                                                          )
+import           Data.List.NonEmpty                       ( fromList )
 import           Data.String                              ( unwords )
 
 import qualified Text.Megaparsec               as P
 import           Text.Megaparsec                          ( (<?>)
                                                           , Pos
                                                           )
-import           Text.Megaparsec.Debug
 
 import qualified Text.Megaparsec.Char          as P
 import qualified Text.Megaparsec.Char.Lexer    as L
@@ -40,15 +44,30 @@ parseFuncDecl = do
       args     <- P.many parseIdentifier
       funcName <- parseFuncIdentifier
       symbol ":"
-      let listToExpr (l : []) = l
-          listToExpr l        = (Seq . fromList) l
+      let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
+
       return
-        (L.IndentSome Nothing
-                      (return . (FuncDecl pos funcName args) . listToExpr)
-                      parseExpr
+        (L.IndentSome
+          Nothing
+          (return . (FuncDecl pos funcName args) . listToExpr . groupList)
+          parseLine
         )
-      -- FuncDecl pos funcName args <$> parseExpr
     )
+ where
+  groupList :: [Either a b] -> NonEmpty (Either a [b])
+  groupList l =
+    fromList (sequence <$> groupBy (\x y -> isRight x && isRight y) l)
+
+  listToExpr :: NonEmpty (Either Decl [Expr]) -> Expr
+  listToExpr (x :| xs) = case x of
+    Right expr -> case nonEmpty xs of
+      Nothing -> case expr of
+        (y : []) -> y
+        ys       -> Seq $ fromList ys
+      Just l -> (Seq . fromList) (expr ++ [listToExpr l])
+    Left decl -> case nonEmpty xs of
+      Nothing -> let (_, _, expr) = declToExpr decl in expr
+      Just l  -> declToLet decl (listToExpr l)
 
 parseConstDecl :: Parser Decl
 parseConstDecl = do
