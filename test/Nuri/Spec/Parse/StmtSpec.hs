@@ -20,11 +20,13 @@ spec = do
   describe "선언문 파싱" $ do
     describe "함수 선언문 파싱" $ do
       it "인자가 한 개인 함수" $ do
-        testParse parseDeclStmt "함수 [값]을 증가하다:\n  [값] 1 더하다"
+        testParse parseDeclStmt "함수 [값]을 증가하다:\n  [값]에 1을 더하다"
           `shouldParse` funcDecl
                           "증가하다"
                           [("값", "을")]
-                          (funcCall (var "더하다") [var "값", litInteger 1])
+                          (funcCall (var "더하다")
+                                    [(var "값", "에"), (litInteger 1, "을")]
+                          )
 
       it "인자가 여러 개인 함수" $ do
         testParse parseDeclStmt "함수 [값1]에 [값2]을 더하다:\n   [값1] + [값2]"
@@ -78,14 +80,16 @@ spec = do
               함수 동작:
                 1
                                             
-                1 던지다
+                1을 던지다
             |]
             )
           `shouldParse` funcDecl
                           "동작"
                           []
                           (Seq
-                            [litInteger 1, funcCall (var "던지다") [litInteger 1]]
+                            [ litInteger 1
+                            , funcCall (var "던지다") [(litInteger 1, "을")]
+                            ]
                           )
 
       it "시퀀스 중간에 함수 선언을 하는 함수" $ do
@@ -192,10 +196,10 @@ spec = do
 
   describe "구문 파싱" $ do
     it "인자가 한 개인 함수" $ do
-      testParse parseStmt "함수 [값]에 증가하다:\n  [값] 1 더하다" `shouldParse` funcDecl
+      testParse parseStmt "함수 [값]에 증가하다:\n  [값]에 1을 더하다" `shouldParse` funcDecl
         "증가하다"
         [("값", "에")]
-        (funcCall (var "더하다") [var "값", litInteger 1])
+        (funcCall (var "더하다") [(var "값", "에"), (litInteger 1, "을")])
 
   describe "구문 여러 개 파싱" $ do
     it "함수 여러 개 선언 파싱" $ do
@@ -217,10 +221,10 @@ spec = do
           parseStmts
           (unpack [text|
             함수 [값]에 더하다: 
-              1 보여주다
-              3 보여주다
+              1을 보여주다
+              3을 보여주다
             함수 [값]을 빼다:
-                1 보여주다
+                1을 보여주다
                 2 + 3
           |]
           )
@@ -228,15 +232,15 @@ spec = do
                         "더하다"
                         [("값", "에")]
                         (Seq
-                          [ funcCall (var "보여주다") [litInteger 1]
-                          , funcCall (var "보여주다") [litInteger 3]
+                          [ funcCall (var "보여주다") [(litInteger 1, "을")]
+                          , funcCall (var "보여주다") [(litInteger 3, "을")]
                           ]
                         )
                       , funcDecl
                         "빼다"
                         [("값", "을")]
                         (Seq
-                          [ funcCall (var "보여주다") [litInteger 1]
+                          [ funcCall (var "보여주다") [(litInteger 1, "을")]
                           , binaryOp Add (litInteger 2) (litInteger 3)
                           ]
                         )

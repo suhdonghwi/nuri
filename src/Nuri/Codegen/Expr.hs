@@ -52,9 +52,9 @@ compileExpr (Var pos ident) = do
           tellCode [(pos, Inst.LoadGlobal index)]
 
 compileExpr (FuncCall pos func args) = do
-  sequence_ (compileExpr <$> args)
+  sequence_ (compileExpr . fst <$> args)
   compileExpr func
-  tellCode [(pos, Inst.Call $ genericLength args)]
+  tellCode [(pos, Inst.Call $ snd <$> args)]
 
 compileExpr (If pos condExpr thenExpr elseExpr) = do
   compileExpr condExpr
@@ -129,4 +129,4 @@ compileExpr (Lambda pos args body) = do
 
 -- compileExpr (Let pos name value expr) = undefined
 compileExpr (Let pos name value expr) = do
-  compileExpr (FuncCall pos (Lambda pos [(name, "_")] expr) [value])
+  compileExpr (FuncCall pos (Lambda pos [(name, "_")] expr) [(value, "_")])

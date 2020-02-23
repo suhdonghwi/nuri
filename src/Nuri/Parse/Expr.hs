@@ -67,7 +67,17 @@ parseFuncDecl = do
       Just l  -> declToLet decl (listToExpr l)
 
 parseJosa :: Parser String
-parseJosa = lexeme $ P.some hangulSyllable
+parseJosa =
+  lexeme
+    $ (do
+        josa <- P.some hangulSyllable
+        return
+          (case josa of
+            "과" -> "와"
+            "를" -> "을"
+            j   -> j
+          )
+      )
 
 parseConstDecl :: Parser Decl
 parseConstDecl = do
@@ -133,13 +143,14 @@ parseArithmetic = makeExprParser
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
   calls <- P.sepBy1 (parseFuncCall <?> "함수 호출식") (symbol ",")
-  let addArg arg (FuncCall pos func args) = FuncCall pos func (arg : args)
-      addArg _   _                        = error "불가능한 상황"
+  let addArg arg (FuncCall pos func args) =
+        FuncCall pos func ((arg, "_") : args)
+      addArg _ _ = error "불가능한 상황"
   return $ foldl1' addArg calls
 
 parseFuncCall :: Parser Expr
 parseFuncCall = do
-  args <- P.many (parseTerm <?> "함수 인수")
+  args <- P.many (liftA2 (,) (parseTerm <?> "함수 인수") (parseJosa <?> "조사"))
   pos  <- getSourceLine
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos (Var pos func) args

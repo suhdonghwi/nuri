@@ -195,26 +195,41 @@ spec = do
 
   describe "함수 호출식 파싱" $ do
     it "인자가 2개인 함수 호출식" $ do
-      testParse parseFuncCall "1 2 더하다"
-        `shouldParse` funcCall (var "더하다") [litInteger 1, litInteger 2]
+      testParse parseFuncCall "1과 2을 더하다"
+        `shouldParse` funcCall
+                        (var "더하다")
+                        [(litInteger 1, "와"), (litInteger 2, "을")]
     it "인자가 없는 함수 호출식" $ do
       testParse parseFuncCall "깨우다" `shouldParse` funcCall (var "깨우다") []
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4 2 합 구하고, 2 나누다" `shouldParse` funcCall
-        (var "나누다")
-        [funcCall (var "합 구하고") [litInteger 4, litInteger 2], litInteger 2]
+      testParse parseNestedFuncCalls "4와 2의 합 구하고, 2로 나누다"
+        `shouldParse` funcCall
+                        (var "나누다")
+                        [ ( funcCall
+                            (var "합 구하고")
+                            [(litInteger 4, "와"), (litInteger 2, "의")]
+                          , "_"
+                          )
+                        , (litInteger 2, "로")
+                        ]
     it "두 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4 2 더하고, 2 나누고, 3 더하다"
+      testParse parseNestedFuncCalls "4와 2를 더하고, 2로 나누고, 3을 더하다"
         `shouldParse` funcCall
                         (var "더하다")
-                        [ funcCall
-                          (var "나누고")
-                          [ funcCall (var "더하고") [litInteger 4, litInteger 2]
-                          , litInteger 2
-                          ]
-                        , litInteger 3
+                        [ ( funcCall
+                            (var "나누고")
+                            [ ( funcCall
+                                (var "더하고")
+                                [(litInteger 4, "와"), (litInteger 2, "을")]
+                              , "_"
+                              )
+                            , (litInteger 2, "로")
+                            ]
+                          , "_"
+                          )
+                        , (litInteger 3, "을")
                         ]
 
   describe "조건식 파싱" $ do
@@ -227,13 +242,16 @@ spec = do
         (binaryOp Multiply (litInteger 1) (litInteger 2))
         (binaryOp Divide (litInteger 2) (litInteger 3))
     it "함수 호출식 포함된 조건식 파싱" $ do
-      testParse parseIf "만약 1 2 던지고 받다 이라면 3 들고, 받다 아니라면 2 들다"
+      testParse parseIf "만약 1을 2에 던지고 받다 이라면 3을 들고, 받다 아니라면 2를 들다"
         `shouldParse` ifExpr
-                        (funcCall (var "던지고 받다") [litInteger 1, litInteger 2])
-                        (funcCall (var "받다")
-                                  [funcCall (var "들고") [litInteger 3]]
+                        (funcCall (var "던지고 받다")
+                                  [(litInteger 1, "을"), (litInteger 2, "에")]
                         )
-                        (funcCall (var "들다") [litInteger 2])
+                        (funcCall
+                          (var "받다")
+                          [(funcCall (var "들고") [(litInteger 3, "을")], "_")]
+                        )
+                        (funcCall (var "들다") [(litInteger 2, "을")])
     it "중첩된 조건식 파싱" $ do
       testParse parseIf "만약 (만약 거짓 이라면 1 아니라면 2) 이라면 1 아니라면 2"
         `shouldParse` ifExpr
@@ -248,13 +266,13 @@ spec = do
         (binaryOp Add (litInteger 1) (litInteger 1))
         (litInteger 2)
     it "사칙연산식이 함수 호출식보다 우선순위 높음" $ do
-      testParse parseExpr "1 + 1 2 더하다" `shouldParse` binaryOp
+      testParse parseExpr "1 + 1과 2를 더하다" `shouldParse` binaryOp
         Add
         (litInteger 1)
-        (funcCall (var "더하다") [litInteger 1, litInteger 2])
+        (funcCall (var "더하다") [(litInteger 1, "와"), (litInteger 2, "을")])
     it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
-      testParse parseExpr "(1 + 1) 2 더하다" `shouldParse` funcCall
+      testParse parseExpr "(1 + 1)과 2를 더하다" `shouldParse` funcCall
         (var "더하다")
-        [binaryOp Add (litInteger 1) (litInteger 1), litInteger 2]
+        [(binaryOp Add (litInteger 1) (litInteger 1), "와"), (litInteger 2, "을")]
 
 

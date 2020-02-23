@@ -108,24 +108,27 @@ spec = do
 
   describe "함수 호출 코드 생성" $ do
     it "인수가 하나인 함수 호출 코드 생성" $ do
-      compileExpr (funcCall (var "던지다") [litInteger 10])
+      compileExpr (funcCall (var "던지다") [(litInteger 10, "을")])
         `shouldBuild` ( S.fromList [ConstInteger 10]
-                      , [Inst.Push 0, loadGlobal 0, Inst.Call 1]
+                      , [Inst.Push 0, loadGlobal 0, Inst.Call ["을"]]
                       )
     it "인수가 3개인 함수 호출 코드 생성" $ do
       compileExpr
-          (funcCall (var "던지다") [litInteger 10, litInteger 10, litInteger 0])
+          (funcCall
+            (var "던지다")
+            [(litInteger 10, "와"), (litInteger 10, "을"), (litInteger 0, "에")]
+          )
         `shouldBuild` ( S.fromList [ConstInteger 10, ConstInteger 0]
                       , [ Inst.Push 0
                         , Inst.Push 0
                         , Inst.Push 1
                         , loadGlobal 0
-                        , Inst.Call 3
+                        , Inst.Call ["와", "을", "에"]
                         ]
                       )
     it "인수가 없는 함수 호출 코드 생성" $ do
       compileExpr (funcCall (var "던지다") [])
-        `shouldBuild` (S.empty, [loadGlobal 0, Inst.Call 0])
+        `shouldBuild` (S.empty, [loadGlobal 0, Inst.Call []])
   describe "표현식 시퀀스 코드 생성" $ do
     it "표현식이 1개인 시퀀스 코드 생성" $ do
       compileExpr (Seq [litInteger 10])
@@ -177,7 +180,7 @@ spec = do
                             (S.singleton (ConstInteger 2))
                           )
                         ]
-                      , [Inst.Push 0, Inst.Push 1, Inst.Call 1]
+                      , [Inst.Push 0, Inst.Push 1, Inst.Call ["_"]]
                       )
     it "계산식 상수 선언문 코드 생성" $ do
       compileExpr
@@ -199,7 +202,7 @@ spec = do
                         , Inst.Push 1
                         , Inst.Add
                         , Inst.Push 2
-                        , Inst.Call 1
+                        , Inst.Call ["_"]
                         ]
                       )
 

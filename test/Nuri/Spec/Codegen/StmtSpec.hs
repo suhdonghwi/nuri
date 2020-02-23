@@ -102,7 +102,7 @@ spec = do
                                 [ Inst.Push 0
                                 , Inst.Push 1
                                 , Inst.FreeVarLocal 0
-                                , Inst.Call 1
+                                , Inst.Call ["_"]
                                 ]
                               )
                               (S.fromList
@@ -141,7 +141,7 @@ spec = do
                                 [ Inst.Push 0
                                 , Inst.FreeVarLocal 0
                                 , Inst.Push 1
-                                , Inst.Call 1
+                                , Inst.Call ["_"]
                                 ]
                               )
                               (S.fromList
@@ -152,7 +152,7 @@ spec = do
                                       [ Inst.Push 0
                                       , Inst.FreeVarFree 0
                                       , Inst.Push 1
-                                      , Inst.Call 1
+                                      , Inst.Call ["_"]
                                       ]
                                     )
                                     (S.fromList
