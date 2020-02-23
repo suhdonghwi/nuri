@@ -73,7 +73,7 @@ instance Binary Constant where
 
 instance Binary FuncObject where
   put obj = do
-    put (view funcArity obj)
+    put (view funcJosa obj)
     put (toList $ view funcConstTable obj)
     put (view funcBody obj)
   get = do

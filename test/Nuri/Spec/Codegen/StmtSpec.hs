@@ -25,7 +25,7 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
-                              1
+                              ["을"]
                               (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                               (S.fromList [ConstInteger 1])
                             )
@@ -41,7 +41,7 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
-                              2
+                              ["에", "을"]
                               (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
                               S.empty
                             )
@@ -57,7 +57,7 @@ spec = do
                         [ ConstInteger 1
                         , ConstFunc
                           (FuncObject
-                            1
+                            ["을"]
                             (ann [Inst.Load 0, loadGlobal 0, Inst.Add])
                             S.empty
                           )
@@ -76,7 +76,7 @@ spec = do
                         [ ConstInteger 1
                         , ConstFunc
                           (FuncObject
-                            1
+                            ["을"]
                             (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                             (S.singleton (ConstInteger 2))
                           )
@@ -97,7 +97,7 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
-                              1
+                              ["을"]
                               (ann
                                 [ Inst.Push 0
                                 , Inst.Push 1
@@ -109,7 +109,7 @@ spec = do
                                 [ ConstInteger 1
                                 , ConstFunc
                                   (FuncObject
-                                    1
+                                    ["_"]
                                     (ann
                                       [Inst.LoadDeref 0, Inst.Load 0, Inst.Add]
                                     )
@@ -136,7 +136,7 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
-                              1
+                              ["을"]
                               (ann
                                 [ Inst.Push 0
                                 , Inst.FreeVarLocal 0
@@ -147,7 +147,7 @@ spec = do
                               (S.fromList
                                 [ ConstFunc
                                   (FuncObject
-                                    0
+                                    []
                                     (ann
                                       [ Inst.Push 0
                                       , Inst.FreeVarFree 0
@@ -157,12 +157,12 @@ spec = do
                                     )
                                     (S.fromList
                                       [ ConstFunc
-                                        (FuncObject 0
+                                        (FuncObject []
                                                     (ann [Inst.LoadDeref 0])
                                                     S.empty
                                         )
                                       , ConstFunc
-                                        (FuncObject 1
+                                        (FuncObject ["_"]
                                                     (ann [Inst.Load 0])
                                                     S.empty
                                         )
@@ -170,7 +170,7 @@ spec = do
                                     )
                                   )
                                 , ConstFunc
-                                  (FuncObject 1 (ann [Inst.Load 0]) S.empty)
+                                  (FuncObject ["_"] (ann [Inst.Load 0]) S.empty)
                                 ]
                               )
                             )

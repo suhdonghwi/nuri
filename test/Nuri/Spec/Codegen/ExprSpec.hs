@@ -142,7 +142,7 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
-                              1
+                              ["을"]
                               (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                               (S.fromList [ConstInteger 1])
                             )
@@ -157,7 +157,7 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
-                              2
+                              ["에", "를"]
                               (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
                               S.empty
                             )
@@ -172,7 +172,7 @@ spec = do
                         [ ConstInteger 1
                         , ConstFunc
                           (FuncObject
-                            1
+                            ["_"]
                             (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                             (S.singleton (ConstInteger 2))
                           )
@@ -190,7 +190,7 @@ spec = do
                         , ConstInteger 2
                         , ConstFunc
                           (FuncObject
-                            1
+                            ["_"]
                             (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                             (S.singleton (ConstInteger 3))
                           )

@@ -97,22 +97,23 @@ compileExpr (Seq (x :| xs)) = do
       tellCode [(getSourceLine x, Inst.Pop)]
       compileExpr (Seq rest)
 
-compileExpr (Lambda pos argNames body) = do
+compileExpr (Lambda pos args body) = do
   globalVarNames <- use internalGlobalVarNames
   varNames       <- use internalVarNames
   localStack     <- ask
-  let (internal, code) = execRWS
-        (do
-          temp <- use internalVarNames
-          sequence_ (addVarName . fst <$> argNames)
-          compileExpr body
-          assign internalVarNames temp
-        )
-        (varNames : localStack)
-        defaultInternal { _internalGlobalVarNames = globalVarNames }
-      constTable = view internalConstTable internal
-      arity      = genericLength argNames
-      funcObject = FuncObject arity (clearMarks internal code) constTable
+  let
+    (internal, code) = execRWS
+      (do
+        temp <- use internalVarNames
+        sequence_ (addVarName . fst <$> args)
+        compileExpr body
+        assign internalVarNames temp
+      )
+      (varNames : localStack)
+      defaultInternal { _internalGlobalVarNames = globalVarNames }
+    constTable = view internalConstTable internal
+    funcObject =
+      FuncObject (snd <$> args) (clearMarks internal code) constTable
   assign internalGlobalVarNames (view internalGlobalVarNames internal)
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
