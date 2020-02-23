@@ -38,11 +38,10 @@ parseFuncDecl = do
     scn
     (do
       P.try $ reserved "함수"
-      args     <- P.many (liftA2 (,) parseIdentifier (parseJosa <* sc))
+      args     <- argList []
       funcName <- parseFuncIdentifier
       symbol ":"
       let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
-
       return
         (L.IndentSome
           Nothing
@@ -51,6 +50,23 @@ parseFuncDecl = do
         )
     )
  where
+  argList :: [(String, String)] -> Parser [(String, String)]
+  argList l = do
+    identResult <- P.observing parseIdentifier
+    case identResult of
+      Left  _     -> return l
+      Right ident -> do
+        josaPos <- P.getOffset
+        josa    <- parseJosa
+        sc
+        when
+          (josa `elem` (snd <$> l))
+          (do
+            P.setOffset josaPos
+            fail "조사는 중복되게 사용할 수 없습니다."
+          )
+        argList (l ++ [(ident, josa)])
+
   groupList :: [Either a b] -> NonEmpty (Either a [b])
   groupList l =
     fromList (sequence <$> groupBy (\x y -> isRight x && isRight y) l)

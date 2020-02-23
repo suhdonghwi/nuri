@@ -64,7 +64,14 @@ spec = do
                 1 반환하다
             |]
                          )
-      it "예약어로 시작하는 이름의 함수" $ do
+      it "조사를 중복되게 사용하면 오류" $ do
+        testParse parseDeclStmt
+          `shouldFailOn` (unpack [text|
+              함수 [값1]을 [값2]를 더하다:
+                1 반환하다
+            |]
+                         )
+      it "예약어로 시작하는 이름의 함수 허용" $ do
         testParse parseDeclStmt "함수 [값]을 거짓하다:\n  1"
           `shouldParse` funcDecl "거짓하다" [("값", "을")] (litInteger 1)
 
