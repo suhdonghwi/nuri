@@ -72,9 +72,18 @@ instance Binary Constant where
       5 -> ConstFunc <$> get
       _ -> fail "invalid constant type"
 
+
+putWord8List :: (a -> Put) -> [a] -> Put
+putWord8List f l = do
+  putWord8 (genericLength l)
+  sequence_ (f <$> l)
+
+putJosaList :: [String] -> Put
+putJosaList = putWord8List (putWord8List (put :: Char -> Put))
+
 instance Binary FuncObject where
   put obj = do
-    put (view funcJosa obj)
+    putJosaList (view funcJosa obj)
     put (toList $ view funcConstTable obj)
     put (view funcBody obj)
   get = do
@@ -82,11 +91,6 @@ instance Binary FuncObject where
     constTable' <- fromList <$> get
     insts'      <- get
     return (FuncObject arity' insts' constTable')
-
-putWord8List :: (a -> Put) -> [a] -> Put
-putWord8List f l = do
-  putWord8 (genericLength l)
-  sequence_ (f <$> l)
 
 instance (Binary a) => Binary (Instruction' a) where
   put (Push v) = do
@@ -108,7 +112,7 @@ instance (Binary a) => Binary (Instruction' a) where
     put v
   put (Call v) = do
     putWord8 6
-    putWord8List (putWord8List put) v
+    putJosaList v
   put (Jmp v) = do
     putWord8 7
     put v

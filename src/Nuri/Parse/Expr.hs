@@ -212,7 +212,7 @@ parseNonLexemeTerm =
     <|> parseParens
 
 parseParens :: Parser Expr
-parseParens = P.between (symbol "(") (symbol ")") parseExpr
+parseParens = P.between (P.char '(' >> sc) (sc >> P.char ')') parseExpr
 
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = liftA2 Var getSourceLine parseIdentifier
@@ -271,8 +271,8 @@ parseReal = L.float
 
 parseChar :: Parser Char
 parseChar =
-  (P.between (symbol "\'")
-             (symbol "\'")
+  (P.between (P.char '\'')
+             (P.char '\'')
              (P.notFollowedBy (P.char '\'') *> L.charLiteral)
     )
     <?> "문자"

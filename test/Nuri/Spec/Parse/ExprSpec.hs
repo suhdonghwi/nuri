@@ -201,7 +201,7 @@ spec = do
                         [(litInteger 1, "와"), (litInteger 2, "을")]
     it "조사가 없는 함수 호출식에 대해서 오류" $ do
       testParse parseFuncCall `shouldFailOn` "1 2를 더하다"
-      testParse parseFuncCall `shouldFailOn` "1 피보나치 수 구하다"
+      testParse parseFuncCall `shouldFailOn` "(1 + 1) 피보나치 수 구하다"
     it "조사가 떨어져 있는 경우 오류" $ do
       testParse parseFuncCall `shouldFailOn` "1 과 2 를 더하다"
     it "인자가 없는 함수 호출식" $ do
