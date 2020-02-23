@@ -41,13 +41,26 @@ spec = do
                           [("값1", "에"), ("값2", "을")]
                           (litBool True)
 
-      it "함수의 본문이 없으면 에러" $ do
+      it "함수의 본문이 없으면 오류" $ do
         testParse parseDeclStmt `shouldFailOn` "함수 [값]을 증가하다:"
 
-      it "함수의 이름이 예약어면 에러" $ do
+      it "함수의 이름이 예약어면 오류" $ do
         testParse parseDeclStmt
           `shouldFailOn` (unpack [text|
               함수 [값]을 거짓:
+                1 반환하다
+            |]
+                         )
+      it "인자에 대한 조사가 없으면 오류" $ do
+        testParse parseDeclStmt
+          `shouldFailOn` (unpack [text|
+              함수 [값] 더하다:
+                1 반환하다
+            |]
+                         )
+        testParse parseDeclStmt
+          `shouldFailOn` (unpack [text|
+              함수 [수1]에 [값] 더하다:
                 1 반환하다
             |]
                          )

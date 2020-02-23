@@ -35,10 +35,10 @@ reserved s =
     <?> concat ["'", s, "'"]
 
 hangulSyllable :: Parser Char
-hangulSyllable = P.oneOf ['가' .. '힣'] <?> "한글"
+hangulSyllable = P.hidden $ P.oneOf ['가' .. '힣']
 
 hangulJamo :: Parser Char
-hangulJamo = P.oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ']) <?> "한글"
+hangulJamo = P.hidden $ P.oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ'])
 
 getSourceLine :: Parser P.Pos
 getSourceLine = P.sourceLine <$> P.getSourcePos

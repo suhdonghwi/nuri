@@ -38,7 +38,7 @@ parseFuncDecl = do
     scn
     (do
       P.try $ reserved "함수"
-      args     <- P.many (liftA2 (,) parseIdentifier parseJosa)
+      args     <- P.many (liftA2 (,) parseIdentifier (parseJosa <* sc))
       funcName <- parseFuncIdentifier
       symbol ":"
       let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
@@ -68,22 +68,22 @@ parseFuncDecl = do
 
 parseJosa :: Parser String
 parseJosa =
-  lexeme
-    $ (do
-        josa <- P.some hangulSyllable
-        return
-          (case josa of
-            "과" -> "와"
-            "를" -> "을"
-            j   -> j
-          )
-      )
+  (do
+      josa <- P.some hangulSyllable
+      return
+        (case josa of
+          "과" -> "와"
+          "를" -> "을"
+          j   -> j
+        )
+    )
+    <?> "조사"
 
 parseConstDecl :: Parser Decl
 parseConstDecl = do
   pos <- getSourceLine
   P.try $ reserved "상수"
-  identifier <- parseIdentifier
+  identifier <- lexeme parseIdentifier
   symbol ":"
   ConstDecl pos identifier <$> parseExpr
 
@@ -150,7 +150,7 @@ parseNestedFuncCalls = do
 
 parseFuncCall :: Parser Expr
 parseFuncCall = do
-  args <- P.many (liftA2 (,) (parseTerm <?> "함수 인수") (parseJosa <?> "조사"))
+  args <- P.many (liftA2 (,) (parseNonLexemeTerm <?> "함수 인수") (parseJosa <* sc))
   pos  <- getSourceLine
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos (Var pos func) args
@@ -168,18 +168,25 @@ parseFuncIdentifier = lexeme
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 
 parseTerm :: Parser Expr
-parseTerm =
+parseTerm = lexeme
+  (   parseNoneExpr
+  <|> parseBoolExpr
+  <|> parseCharExpr
+  <|> P.try (parseRealExpr)
+  <|> parseIntegerExpr
+  <|> parseIdentifierExpr
+  <|> parseParens
+  )
+
+parseNonLexemeTerm :: Parser Expr
+parseNonLexemeTerm =
   parseNoneExpr
     <|> parseBoolExpr
     <|> parseCharExpr
-    <|> P.try parseRealExpr
+    <|> P.try (parseRealExpr)
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
     <|> parseParens
-
--- parseList :: Parser Expr
--- parseList = liftA2 List getSourceLine
---   $ P.between (symbol "{") (symbol "}") (P.sepBy parseExpr (symbol ","))
 
 parseParens :: Parser Expr
 parseParens = P.between (symbol "(") (symbol ")") parseExpr
@@ -189,26 +196,25 @@ parseIdentifierExpr = liftA2 Var getSourceLine parseIdentifier
 
 parseIdentifier :: Parser String
 parseIdentifier =
-  lexeme
-      (P.between
-        (P.char '[')
-        (P.char ']')
-        ((++) <$> P.some allowedChars <*> P.many
-          (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자"))
-        )
+  (P.between
+      (P.char '[')
+      (P.char ']')
+      ((++) <$> P.some allowedChars <*> P.many
+        (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자"))
       )
+    )
     <?> "변수 이름"
  where
   allowedChars = hangulSyllable <|> hangulJamo <|> (P.letterChar <?> "영문")
 
 parseNoneExpr :: Parser Expr
-parseNoneExpr = lexeme $ do
+parseNoneExpr = do
   pos <- getSourceLine
   reserved "없음"
   return $ Lit pos LitNone
 
 parseIntegerExpr :: Parser Expr
-parseIntegerExpr = lexeme $ do
+parseIntegerExpr = do
   pos <- getSourceLine
   val <- zeroNumber <|> parseDecimal
   return $ Lit pos (LitInteger val)
@@ -238,16 +244,15 @@ parseHexadecimal :: Parser Int64
 parseHexadecimal = P.char' 'x' >> (L.hexadecimal <?> "16진수")
 
 parseReal :: Parser Double
-parseReal = lexeme L.float
+parseReal = L.float
 
 parseChar :: Parser Char
 parseChar =
-  lexeme
-      (P.between (symbol "\'")
-                 (symbol "\'")
-                 (P.notFollowedBy (P.char '\'') *> L.charLiteral)
-      )
-    <?> "문자열"
+  (P.between (symbol "\'")
+             (symbol "\'")
+             (P.notFollowedBy (P.char '\'') *> L.charLiteral)
+    )
+    <?> "문자"
 
 parseBool :: Parser Bool
 parseBool = (True <$ reserved "참") <|> (False <$ reserved "거짓")
