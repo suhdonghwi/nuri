@@ -52,6 +52,7 @@ parseFuncDecl = do
  where
   argList :: [(String, String)] -> Parser [(String, String)]
   argList l = do
+    identPos    <- P.getOffset
     identResult <- P.observing parseIdentifier
     case identResult of
       Left  _     -> return l
@@ -59,6 +60,12 @@ parseFuncDecl = do
         josaPos <- P.getOffset
         josa    <- parseJosa
         sc
+        when
+          (ident `elem` (fst <$> l))
+          (do
+            P.setOffset (identPos + 1)
+            fail "함수 인자의 이름이 중복됩니다."
+          )
         when
           (josa `elem` (snd <$> l))
           (do
