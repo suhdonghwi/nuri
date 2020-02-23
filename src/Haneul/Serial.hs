@@ -8,6 +8,7 @@ import           Prelude                           hiding ( put
 
 import           Data.Binary                              ( Binary(put, get)
                                                           , Get
+                                                          , Put
                                                           , putWord8
                                                           , getWord8
                                                           )
@@ -82,6 +83,11 @@ instance Binary FuncObject where
     insts'      <- get
     return (FuncObject arity' insts' constTable')
 
+putWord8List :: (a -> Put) -> [a] -> Put
+putWord8List f l = do
+  putWord8 (genericLength l)
+  sequence_ (f <$> l)
+
 instance (Binary a) => Binary (Instruction' a) where
   put (Push v) = do
     putWord8 0
@@ -102,7 +108,7 @@ instance (Binary a) => Binary (Instruction' a) where
     put v
   put (Call v) = do
     putWord8 6
-    put v
+    putWord8List (putWord8List put) v
   put (Jmp v) = do
     putWord8 7
     put v
