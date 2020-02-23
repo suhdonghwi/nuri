@@ -49,6 +49,126 @@ spec = do
       it "예약어로 시작하는 이름의 함수" $ do
         testParse parseDeclStmt "함수 [값] 거짓하다:\n  1"
           `shouldParse` funcDecl "거짓하다" ["값"] (litInteger 1)
+
+      it "연산식 시퀀스를 포함한 함수" $ do
+        testParse
+            parseDeclStmt
+            (unpack [text| 
+              함수 동작:
+                1 + 1 
+                2 * 2
+            |]
+            )
+          `shouldParse` funcDecl
+                          "동작"
+                          []
+                          (Seq
+                            [ binaryOp Add      (litInteger 1) (litInteger 1)
+                            , binaryOp Multiply (litInteger 2) (litInteger 2)
+                            ]
+                          )
+
+      it "중간에 비어있는 라인을 포함한 시퀀스를 가진 함수" $ do
+        testParse
+            parseDeclStmt
+            (unpack [text|
+              함수 동작:
+                1
+                                            
+                1 던지다
+            |]
+            )
+          `shouldParse` funcDecl
+                          "동작"
+                          []
+                          (Seq
+                            [litInteger 1, funcCall (var "던지다") [litInteger 1]]
+                          )
+
+      it "시퀀스 중간에 함수 선언을 하는 함수" $ do
+        testParse
+            parseDeclStmt
+            (unpack [text|
+              함수 동작:
+                함수 [값] 더하다:
+                  [값] + 1
+                1
+            |]
+            )
+          `shouldParse` funcDecl
+                          "동작"
+                          []
+                          (letExpr
+                            "더하다"
+                            (lambda ["값"]
+                                    (binaryOp Add (var "값") (litInteger 1))
+                            )
+                            (litInteger 1)
+                          )
+
+      it "시퀀스 중간에 함수를 2개 선언하는 함수" $ do
+        testParse
+            parseDeclStmt
+            (unpack [text|
+              함수 동작:
+                1 + 1
+                함수 [값] 더하다:
+                  [값] + 1
+
+                함수 [값] 빼다:
+                  [값] - 1
+
+                1
+            |]
+            )
+          `shouldParse` funcDecl
+                          "동작"
+                          []
+                          (Seq
+                            [ binaryOp Add (litInteger 1) (litInteger 1)
+                            , letExpr
+                              "더하다"
+                              (lambda ["값"]
+                                      (binaryOp Add (var "값") (litInteger 1))
+                              )
+                              (letExpr
+                                "빼다"
+                                (lambda
+                                  ["값"]
+                                  (binaryOp Subtract (var "값") (litInteger 1))
+                                )
+                                (litInteger 1)
+                              )
+                            ]
+                          )
+
+      it "시퀀스 끝이 선언문인 함수" $ do
+        testParse
+            parseDeclStmt
+            (unpack [text|
+              함수 동작:
+                함수 [값] 더하다:
+                  [값] + 1
+                1
+                상수 [수]: 10 + 10
+            |]
+            )
+          `shouldParse` funcDecl
+                          "동작"
+                          []
+                          (letExpr
+                            "더하다"
+                            (lambda ["값"]
+                                    (binaryOp Add (var "값") (litInteger 1))
+                            )
+                            (Seq
+                              [ (litInteger 1)
+                              , binaryOp Add (litInteger 10) (litInteger 10)
+                              ]
+                            )
+                          )
+
+
     describe "상수 선언문 파싱" $ do
       it "단순 리터럴 상수 선언" $ do
         testParse parseDeclStmt "상수 [값]: 1"
@@ -58,22 +178,6 @@ spec = do
           `shouldParse` constDecl
                           "값"
                           (binaryOp Multiply (litInteger 1) (litInteger 2))
-      it "시퀀스 식 상수 선언" $ do
-        testParse
-            parseDeclStmt
-            (unpack [text|
-              상수 [사과 한 박스]: 순서대로
-                10 던지다
-                1 * 2
-            |]
-            )
-          `shouldParse` constDecl
-                          "사과 한 박스"
-                          (Seq
-                            [ funcCall (var "던지다") [litInteger 10]
-                            , binaryOp Multiply (litInteger 1) (litInteger 2)
-                            ]
-                          )
 
   describe "표현식 구문 파싱" $ do
     it "계산식 구문" $ do
@@ -91,20 +195,6 @@ spec = do
         (funcCall (var "더하다") [var "값", litInteger 1])
 
   describe "구문 여러 개 파싱" $ do
-    it "함수 여러 개 선언 파싱" $ do
-      testParse
-          parseStmts
-          (unpack [text|
-            순서대로
-              1 + 1
-              1|]
-          )
-        `shouldParse` [ ExprStmt
-                          $ Seq
-                              [ binaryOp Add (litInteger 1) (litInteger 1)
-                              , litInteger 1
-                              ]
-                      ]
     it "함수 여러 개 선언 파싱" $ do
       testParse
           parseStmts

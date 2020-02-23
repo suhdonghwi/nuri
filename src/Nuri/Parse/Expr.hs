@@ -11,9 +11,7 @@ import           Data.List.NonEmpty                       ( fromList )
 import           Data.String                              ( unwords )
 
 import qualified Text.Megaparsec               as P
-import           Text.Megaparsec                          ( (<?>)
-                                                          , Pos
-                                                          )
+import           Text.Megaparsec                          ( (<?>) )
 
 import qualified Text.Megaparsec.Char          as P
 import qualified Text.Megaparsec.Char.Lexer    as L
@@ -24,7 +22,6 @@ import           Control.Monad.Combinators.Expr           ( makeExprParser
                                                             , InfixL
                                                             )
                                                           )
-import           Control.Monad.Combinators.NonEmpty       ( some )
 
 import           Nuri.Parse
 import           Nuri.Expr
@@ -77,31 +74,8 @@ parseConstDecl = do
   symbol ":"
   ConstDecl pos identifier <$> parseExpr
 
-parseExprChain :: Parser Expr
-parseExprChain = do
-  reserved "순서대로" <* P.newline
-  scn
-  level <- L.indentLevel
-  parseExprs level
-
-parseExprs :: Pos -> Parser Expr
-parseExprs level =
-  Seq
-    <$> (some
-          (do
-            P.try $ L.indentGuard scn EQ level
-            (do
-                decl   <- parseDecl
-                result <- parseExprs level
-                return (declToLet decl result)
-              )
-              <|> parseExpr
-          )
-        )
-
-
 parseExpr :: Parser Expr
-parseExpr = parseExprChain <|> parseIf <|> parseArithmetic
+parseExpr = parseIf <|> parseArithmetic
 
 parseIf :: Parser Expr
 parseIf =

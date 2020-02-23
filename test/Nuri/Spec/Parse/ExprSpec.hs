@@ -1,9 +1,6 @@
 {-# LANGUAGE OverloadedLists #-}
 module Nuri.Spec.Parse.ExprSpec where
 
-import           NeatInterpolation
-import           Data.Text                                ( unpack )
-
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
 
@@ -243,115 +240,6 @@ spec = do
                         (ifExpr (litBool False) (litInteger 1) (litInteger 2))
                         (litInteger 1)
                         (litInteger 2)
-
-  describe "표현식 시퀀스 파싱" $ do
-    it "단순 연산식 시퀀스" $ do
-      testParse
-          parseExpr
-          (unpack [text| 
-            순서대로 
-              1 + 1 
-              2 * 2
-          |]
-          )
-        `shouldParse` Seq
-                        [ binaryOp Add      (litInteger 1) (litInteger 1)
-                        , binaryOp Multiply (litInteger 2) (litInteger 2)
-                        ]
-    it "함수 호출식을 포함한 시퀀스" $ do
-      testParse
-          parseExpr
-          (unpack [text| 
-            순서대로
-                1
-                1 던지다
-          |]
-          )
-        `shouldParse` Seq [litInteger 1, funcCall (var "던지다") [litInteger 1]]
-    it "중간에 비어있는 라인을 포함한 시퀀스" $ do
-      testParse
-          parseExpr
-          (unpack [text|
-            순서대로
-              1
-                                          
-              1 던지다
-          |]
-          )
-        `shouldParse` Seq [litInteger 1, funcCall (var "던지다") [litInteger 1]]
-    it "표현식 중간에 시퀀스 사용" $ do
-      testParse
-          parseExpr
-          (unpack [text|
-            만약 참 이라면 순서대로 
-                1
-                2
-            아니라면 3
-          |]
-          )
-        `shouldParse` ifExpr (litBool True)
-                             (Seq [litInteger 1, litInteger 2])
-                             (litInteger 3)
-    it "시퀀스 중간에 함수 선언" $ do
-      testParse
-          parseExpr
-          (unpack [text|
-            순서대로
-              함수 [값] 더하다:
-                [값] + 1
-              1
-          |]
-          )
-        `shouldParse` Seq
-                        [ letExpr
-                            "더하다"
-                            (lambda ["값"]
-                                    (binaryOp Add (var "값") (litInteger 1))
-                            )
-                            (Seq [litInteger 1])
-                        ]
-    it "시퀀스 중간에 함수 2개 선언" $ do
-      testParse
-          parseExpr
-          (unpack [text|
-            순서대로
-              1 + 1
-              함수 [값] 더하다:
-                [값] + 1
-
-              함수 [값] 빼다:
-                [값] - 1
-
-              1
-          |]
-          )
-        `shouldParse` Seq
-                        [ binaryOp Add (litInteger 1) (litInteger 1)
-                        , letExpr
-                          "더하다"
-                          (lambda ["값"] (binaryOp Add (var "값") (litInteger 1)))
-                          (Seq
-                            [ letExpr
-                                "빼다"
-                                (lambda
-                                  ["값"]
-                                  (binaryOp Subtract (var "값") (litInteger 1))
-                                )
-                                (Seq [litInteger 1])
-                            ]
-                          )
-                        ]
-
-    it "시퀀스 끝이 선언문일 경우 에러" $ do
-      testParse parseExpr
-        `shouldFailOn` (unpack [text|
-            순서대로
-              함수 [값] 더하다:
-                [값] + 1
-              1
-              상수 [수]: 10 + 10
-          |]
-                       )
 
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
