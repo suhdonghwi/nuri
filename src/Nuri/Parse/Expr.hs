@@ -38,7 +38,7 @@ parseFuncDecl = do
     scn
     (do
       P.try $ reserved "함수"
-      args     <- P.many parseIdentifier
+      args     <- P.many (liftA2 (,) parseIdentifier parseJosa)
       funcName <- parseFuncIdentifier
       symbol ":"
       let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
@@ -65,6 +65,9 @@ parseFuncDecl = do
     Left decl -> case nonEmpty xs of
       Nothing -> let (_, _, expr) = declToExpr decl in expr
       Just l  -> declToLet decl (listToExpr l)
+
+parseJosa :: Parser String
+parseJosa = lexeme $ P.some hangulSyllable
 
 parseConstDecl :: Parser Decl
 parseConstDecl = do

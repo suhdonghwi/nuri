@@ -138,7 +138,7 @@ spec = do
 
   describe "람다 코드 생성" $ do
     it "인수가 하나인 람다 코드 생성" $ do
-      compileExpr (lambda ["값"] (binaryOp Add (var "값") (litInteger 1)))
+      compileExpr (lambda [("값", "을")] (binaryOp Add (var "값") (litInteger 1)))
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
@@ -150,7 +150,10 @@ spec = do
                       , [Inst.Push 0]
                       )
     it "인수가 두 개인 람다 코드 생성" $ do
-      compileExpr (lambda ["수1", "수2"] (binaryOp Add (var "수1") (var "수2")))
+      compileExpr
+          (lambda [("수1", "에"), ("수2", "를")]
+                  (binaryOp Add (var "수1") (var "수2"))
+          )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject

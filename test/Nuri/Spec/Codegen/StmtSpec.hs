@@ -20,7 +20,8 @@ spec = do
     describe "함수 선언 코드 생성" $ do
       it "인자가 하나인 함수 선언 코드 생성"
         $             compileStmt
-                        (funcDecl "더하다" ["값"] (binaryOp Add (var "값") (litInteger 1)))
+                        (funcDecl "더하다" [("값", "을")] (binaryOp Add (var "값") (litInteger 1))
+                        )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
@@ -33,7 +34,10 @@ spec = do
                       )
       it "인자가 두 개인 함수 선언 코드 생성"
         $             compileStmt
-                        (funcDecl "더하다" ["수1", "수2"] (binaryOp Add (var "수1") (var "수2")))
+                        (funcDecl "더하다"
+                                  [("수1", "에"), ("수2", "을")]
+                                  (binaryOp Add (var "수1") (var "수2"))
+                        )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
                             (FuncObject
@@ -48,7 +52,7 @@ spec = do
         $             do
                         compileStmt (constDecl "값" (litInteger 1))
                         compileStmt
-                          (funcDecl "더하다" ["수"] (binaryOp Add (var "수") (var "값")))
+                          (funcDecl "더하다" [("수", "을")] (binaryOp Add (var "수") (var "값")))
         `shouldBuild` ( S.fromList
                         [ ConstInteger 1
                         , ConstFunc
@@ -64,7 +68,10 @@ spec = do
         $             do
                         compileStmt (constDecl "값" (litInteger 1))
                         compileStmt
-                          (funcDecl "더하다" ["값"] (binaryOp Add (var "값") (litInteger 2)))
+                          (funcDecl "더하다"
+                                    [("값", "을")]
+                                    (binaryOp Add (var "값") (litInteger 2))
+                          )
         `shouldBuild` ( S.fromList
                         [ ConstInteger 1
                         , ConstFunc
@@ -81,7 +88,7 @@ spec = do
                         compileStmt
                           (funcDecl
                             "더하다"
-                            ["값1"]
+                            [("값1", "을")]
                             (letExpr "값2"
                                      (litInteger 1)
                                      (binaryOp Add (var "값1") (var "값2"))
@@ -119,7 +126,7 @@ spec = do
                         compileStmt
                           (funcDecl
                             "바깥"
-                            ["값"]
+                            [("값", "을")]
                             (letExpr
                               "중간"
                               (lambda [] (letExpr "안쪽" (lambda [] (var "값")) (var "안쪽")))

@@ -21,7 +21,7 @@ data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
             -- 표현식 시퀀스 : 표현식 목록
             | Seq (NonEmpty Expr)
             -- 람다 표현식 : 코드 위치, 인수 목록, 함수 본문
-            | Lambda Pos [String] Expr
+            | Lambda Pos [(String, String)] Expr
             -- 상수 선언 표현식 : 코드 위치, 상수 이름, 상수 값, 표현식
             | Let Pos String Expr Expr
           deriving (Show)

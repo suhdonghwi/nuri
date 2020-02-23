@@ -104,7 +104,7 @@ compileExpr (Lambda pos argNames body) = do
   let (internal, code) = execRWS
         (do
           temp <- use internalVarNames
-          sequence_ (addVarName <$> argNames)
+          sequence_ (addVarName . fst <$> argNames)
           compileExpr body
           assign internalVarNames temp
         )
@@ -128,4 +128,4 @@ compileExpr (Lambda pos argNames body) = do
 
 -- compileExpr (Let pos name value expr) = undefined
 compileExpr (Let pos name value expr) = do
-  compileExpr (FuncCall pos (Lambda pos [name] expr) [value])
+  compileExpr (FuncCall pos (Lambda pos [(name, "_")] expr) [value])

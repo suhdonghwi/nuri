@@ -5,7 +5,7 @@ import           Text.Megaparsec.Pos                      ( Pos )
 import           Nuri.ASTNode
 import           Nuri.Expr
 
-data Decl = FuncDecl Pos String [String] Expr
+data Decl = FuncDecl Pos String [(String, String)] Expr
           | ConstDecl Pos String Expr
   deriving (Show)
 
