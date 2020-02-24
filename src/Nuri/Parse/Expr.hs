@@ -95,9 +95,12 @@ parseJosa =
       josa <- P.some hangulSyllable
       return
         (case josa of
-          "과" -> "와"
-          "를" -> "을"
-          j   -> j
+          "으로" -> "로"
+          "과"  -> "와"
+          "를"  -> "을"
+          "는"  -> "은"
+          "가"  -> "이"
+          j    -> j
         )
     )
     <?> "조사"
