@@ -125,9 +125,9 @@ compileExpr (Lambda pos args body) = do
           tellCode [(pos, Inst.FreeVarFree $ fromIntegral freeIndex)]
 
   sequence_ (processFreeVar <$> freeVarList)
-  -- sequence_ (fmap (\x -> tellCode [(pos, Inst.PushFreeVar x)]) freeVarList)
 
--- compileExpr (Let pos name value expr) = undefined
 compileExpr (Let pos name value expr) = do
-  addVarName name
+  case value of
+    Lambda{} -> addVarName name >> pass
+    _        -> pass
   compileExpr (FuncCall pos (Lambda pos [(name, "_")] expr) [(value, "_")])
