@@ -118,9 +118,9 @@ spec = do
             (var "던지다")
             [(litInteger 10, "와"), (litInteger 10, "을"), (litInteger 0, "에")]
           )
-        `shouldBuild` ( S.fromList [ConstInteger 10, ConstInteger 0]
+        `shouldBuild` ( S.fromList [ConstInteger 0, ConstInteger 10]
                       , [ Inst.Push 0
-                        , Inst.Push 0
+                        , Inst.Push 1
                         , Inst.Push 1
                         , loadGlobal 0
                         , Inst.Call ["와", "을", "에"]

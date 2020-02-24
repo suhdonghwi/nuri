@@ -52,7 +52,7 @@ compileExpr (Var pos ident) = do
           tellCode [(pos, Inst.LoadGlobal index)]
 
 compileExpr (FuncCall pos func args) = do
-  sequence_ (compileExpr . fst <$> args)
+  sequence_ (compileExpr . fst <$> reverse args)
   compileExpr func
   tellCode [(pos, Inst.Call $ snd <$> args)]
 
