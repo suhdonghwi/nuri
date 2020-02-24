@@ -129,4 +129,5 @@ compileExpr (Lambda pos args body) = do
 
 -- compileExpr (Let pos name value expr) = undefined
 compileExpr (Let pos name value expr) = do
+  addVarName name
   compileExpr (FuncCall pos (Lambda pos [(name, "_")] expr) [(value, "_")])
