@@ -40,12 +40,18 @@ parseFuncDecl = do
       symbol ":"
       let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
       return
-        (L.IndentSome Nothing
-                      (return . (FuncDecl pos funcName args) . Seq . fromList)
-                      parseLine
+        (L.IndentSome
+          Nothing
+          (return . (FuncDecl pos funcName args) . fromExprs . fromList)
+          parseLine
         )
     )
  where
+  -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
+  fromExprs :: NonEmpty (Either Decl Expr) -> Expr
+  fromExprs (Right expr :| []) = expr
+  fromExprs l                  = Seq l
+
   argList :: [(String, String)] -> Parser [(String, String)]
   argList l = do
     identPos    <- P.getOffset

@@ -95,16 +95,22 @@ compileExpr (UnaryOp pos op value) = do
 compileExpr (Seq xs) = do
   modifying internalDepth (+ 1)
   depth <- use internalDepth
-  let process x = case x of
-        Left decl -> do
-          let (pos, name, expr) = declToExpr decl
-          _ <- addVarName depth name
-          compileExpr expr
-          tellCode [(pos, Inst.Store)]
-        Right expr -> do
-          compileExpr expr
-          tellCode [(getSourceLine expr, Inst.Pop)]
-  sequence_ (process <$> xs)
+  let process (y :| ys) = do
+        case y of
+          Left decl -> do
+            let (pos, name, expr) = declToExpr decl
+            _ <- addVarName depth name
+            compileExpr expr
+            tellCode [(pos, Inst.Store)]
+          Right expr -> do
+            compileExpr expr
+            when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
+            pass
+        case nonEmpty ys of
+          Just ys' -> do
+            process ys'
+          Nothing -> pass
+  process xs
   modifying internalDepth (\x -> x - 1)
 
 compileExpr (Lambda pos args body) = do

@@ -131,10 +131,10 @@ spec = do
         `shouldBuild` (S.empty, [loadGlobal 0, Inst.Call []])
   describe "표현식 시퀀스 코드 생성" $ do
     it "표현식이 1개인 시퀀스 코드 생성" $ do
-      compileExpr (Seq [litInteger 10])
+      compileExpr (Seq [Right $ litInteger 10])
         `shouldBuild` (S.fromList [ConstInteger 10], [Inst.Push 0])
     it "표현식이 2개인 시퀀스 코드 생성" $ do
-      compileExpr (Seq [litInteger 10, litBool True])
+      compileExpr (Seq [Right $ litInteger 10, Right $ litBool True])
         `shouldBuild` ( S.fromList [ConstInteger 10, ConstBool True]
                       , [Inst.Push 0, Inst.Pop, Inst.Push 1]
                       )
@@ -170,39 +170,35 @@ spec = do
   describe "상수 선언문 코드 생성" $ do
     it "하나의 값에 대한 상수 선언문 코드 생성" $ do
       compileExpr
-          (letExpr "값" (litInteger 1) (binaryOp Add (var "값") (litInteger 2)))
-        `shouldBuild` ( S.fromList
-                        [ ConstInteger 1
-                        , ConstFunc
-                          (FuncObject
-                            ["_"]
-                            (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
-                            (S.singleton (ConstInteger 2))
-                          )
+          (Seq
+            [ Left $ constDecl "값" (litInteger 1)
+            , Right $ binaryOp Add (var "값") (litInteger 2)
+            ]
+          )
+        `shouldBuild` ( S.fromList [ConstInteger 1, ConstInteger 2]
+                      , [ Inst.Push 0
+                        , Inst.Store
+                        , Inst.Load 0
+                        , Inst.Push 1
+                        , Inst.Add
                         ]
-                      , [Inst.Push 0, Inst.Push 1, Inst.Call ["_"]]
                       )
     it "계산식 상수 선언문 코드 생성" $ do
       compileExpr
-          (letExpr "값"
-                   (binaryOp Add (litInteger 1) (litInteger 2))
-                   (binaryOp Add (var "값") (litInteger 3))
+          (Seq
+            [ Left $ constDecl "값" (binaryOp Add (litInteger 1) (litInteger 2))
+            , Right $ binaryOp Add (var "값") (litInteger 3)
+            ]
           )
         `shouldBuild` ( S.fromList
-                        [ ConstInteger 1
-                        , ConstInteger 2
-                        , ConstFunc
-                          (FuncObject
-                            ["_"]
-                            (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
-                            (S.singleton (ConstInteger 3))
-                          )
-                        ]
+                        [ConstInteger 1, ConstInteger 2, ConstInteger 3]
                       , [ Inst.Push 0
                         , Inst.Push 1
                         , Inst.Add
+                        , Inst.Store
+                        , Inst.Load 0
                         , Inst.Push 2
-                        , Inst.Call ["_"]
+                        , Inst.Add
                         ]
                       )
 
