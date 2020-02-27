@@ -108,22 +108,24 @@ compileExpr (Seq xs) = do
   let names = collectNames $ toList xs
   sequence_ (addVarName depth <$> names)
 
-  let process []       = pass
-      process (y : ys) = do
-        case y of
-          Left decl -> do
-            let (pos, name, expr) = declToExpr decl
+  let
+    process []       = pass
+    process (y : ys) = do
+      case y of
+        Left decl -> do
+          let (pos, name, expr) = declToExpr decl
 
-            -- 위에서 변수 이름을 미리 등록해두었기 때문에 varNames에 이름이 확실히 존재합니다.
-            varNames <- use internalVarNames
-            let (Just index) = (depth, name) `L.elemIndex` varNames
-            compileExpr expr
-            tellCode [(pos, Inst.Store $ fromIntegral index)]
-          Right expr -> do
-            compileExpr expr
-            when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
-            pass
-        process ys
+          -- 위에서 변수 이름을 미리 등록해두었기 때문에 varNames에 이름이 확실히 존재합니다.
+          varNames <- use internalVarNames
+          let (Just index) = (depth, name) `L.elemIndex` varNames
+          compileExpr expr
+          when ((not . null) ys)
+               (tellCode [(pos, Inst.Store $ fromIntegral index)])
+        Right expr -> do
+          compileExpr expr
+          when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
+          pass
+      process ys
 
   process $ toList xs
   modifying internalDepth (\x -> x - 1)

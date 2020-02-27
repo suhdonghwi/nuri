@@ -117,6 +117,35 @@ spec = do
                         ]
                       , [Inst.Push 0, storeGlobal 0]
                       )
+      it "시퀀스의 마지막이 선언 문인 함수 코드 생성"
+        $             do
+                        compileStmt
+                          (funcDeclStmt
+                            "동작"
+                            []
+                            (Seq
+                              [ Right $ binaryOp Add (litInteger 1) (litInteger 1)
+                              , Left $ constDecl "값" (litInteger 10)
+                              ]
+                            )
+                          )
+        `shouldBuild` ( S.fromList
+                        [ ConstFunc
+                            (FuncObject
+                              []
+                              (ann
+                                [ Inst.Push 0
+                                , Inst.Push 0
+                                , Inst.Add
+                                , Inst.Pop
+                                , Inst.Push 1
+                                ]
+                              )
+                              (S.fromList [ConstInteger 1, ConstInteger 10])
+                            )
+                        ]
+                      , [Inst.Push 0, storeGlobal 0]
+                      )
       it "3개 이상의 스코프가 중첩된 클로저 코드 생성"
         $             do
                         compileStmt
