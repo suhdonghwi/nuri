@@ -7,7 +7,8 @@ import qualified Data.Set.Ordered              as S
 import           Haneul.Constant
 
 data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable,
-                                         _internalVarNames :: S.OSet String,
+                                         _internalDepth :: Word8,
+                                         _internalVarNames :: [(Word8, String)],
                                          _internalGlobalVarNames :: S.OSet String,
                                          _internalFreeVars :: S.OSet (Word8, Word8),
                                          _internalOffset :: Word32,
@@ -21,9 +22,5 @@ defaultGlobalNames :: [String]
 defaultGlobalNames = ["보여주다"]
 
 defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal (S.empty)
-                                  (S.empty)
-                                  (S.fromList defaultGlobalNames)
-                                  (S.empty)
-                                  0
-                                  []
+defaultInternal =
+  BuilderInternal (S.empty) 0 [] (S.fromList defaultGlobalNames) (S.empty) 0 []

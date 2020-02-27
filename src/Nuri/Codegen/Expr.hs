@@ -3,8 +3,10 @@ module Nuri.Codegen.Expr where
 import           Control.Lens                             ( view
                                                           , use
                                                           , assign
+                                                          , modifying
                                                           )
 import           Control.Monad.RWS                        ( execRWS )
+import qualified Data.List                     as L
 import qualified Data.Set.Ordered              as S
 
 import           Nuri.Expr
@@ -32,7 +34,8 @@ compileExpr (Lit pos lit) = do
 
 compileExpr (Var pos ident) = do
   varNames <- use internalVarNames
-  case ident `S.findIndex` varNames of
+  let identIndices = L.elemIndices ident (snd <$> toList varNames)
+  case viaNonEmpty last identIndices of
     Just index -> tellCode [(pos, Inst.Load $ fromIntegral index)]
     Nothing    -> do
       outerVars <- ask
@@ -89,27 +92,35 @@ compileExpr (UnaryOp pos op value) = do
     Positive -> pass
     Negative -> tellCode [(pos, Inst.Negate)]
 
-compileExpr (Seq (x :| xs)) = do
-  case nonEmpty xs of
-    Nothing   -> compileExpr x
-    Just rest -> do
-      compileExpr x
-      tellCode [(getSourceLine x, Inst.Pop)]
-      compileExpr (Seq rest)
+compileExpr (Seq xs) = do
+  modifying internalDepth (+ 1)
+  depth <- use internalDepth
+  let process x = case x of
+        Left decl -> do
+          let (pos, name, expr) = declToExpr decl
+          _ <- addVarName depth name
+          compileExpr expr
+          tellCode [(pos, Inst.Store)]
+        Right expr -> do
+          compileExpr expr
+          tellCode [(getSourceLine expr, Inst.Pop)]
+  sequence_ (process <$> xs)
+  modifying internalDepth (\x -> x - 1)
 
 compileExpr (Lambda pos args body) = do
   globalVarNames <- use internalGlobalVarNames
   varNames       <- use internalVarNames
-  localStack     <- ask
+  oldLocalStack  <- ask
   let
+    newLocalStack    = (S.fromList . fmap snd . toList) varNames
     (internal, code) = execRWS
       (do
         temp <- use internalVarNames
-        sequence_ (addVarName . fst <$> args)
+        sequence_ (addVarName 0 . fst <$> args)
         compileExpr body
         assign internalVarNames temp
       )
-      (varNames : localStack)
+      (newLocalStack : oldLocalStack)
       defaultInternal { _internalGlobalVarNames = globalVarNames }
     constTable = view internalConstTable internal
     funcObject =
@@ -125,9 +136,3 @@ compileExpr (Lambda pos args body) = do
           tellCode [(pos, Inst.FreeVarFree $ fromIntegral freeIndex)]
 
   sequence_ (processFreeVar <$> freeVarList)
-
-compileExpr (Let pos name value expr) = do
-  case value of
-    Lambda{} -> addVarName name >> pass
-    _        -> pass
-  compileExpr (FuncCall pos (Lambda pos [(name, "_")] expr) [(value, "_")])

@@ -2,9 +2,9 @@ module Nuri.Codegen.Stmt where
 
 
 import           Nuri.Stmt
+import           Nuri.Expr
 import           Nuri.Codegen.Expr
 import           Nuri.ASTNode
-import           Nuri.Decl
 
 import           Haneul.Builder
 import qualified Haneul.Instruction            as Inst

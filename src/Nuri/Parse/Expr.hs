@@ -4,9 +4,7 @@ import           Prelude                           hiding ( unwords
                                                           , fromList
                                                           )
 
-import           Data.List                                ( foldl1'
-                                                          , groupBy
-                                                          )
+import           Data.List                                ( foldl1' )
 import           Data.List.NonEmpty                       ( fromList )
 import           Data.String                              ( unwords )
 
@@ -26,7 +24,6 @@ import           Control.Monad.Combinators.Expr           ( makeExprParser
 import           Nuri.Parse
 import           Nuri.Expr
 import           Nuri.Literal
-import           Nuri.Decl
 
 parseDecl :: Parser Decl
 parseDecl = parseFuncDecl <|> parseConstDecl
@@ -43,10 +40,9 @@ parseFuncDecl = do
       symbol ":"
       let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
       return
-        (L.IndentSome
-          Nothing
-          (return . (FuncDecl pos funcName args) . listToExpr . groupList)
-          parseLine
+        (L.IndentSome Nothing
+                      (return . (FuncDecl pos funcName args) . Seq . fromList)
+                      parseLine
         )
     )
  where
@@ -73,21 +69,6 @@ parseFuncDecl = do
             fail "조사는 중복되게 사용할 수 없습니다."
           )
         argList (l ++ [(ident, josa)])
-
-  groupList :: [Either a b] -> NonEmpty (Either a [b])
-  groupList l =
-    fromList (sequence <$> groupBy (\x y -> isRight x && isRight y) l)
-
-  listToExpr :: NonEmpty (Either Decl [Expr]) -> Expr
-  listToExpr (x :| xs) = case x of
-    Right expr -> case nonEmpty xs of
-      Nothing -> case expr of
-        (y : []) -> y
-        ys       -> Seq $ fromList ys
-      Just l -> (Seq . fromList) (expr ++ [listToExpr l])
-    Left decl -> case nonEmpty xs of
-      Nothing -> let (_, _, expr) = declToExpr decl in expr
-      Just l  -> declToLet decl (listToExpr l)
 
 parseJosa :: Parser String
 parseJosa =
