@@ -7,7 +7,7 @@ import           Text.Megaparsec.Pos                      ( Pos )
 
 data Instruction' a = Push Word32 {- 상수 테이블 인덱스 -} | Pop
                  | Load Word32 {- 스택 인덱스 -}
-                 | Store
+                 | Store Word32
                  | LoadDeref Word32
                  | StoreGlobal Word32 | LoadGlobal Word32
                  | Call [String] {- 인수의 개수 -}

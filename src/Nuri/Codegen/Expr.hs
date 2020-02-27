@@ -95,22 +95,37 @@ compileExpr (UnaryOp pos op value) = do
 compileExpr (Seq xs) = do
   modifying internalDepth (+ 1)
   depth <- use internalDepth
-  let process (y :| ys) = do
+
+  -- 시퀀스에 존재하는 선언문의 이름들을 모아서 리스트로 반환합니다.
+  let collectNames []       = []
+      collectNames (y : ys) = case y of
+        Left decl -> do
+          let (_, name, _) = declToExpr decl
+          name : collectNames ys
+        Right _ -> collectNames ys
+
+  -- 상호 재귀와 같은 코드가 정상적으로 동작하도록 시퀀스에 존재하는 변수 이름들을 미리 등록해둡니다.
+  let names = collectNames $ toList xs
+  sequence_ (addVarName depth <$> names)
+
+  let process []       = pass
+      process (y : ys) = do
         case y of
           Left decl -> do
             let (pos, name, expr) = declToExpr decl
-            _ <- addVarName depth name
+
+            -- 위에서 변수 이름을 미리 등록해두었기 때문에 varNames에 이름이 확실히 존재합니다.
+            varNames <- use internalVarNames
+            let (Just index) = (depth, name) `L.elemIndex` varNames
             compileExpr expr
-            tellCode [(pos, Inst.Store)]
+            tellCode [(pos, Inst.Store $ fromIntegral index)]
           Right expr -> do
             compileExpr expr
             when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
             pass
-        case nonEmpty ys of
-          Just ys' -> do
-            process ys'
-          Nothing -> pass
-  process xs
+        process ys
+
+  process $ toList xs
   modifying internalDepth (\x -> x - 1)
 
 compileExpr (Lambda pos args body) = do
@@ -132,13 +147,14 @@ compileExpr (Lambda pos args body) = do
     funcObject =
       FuncObject (snd <$> args) (clearMarks internal code) constTable
   assign internalGlobalVarNames (view internalGlobalVarNames internal)
+
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
+
   let freeVarList = toList $ view internalFreeVars internal
   let processFreeVar (depth, localIndex) = if depth == 0
         then tellCode [(pos, Inst.FreeVarLocal localIndex)]
         else do
           freeIndex <- addFreeVar (depth - 1, localIndex)
           tellCode [(pos, Inst.FreeVarFree $ fromIntegral freeIndex)]
-
   sequence_ (processFreeVar <$> freeVarList)
