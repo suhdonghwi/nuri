@@ -21,9 +21,11 @@ defaultGlobalNames :: [String]
 defaultGlobalNames = ["보여주다"]
 
 defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal (S.empty)
-                                  (S.empty)
-                                  (S.fromList defaultGlobalNames)
-                                  (S.empty)
-                                  0
-                                  []
+defaultInternal = BuilderInternal
+  { _internalConstTable     = S.empty
+  , _internalVarNames       = S.empty
+  , _internalGlobalVarNames = S.fromList defaultGlobalNames
+  , _internalFreeVars       = S.empty
+  , _internalOffset         = 0
+  , _internalMarks          = []
+  }
