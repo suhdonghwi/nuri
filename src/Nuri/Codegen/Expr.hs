@@ -97,35 +97,30 @@ compileExpr (Seq xs) = do
   depth <- use internalDepth
 
   -- 시퀀스에 존재하는 선언문의 이름들을 모아서 리스트로 반환합니다.
-  let collectNames []       = []
-      collectNames (y : ys) = case y of
-        Left decl -> do
-          let (_, name, _) = declToExpr decl
-          name : collectNames ys
-        Right _ -> collectNames ys
+  -- let collectNames []       = []
+  --     collectNames (y : ys) = case y of
+  --       Left decl -> do
+  --         let (_, name, _) = declToExpr decl
+  --         name : collectNames ys
+  --       Right _ -> collectNames ys
 
   -- 상호 재귀와 같은 코드가 정상적으로 동작하도록 시퀀스에 존재하는 변수 이름들을 미리 등록해둡니다.
-  let names = collectNames $ toList xs
-  sequence_ (addVarName depth <$> names)
+  -- let names = collectNames $ toList xs
+  -- sequence_ (addVarName depth <$> names)
 
-  let
-    process []       = pass
-    process (y : ys) = do
-      case y of
-        Left decl -> do
-          let (pos, name, expr) = declToExpr decl
-
-          -- 위에서 변수 이름을 미리 등록해두었기 때문에 varNames에 이름이 확실히 존재합니다.
-          varNames <- use internalVarNames
-          let (Just index) = (depth, name) `L.elemIndex` varNames
-          compileExpr expr
-          when ((not . null) ys)
-               (tellCode [(pos, Inst.Store $ fromIntegral index)])
-        Right expr -> do
-          compileExpr expr
-          when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
-          pass
-      process ys
+  let process []       = pass
+      process (y : ys) = do
+        case y of
+          Left decl -> do
+            let (pos, name, expr) = declToExpr decl
+            addVarName depth name
+            compileExpr expr
+            when ((not . null) ys) (tellCode [(pos, Inst.Store)])
+          Right expr -> do
+            compileExpr expr
+            when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
+            pass
+        process ys
 
   process $ toList xs
   modifying internalDepth (\x -> x - 1)
