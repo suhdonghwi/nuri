@@ -94,9 +94,8 @@ compileExpr (UnaryOp pos op value) = do
 
 compileExpr (Seq xs) = do
   modifying internalDepth (+ 1)
-  depth <- use internalDepth
+  depth         <- use internalDepth
 
-  -- 시퀀스에 존재하는 선언문의 이름들을 모아서 리스트로 반환합니다.
   -- let collectNames []       = []
   --     collectNames (y : ys) = case y of
   --       Left decl -> do
@@ -104,9 +103,10 @@ compileExpr (Seq xs) = do
   --         name : collectNames ys
   --       Right _ -> collectNames ys
 
-  -- 상호 재귀와 같은 코드가 정상적으로 동작하도록 시퀀스에 존재하는 변수 이름들을 미리 등록해둡니다.
-  -- let names = collectNames $ toList xs
-  -- sequence_ (addVarName depth <$> names)
+  -- 시퀀스에 존재하는 선언문의 개수를 세서, maxLocalCount 보다 크다면 현재 로컬의 수로 설정합니다.
+  maxLocalCount <- use internalMaxLocalCount
+  let localCount = (fromIntegral . length . filter isLeft) (toList xs)
+  when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
 
   let process []       = pass
       process (y : ys) = do
@@ -123,7 +123,7 @@ compileExpr (Seq xs) = do
         process ys
 
   process $ toList xs
-  modifying internalDepth (\x -> x - 1)
+  modifying internalDepth (`subtract` 1)
 
 compileExpr (Lambda pos args body) = do
   (internal, funcObject) <- lambdaToFuncObject args body
@@ -155,6 +155,13 @@ lambdaToFuncObject args body = do
         )
         (newLocalStack : oldLocalStack)
         defaultInternal { _internalGlobalVarNames = globalVarNames }
-      constTable = view internalConstTable internal
+      constTable    = view internalConstTable internal
+      maxLocalCount = view internalMaxLocalCount internal
   return
-    (internal, FuncObject (snd <$> args) (clearMarks internal code) constTable)
+    ( internal
+    , FuncObject { _funcJosa          = (snd <$> args)
+                 , _funcBody          = (clearMarks internal code)
+                 , _funcConstTable    = constTable
+                 , _funcMaxLocalCount = maxLocalCount
+                 }
+    )

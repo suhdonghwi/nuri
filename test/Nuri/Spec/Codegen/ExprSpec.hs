@@ -148,6 +148,7 @@ spec = do
                               ["을"]
                               (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                               (S.fromList [ConstInteger 1])
+                              0
                             )
                         ]
                       , [Inst.Push 0]
@@ -163,6 +164,7 @@ spec = do
                               ["에", "를"]
                               (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
                               S.empty
+                              0
                             )
                         ]
                       , [Inst.Push 0]

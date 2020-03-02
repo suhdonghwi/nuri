@@ -30,6 +30,7 @@ spec = do
                               ["을"]
                               (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                               (S.fromList [ConstInteger 1])
+                              0
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -46,6 +47,7 @@ spec = do
                               ["에", "을"]
                               (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
                               S.empty
+                              0
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -65,6 +67,7 @@ spec = do
                             ["을"]
                             (ann [Inst.Load 0, loadGlobal 0, Inst.Add])
                             S.empty
+                            0
                           )
                         ]
                       , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
@@ -84,6 +87,7 @@ spec = do
                             ["을"]
                             (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                             (S.singleton (ConstInteger 2))
+                            0
                           )
                         ]
                       , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
@@ -113,6 +117,7 @@ spec = do
                                 ]
                               )
                               (S.fromList [ConstInteger 1])
+                              1
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -142,6 +147,7 @@ spec = do
                                 ]
                               )
                               (S.fromList [ConstInteger 1, ConstInteger 10])
+                              1
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -189,12 +195,15 @@ spec = do
                                               []
                                               (ann [Inst.LoadDeref 0])
                                               S.empty
+                                              0
                                             )
                                         ]
                                       )
+                                      1
                                     )
                                 ]
                               )
+                              1
                             )
                         ]
                       , [Inst.Push 0, Inst.StoreGlobal 1]
@@ -229,9 +238,11 @@ spec = do
                                       []
                                       (ann [Inst.LoadDeref 0, Inst.Call []])
                                       (S.empty)
+                                      0
                                     )
                                 ]
                               )
+                              1
                             )
                         ]
                       , [Inst.Push 0, Inst.StoreGlobal 1]
