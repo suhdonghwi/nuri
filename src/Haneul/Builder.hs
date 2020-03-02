@@ -80,9 +80,9 @@ unmarkInst internal inst = case inst of
   PopJmpIfFalse v -> PopJmpIfFalse (unmark v)
   Push          v -> Push v
   Pop             -> Pop
-  StoreGlobal v   -> StoreGlobal v
-  Load        v   -> Load v
-  Store           -> Store
+  StoreGlobal  v  -> StoreGlobal v
+  Load         v  -> Load v
+  Store        v  -> Store v
   LoadDeref    v  -> LoadDeref v
   LoadGlobal   v  -> LoadGlobal v
   Call         v  -> Call v

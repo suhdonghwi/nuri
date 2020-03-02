@@ -179,7 +179,7 @@ spec = do
           )
         `shouldBuild` ( S.fromList [ConstInteger 1, ConstInteger 2]
                       , [ Inst.Push 0
-                        , Inst.Store
+                        , Inst.Store 0
                         , Inst.Load 0
                         , Inst.Push 1
                         , Inst.Add
@@ -197,7 +197,7 @@ spec = do
                       , [ Inst.Push 0
                         , Inst.Push 1
                         , Inst.Add
-                        , Inst.Store
+                        , Inst.Store 0
                         , Inst.Load 0
                         , Inst.Push 2
                         , Inst.Add

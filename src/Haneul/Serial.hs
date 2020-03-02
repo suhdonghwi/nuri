@@ -103,8 +103,9 @@ instance (Binary a) => Binary (Instruction' a) where
   put (Load v) = do
     putWord8 2
     put v
-  put Store = do
+  put (Store v) = do
     putWord8 3
+    put v
   put (LoadDeref v) = do
     putWord8 4
     put v
@@ -153,7 +154,7 @@ instance (Binary a) => Binary (Instruction' a) where
           [ Push <$> get
           , return Pop
           , Load <$> get
-          , return Store
+          , Store <$> get
           , LoadDeref <$> get
           , StoreGlobal <$> get
           , LoadGlobal <$> get
