@@ -2,6 +2,7 @@ module Nuri.Codegen.Expr where
 
 import           Control.Lens                             ( view
                                                           , use
+                                                          , uses
                                                           , assign
                                                           , modifying
                                                           )
@@ -94,7 +95,7 @@ compileExpr (UnaryOp pos op value) = do
 
 compileExpr (Seq xs) = do
   modifying internalDepth (+ 1)
-  depth         <- use internalDepth
+  depth <- use internalDepth
 
   -- let collectNames []       = []
   --     collectNames (y : ys) = case y of
@@ -103,10 +104,6 @@ compileExpr (Seq xs) = do
   --         name : collectNames ys
   --       Right _ -> collectNames ys
 
-  -- 시퀀스에 존재하는 선언문의 개수를 세서, maxLocalCount 보다 크다면 현재 로컬의 수로 설정합니다.
-  maxLocalCount <- use internalMaxLocalCount
-  let localCount = (fromIntegral . length . filter isLeft) (toList xs)
-  when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
 
   let process []       = pass
       process (y : ys) = do
@@ -121,8 +118,12 @@ compileExpr (Seq xs) = do
             when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
             pass
         process ys
-
   process $ toList xs
+
+  maxLocalCount <- use internalMaxLocalCount
+  localCount    <- uses internalVarNames genericLength
+  when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
+
   modifying internalDepth (`subtract` 1)
 
 compileExpr (Lambda pos args body) = do

@@ -117,7 +117,7 @@ spec = do
                                 ]
                               )
                               (S.fromList [ConstInteger 1])
-                              1
+                              2
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -203,7 +203,7 @@ spec = do
                                     )
                                 ]
                               )
-                              1
+                              2
                             )
                         ]
                       , [Inst.Push 0, Inst.StoreGlobal 1]
