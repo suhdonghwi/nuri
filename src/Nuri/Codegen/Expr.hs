@@ -133,10 +133,8 @@ compileExpr (Lambda pos args body) = do
     newLocalStack    = (S.fromList . fmap snd . toList) varNames
     (internal, code) = execRWS
       (do
-        temp <- use internalVarNames
         sequence_ (addVarName 0 . fst <$> args)
         compileExpr body
-        assign internalVarNames temp
       )
       (newLocalStack : oldLocalStack)
       defaultInternal { _internalGlobalVarNames = globalVarNames }
