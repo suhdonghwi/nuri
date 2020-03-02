@@ -126,21 +126,7 @@ compileExpr (Seq xs) = do
   modifying internalDepth (\x -> x - 1)
 
 compileExpr (Lambda pos args body) = do
-  globalVarNames <- use internalGlobalVarNames
-  varNames       <- use internalVarNames
-  oldLocalStack  <- ask
-  let
-    newLocalStack    = (S.fromList . fmap snd . toList) varNames
-    (internal, code) = execRWS
-      (do
-        sequence_ (addVarName 0 . fst <$> args)
-        compileExpr body
-      )
-      (newLocalStack : oldLocalStack)
-      defaultInternal { _internalGlobalVarNames = globalVarNames }
-    constTable = view internalConstTable internal
-    funcObject =
-      FuncObject (snd <$> args) (clearMarks internal code) constTable
+  (internal, funcObject) <- lambdaToFuncObject args body
   assign internalGlobalVarNames (view internalGlobalVarNames internal)
 
   index <- addConstant (ConstFunc funcObject)
@@ -153,3 +139,22 @@ compileExpr (Lambda pos args body) = do
           freeIndex <- addFreeVar (depth - 1, localIndex)
           tellCode [(pos, Inst.FreeVarFree $ fromIntegral freeIndex)]
   sequence_ (processFreeVar <$> freeVarList)
+
+
+lambdaToFuncObject
+  :: [(String, String)] -> Expr -> Builder (BuilderInternal, FuncObject)
+lambdaToFuncObject args body = do
+  globalVarNames <- use internalGlobalVarNames
+  varNames       <- use internalVarNames
+  oldLocalStack  <- ask
+  let newLocalStack    = (S.fromList . fmap snd . toList) varNames
+      (internal, code) = execRWS
+        (do
+          sequence_ (addVarName 0 . fst <$> args)
+          compileExpr body
+        )
+        (newLocalStack : oldLocalStack)
+        defaultInternal { _internalGlobalVarNames = globalVarNames }
+      constTable = view internalConstTable internal
+  return
+    (internal, FuncObject (snd <$> args) (clearMarks internal code) constTable)
