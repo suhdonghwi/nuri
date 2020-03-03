@@ -84,8 +84,9 @@ putJosaList = putWord8List (putWord8List (put :: Char -> Put))
 instance Binary FuncObject where
   put obj = do
     putJosaList (view funcJosa obj)
-    put (toList $ view funcConstTable obj)
+    put (view funcMaxStackSize obj)
     put (view funcMaxLocalCount obj)
+    put (toList $ view funcConstTable obj)
     put (view funcBody obj)
   get = do
     josa          <- get

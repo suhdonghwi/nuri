@@ -9,15 +9,13 @@ import           Nuri.ASTNode
 import           Haneul.Builder
 import qualified Haneul.Instruction            as Inst
 
-compileStmt :: Stmt -> Builder Word64
+compileStmt :: Stmt -> Builder ()
 compileStmt (DeclStmt decl) = do
   let (pos, name, expr) = declToExpr decl
-  exprSize <- compileExpr expr
+  compileExpr expr
 
-  index    <- addGlobalVarName name
+  index <- addGlobalVarName name
   tellCode [(pos, Inst.StoreGlobal index)]
-
-  return exprSize
 
 compileStmt stmt@(ExprStmt expr) = do
   exprSize <- compileExpr expr
@@ -25,7 +23,7 @@ compileStmt stmt@(ExprStmt expr) = do
 
   return exprSize
 
-compileStmts :: NonEmpty Stmt -> Builder Word64
-compileStmts s = sum <$> sequence (compileStmt <$> s)
+compileStmts :: NonEmpty Stmt -> Builder ()
+compileStmts s = sequence_ (compileStmt <$> s)
 
 

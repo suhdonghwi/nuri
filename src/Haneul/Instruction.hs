@@ -1,7 +1,5 @@
 module Haneul.Instruction where
 
-import qualified Data.List.NonEmpty            as NE
-
 import           Text.Megaparsec.Pos                      ( Pos )
 
 
@@ -27,7 +25,34 @@ type Ann t = (Pos, t)
 type MarkedCode = [Ann MarkedInstruction]
 type Code = [Ann Instruction]
 
-appendInsts :: Pos -> [Instruction] -> Code -> Code
-appendInsts defaultPos inst [] = (defaultPos, ) <$> inst
-appendInsts _ inst code =
-  code ++ (((fst . last) (NE.fromList code), ) <$> inst)
+
+estimateStackSize :: Code -> Word64
+estimateStackSize input = sizeLoop 0 0 0 input
+ where
+  sizeLoop :: Word32 -> Word64 -> Word64 -> Code -> Word64
+  sizeLoop pos currentSize maxSize code = case code !!? fromIntegral pos of
+    Nothing -> maxSize
+    Just (_, inst) ->
+      let newSize    = currentSize + sizeDifference inst
+          newMaxSize = if newSize > maxSize then newSize else maxSize
+      in  case inst of
+            PopJmpIfFalse index -> max
+              (sizeLoop (pos + 1) newSize newMaxSize code)
+              (sizeLoop index newSize newMaxSize code)
+            Jmp  index -> sizeLoop index newSize newMaxSize code
+            Push _     -> sizeLoop (pos + 1) newSize newMaxSize code
+            _          -> sizeLoop (pos + 1) newSize newMaxSize code
+  sizeDifference inst = case inst of
+    Push          _    -> 1
+    Load          _    -> 1
+    LoadDeref     _    -> 1
+    LoadGlobal    _    -> 1
+    Call          args -> -(genericLength args + 1)
+    Jmp           _    -> 0
+    PopJmpIfFalse _    -> 0
+    FreeVarLocal  _    -> 0
+    FreeVarFree   _    -> 0
+    Negate             -> 0
+    _                  -> -1 -- 이항 연산 인스트럭션들
+
+

@@ -3,7 +3,7 @@ module Haneul.Program where
 import           Control.Lens                             ( makeLenses
                                                           , view
                                                           )
-import           Control.Monad.RWS                        ( runRWS )
+import           Control.Monad.RWS                        ( execRWS )
 
 import           Haneul.Builder
 import           Haneul.BuilderInternal
@@ -17,15 +17,16 @@ data Program = Program { _programGlobalVarNames :: [String],
                        }
   deriving (Eq, Show)
 
-toProgram :: BuilderInternal -> Builder Word64 -> Program
+toProgram :: BuilderInternal -> Builder () -> Program
 toProgram internal result =
-  let (stackSize, internal', code) = runRWS result [] internal
+  let (internal', code') = execRWS result [] internal
+      code               = clearMarks internal' code'
   in  Program
         { _programGlobalVarNames = toList
                                      $ view internalGlobalVarNames internal'
-        , _programStackSize      = stackSize
+        , _programStackSize      = estimateStackSize code
         , _programConstTable     = view internalConstTable internal'
-        , _programCode           = clearMarks internal' code
+        , _programCode           = code
         }
 
 $(makeLenses ''Program)
