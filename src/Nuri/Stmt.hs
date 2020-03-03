@@ -1,7 +1,6 @@
 module Nuri.Stmt where
 
 import           Nuri.ASTNode
-import           Nuri.Decl
 import           Nuri.Expr
 
 data Stmt = DeclStmt Decl

@@ -10,6 +10,8 @@ import           Control.Lens                             ( modifying
                                                           , (.~)
                                                           , view
                                                           )
+
+import qualified Data.List                     as L
 import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
                                                           , OSet
@@ -38,11 +40,11 @@ addConstant value = do
   let (Just index) = findIndex value table
   return $ fromIntegral index
 
-addVarName :: String -> Builder Word32
-addVarName value = do
-  modifying internalVarNames (|> value)
+addVarName :: Word8 -> String -> Builder Word32
+addVarName depth value = do
+  modifying internalVarNames (++ [(depth, value)])
   table <- use internalVarNames
-  let (Just index) = findIndex value table
+  let (Just index) = L.elemIndex (depth, value) table
   return $ fromIntegral index
 
 addGlobalVarName :: String -> Builder Word32
@@ -80,6 +82,7 @@ unmarkInst internal inst = case inst of
   Pop             -> Pop
   StoreGlobal  v  -> StoreGlobal v
   Load         v  -> Load v
+  Store        v  -> Store v
   LoadDeref    v  -> LoadDeref v
   LoadGlobal   v  -> LoadGlobal v
   Call         v  -> Call v

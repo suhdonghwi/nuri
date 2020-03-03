@@ -17,7 +17,8 @@ type ConstTable = OSet Constant
 
 data FuncObject = FuncObject { _funcJosa :: [String],
                                _funcBody :: Code,
-                               _funcConstTable :: ConstTable
+                               _funcConstTable :: ConstTable,
+                               _funcMaxLocalCount :: Word32
                              }
   deriving (Eq, Show, Ord)
 

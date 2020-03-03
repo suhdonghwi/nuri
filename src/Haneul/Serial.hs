@@ -86,11 +86,13 @@ instance Binary FuncObject where
     putJosaList (view funcJosa obj)
     put (toList $ view funcConstTable obj)
     put (view funcBody obj)
+    put (view funcMaxLocalCount obj)
   get = do
-    arity'      <- get
-    constTable' <- fromList <$> get
-    insts'      <- get
-    return (FuncObject arity' insts' constTable')
+    josa          <- get
+    constTable    <- fromList <$> get
+    code          <- get
+    maxLocalCount <- get
+    return (FuncObject josa code constTable maxLocalCount)
 
 instance (Binary a) => Binary (Instruction' a) where
   put (Push v) = do
@@ -101,54 +103,58 @@ instance (Binary a) => Binary (Instruction' a) where
   put (Load v) = do
     putWord8 2
     put v
-  put (LoadDeref v) = do
+  put (Store v) = do
     putWord8 3
     put v
-  put (StoreGlobal v) = do
+  put (LoadDeref v) = do
     putWord8 4
     put v
-  put (LoadGlobal v) = do
+  put (StoreGlobal v) = do
     putWord8 5
     put v
-  put (Call v) = do
+  put (LoadGlobal v) = do
     putWord8 6
+    put v
+  put (Call v) = do
+    putWord8 7
     putJosaList v
   put (Jmp v) = do
-    putWord8 7
-    put v
-  put (PopJmpIfFalse v) = do
     putWord8 8
     put v
-  put (FreeVarLocal v) = do
+  put (PopJmpIfFalse v) = do
     putWord8 9
     put v
-  put (FreeVarFree v) = do
+  put (FreeVarLocal v) = do
     putWord8 10
     put v
-  put Add = do
+  put (FreeVarFree v) = do
     putWord8 11
-  put Subtract = do
+    put v
+  put Add = do
     putWord8 12
-  put Multiply = do
+  put Subtract = do
     putWord8 13
-  put Divide = do
+  put Multiply = do
     putWord8 14
-  put Mod = do
+  put Divide = do
     putWord8 15
-  put Equal = do
+  put Mod = do
     putWord8 16
-  put LessThan = do
+  put Equal = do
     putWord8 17
-  put GreaterThan = do
+  put LessThan = do
     putWord8 18
-  put Negate = do
+  put GreaterThan = do
     putWord8 19
+  put Negate = do
+    putWord8 20
   get = do
     inst <- get :: Get Word8
     let getterList =
           [ Push <$> get
           , return Pop
           , Load <$> get
+          , Store <$> get
           , LoadDeref <$> get
           , StoreGlobal <$> get
           , LoadGlobal <$> get

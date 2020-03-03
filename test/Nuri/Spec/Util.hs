@@ -7,7 +7,6 @@ import           Text.Megaparsec.Pos
 import           Nuri.Expr
 import           Nuri.Stmt
 import           Nuri.Literal
-import           Nuri.Decl
 
 initPos :: Pos
 initPos = pos1
@@ -22,8 +21,10 @@ binaryOp = BinaryOp initPos
 unaryOp = UnaryOp initPos
 var = Var initPos
 funcCall = FuncCall initPos
-letExpr = Let initPos
 lambda = Lambda initPos
 
-funcDecl = ((DeclStmt .) .) . FuncDecl initPos
-constDecl = (DeclStmt .) . ConstDecl initPos
+funcDecl = FuncDecl initPos
+constDecl = ConstDecl initPos
+
+funcDeclStmt = ((DeclStmt .) .) . funcDecl
+constDeclStmt = (DeclStmt .) . constDecl

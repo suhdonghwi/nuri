@@ -2,9 +2,12 @@ module Nuri.Codegen.Expr where
 
 import           Control.Lens                             ( view
                                                           , use
+                                                          , uses
                                                           , assign
+                                                          , modifying
                                                           )
 import           Control.Monad.RWS                        ( execRWS )
+import qualified Data.List                     as L
 import qualified Data.Set.Ordered              as S
 
 import           Nuri.Expr
@@ -32,7 +35,8 @@ compileExpr (Lit pos lit) = do
 
 compileExpr (Var pos ident) = do
   varNames <- use internalVarNames
-  case ident `S.findIndex` varNames of
+  let identIndices = L.elemIndices ident (snd <$> toList varNames)
+  case viaNonEmpty last identIndices of
     Just index -> tellCode [(pos, Inst.Load $ fromIntegral index)]
     Nothing    -> do
       outerVars <- ask
@@ -89,45 +93,76 @@ compileExpr (UnaryOp pos op value) = do
     Positive -> pass
     Negative -> tellCode [(pos, Inst.Negate)]
 
-compileExpr (Seq (x :| xs)) = do
-  case nonEmpty xs of
-    Nothing   -> compileExpr x
-    Just rest -> do
-      compileExpr x
-      tellCode [(getSourceLine x, Inst.Pop)]
-      compileExpr (Seq rest)
+compileExpr (Seq xs) = do
+  modifying internalDepth (+ 1)
+  depth <- use internalDepth
+
+  -- let collectNames []       = []
+  --     collectNames (y : ys) = case y of
+  --       Left decl -> do
+  --         let (_, name, _) = declToExpr decl
+  --         name : collectNames ys
+  --       Right _ -> collectNames ys
+
+
+  let process []       = pass
+      process (y : ys) = do
+        case y of
+          Left decl -> do
+            let (pos, name, expr) = declToExpr decl
+            index <- addVarName depth name
+            compileExpr expr
+            when ((not . null) ys) (tellCode [(pos, Inst.Store index)])
+          Right expr -> do
+            compileExpr expr
+            when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
+            pass
+        process ys
+  process $ toList xs
+
+  maxLocalCount <- use internalMaxLocalCount
+  localCount    <- uses internalVarNames genericLength
+  when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
+
+  modifying internalDepth (`subtract` 1)
 
 compileExpr (Lambda pos args body) = do
-  globalVarNames <- use internalGlobalVarNames
-  varNames       <- use internalVarNames
-  localStack     <- ask
-  let
-    (internal, code) = execRWS
-      (do
-        temp <- use internalVarNames
-        sequence_ (addVarName . fst <$> args)
-        compileExpr body
-        assign internalVarNames temp
-      )
-      (varNames : localStack)
-      defaultInternal { _internalGlobalVarNames = globalVarNames }
-    constTable = view internalConstTable internal
-    funcObject =
-      FuncObject (snd <$> args) (clearMarks internal code) constTable
+  (internal, funcObject) <- lambdaToFuncObject args body
   assign internalGlobalVarNames (view internalGlobalVarNames internal)
+
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
+
   let freeVarList = toList $ view internalFreeVars internal
   let processFreeVar (depth, localIndex) = if depth == 0
         then tellCode [(pos, Inst.FreeVarLocal localIndex)]
         else do
           freeIndex <- addFreeVar (depth - 1, localIndex)
           tellCode [(pos, Inst.FreeVarFree $ fromIntegral freeIndex)]
-
   sequence_ (processFreeVar <$> freeVarList)
 
-compileExpr (Let pos name value expr) = do
-  case value of
-    Lambda{} -> addVarName name >> pass
-    _        -> pass
-  compileExpr (FuncCall pos (Lambda pos [(name, "_")] expr) [(value, "_")])
+
+lambdaToFuncObject
+  :: [(String, String)] -> Expr -> Builder (BuilderInternal, FuncObject)
+lambdaToFuncObject args body = do
+  globalVarNames <- use internalGlobalVarNames
+  varNames       <- use internalVarNames
+  oldLocalStack  <- ask
+  let newLocalStack    = (S.fromList . fmap snd . toList) varNames
+      (internal, code) = execRWS
+        (do
+          sequence_ (addVarName 0 . fst <$> args)
+          compileExpr body
+        )
+        (newLocalStack : oldLocalStack)
+        defaultInternal { _internalGlobalVarNames = globalVarNames }
+      constTable    = view internalConstTable internal
+      maxLocalCount = view internalMaxLocalCount internal
+  return
+    ( internal
+    , FuncObject { _funcJosa          = (snd <$> args)
+                 , _funcBody          = (clearMarks internal code)
+                 , _funcConstTable    = constTable
+                 , _funcMaxLocalCount = maxLocalCount
+                 }
+    )

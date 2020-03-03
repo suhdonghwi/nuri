@@ -4,9 +4,7 @@ import           Prelude                           hiding ( unwords
                                                           , fromList
                                                           )
 
-import           Data.List                                ( foldl1'
-                                                          , groupBy
-                                                          )
+import           Data.List                                ( foldl1' )
 import           Data.List.NonEmpty                       ( fromList )
 import           Data.String                              ( unwords )
 
@@ -26,7 +24,6 @@ import           Control.Monad.Combinators.Expr           ( makeExprParser
 import           Nuri.Parse
 import           Nuri.Expr
 import           Nuri.Literal
-import           Nuri.Decl
 
 parseDecl :: Parser Decl
 parseDecl = parseFuncDecl <|> parseConstDecl
@@ -45,11 +42,16 @@ parseFuncDecl = do
       return
         (L.IndentSome
           Nothing
-          (return . (FuncDecl pos funcName args) . listToExpr . groupList)
+          (return . (FuncDecl pos funcName args) . fromExprs . fromList)
           parseLine
         )
     )
  where
+  -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
+  fromExprs :: NonEmpty (Either Decl Expr) -> Expr
+  fromExprs (Right expr :| []) = expr
+  fromExprs l                  = Seq l
+
   argList :: [(String, String)] -> Parser [(String, String)]
   argList l = do
     identPos    <- P.getOffset
@@ -73,21 +75,6 @@ parseFuncDecl = do
             fail "조사는 중복되게 사용할 수 없습니다."
           )
         argList (l ++ [(ident, josa)])
-
-  groupList :: [Either a b] -> NonEmpty (Either a [b])
-  groupList l =
-    fromList (sequence <$> groupBy (\x y -> isRight x && isRight y) l)
-
-  listToExpr :: NonEmpty (Either Decl [Expr]) -> Expr
-  listToExpr (x :| xs) = case x of
-    Right expr -> case nonEmpty xs of
-      Nothing -> case expr of
-        (y : []) -> y
-        ys       -> Seq $ fromList ys
-      Just l -> (Seq . fromList) (expr ++ [listToExpr l])
-    Left decl -> case nonEmpty xs of
-      Nothing -> let (_, _, expr) = declToExpr decl in expr
-      Just l  -> declToLet decl (listToExpr l)
 
 parseJosa :: Parser String
 parseJosa =
