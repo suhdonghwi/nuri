@@ -85,14 +85,22 @@ instance Binary FuncObject where
   put obj = do
     putJosaList (view funcJosa obj)
     put (toList $ view funcConstTable obj)
-    put (view funcBody obj)
     put (view funcMaxLocalCount obj)
+    put (view funcBody obj)
   get = do
     josa          <- get
+    maxStackSize  <- get
+    maxLocalCount <- get
     constTable    <- fromList <$> get
     code          <- get
-    maxLocalCount <- get
-    return (FuncObject josa code constTable maxLocalCount)
+    return
+      (FuncObject { _funcJosa          = josa
+                  , _funcBody          = code
+                  , _funcConstTable    = constTable
+                  , _funcMaxLocalCount = maxLocalCount
+                  , _funcMaxStackSize  = maxStackSize
+                  }
+      )
 
 instance (Binary a) => Binary (Instruction' a) where
   put (Push v) = do

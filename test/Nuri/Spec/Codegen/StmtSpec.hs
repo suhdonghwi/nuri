@@ -28,9 +28,10 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["을"]
-                              (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
-                              (S.fromList [ConstInteger 1])
+                              2
                               0
+                              (S.fromList [ConstInteger 1])
+                              (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -45,9 +46,10 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["에", "을"]
-                              (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
-                              S.empty
+                              2
                               0
+                              S.empty
+                              (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -65,9 +67,10 @@ spec = do
                         , ConstFunc
                           (FuncObject
                             ["을"]
-                            (ann [Inst.Load 0, loadGlobal 0, Inst.Add])
-                            S.empty
+                            2
                             0
+                            S.empty
+                            (ann [Inst.Load 0, loadGlobal 0, Inst.Add])
                           )
                         ]
                       , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
@@ -85,9 +88,10 @@ spec = do
                         , ConstFunc
                           (FuncObject
                             ["을"]
-                            (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
-                            (S.singleton (ConstInteger 2))
+                            2
                             0
+                            (S.singleton (ConstInteger 2))
+                            (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                           )
                         ]
                       , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
@@ -108,6 +112,9 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["을"]
+                              2
+                              2
+                              (S.fromList [ConstInteger 1])
                               (ann
                                 [ Inst.Push 0
                                 , Inst.Store 1
@@ -116,8 +123,6 @@ spec = do
                                 , Inst.Add
                                 ]
                               )
-                              (S.fromList [ConstInteger 1])
-                              2
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -138,6 +143,9 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               []
+                              2
+                              1
+                              (S.fromList [ConstInteger 1, ConstInteger 10])
                               (ann
                                 [ Inst.Push 0
                                 , Inst.Push 0
@@ -146,8 +154,6 @@ spec = do
                                 , Inst.Push 1
                                 ]
                               )
-                              (S.fromList [ConstInteger 1, ConstInteger 10])
-                              1
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -171,17 +177,25 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["을"]
-                              (ann
-                                [ Inst.Push 0
-                                , Inst.FreeVarLocal 0
-                                , Inst.Store 1
-                                , Inst.Load 1
-                                ]
-                              )
+                              1
+                              2
                               (S.fromList
                                 [ ConstFunc
                                     (FuncObject
                                       []
+                                      1
+                                      1
+                                      (S.fromList
+                                        [ ConstFunc
+                                            (FuncObject
+                                              []
+                                              1
+                                              0
+                                              S.empty
+                                              (ann [Inst.LoadDeref 0])
+                                            )
+                                        ]
+                                      )
                                       (ann
                                         [ Inst.Push 0
                                         , Inst.FreeVarFree 0
@@ -189,21 +203,16 @@ spec = do
                                         , Inst.Load 0
                                         ]
                                       )
-                                      (S.fromList
-                                        [ ConstFunc
-                                            (FuncObject
-                                              []
-                                              (ann [Inst.LoadDeref 0])
-                                              S.empty
-                                              0
-                                            )
-                                        ]
-                                      )
-                                      1
                                     )
                                 ]
                               )
-                              2
+                              (ann
+                                [ Inst.Push 0
+                                , Inst.FreeVarLocal 0
+                                , Inst.Store 1
+                                , Inst.Load 1
+                                ]
+                              )
                             )
                         ]
                       , [Inst.Push 0, Inst.StoreGlobal 1]
@@ -224,6 +233,19 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               []
+                              1
+                              1
+                              (S.fromList
+                                [ ConstFunc
+                                    (FuncObject
+                                      []
+                                      1
+                                      0
+                                      (S.empty)
+                                      (ann [Inst.LoadDeref 0, Inst.Call []])
+                                    )
+                                ]
+                              )
                               (ann
                                 [ Inst.Push 0
                                 , Inst.FreeVarLocal 0
@@ -232,17 +254,6 @@ spec = do
                                 , Inst.Call []
                                 ]
                               )
-                              (S.fromList
-                                [ ConstFunc
-                                    (FuncObject
-                                      []
-                                      (ann [Inst.LoadDeref 0, Inst.Call []])
-                                      (S.empty)
-                                      0
-                                    )
-                                ]
-                              )
-                              1
                             )
                         ]
                       , [Inst.Push 0, Inst.StoreGlobal 1]

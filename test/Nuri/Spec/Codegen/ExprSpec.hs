@@ -146,9 +146,10 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["을"]
-                              (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
-                              (S.fromList [ConstInteger 1])
+                              2
                               0
+                              (S.fromList [ConstInteger 1])
+                              (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
                             )
                         ]
                       , [Inst.Push 0]
@@ -162,9 +163,10 @@ spec = do
                         [ ConstFunc
                             (FuncObject
                               ["에", "를"]
-                              (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
-                              S.empty
+                              2
                               0
+                              S.empty
+                              (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
                             )
                         ]
                       , [Inst.Push 0]

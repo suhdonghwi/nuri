@@ -6,7 +6,7 @@ import           Control.Lens                             ( view
                                                           , assign
                                                           , modifying
                                                           )
-import           Control.Monad.RWS                        ( execRWS )
+import           Control.Monad.RWS                        ( runRWS )
 import qualified Data.List                     as L
 import qualified Data.Set.Ordered              as S
 
@@ -155,8 +155,8 @@ lambdaToFuncObject args body = do
   globalVarNames <- use internalGlobalVarNames
   varNames       <- use internalVarNames
   oldLocalStack  <- ask
-  let newLocalStack    = (S.fromList . fmap snd . toList) varNames
-      (internal, code) = execRWS
+  let newLocalStack                  = (S.fromList . fmap snd . toList) varNames
+      (maxStackSize, internal, code) = runRWS
         (do
           sequence_ (addVarName 0 . fst <$> args)
           compileExpr body
@@ -171,5 +171,6 @@ lambdaToFuncObject args body = do
                  , _funcBody          = (clearMarks internal code)
                  , _funcConstTable    = constTable
                  , _funcMaxLocalCount = maxLocalCount
+                 , _funcMaxStackSize  = maxStackSize
                  }
     )
