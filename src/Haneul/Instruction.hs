@@ -39,17 +39,16 @@ estimateStackSize input = sizeLoop 0 0 0 input
             PopJmpIfFalse index -> max
               (sizeLoop (pos + 1) newSize newMaxSize code)
               (sizeLoop index newSize newMaxSize code)
-            Jmp  index -> sizeLoop index newSize newMaxSize code
-            Push _     -> sizeLoop (pos + 1) newSize newMaxSize code
-            _          -> sizeLoop (pos + 1) newSize newMaxSize code
+            Jmp index -> sizeLoop index newSize newMaxSize code
+            _         -> sizeLoop (pos + 1) newSize newMaxSize code
   sizeDifference inst = case inst of
     Push          _    -> 1
     Load          _    -> 1
     LoadDeref     _    -> 1
     LoadGlobal    _    -> 1
-    Call          args -> -(genericLength args + 1)
+    Call          args -> -genericLength args
     Jmp           _    -> 0
-    PopJmpIfFalse _    -> 0
+    PopJmpIfFalse _    -> -1
     FreeVarLocal  _    -> 0
     FreeVarFree   _    -> 0
     Negate             -> 0
