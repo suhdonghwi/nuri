@@ -108,8 +108,8 @@ compileExpr (Seq xs) = do
   modifying internalDepth (+ 1)
   depth <- use internalDepth
 
-  let process accumSize []       = return accumSize
-      process accumSize (y : ys) = do
+  let process maxSize []       = return maxSize
+      process maxSize (y : ys) = do
         exprSize <- case y of
           Left decl -> do
             let (pos, name, expr) = declToExpr decl
@@ -121,7 +121,7 @@ compileExpr (Seq xs) = do
             size <- compileExpr expr
             when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
             return size
-        process (accumSize + exprSize) ys
+        process (max maxSize exprSize) ys
   seqSize       <- process 0 $ toList xs
 
   maxLocalCount <- use internalMaxLocalCount
