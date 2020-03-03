@@ -10,7 +10,7 @@ import           Haneul.Instruction
 import           Haneul.Program
 import           Haneul.Constant
 
-shouldBuild :: Builder a -> (ConstTable, [Instruction]) -> Expectation
+shouldBuild :: Builder Word64 -> (ConstTable, [Instruction]) -> Expectation
 shouldBuild actual expected =
   let Program { _programConstTable = constTable, _programCode = insts } =
           toProgram defaultInternal actual

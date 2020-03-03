@@ -187,6 +187,7 @@ instance Binary Pos  where
 instance Binary Program where
   put p = do
     put (view programGlobalVarNames p)
+    put (view programStackSize p)
     put (toList $ view programConstTable p)
     put (view programCode p)
-  get = liftA3 Program get (fromList <$> get) get
+  get = Program <$> get <*> get <*> (fromList <$> get) <*> get
