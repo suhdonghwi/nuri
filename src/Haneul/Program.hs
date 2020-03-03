@@ -13,7 +13,7 @@ import           Haneul.Constant
 data Program = Program { _programGlobalVarNames :: [String], _programConstTable :: ConstTable, _programCode :: Code }
   deriving (Eq, Show)
 
-toProgram :: BuilderInternal -> Builder () -> Program
+toProgram :: BuilderInternal -> Builder a -> Program
 toProgram internal result =
   let (internal', code) = execRWS result [] internal
   in  Program (toList $ view internalGlobalVarNames internal')
