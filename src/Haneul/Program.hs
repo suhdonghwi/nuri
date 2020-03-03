@@ -16,8 +16,11 @@ data Program = Program { _programGlobalVarNames :: [String], _programConstTable 
 toProgram :: BuilderInternal -> Builder a -> Program
 toProgram internal result =
   let (internal', code) = execRWS result [] internal
-  in  Program (toList $ view internalGlobalVarNames internal')
-              (view internalConstTable internal')
-              (clearMarks internal' code)
+  in  Program
+        { _programGlobalVarNames = toList
+                                     $ view internalGlobalVarNames internal'
+        , _programConstTable     = view internalConstTable internal'
+        , _programCode           = clearMarks internal' code
+        }
 
 $(makeLenses ''Program)
