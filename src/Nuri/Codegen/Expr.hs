@@ -58,9 +58,10 @@ compileExpr (Var pos ident) = do
           tellCode [(pos, Inst.LoadGlobal index)]
 
 compileExpr (FuncCall pos func args) = do
-  sequence_ (compileExpr . fst <$> args)
+  let (exprList, josaList) = unzip args
+  sequence_ (compileExpr <$> exprList)
   compileExpr func
-  tellCode [(pos, Inst.Call $ snd <$> reverse args)]
+  tellCode [(pos, Inst.Call $ reverse josaList)]
 
 compileExpr (If pos condExpr thenExpr elseExpr) = do
   compileExpr condExpr
