@@ -126,7 +126,7 @@ instance (Binary a) => Binary (Instruction' a) where
     put v
   put (Call v) = do
     putWord8 7
-    putJosaList v
+    putWord8List put v
   put (Jmp v) = do
     putWord8 8
     put v

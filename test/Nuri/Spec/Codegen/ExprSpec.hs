@@ -110,7 +110,7 @@ spec = do
     it "인수가 하나인 함수 호출 코드 생성" $ do
       compileExpr (funcCall (var "던지다") [(litInteger 10, "을")])
         `shouldBuild` ( S.fromList [ConstInteger 10]
-                      , [Inst.Push 0, loadGlobal 0, Inst.Call ["을"]]
+                      , [Inst.Push 0, loadGlobal 0, call [1]]
                       )
     it "인수가 3개인 함수 호출 코드 생성" $ do
       compileExpr
@@ -123,7 +123,7 @@ spec = do
                         , Inst.Push 0
                         , Inst.Push 1
                         , loadGlobal 0
-                        , Inst.Call ["에", "을", "와"]
+                        , call [3, 2, 1]
                         ]
                       )
     it "인수가 없는 함수 호출 코드 생성" $ do

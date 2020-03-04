@@ -22,6 +22,9 @@ defaultI = defaultInternal
 loadGlobal :: Word32 -> Instruction
 loadGlobal = LoadGlobal . (+ genericLength defaultGlobalNames)
 
+call :: [Word32] -> Instruction
+call = Call . (fmap (+ genericLength defaultGlobalNames))
+
 storeGlobal :: Word32 -> Instruction
 storeGlobal = StoreGlobal . (+ genericLength defaultGlobalNames)
 

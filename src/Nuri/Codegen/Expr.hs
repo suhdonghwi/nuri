@@ -61,7 +61,8 @@ compileExpr (FuncCall pos func args) = do
   let (exprList, josaList) = unzip args
   sequence_ (compileExpr <$> exprList)
   compileExpr func
-  tellInst pos (Inst.Call $ reverse josaList)
+  arg <- sequence (addInternalString <$> josaList)
+  tellInst pos (Inst.Call $ reverse arg)
 
 compileExpr (If pos condExpr thenExpr elseExpr) = do
   compileExpr condExpr
