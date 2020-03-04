@@ -15,11 +15,11 @@ compileStmt (DeclStmt decl) = do
   compileExpr expr
 
   index <- addGlobalVarName name
-  tellCode [(pos, Inst.StoreGlobal index)]
+  tellInst pos (Inst.StoreGlobal index)
 
 compileStmt stmt@(ExprStmt expr) = do
   exprSize <- compileExpr expr
-  tellCode [(getSourceLine stmt, Inst.Pop)]
+  tellInst (getSourceLine stmt) Inst.Pop
 
   return exprSize
 

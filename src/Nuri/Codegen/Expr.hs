@@ -33,13 +33,13 @@ compileExpr :: Expr -> Builder ()
 compileExpr (Lit pos lit) = do
   let value = litToConst lit
   index <- addConstant value
-  tellCode [(pos, Inst.Push $ fromIntegral index)]
+  tellInst pos (Inst.Push $ fromIntegral index)
 
 compileExpr (Var pos ident) = do
   varNames <- use internalVarNames
   let identIndices = L.elemIndices ident (snd <$> toList varNames)
   case last `viaNonEmpty` identIndices of
-    Just index -> tellCode [(pos, Inst.Load $ fromIntegral index)]
+    Just index -> tellInst pos (Inst.Load $ fromIntegral index)
     Nothing    -> do
       outerVars <- ask
       let result =
@@ -52,25 +52,25 @@ compileExpr (Var pos ident) = do
       case result of
         Just loc -> do
           index <- addFreeVar loc
-          tellCode [(pos, Inst.LoadDeref index)]
+          tellInst pos (Inst.LoadDeref index)
         Nothing -> do
           index <- addGlobalVarName ident
-          tellCode [(pos, Inst.LoadGlobal index)]
+          tellInst pos (Inst.LoadGlobal index)
 
 compileExpr (FuncCall pos func args) = do
   let (exprList, josaList) = unzip args
   sequence_ (compileExpr <$> exprList)
   compileExpr func
-  tellCode [(pos, Inst.Call $ reverse josaList)]
+  tellInst pos (Inst.Call $ reverse josaList)
 
 compileExpr (If pos condExpr thenExpr elseExpr) = do
   compileExpr condExpr
   whenFalseMark <- createMark
-  tellCode [(pos, Inst.PopJmpIfFalse $ Mark whenFalseMark)]
+  tellInst pos (Inst.PopJmpIfFalse $ Mark whenFalseMark)
 
   compileExpr thenExpr
   thenJumpMark <- createMark
-  tellCode [(pos, Inst.Jmp $ Mark thenJumpMark)]
+  tellInst pos (Inst.Jmp $ Mark thenJumpMark)
 
   setMark whenFalseMark
   compileExpr elseExpr
@@ -80,15 +80,15 @@ compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs
   case op of
-    Add              -> tellCode [(pos, Inst.Add)]
-    Subtract         -> tellCode [(pos, Inst.Subtract)]
-    Multiply         -> tellCode [(pos, Inst.Multiply)]
-    Divide           -> tellCode [(pos, Inst.Divide)]
-    Mod              -> tellCode [(pos, Inst.Mod)]
-    Equal            -> tellCode [(pos, Inst.Equal)]
+    Add              -> tellInst pos Inst.Add
+    Subtract         -> tellInst pos Inst.Subtract
+    Multiply         -> tellInst pos Inst.Multiply
+    Divide           -> tellInst pos Inst.Divide
+    Mod              -> tellInst pos Inst.Mod
+    Equal            -> tellInst pos Inst.Equal
     Inequal          -> tellCode [(pos, Inst.Equal), (pos, Inst.Negate)]
-    LessThan         -> tellCode [(pos, Inst.LessThan)]
-    GreaterThan      -> tellCode [(pos, Inst.GreaterThan)]
+    LessThan         -> tellInst pos Inst.LessThan
+    GreaterThan      -> tellInst pos Inst.GreaterThan
     LessThanEqual    -> tellCode [(pos, Inst.GreaterThan), (pos, Inst.Negate)]
     GreaterThanEqual -> tellCode [(pos, Inst.LessThan), (pos, Inst.Negate)]
 
@@ -96,7 +96,7 @@ compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of
     Positive -> pass
-    Negative -> tellCode [(pos, Inst.Negate)]
+    Negative -> tellInst pos Inst.Negate
 
 compileExpr (Seq xs) = do
   modifying internalDepth (+ 1)
@@ -109,10 +109,10 @@ compileExpr (Seq xs) = do
             let (pos, name, expr) = declToExpr decl
             index <- addVarName depth name
             compileExpr expr
-            when ((not . null) ys) (tellCode [(pos, Inst.Store index)])
+            when ((not . null) ys) (tellInst pos (Inst.Store index))
           Right expr -> do
             compileExpr expr
-            when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])
+            when (not $ null ys) (tellInst (getSourceLine expr) Inst.Pop)
         process ys
   seqSize       <- process $ toList xs
 
@@ -128,7 +128,7 @@ compileExpr (Lambda pos args body) = do
   assign internalStrings (view internalStrings internal)
 
   index <- addConstant (ConstFunc funcObject)
-  tellCode [(pos, Inst.Push index)]
+  tellInst pos (Inst.Push index)
 
   let freeVarList = toList $ view internalFreeVars internal
   let processFreeVar []                         = return []
@@ -141,7 +141,7 @@ compileExpr (Lambda pos args body) = do
         fmap (val :) (processFreeVar xs)
 
   processed <- processFreeVar freeVarList
-  when ((not . null) processed) $ tellCode [(pos, Inst.FreeVar processed)]
+  when ((not . null) processed) (tellInst pos (Inst.FreeVar processed))
 
 
 lambdaToFuncObject
