@@ -14,7 +14,7 @@ compileStmt (DeclStmt decl) = do
   let (pos, name, expr) = declToExpr decl
   compileExpr expr
 
-  index <- addGlobalVarName name
+  index <- addInternalString name
   tellInst pos (Inst.StoreGlobal index)
 
 compileStmt stmt@(ExprStmt expr) = do

@@ -49,8 +49,8 @@ addVarName depth value = do
   let (Just index) = L.elemIndex (depth, value) table
   return $ fromIntegral index
 
-addGlobalVarName :: String -> Builder Word32
-addGlobalVarName value = do
+addInternalString :: String -> Builder Word32
+addInternalString value = do
   modifying internalStrings (|> value)
   table <- use internalStrings
   let (Just index) = findIndex value table

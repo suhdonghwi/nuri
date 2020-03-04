@@ -54,7 +54,7 @@ compileExpr (Var pos ident) = do
           index <- addFreeVar loc
           tellInst pos (Inst.LoadDeref index)
         Nothing -> do
-          index <- addGlobalVarName ident
+          index <- addInternalString ident
           tellInst pos (Inst.LoadGlobal index)
 
 compileExpr (FuncCall pos func args) = do
