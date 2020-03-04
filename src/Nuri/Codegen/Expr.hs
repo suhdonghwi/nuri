@@ -38,17 +38,17 @@ compileExpr (Lit pos lit) = do
 compileExpr (Var pos ident) = do
   varNames <- use internalVarNames
   let identIndices = L.elemIndices ident (snd <$> toList varNames)
-  case viaNonEmpty last identIndices of
+  case last `viaNonEmpty` identIndices of
     Just index -> tellCode [(pos, Inst.Load $ fromIntegral index)]
     Nothing    -> do
       outerVars <- ask
-      let result = viaNonEmpty
+      let result =
             head
-            [ (i, j)
-            | (i, scope) <- zip [0 ..] outerVars
-            , (j, x    ) <- zip [0 ..] $ toList scope
-            , x == ident
-            ]
+              `viaNonEmpty` [ (i, j)
+                            | (i, scope) <- zip [0 ..] outerVars
+                            , (j, x    ) <- zip [0 ..] $ toList scope
+                            , x == ident
+                            ]
       case result of
         Just loc -> do
           index <- addFreeVar loc
