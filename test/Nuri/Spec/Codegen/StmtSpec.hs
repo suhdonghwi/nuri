@@ -198,7 +198,7 @@ spec = do
                                       )
                                       (ann
                                         [ Inst.Push 0
-                                        , Inst.FreeVarFree 0
+                                        , Inst.FreeVar [(True, 0)]
                                         , Inst.Store 0
                                         , Inst.Load 0
                                         ]
@@ -208,7 +208,7 @@ spec = do
                               )
                               (ann
                                 [ Inst.Push 0
-                                , Inst.FreeVarLocal 0
+                                , Inst.FreeVar [(False, 0)]
                                 , Inst.Store 1
                                 , Inst.Load 1
                                 ]
@@ -248,7 +248,7 @@ spec = do
                               )
                               (ann
                                 [ Inst.Push 0
-                                , Inst.FreeVarLocal 0
+                                , Inst.FreeVar [(False, 0)]
                                 , Inst.Store 0
                                 , Inst.Load 0
                                 , Inst.Call []

@@ -10,7 +10,7 @@ data Instruction' a = Push Word32 {- 상수 테이블 인덱스 -} | Pop
                  | Call [String] {- 인수의 개수 -}
                  | Jmp a  {- 주소 -}
                  | PopJmpIfFalse a  {- 주소 -}
-                 | FreeVarLocal Word8 | FreeVarFree Word8
+                 | FreeVar [(Bool, Word8)]
                  | Add | Subtract | Multiply | Divide | Mod
                  | Equal | LessThan | GreaterThan
                  | Negate
@@ -49,8 +49,7 @@ estimateStackSize input = sizeLoop 0 0 0 input
     Call          args -> -genericLength args
     Jmp           _    -> 0
     PopJmpIfFalse _    -> -1
-    FreeVarLocal  _    -> 0
-    FreeVarFree   _    -> 0
+    FreeVar       _    -> 0
     Negate             -> 0
     _                  -> -1 -- 이항 연산 인스트럭션들
 

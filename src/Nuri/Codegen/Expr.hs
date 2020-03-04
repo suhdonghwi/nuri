@@ -130,12 +130,17 @@ compileExpr (Lambda pos args body) = do
   tellCode [(pos, Inst.Push index)]
 
   let freeVarList = toList $ view internalFreeVars internal
-  let processFreeVar (depth, localIndex) = if depth == 0
-        then tellCode [(pos, Inst.FreeVarLocal localIndex)]
-        else do
-          freeIndex <- addFreeVar (depth - 1, localIndex)
-          tellCode [(pos, Inst.FreeVarFree $ fromIntegral freeIndex)]
-  sequence_ (processFreeVar <$> freeVarList)
+  let processFreeVar []                         = return []
+      processFreeVar ((depth, localIndex) : xs) = do
+        val <- if depth == 0
+          then return (False, localIndex) -- 자유 변수가 현재 로컬에 있을 경우
+          else do -- 자유 변수가 상위 스코프에 있을 경우
+            freeIndex <- addFreeVar (depth - 1, localIndex)
+            return (True, fromIntegral freeIndex)
+        fmap (val :) (processFreeVar xs)
+
+  processed <- processFreeVar freeVarList
+  when ((not . null) processed) $ tellCode [(pos, Inst.FreeVar processed)]
 
 
 lambdaToFuncObject
