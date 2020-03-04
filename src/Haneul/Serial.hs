@@ -135,7 +135,7 @@ instance (Binary a) => Binary (Instruction' a) where
     put v
   put (FreeVar v) = do
     putWord8 10
-    put v
+    putWord8List put v
   put Add = do
     putWord8 11
   put Subtract = do
