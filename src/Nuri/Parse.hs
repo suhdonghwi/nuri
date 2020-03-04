@@ -35,10 +35,11 @@ reserved s =
     <?> concat ["'", s, "'"]
 
 hangulSyllable :: Parser Char
-hangulSyllable = P.hidden $ P.oneOf ['가' .. '힣']
+hangulSyllable = P.hidden $ P.satisfy (\x -> '가' <= x && x <= '힣')
 
 hangulJamo :: Parser Char
-hangulJamo = P.hidden $ P.oneOf (['ㄱ' .. 'ㅎ'] ++ ['ㅏ' .. 'ㅣ'])
+hangulJamo =
+  P.hidden $ P.satisfy (\x -> ('ㄱ' <= x && x <= 'ㅎ') || ('ㅏ' <= x && x <= 'ㅣ'))
 
 getSourceLine :: Parser P.Pos
 getSourceLine = P.sourceLine <$> P.getSourcePos
