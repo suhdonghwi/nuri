@@ -10,7 +10,7 @@ data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable,
                                          _internalDepth :: Word8,
                                          _internalVarNames :: [(Word8, String)],
                                          _internalMaxLocalCount :: Word32,
-                                         _internalGlobalVarNames :: S.OSet String,
+                                         _internalStrings :: S.OSet String,
                                          _internalFreeVars :: S.OSet (Word8, Word8),
                                          _internalOffset :: Word32,
                                          _internalMarks :: [Word32]
@@ -24,12 +24,12 @@ defaultGlobalNames = ["보여주다"]
 
 defaultInternal :: BuilderInternal
 defaultInternal = BuilderInternal
-  { _internalConstTable     = S.empty
-  , _internalDepth          = 0
-  , _internalVarNames       = []
-  , _internalMaxLocalCount  = 0
-  , _internalGlobalVarNames = S.fromList defaultGlobalNames
-  , _internalFreeVars       = S.empty
-  , _internalOffset         = 0
-  , _internalMarks          = []
+  { _internalConstTable    = S.empty
+  , _internalDepth         = 0
+  , _internalVarNames      = []
+  , _internalMaxLocalCount = 0
+  , _internalStrings       = S.fromList defaultGlobalNames
+  , _internalFreeVars      = S.empty
+  , _internalOffset        = 0
+  , _internalMarks         = []
   }

@@ -49,8 +49,8 @@ addVarName depth value = do
 
 addGlobalVarName :: String -> Builder Word32
 addGlobalVarName value = do
-  modifying internalGlobalVarNames (|> value)
-  table <- use internalGlobalVarNames
+  modifying internalStrings (|> value)
+  table <- use internalStrings
   let (Just index) = findIndex value table
   return $ fromIntegral index
 

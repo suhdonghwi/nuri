@@ -124,7 +124,7 @@ compileExpr (Seq xs) = do
 
 compileExpr (Lambda pos args body) = do
   (internal, funcObject) <- lambdaToFuncObject args body
-  assign internalGlobalVarNames (view internalGlobalVarNames internal)
+  assign internalStrings (view internalStrings internal)
 
   index <- addConstant (ConstFunc funcObject)
   tellCode [(pos, Inst.Push index)]
@@ -146,7 +146,7 @@ compileExpr (Lambda pos args body) = do
 lambdaToFuncObject
   :: [(String, String)] -> Expr -> Builder (BuilderInternal, FuncObject)
 lambdaToFuncObject args body = do
-  globalVarNames <- use internalGlobalVarNames
+  globalVarNames <- use internalStrings
   varNames       <- use internalVarNames
   oldLocalStack  <- ask
   let newLocalStack     = (S.fromList . fmap snd . toList) varNames
@@ -156,7 +156,7 @@ lambdaToFuncObject args body = do
           compileExpr body
         )
         (newLocalStack : oldLocalStack)
-        defaultInternal { _internalGlobalVarNames = globalVarNames }
+        defaultInternal { _internalStrings = globalVarNames }
       constTable    = view internalConstTable internal
       maxLocalCount = view internalMaxLocalCount internal
       code          = clearMarks internal code'
