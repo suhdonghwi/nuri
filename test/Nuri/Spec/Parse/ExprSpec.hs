@@ -188,10 +188,9 @@ spec = do
       testParse parseFuncIdentifier "더하고" `shouldParse` "더하고"
     it "띄어쓰기가 포함된 이름" $ do
       testParse parseFuncIdentifier "합 구하다" `shouldParse` "합 구하다"
-    it "반환 키워드에 대해서 오류" $ do
-      testParse parseFuncIdentifier `shouldFailOn` "반환하다"
     it "부울 키워드에 대해서 오류" $ do
       testParse parseFuncIdentifier `shouldFailOn` "참"
+      testParse parseFuncIdentifier `shouldFailOn` "거짓"
 
   describe "함수 호출식 파싱" $ do
     it "인자가 2개인 함수 호출식" $ do
