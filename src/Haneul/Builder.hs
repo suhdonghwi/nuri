@@ -18,6 +18,8 @@ import           Data.Set.Ordered                         ( (|>)
                                                           )
 import           Data.List                                ( (!!) )
 
+import           Text.Megaparsec.Pos                      ( Pos )
+
 import           Haneul.Instruction
 import           Haneul.Constant
 import           Haneul.BuilderInternal
@@ -104,5 +106,8 @@ tellCode :: MarkedCode -> Builder ()
 tellCode code = do
   modifying internalOffset (+ genericLength code)
   tell code
+
+tellInst :: Pos -> MarkedInstruction -> Builder ()
+tellInst pos inst = tellCode [(pos, inst)]
 
 
