@@ -38,7 +38,7 @@ $(makeLenses ''ReplState)
 newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
-parseInput :: String -> String -> MaybeT IO (NonEmpty Stmt)
+parseInput :: Text -> String -> MaybeT IO (NonEmpty Stmt)
 parseInput input fileName = do
   case runParser (parseStmts <* eof) fileName input of
     Left err -> do
@@ -71,7 +71,7 @@ repl = forever $ do
   liftIO $ do
     putText (view prompt st)
     hFlush stdout
-  input <- toString . strip <$> liftIO getLine
+  input <- strip <$> liftIO getLine
   liftIO $ when (input == ":quit") exitSuccess
   result <- (liftIO . runMaybeT . parseInput input) "(반응형)"
   case result of

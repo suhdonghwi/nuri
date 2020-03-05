@@ -2,7 +2,6 @@
 module Nuri.Spec.Parse.StmtSpec where
 
 import           NeatInterpolation
-import           Data.Text                                ( unpack )
 
 import           Test.Hspec
 import           Test.Hspec.Megaparsec
@@ -46,34 +45,34 @@ spec = do
 
       it "함수의 이름이 예약어면 오류" $ do
         testParse parseDeclStmt
-          `shouldFailOn` (unpack [text|
+          `shouldFailOn` ([text|
               함수 [값]을 거짓:
                 1 반환하다
             |]
                          )
       it "인자에 대한 조사가 없으면 오류" $ do
         testParse parseDeclStmt
-          `shouldFailOn` (unpack [text|
+          `shouldFailOn` ([text|
               함수 [값] 더하다:
                 1 반환하다
             |]
                          )
         testParse parseDeclStmt
-          `shouldFailOn` (unpack [text|
+          `shouldFailOn` ([text|
               함수 [수1]에 [값] 더하다:
                 1 반환하다
             |]
                          )
       it "조사를 중복되게 사용하면 오류" $ do
         testParse parseDeclStmt
-          `shouldFailOn` (unpack [text|
+          `shouldFailOn` ([text|
               함수 [값1]을 [값2]를 더하다:
                 1 반환하다
             |]
                          )
       it "함수 인자의 이름을 중복되게 사용하면 오류" $ do
         testParse parseDeclStmt
-          `shouldFailOn` (unpack [text|
+          `shouldFailOn` ([text|
               함수 [값1]을 [값1]과 더하다:
                 1 반환하다
             |]
@@ -85,7 +84,7 @@ spec = do
       it "연산식 시퀀스를 포함한 함수" $ do
         testParse
             parseDeclStmt
-            (unpack [text| 
+            ([text| 
               함수 동작:
                 1 + 1 
                 2 * 2
@@ -104,7 +103,7 @@ spec = do
       it "중간에 비어있는 라인을 포함한 시퀀스를 가진 함수" $ do
         testParse
             parseDeclStmt
-            (unpack [text|
+            ([text|
               함수 동작:
                 1
                                             
@@ -123,7 +122,7 @@ spec = do
       it "시퀀스 중간에 함수 선언을 하는 함수" $ do
         testParse
             parseDeclStmt
-            (unpack [text|
+            ([text|
               함수 동작:
                 함수 [값]을 더하다:
                   [값] + 1
@@ -145,7 +144,7 @@ spec = do
       it "시퀀스 중간에 함수를 2개 선언하는 함수" $ do
         testParse
             parseDeclStmt
-            (unpack [text|
+            ([text|
               함수 동작:
                 1 + 1
                 함수 [값]을 더하다:
@@ -177,7 +176,7 @@ spec = do
       it "시퀀스 끝이 선언문인 함수" $ do
         testParse
             parseDeclStmt
-            (unpack [text|
+            ([text|
               함수 동작:
                 함수 [값]에 더하다:
                   [값] + 1
@@ -232,7 +231,7 @@ spec = do
     it "함수 여러 개 선언 파싱" $ do
       testParse
           parseStmts
-          (unpack [text|
+          ([text|
             함수 [값]에 더하다: 
               1
 
@@ -246,7 +245,7 @@ spec = do
     it "시퀀스를 포함한 함수 여러 개 선언 파싱" $ do
       testParse
           parseStmts
-          (unpack [text|
+          ([text|
             함수 [값]에 더하다: 
               1을 보여주다
               3을 보여주다

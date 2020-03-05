@@ -5,7 +5,7 @@ import           Text.Megaparsec                          ( (<?>) )
 import qualified Text.Megaparsec.Char          as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
-type Parser = P.Parsec Void String
+type Parser = P.Parsec Void Text
 
 lineComment :: Parser ()
 lineComment = L.skipLineComment "#"
@@ -25,7 +25,7 @@ scn = L.space P.space1 lineComment blockComment
 lexeme :: Parser a -> Parser a
 lexeme = L.lexeme sc
 
-symbol :: String -> Parser String
+symbol :: Text -> Parser Text
 symbol = L.symbol sc
 
 reserved :: String -> Parser ()

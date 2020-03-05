@@ -10,6 +10,6 @@ main = do
   case args of
     []           -> runRepl repl (ReplState ">> ")
     filePath : _ -> do
-      content <- readFile filePath
+      content <- readFileText filePath
       result  <- runMaybeT $ parseInput content filePath
       whenJust result printResult
