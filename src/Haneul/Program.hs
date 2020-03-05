@@ -10,7 +10,7 @@ import           Haneul.BuilderInternal
 import           Haneul.Instruction
 import           Haneul.Constant
 
-data Program = Program { _programGlobalVarNames :: [String],
+data Program = Program { _programGlobalVarNames :: [Text],
                          _programStackSize :: Word64,
                          _programConstTable :: ConstTable,
                          _programCode :: Code

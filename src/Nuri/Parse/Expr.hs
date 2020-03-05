@@ -6,7 +6,7 @@ import           Prelude                           hiding ( unwords
 
 import           Data.List                                ( foldl1' )
 import           Data.List.NonEmpty                       ( fromList )
-import           Data.String                              ( unwords )
+import           Data.Text                                ( unwords )
 
 import qualified Text.Megaparsec               as P
 import           Text.Megaparsec                          ( (<?>) )
@@ -52,7 +52,7 @@ parseFuncDecl = do
   fromExprs (Right expr :| []) = expr
   fromExprs l                  = Seq l
 
-  argList :: [(String, String)] -> Parser [(String, String)]
+  argList :: [(Text, Text)] -> Parser [(Text, Text)]
   argList l = do
     identPos    <- P.getOffset
     identResult <- P.observing parseIdentifier
@@ -76,10 +76,10 @@ parseFuncDecl = do
           )
         argList (l ++ [(ident, josa)])
 
-parseJosa :: Parser String
+parseJosa :: Parser Text
 parseJosa =
   (do
-      josa <- P.some hangulSyllable
+      josa <- toText <$> P.some hangulSyllable
       return
         (case josa of
           "으로" -> "로"
@@ -168,7 +168,7 @@ parseFuncCall = do
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos (Var pos func) args
 
-parseFuncIdentifier :: Parser String
+parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme
   (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
                            (P.char ' ')
@@ -176,7 +176,7 @@ parseFuncIdentifier = lexeme
  where
   keywords   = ["함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
   keyword    = P.choice $ reserved <$> keywords
-  hangulWord = P.some hangulSyllable
+  hangulWord = toText <$> P.some hangulSyllable
     -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 
 parseTerm :: Parser Expr
@@ -206,13 +206,15 @@ parseParens = P.between (P.char '(' >> sc) (sc >> P.char ')') parseExpr
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = liftA2 Var getSourceLine parseIdentifier
 
-parseIdentifier :: Parser String
+parseIdentifier :: Parser Text
 parseIdentifier =
   (P.between
       (P.char '[')
       (P.char ']')
-      ((++) <$> P.some allowedChars <*> P.many
-        (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자"))
+      (toText <$> liftA2
+        (++)
+        (P.some allowedChars)
+        (P.many (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자")))
       )
     )
     <?> "변수 이름"

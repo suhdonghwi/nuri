@@ -8,9 +8,9 @@ import           Haneul.Constant
 
 data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable,
                                          _internalDepth :: Word8,
-                                         _internalVarNames :: [(Word8, String)],
+                                         _internalVarNames :: [(Word8, Text)],
                                          _internalMaxLocalCount :: Word32,
-                                         _internalGlobalVarNames :: S.OSet String,
+                                         _internalGlobalVarNames :: S.OSet Text,
                                          _internalFreeVars :: S.OSet (Word8, Word8),
                                          _internalOffset :: Word32,
                                          _internalMarks :: [Word32]
@@ -19,7 +19,7 @@ data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable,
 
 $(makeLenses ''BuilderInternal)
 
-defaultGlobalNames :: [String]
+defaultGlobalNames :: [Text]
 defaultGlobalNames = ["보여주다"]
 
 defaultInternal :: BuilderInternal

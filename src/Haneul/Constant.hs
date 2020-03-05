@@ -15,7 +15,7 @@ data Constant = ConstNone
 
 type ConstTable = OSet Constant
 
-data FuncObject = FuncObject { _funcJosa :: [String],
+data FuncObject = FuncObject { _funcJosa :: [Text],
                                _funcMaxStackSize :: Word64,
                                _funcMaxLocalCount :: Word32,
                                _funcConstTable :: ConstTable,

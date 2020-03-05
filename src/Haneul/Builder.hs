@@ -25,7 +25,7 @@ import           Haneul.Constant
 import           Haneul.BuilderInternal
 
 
-type Builder = RWS [OSet String] MarkedCode BuilderInternal
+type Builder = RWS [OSet Text] MarkedCode BuilderInternal
 
 -- addVarName :: String -> Builder Int32
 -- addVarName ident = do
@@ -42,14 +42,14 @@ addConstant value = do
   let (Just index) = findIndex value table
   return $ fromIntegral index
 
-addVarName :: Word8 -> String -> Builder Word32
+addVarName :: Word8 -> Text -> Builder Word32
 addVarName depth value = do
   modifying internalVarNames (++ [(depth, value)])
   table <- use internalVarNames
   let (Just index) = L.elemIndex (depth, value) table
   return $ fromIntegral index
 
-addGlobalVarName :: String -> Builder Word32
+addGlobalVarName :: Text -> Builder Word32
 addGlobalVarName value = do
   modifying internalGlobalVarNames (|> value)
   table <- use internalGlobalVarNames

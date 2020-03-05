@@ -145,7 +145,7 @@ compileExpr (Lambda pos args body) = do
 
 
 lambdaToFuncObject
-  :: [(String, String)] -> Expr -> Builder (BuilderInternal, FuncObject)
+  :: [(Text, Text)] -> Expr -> Builder (BuilderInternal, FuncObject)
 lambdaToFuncObject args body = do
   globalVarNames <- use internalGlobalVarNames
   varNames       <- use internalVarNames

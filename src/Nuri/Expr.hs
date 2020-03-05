@@ -6,8 +6,8 @@ import           Text.Megaparsec.Pos                      ( Pos )
 import           Nuri.ASTNode
 import           Nuri.Literal
 
-data Decl = FuncDecl Pos String [(String, String)] Expr
-          | ConstDecl Pos String Expr
+data Decl = FuncDecl Pos Text [(Text, Text)] Expr
+          | ConstDecl Pos Text Expr
   deriving (Show)
 
 instance Eq Decl where
@@ -20,7 +20,7 @@ instance ASTNode Decl where
   getSourceLine (FuncDecl pos _ _ _) = pos
   getSourceLine (ConstDecl pos _ _ ) = pos
 
-declToExpr :: Decl -> (Pos, String, Expr)
+declToExpr :: Decl -> (Pos, Text, Expr)
 declToExpr (FuncDecl pos funcName args body) =
   (pos, funcName, Lambda pos args body)
 declToExpr (ConstDecl pos constName expr) = (pos, constName, expr)
@@ -28,9 +28,9 @@ declToExpr (ConstDecl pos constName expr) = (pos, constName, expr)
 data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
               Lit Pos Literal
             -- 변수 읽기 표현식 : 코드 위치, 변수명 
-            | Var Pos String
+            | Var Pos Text
             -- 함수 호출 표현식 : 코드 위치, 함수식, 함수 인자 리스트
-            | FuncCall Pos Expr [(Expr, String)]
+            | FuncCall Pos Expr [(Expr, Text)]
             -- 조건 분기 표현식 : 코드 위치, 조건식, then문, else문
             | If Pos Expr Expr Expr
             -- 이항 연산 표현식 : 코드 위치, 이항 연산자, 피연산자(좌), 피연산자(우)
@@ -40,7 +40,7 @@ data Expr = -- 리터럴 표현식 : 코드 위치, 리터럴 값
             -- 표현식 시퀀스 : 표현식 목록
             | Seq (NonEmpty (Either Decl Expr))
             -- 람다 표현식 : 코드 위치, 인수 목록, 함수 본문
-            | Lambda Pos [(String, String)] Expr
+            | Lambda Pos [(Text, Text)] Expr
           deriving (Show)
 
 instance Eq Expr where

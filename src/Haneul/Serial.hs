@@ -19,6 +19,8 @@ import           Data.Char                                ( ord
                                                           )
 
 import           Data.Set.Ordered                         ( fromList )
+import           Data.Text                                ( unpack )
+
 import           Control.Lens                             ( view )
 
 import           Text.Megaparsec.Pos                      ( unPos
@@ -78,8 +80,8 @@ putWord8List f l = do
   putWord8 (genericLength l)
   sequence_ (f <$> l)
 
-putJosaList :: [String] -> Put
-putJosaList = putWord8List (putWord8List (put :: Char -> Put))
+putJosaList :: [Text] -> Put
+putJosaList = putWord8List (putWord8List (put :: Char -> Put) . unpack)
 
 instance Binary FuncObject where
   put obj = do
@@ -191,7 +193,7 @@ instance Binary Pos  where
 
 instance Binary Program where
   put p = do
-    put (view programGlobalVarNames p)
+    put (unpack <$> view programGlobalVarNames p)
     put (view programStackSize p)
     put (toList $ view programConstTable p)
     put (view programCode p)
