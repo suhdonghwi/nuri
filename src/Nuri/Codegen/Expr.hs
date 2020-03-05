@@ -108,7 +108,9 @@ compileExpr (Seq xs) = do
             let (pos, name, expr) = declToExpr decl
             index <- addVarName depth name
             compileExpr expr
-            when ((not . null) ys) (tellCode [(pos, Inst.Store index)])
+            -- when ((not . null) ys) (tellCode [(pos, Inst.Store index)])
+            tellCode [(pos, Inst.Store index)]
+            when (null ys) (tellCode [(pos, Inst.Load index)])
           Right expr -> do
             compileExpr expr
             when (not $ null ys) (tellCode [(getSourceLine expr, Inst.Pop)])

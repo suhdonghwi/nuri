@@ -152,6 +152,8 @@ spec = do
                                 , Inst.Add
                                 , Inst.Pop
                                 , Inst.Push 1
+                                , Inst.Store 0
+                                , Inst.Load 0
                                 ]
                               )
                             )
