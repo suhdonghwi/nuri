@@ -178,8 +178,11 @@ spec = do
       testParse parseIdentifierExpr `shouldFailOn` "[10마리 펭귄]"
     it "공백으로 시작하는 식별자에 대해 오류" $ do
       testParse parseIdentifierExpr `shouldFailOn` "[ Foo]"
+    -- it "공백으로 끝나는 식별자는 트리밍" $ do
+    --   testParse parseIdentifierExpr "[Foo ]" `shouldParse` var "Foo"
     it "공백만 포함된 식별자에 대해서 오류" $ do
       testParse parseIdentifierExpr `shouldFailOn` "[  ]"
+      testParse parseIdentifierExpr `shouldFailOn` "[\t]"
     it "비어있는 식별자에 대해서 오류" $ do
       testParse parseIdentifierExpr `shouldFailOn` "[]"
 
