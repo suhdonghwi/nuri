@@ -20,6 +20,7 @@ import           Control.Monad.Combinators.Expr           ( makeExprParser
                                                             , InfixL
                                                             )
                                                           )
+import           Control.Monad.Combinators.NonEmpty       ( some )
 
 import           Nuri.Parse
 import           Nuri.Expr
@@ -31,27 +32,13 @@ parseDecl = parseFuncDecl <|> parseConstDecl
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
   pos <- getSourceLine
-  L.indentBlock
-    scn
-    (do
-      P.try $ reserved "함수"
-      args     <- argList []
-      funcName <- parseFuncIdentifier
-      symbol ":"
-      let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
-      return
-        (L.IndentSome
-          Nothing
-          (return . (FuncDecl pos funcName args) . fromExprs . fromList)
-          parseLine
-        )
-    )
+  P.try $ reserved "함수"
+  args     <- argList []
+  funcName <- parseFuncIdentifier
+  symbol ":"
+  scn
+  FuncDecl pos funcName args <$> parseExpr
  where
-  -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
-  fromExprs :: NonEmpty (Either Decl Expr) -> Expr
-  fromExprs (Right expr :| []) = expr
-  fromExprs l                  = Seq l
-
   argList :: [(Text, Text)] -> Parser [(Text, Text)]
   argList l = do
     identPos    <- P.getOffset
@@ -101,7 +88,26 @@ parseConstDecl = do
   ConstDecl pos identifier <$> parseExpr
 
 parseExpr :: Parser Expr
-parseExpr = parseIf <|> parseArithmetic
+parseExpr = parseIf <|> parseSeq <|> parseArithmetic
+
+parseSeq :: Parser Expr
+parseSeq = do
+  reserved "순서대로"
+  P.newline
+  scn
+  level <- L.indentGuard scn GT P.pos1
+  let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
+  fromExprs <$> some
+    (do
+      L.indentGuard scn EQ level
+      parseLine <* P.newline
+    )
+
+ where
+  -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
+  fromExprs :: NonEmpty (Either Decl Expr) -> Expr
+  fromExprs (Right expr :| []) = expr
+  fromExprs l                  = Seq l
 
 parseIf :: Parser Expr
 parseIf =

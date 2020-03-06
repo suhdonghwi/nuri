@@ -85,7 +85,7 @@ spec = do
         testParse
             parseDeclStmt
             ([text| 
-              함수 동작:
+              함수 동작: 순서대로
                 1 + 1 
                 2 * 2
             |]
@@ -100,11 +100,29 @@ spec = do
                             ]
                           )
 
-      it "중간에 비어있는 라인을 포함한 시퀀스를 가진 함수" $ do
+      it "비어있는 라인을 포함한 시퀀스를 가진 함수" $ do
         testParse
             parseDeclStmt
             ([text|
-              함수 동작:
+              함수 동작: 순서대로
+
+                1
+                1을 던지다
+            |]
+            )
+          `shouldParse` funcDeclStmt
+                          "동작"
+                          []
+                          (Seq
+                            [ Right $ litInteger 1
+                            , Right $ funcCall (var "던지다") [(litInteger 1, "을")]
+                            ]
+                          )
+
+        testParse
+            parseDeclStmt
+            ([text|
+              함수 동작: 순서대로
                 1
                                             
                 1을 던지다
@@ -123,7 +141,7 @@ spec = do
         testParse
             parseDeclStmt
             ([text|
-              함수 동작:
+              함수 동작: 순서대로
                 함수 [값]을 더하다:
                   [값] + 1
                 1
@@ -145,7 +163,7 @@ spec = do
         testParse
             parseDeclStmt
             ([text|
-              함수 동작:
+              함수 동작: 순서대로
                 1 + 1
                 함수 [값]을 더하다:
                   [값] + 1
@@ -177,7 +195,7 @@ spec = do
         testParse
             parseDeclStmt
             ([text|
-              함수 동작:
+              함수 동작: 순서대로
                 함수 [값]에 더하다:
                   [값] + 1
                 1
@@ -246,10 +264,10 @@ spec = do
       testParse
           parseStmts
           ([text|
-            함수 [값]에 더하다: 
+            함수 [값]에 더하다: 순서대로
               1을 보여주다
               3을 보여주다
-            함수 [값]을 빼다:
+            함수 [값]을 빼다: 순서대로
                 1을 보여주다
                 2 + 3
           |]

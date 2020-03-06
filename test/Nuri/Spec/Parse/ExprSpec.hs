@@ -6,6 +6,8 @@ import           Test.Hspec.Megaparsec
 
 import           Text.Megaparsec
 
+import           NeatInterpolation
+
 import           Nuri.Parse.Expr
 import           Nuri.Expr
 
@@ -282,4 +284,117 @@ spec = do
         (var "더하다")
         [(binaryOp Add (litInteger 1) (litInteger 1), "와"), (litInteger 2, "을")]
 
+  describe "시퀀스 파싱" $ do
+    it "연산식 2개로 이어진 시퀀스" $ do
+      testParse
+          parseSeq
+          ([text| 
+            순서대로
+              1 + 1 
+              2 * 2
+          |]
+          )
+        `shouldParse` Seq
+                        [ Right $ binaryOp Add (litInteger 1) (litInteger 1)
+                        , Right
+                          $ binaryOp Multiply (litInteger 2) (litInteger 2)
+                        ]
 
+
+    it "비어있는 라인을 포함한 시퀀스" $ do
+      testParse
+          parseSeq
+          ([text|
+            순서대로
+
+              1
+              1을 던지다
+          |]
+          )
+        `shouldParse` Seq
+                        [ Right $ litInteger 1
+                        , Right $ funcCall (var "던지다") [(litInteger 1, "을")]
+                        ]
+
+
+      testParse
+          parseSeq
+          ([text|
+            순서대로
+              1
+                                          
+              1을 던지다
+          |]
+          )
+        `shouldParse` Seq
+                        [ Right $ litInteger 1
+                        , Right $ funcCall (var "던지다") [(litInteger 1, "을")]
+                        ]
+
+
+    it "중간에 함수 선언이 포함된 시퀀스" $ do
+      testParse
+          parseSeq
+          ([text|
+            순서대로
+              함수 [값]을 더하다:
+                [값] + 1
+              1
+          |]
+          )
+        `shouldParse` Seq
+                        [ Left $ funcDecl
+                          "더하다"
+                          [("값", "을")]
+                          (binaryOp Add (var "값") (litInteger 1))
+                        , Right $ litInteger 1
+                        ]
+      testParse
+          parseSeq
+          ([text|
+            순서대로
+              1 + 1
+              함수 [값]을 더하다:
+                [값] + 1
+
+              함수 [값]을 빼다:
+                [값] - 1
+
+              1
+          |]
+          )
+        `shouldParse` Seq
+                        [ Right $ binaryOp Add (litInteger 1) (litInteger 1)
+                        , Left $ funcDecl
+                          "더하다"
+                          [("값", "을")]
+                          (binaryOp Add (var "값") (litInteger 1))
+                        , Left $ funcDecl
+                          "빼다"
+                          [("값", "을")]
+                          (binaryOp Subtract (var "값") (litInteger 1))
+                        , Right $ litInteger 1
+                        ]
+
+
+    it "마지막이 선언문인 시퀀스" $ do
+      testParse
+          parseSeq
+          ([text|
+            순서대로
+              함수 [값]에 더하다:
+                [값] + 1
+              1
+              상수 [수]: 10 + 10
+          |]
+          )
+        `shouldParse` Seq
+                        [ Left $ funcDecl
+                          "더하다"
+                          [("값", "에")]
+                          (binaryOp Add (var "값") (litInteger 1))
+                        , Right $ litInteger 1
+                        , Left $ constDecl
+                          "수"
+                          (binaryOp Add (litInteger 10) (litInteger 10))
+                        ]
