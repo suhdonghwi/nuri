@@ -315,8 +315,6 @@ spec = do
                         [ Right $ litInteger 1
                         , Right $ funcCall (var "던지다") [(litInteger 1, "을")]
                         ]
-
-
       testParse
           parseSeq
           ([text|
@@ -326,6 +324,11 @@ spec = do
               1을 던지다
           |]
           )
+        `shouldParse` Seq
+                        [ Right $ litInteger 1
+                        , Right $ funcCall (var "던지다") [(litInteger 1, "을")]
+                        ]
+      testParse parseSeq "순서대로\n  1\n\n  1을 던지다"
         `shouldParse` Seq
                         [ Right $ litInteger 1
                         , Right $ funcCall (var "던지다") [(litInteger 1, "을")]

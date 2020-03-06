@@ -19,7 +19,7 @@ import           Control.Monad.Combinators.Expr           ( makeExprParser
                                                             , InfixL
                                                             )
                                                           )
-import           Control.Monad.Combinators.NonEmpty       ( some )
+import           Control.Monad.Combinators.NonEmpty       ( sepBy1 )
 
 import           Nuri.Parse
 import           Nuri.Expr
@@ -94,10 +94,9 @@ parseSeq = do
   scn
   level <- L.indentGuard scn GT P.pos1
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
-  fromExprs <$> some
-    (do
-      P.try (L.indentGuard scn EQ level) *> parseLine <* P.newline
-    )
+  fromExprs <$> sepBy1
+    parseLine
+    (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
 
  where
   -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
@@ -172,8 +171,8 @@ parseFuncCall = do
 
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme
-  (   unwords
-  <$> P.sepBy1 (P.try $ P.notFollowedBy keyword *> hangulWord) (P.char ' ')
+  (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
+                           (P.char ' ')
   )
  where
   keywords   = ["함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
