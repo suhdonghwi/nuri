@@ -46,6 +46,8 @@ default-extensions:
   - TemplateHaskell
   - TupleSections
   - QuasiQuotes
+  - MultiWayIf
+  - GADTs
 
 library:
   source-dirs: src

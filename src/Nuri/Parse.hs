@@ -2,6 +2,8 @@ module Nuri.Parse where
 
 import qualified Text.Megaparsec               as P
 import           Text.Megaparsec                          ( (<?>) )
+import           Text.Megaparsec.Pos                      ( Pos )
+
 import qualified Text.Megaparsec.Char          as P
 import qualified Text.Megaparsec.Char.Lexer    as L
 
@@ -41,5 +43,43 @@ hangulJamo :: Parser Char
 hangulJamo =
   P.hidden $ P.satisfy (\x -> ('ㄱ' <= x && x <= 'ㅎ') || ('ㅏ' <= x && x <= 'ㅣ'))
 
-getSourceLine :: Parser P.Pos
+getSourceLine :: Parser Pos
 getSourceLine = P.sourceLine <$> P.getSourcePos
+
+seqBlock :: Parser () -> Parser (L.IndentOpt Parser a b) -> Parser a
+seqBlock spc r = do
+  spc
+  ref <- L.indentLevel
+  a   <- r
+  case a of
+    L.IndentNone x          -> x <$ spc
+    L.IndentMany indent f p -> do
+      mlvl <- (optional . P.try) (P.eol *> L.indentLevel)
+      done <- isJust <$> optional P.eof
+      case (mlvl, done) of
+        (Just lvl, False) ->
+          indentedItems ref (fromMaybe lvl indent) spc p >>= f
+        _ -> spc *> f []
+    L.IndentSome indent f p -> do
+      pos <- P.eol *> L.indentLevel
+      let lvl = fromMaybe pos indent
+      x <- if
+        | pos <= ref -> L.incorrectIndent GT ref pos
+        | pos == lvl -> p
+        | otherwise  -> L.incorrectIndent EQ lvl pos
+      xs <- indentedItems ref lvl spc p
+      f (x : xs)
+ where
+  indentedItems :: Pos -> Pos -> Parser () -> Parser b -> Parser [b]
+  indentedItems ref lvl spc p = go
+   where
+    go = do
+      spc
+      pos  <- L.indentLevel
+      done <- isJust <$> optional P.eof
+      if done
+        then return []
+        else if
+          | pos <= ref -> return []
+          | pos == lvl -> (:) <$> p <*> go
+          | otherwise  -> L.incorrectIndent EQ lvl pos
