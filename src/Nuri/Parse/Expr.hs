@@ -172,8 +172,8 @@ parseFuncCall = do
 
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme
-  (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
-                           (P.char ' ')
+  (   unwords
+  <$> P.sepBy1 (P.try $ P.notFollowedBy keyword *> hangulWord) (P.char ' ')
   )
  where
   keywords   = ["함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
