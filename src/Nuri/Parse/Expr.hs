@@ -96,7 +96,7 @@ parseSeq = do
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
   fromExprs <$> some
     (do
-      L.indentGuard scn EQ level *> parseLine <* P.newline
+      P.try (L.indentGuard scn EQ level) *> parseLine <* P.newline
     )
 
  where
