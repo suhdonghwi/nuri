@@ -45,37 +45,3 @@ hangulJamo =
 
 getSourceLine :: Parser Pos
 getSourceLine = P.sourceLine <$> P.getSourcePos
-
-seqBlock :: Parser () -> Parser (L.IndentOpt Parser a b) -> Parser a
-seqBlock spc r = do
-  spc
-  a <- r
-  case a of
-    L.IndentNone x          -> x <$ spc
-    L.IndentMany indent f p -> do
-      mlvl <- (optional . P.try) (P.eol *> L.indentLevel)
-      done <- isJust <$> optional P.eof
-      case (mlvl, done) of
-        (Just lvl, False) -> indentedItems (fromMaybe lvl indent) spc p >>= f
-        _                 -> spc *> f []
-    L.IndentSome indent f p -> do
-      pos <- P.eol *> L.indentLevel
-      let lvl = fromMaybe pos indent
-      x <- if
-        | pos == lvl -> p
-        | otherwise  -> L.incorrectIndent EQ lvl pos
-      xs <- indentedItems lvl spc p
-      f (x : xs)
- where
-  indentedItems :: Pos -> Parser () -> Parser b -> Parser [b]
-  indentedItems lvl spc p = go
-   where
-    go = do
-      spc
-      pos  <- L.indentLevel
-      done <- isJust <$> optional P.eof
-      if done
-        then return []
-        else if
-          | pos == lvl -> (:) <$> p <*> go
-          | otherwise  -> L.incorrectIndent EQ lvl pos

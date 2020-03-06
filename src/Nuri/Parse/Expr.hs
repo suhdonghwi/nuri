@@ -5,7 +5,6 @@ import           Prelude                           hiding ( unwords
                                                           )
 
 import           Data.List                                ( foldl1' )
-import           Data.List.NonEmpty                       ( fromList )
 import           Data.Text                                ( unwords )
 
 import qualified Text.Megaparsec               as P
@@ -35,7 +34,7 @@ parseFuncDecl = do
   P.try $ reserved "함수"
   args     <- argList []
   funcName <- parseFuncIdentifier
-  symbol ":"
+  _        <- symbol ":"
   scn
   FuncDecl pos funcName args <$> parseExpr
  where
@@ -83,8 +82,7 @@ parseConstDecl :: Parser Decl
 parseConstDecl = do
   pos <- getSourceLine
   P.try $ reserved "상수"
-  identifier <- lexeme parseIdentifier
-  symbol ":"
+  identifier <- lexeme parseIdentifier <* symbol ":"
   ConstDecl pos identifier <$> parseExpr
 
 parseExpr :: Parser Expr
@@ -92,15 +90,13 @@ parseExpr = parseIf <|> parseSeq <|> parseArithmetic
 
 parseSeq :: Parser Expr
 parseSeq = do
-  reserved "순서대로"
-  P.newline
+  reserved "순서대로" <* P.newline
   scn
   level <- L.indentGuard scn GT P.pos1
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
   fromExprs <$> some
     (do
-      L.indentGuard scn EQ level
-      parseLine <* P.newline
+      L.indentGuard scn EQ level *> parseLine <* P.newline
     )
 
  where
