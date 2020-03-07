@@ -149,7 +149,7 @@ spec = do
                               2
                               0
                               (S.fromList [ConstInteger 1])
-                              (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
+                              (ann [Inst.LoadLocal 0, Inst.Push 0, Inst.Add])
                             )
                         ]
                       , [Inst.Push 0]
@@ -166,7 +166,9 @@ spec = do
                               2
                               0
                               S.empty
-                              (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
+                              (ann
+                                [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
+                              )
                             )
                         ]
                       , [Inst.Push 0]
@@ -181,8 +183,8 @@ spec = do
           )
         `shouldBuild` ( S.fromList [ConstInteger 1, ConstInteger 2]
                       , [ Inst.Push 0
-                        , Inst.Store 0
-                        , Inst.Load 0
+                        , Inst.StoreLocal 0
+                        , Inst.LoadLocal 0
                         , Inst.Push 1
                         , Inst.Add
                         ]
@@ -199,8 +201,8 @@ spec = do
                       , [ Inst.Push 0
                         , Inst.Push 1
                         , Inst.Add
-                        , Inst.Store 0
-                        , Inst.Load 0
+                        , Inst.StoreLocal 0
+                        , Inst.LoadLocal 0
                         , Inst.Push 2
                         , Inst.Add
                         ]

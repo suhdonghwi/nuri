@@ -83,8 +83,8 @@ unmarkInst internal inst = case inst of
   Push          v -> Push v
   Pop             -> Pop
   StoreGlobal v   -> StoreGlobal v
-  Load        v   -> Load v
-  Store       v   -> Store v
+  LoadLocal   v   -> LoadLocal v
+  StoreLocal  v   -> StoreLocal v
   LoadDeref   v   -> LoadDeref v
   LoadGlobal  v   -> LoadGlobal v
   Call        v   -> Call v

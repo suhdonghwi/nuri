@@ -39,7 +39,7 @@ compileExpr (Var pos ident) = do
   varNames <- use internalVarNames
   let identIndices = L.elemIndices ident (snd <$> toList varNames)
   case viaNonEmpty last identIndices of
-    Just index -> tellInst pos (Inst.Load $ fromIntegral index)
+    Just index -> tellInst pos (Inst.LoadLocal $ fromIntegral index)
     Nothing    -> do
       outerVars <- ask
       let result = viaNonEmpty
@@ -108,8 +108,8 @@ compileExpr (Seq xs) = do
             let (pos, name, expr) = declToExpr decl
             index <- addVarName depth name
             compileExpr expr
-            tellInst pos (Inst.Store index)
-            when (null ys) (tellInst pos (Inst.Load index))
+            tellInst pos (Inst.StoreLocal index)
+            when (null ys) (tellInst pos (Inst.LoadLocal index))
           Right expr -> do
             compileExpr expr
             when (not $ null ys) (tellInst (getSourceLine expr) Inst.Pop)
@@ -119,6 +119,8 @@ compileExpr (Seq xs) = do
   maxLocalCount <- use internalMaxLocalCount
   localCount    <- uses internalVarNames genericLength
   when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
+
+  -- 여기에 PopLocal 추가
 
   modifying internalDepth (`subtract` 1)
   return seqSize

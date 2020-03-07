@@ -4,7 +4,7 @@ import           Text.Megaparsec.Pos                      ( Pos )
 
 
 data Instruction' a = Push Word32 {- 상수 테이블 인덱스 -} | Pop
-                 | Load Word32 | Store Word32
+                 | LoadLocal Word32 | StoreLocal Word32
                  | LoadDeref Word32
                  | StoreGlobal Word32 | LoadGlobal Word32
                  | Call [Text] {- 인수의 개수 -}
@@ -43,7 +43,7 @@ estimateStackSize input = sizeLoop 0 0 0 input
             _         -> sizeLoop (pos + 1) newSize newMaxSize code
   sizeDifference inst = case inst of
     Push          _    -> 1
-    Load          _    -> 1
+    LoadLocal     _    -> 1
     LoadDeref     _    -> 1
     LoadGlobal    _    -> 1
     Call          args -> -genericLength args

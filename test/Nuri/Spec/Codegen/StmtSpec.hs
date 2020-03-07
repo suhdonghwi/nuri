@@ -31,7 +31,7 @@ spec = do
                               2
                               0
                               (S.fromList [ConstInteger 1])
-                              (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
+                              (ann [Inst.LoadLocal 0, Inst.Push 0, Inst.Add])
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -49,7 +49,9 @@ spec = do
                               2
                               0
                               S.empty
-                              (ann [Inst.Load 0, Inst.Load 1, Inst.Add])
+                              (ann
+                                [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
+                              )
                             )
                         ]
                       , [Inst.Push 0, storeGlobal 0]
@@ -70,7 +72,7 @@ spec = do
                             2
                             0
                             S.empty
-                            (ann [Inst.Load 0, loadGlobal 0, Inst.Add])
+                            (ann [Inst.LoadLocal 0, loadGlobal 0, Inst.Add])
                           )
                         ]
                       , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
@@ -91,7 +93,7 @@ spec = do
                             2
                             0
                             (S.singleton (ConstInteger 2))
-                            (ann [Inst.Load 0, Inst.Push 0, Inst.Add])
+                            (ann [Inst.LoadLocal 0, Inst.Push 0, Inst.Add])
                           )
                         ]
                       , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
@@ -117,9 +119,9 @@ spec = do
                               (S.fromList [ConstInteger 1])
                               (ann
                                 [ Inst.Push 0
-                                , Inst.Store 1
-                                , Inst.Load 0
-                                , Inst.Load 1
+                                , Inst.StoreLocal 1
+                                , Inst.LoadLocal 0
+                                , Inst.LoadLocal 1
                                 , Inst.Add
                                 ]
                               )
@@ -152,8 +154,8 @@ spec = do
                                 , Inst.Add
                                 , Inst.Pop
                                 , Inst.Push 1
-                                , Inst.Store 0
-                                , Inst.Load 0
+                                , Inst.StoreLocal 0
+                                , Inst.LoadLocal 0
                                 ]
                               )
                             )
@@ -201,8 +203,8 @@ spec = do
                                       (ann
                                         [ Inst.Push 0
                                         , Inst.FreeVar [(True, 0)]
-                                        , Inst.Store 0
-                                        , Inst.Load 0
+                                        , Inst.StoreLocal 0
+                                        , Inst.LoadLocal 0
                                         ]
                                       )
                                     )
@@ -211,8 +213,8 @@ spec = do
                               (ann
                                 [ Inst.Push 0
                                 , Inst.FreeVar [(False, 0)]
-                                , Inst.Store 1
-                                , Inst.Load 1
+                                , Inst.StoreLocal 1
+                                , Inst.LoadLocal 1
                                 ]
                               )
                             )
@@ -251,8 +253,8 @@ spec = do
                               (ann
                                 [ Inst.Push 0
                                 , Inst.FreeVar [(False, 0)]
-                                , Inst.Store 0
-                                , Inst.Load 0
+                                , Inst.StoreLocal 0
+                                , Inst.LoadLocal 0
                                 , Inst.Call []
                                 ]
                               )
@@ -284,7 +286,7 @@ spec = do
       --                           , Inst.Push 0
       --                           , Inst.FreeVarLocal 0
       --                           , Inst.Store
-      --                           , Inst.Load 0
+      --                           , Inst.LoadLocal 0
       --                           , Inst.Call []
       --                           ]
       --                         )

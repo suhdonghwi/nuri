@@ -111,10 +111,10 @@ instance (Binary a) => Binary (Instruction' a) where
     put v
   put Pop = do
     putWord8 1
-  put (Load v) = do
+  put (LoadLocal v) = do
     putWord8 2
     put v
-  put (Store v) = do
+  put (StoreLocal v) = do
     putWord8 3
     put v
   put (LoadDeref v) = do
@@ -161,8 +161,8 @@ instance (Binary a) => Binary (Instruction' a) where
     let getterList =
           [ Push <$> get
           , return Pop
-          , Load <$> get
-          , Store <$> get
+          , LoadLocal <$> get
+          , StoreLocal <$> get
           , LoadDeref <$> get
           , StoreGlobal <$> get
           , LoadGlobal <$> get
