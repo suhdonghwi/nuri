@@ -12,6 +12,7 @@ import           Haneul.Constant
 
 data Program = Program { _programGlobalVarNames :: [Text],
                          _programStackSize :: Word64,
+                         _programMaxLocalCount :: Word32,
                          _programConstTable :: ConstTable,
                          _programCode :: Code
                        }
@@ -25,6 +26,7 @@ toProgram internal result =
         { _programGlobalVarNames = toList
                                      $ view internalGlobalVarNames internal'
         , _programStackSize      = estimateStackSize code
+        , _programMaxLocalCount  = view internalMaxLocalCount internal'
         , _programConstTable     = view internalConstTable internal'
         , _programCode           = code
         }

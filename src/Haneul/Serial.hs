@@ -195,6 +195,7 @@ instance Binary Program where
   put p = do
     put (unpack <$> view programGlobalVarNames p)
     put (view programStackSize p)
+    put (view programMaxLocalCount p)
     put (toList $ view programConstTable p)
     put (view programCode p)
-  get = Program <$> get <*> get <*> (fromList <$> get) <*> get
+  get = Program <$> get <*> get <*> get <*> (fromList <$> get) <*> get
