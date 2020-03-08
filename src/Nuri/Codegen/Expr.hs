@@ -98,6 +98,8 @@ compileExpr (UnaryOp pos op value) = do
     Negative -> tellInst pos Inst.Negate
 
 compileExpr (Seq xs) = do
+  tempVarNames <- use internalVarNames
+
   modifying internalDepth (+ 1)
   depth <- use internalDepth
 
@@ -121,6 +123,7 @@ compileExpr (Seq xs) = do
   when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
 
   -- 여기에 PopLocal 추가
+  assign internalVarNames tempVarNames
 
   modifying internalDepth (`subtract` 1)
   return seqSize

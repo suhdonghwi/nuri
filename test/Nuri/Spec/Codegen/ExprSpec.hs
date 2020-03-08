@@ -207,4 +207,59 @@ spec = do
                         , Inst.Add
                         ]
                       )
+    it "현재 스코프에 없는 상수는 전역 상수로 취급" $ do
+      compileExpr
+          (Seq
+            [ Right $ Seq [Left $ constDecl "값" (litInteger 5), Right $ var "값"]
+            , Right $ binaryOp Add (var "값") (litInteger 3)
+            ]
+          )
+        `shouldBuild` ( S.fromList [ConstInteger 5, ConstInteger 3]
+                      , [ Inst.Push 0
+                        , Inst.StoreLocal 0
+                        , Inst.LoadLocal 0
+                        , Inst.Pop
+                        , loadGlobal 0
+                        , Inst.Push 1
+                        , Inst.Add
+                        ]
+                      )
+    it "같은 이름의 상수는 섀도잉 적용" $ do
+      compileExpr
+          (Seq
+            [ Left $ constDecl "값" (litInteger 10)
+            , Left $ constDecl "값" (litInteger 5)
+            , Right $ var "값"
+            ]
+          )
+        `shouldBuild` ( S.fromList [ConstInteger 10, ConstInteger 5]
+                      , [ Inst.Push 0
+                        , Inst.StoreLocal 0
+                        , Inst.Push 1
+                        , Inst.StoreLocal 1
+                        , Inst.LoadLocal 1
+                        ]
+                      )
+
+
+      compileExpr
+          (Seq
+            [ Left $ constDecl "값" (litInteger 10)
+            , Right $ Seq [Left $ constDecl "값" (litInteger 5), Right $ var "값"]
+            , Right $ binaryOp Add (var "값") (litInteger 3)
+            ]
+          )
+        `shouldBuild` ( S.fromList
+                        [ConstInteger 10, ConstInteger 5, ConstInteger 3]
+                      , [ Inst.Push 0
+                        , Inst.StoreLocal 0
+                        , Inst.Push 1
+                        , Inst.StoreLocal 1
+                        , Inst.LoadLocal 1
+                        , Inst.Pop
+                        , Inst.LoadLocal 0
+                        , Inst.Push 2
+                        , Inst.Add
+                        ]
+                      )
 

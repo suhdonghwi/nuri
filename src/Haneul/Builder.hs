@@ -46,8 +46,7 @@ addVarName :: Word8 -> Text -> Builder Word32
 addVarName depth value = do
   modifying internalVarNames (++ [(depth, value)])
   table <- use internalVarNames
-  let (Just index) = L.elemIndex (depth, value) table
-  return $ fromIntegral index
+  return $ genericLength table - 1
 
 addGlobalVarName :: Text -> Builder Word32
 addGlobalVarName value = do
