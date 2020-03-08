@@ -3,13 +3,13 @@ module Haneul.Instruction where
 import           Text.Megaparsec.Pos                      ( Pos )
 
 
-data Instruction' a = Push Word32 {- 상수 테이블 인덱스 -} | Pop
+data Instruction' a = Push Word32  | Pop
                  | LoadLocal Word32 | StoreLocal Word32
                  | LoadDeref Word32
                  | StoreGlobal Word32 | LoadGlobal Word32
-                 | Call [Text] {- 인수의 개수 -}
-                 | Jmp a  {- 주소 -}
-                 | PopJmpIfFalse a  {- 주소 -}
+                 | Call [Text]
+                 | Jmp a
+                 | PopJmpIfFalse a
                  | FreeVar [(Bool, Word8)]
                  | Add | Subtract | Multiply | Divide | Mod
                  | Equal | LessThan | GreaterThan
