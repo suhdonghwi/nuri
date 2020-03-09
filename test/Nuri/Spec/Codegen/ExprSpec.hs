@@ -240,8 +240,6 @@ spec = do
                         , Inst.LoadLocal 1
                         ]
                       )
-
-
       compileExpr
           (Seq
             [ Left $ constDecl "값" (litInteger 10)

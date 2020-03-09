@@ -11,7 +11,6 @@ import           Control.Lens                             ( modifying
                                                           , view
                                                           )
 
-import qualified Data.List                     as L
 import           Data.Set.Ordered                         ( (|>)
                                                           , findIndex
                                                           , OSet
@@ -26,14 +25,6 @@ import           Haneul.BuilderInternal
 
 
 type Builder = RWS [OSet Text] MarkedCode BuilderInternal
-
--- addVarName :: String -> Builder Int32
--- addVarName ident = do
---   depth <- ask
---   modifying internalVarNames (|> (ident, depth))
---   names <- use internalVarNames
---   let (Just index) = findIndex (ident, depth) names
---   return $ fromIntegral index
 
 addConstant :: Constant -> Builder Word32
 addConstant value = do
