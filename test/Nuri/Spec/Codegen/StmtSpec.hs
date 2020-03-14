@@ -26,15 +26,16 @@ spec = do
                         )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
-                            (FuncObject
-                              ["을"]
-                              2
-                              0
-                              (S.fromList [ConstInteger 1])
-                              (ann [Inst.LoadLocal 0, Inst.Push 0, Inst.Add])
+                            (funcObject
+                              { _funcJosa       = ["을"]
+                              , _funcStackSize  = 2
+                              , _funcConstTable = S.fromList [ConstInteger 1]
+                              , _funcCode       = ann
+                                [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
+                              }
                             )
                         ]
-                      , [Inst.Push 0, storeGlobal 0]
+                      , [Inst.Push 0, Inst.StoreGlobal 0]
                       )
       it "인자가 두 개인 함수 선언 코드 생성"
         $             compileStmt
@@ -44,17 +45,15 @@ spec = do
                         )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
-                            (FuncObject
-                              ["에", "을"]
-                              2
-                              0
-                              S.empty
-                              (ann
+                            (funcObject
+                              { _funcJosa      = ["에", "을"]
+                              , _funcStackSize = 2
+                              , _funcCode      = ann
                                 [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
-                              )
+                              }
                             )
                         ]
-                      , [Inst.Push 0, storeGlobal 0]
+                      , [Inst.Push 0, Inst.StoreGlobal 0]
                       )
       it "외부에 전역 변수가 있는 함수 선언 코드 생성"
         $             do
@@ -67,15 +66,20 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstInteger 1
                         , ConstFunc
-                          (FuncObject
-                            ["을"]
-                            2
-                            0
-                            S.empty
-                            (ann [Inst.LoadLocal 0, loadGlobal 0, Inst.Add])
+                          (funcObject
+                            { _funcJosa           = ["을"]
+                            , _funcGlobalVarNames = ["값"]
+                            , _funcStackSize      = 2
+                            , _funcCode           = ann
+                              [Inst.LoadLocal 0, Inst.LoadGlobal 0, Inst.Add]
+                            }
                           )
                         ]
-                      , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
+                      , [ Inst.Push 0
+                        , Inst.StoreGlobal 0
+                        , Inst.Push 1
+                        , Inst.StoreGlobal 1
+                        ]
                       )
       it "외부에 전역 변수가 있을 때 변수 섀도잉 하는 함수 선언 코드 생성"
         $             do
@@ -88,15 +92,20 @@ spec = do
         `shouldBuild` ( S.fromList
                         [ ConstInteger 1
                         , ConstFunc
-                          (FuncObject
-                            ["을"]
-                            2
-                            0
-                            (S.singleton (ConstInteger 2))
-                            (ann [Inst.LoadLocal 0, Inst.Push 0, Inst.Add])
+                          (funcObject
+                            { _funcJosa       = ["을"]
+                            , _funcStackSize  = 2
+                            , _funcConstTable = S.singleton (ConstInteger 2)
+                            , _funcCode       = ann
+                              [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
+                            }
                           )
                         ]
-                      , [Inst.Push 0, storeGlobal 0, Inst.Push 1, storeGlobal 1]
+                      , [ Inst.Push 0
+                        , Inst.StoreGlobal 0
+                        , Inst.Push 1
+                        , Inst.StoreGlobal 0
+                        ]
                       )
       it "함수의 인자를 참조하는 함수 코드 생성"
         $             do
@@ -112,22 +121,22 @@ spec = do
                           )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
-                            (FuncObject
-                              ["을"]
-                              2
-                              2
-                              (S.fromList [ConstInteger 1])
-                              (ann
-                                [ Inst.Push 0
-                                , Inst.StoreLocal 1
-                                , Inst.LoadLocal 0
-                                , Inst.LoadLocal 1
-                                , Inst.Add
-                                ]
-                              )
+                            (funcObject
+                              { _funcJosa          = ["을"]
+                              , _funcStackSize     = 2
+                              , _funcMaxLocalCount = 2
+                              , _funcConstTable    = S.fromList [ConstInteger 1]
+                              , _funcCode          = ann
+                                                       [ Inst.Push 0
+                                                       , Inst.StoreLocal 1
+                                                       , Inst.LoadLocal 0
+                                                       , Inst.LoadLocal 1
+                                                       , Inst.Add
+                                                       ]
+                              }
                             )
                         ]
-                      , [Inst.Push 0, storeGlobal 0]
+                      , [Inst.Push 0, Inst.StoreGlobal 0]
                       )
       it "시퀀스의 마지막이 선언 문인 함수 코드 생성"
         $             do
@@ -143,24 +152,24 @@ spec = do
                           )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
-                            (FuncObject
-                              []
-                              2
-                              1
-                              (S.fromList [ConstInteger 1, ConstInteger 10])
-                              (ann
-                                [ Inst.Push 0
-                                , Inst.Push 0
-                                , Inst.Add
-                                , Inst.Pop
-                                , Inst.Push 1
-                                , Inst.StoreLocal 0
-                                , Inst.LoadLocal 0
-                                ]
-                              )
+                            (funcObject
+                              { _funcStackSize     = 2
+                              , _funcMaxLocalCount = 1
+                              , _funcConstTable    = S.fromList
+                                [ConstInteger 1, ConstInteger 10]
+                              , _funcCode          = ann
+                                                       [ Inst.Push 0
+                                                       , Inst.Push 0
+                                                       , Inst.Add
+                                                       , Inst.Pop
+                                                       , Inst.Push 1
+                                                       , Inst.StoreLocal 0
+                                                       , Inst.LoadLocal 0
+                                                       ]
+                              }
                             )
                         ]
-                      , [Inst.Push 0, storeGlobal 0]
+                      , [Inst.Push 0, Inst.StoreGlobal 0]
                       )
       it "3개 이상의 스코프가 중첩된 클로저 코드 생성"
         $             do
@@ -179,47 +188,46 @@ spec = do
                           )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
-                            (FuncObject
-                              ["을"]
-                              1
-                              2
-                              (S.fromList
-                                [ ConstFunc
-                                    (FuncObject
-                                      []
-                                      1
-                                      1
-                                      (S.fromList
-                                        [ ConstFunc
-                                            (FuncObject
-                                              []
-                                              1
-                                              0
-                                              S.empty
-                                              (ann [Inst.LoadDeref 0])
-                                            )
-                                        ]
+                            (funcObject
+                              { _funcJosa          = ["을"]
+                              , _funcStackSize     = 1
+                              , _funcMaxLocalCount = 2
+                              , _funcConstTable    =
+                                (S.fromList
+                                  [ ConstFunc
+                                      (funcObject
+                                        { _funcStackSize     = 1
+                                        , _funcMaxLocalCount = 1
+                                        , _funcConstTable    = S.fromList
+                                          [ ConstFunc
+                                              (funcObject
+                                                { _funcStackSize = 1
+                                                , _funcCode      = ann
+                                                  [Inst.LoadDeref 0]
+                                                }
+                                              )
+                                          ]
+                                        , _funcCode          =
+                                          ann
+                                            [ Inst.Push 0
+                                            , Inst.FreeVar [(True, 0)]
+                                            , Inst.StoreLocal 0
+                                            , Inst.LoadLocal 0
+                                            ]
+                                        }
                                       )
-                                      (ann
-                                        [ Inst.Push 0
-                                        , Inst.FreeVar [(True, 0)]
-                                        , Inst.StoreLocal 0
-                                        , Inst.LoadLocal 0
-                                        ]
-                                      )
-                                    )
-                                ]
-                              )
-                              (ann
-                                [ Inst.Push 0
-                                , Inst.FreeVar [(False, 0)]
-                                , Inst.StoreLocal 1
-                                , Inst.LoadLocal 1
-                                ]
-                              )
+                                  ]
+                                )
+                              , _funcCode          = ann
+                                                       [ Inst.Push 0
+                                                       , Inst.FreeVar [(False, 0)]
+                                                       , Inst.StoreLocal 1
+                                                       , Inst.LoadLocal 1
+                                                       ]
+                              }
                             )
                         ]
-                      , [Inst.Push 0, Inst.StoreGlobal 1]
+                      , [Inst.Push 0, Inst.StoreGlobal 0]
                       )
       it "로컬에 선언된 함수가 재귀하는 코드 생성"
         $             do
@@ -235,32 +243,29 @@ spec = do
                           )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
-                            (FuncObject
-                              []
-                              1
-                              1
-                              (S.fromList
+                            (funcObject
+                              { _funcStackSize     = 1
+                              , _funcMaxLocalCount = 1
+                              , _funcConstTable    = S.fromList
                                 [ ConstFunc
-                                    (FuncObject
-                                      []
-                                      1
-                                      0
-                                      (S.empty)
-                                      (ann [Inst.LoadDeref 0, Inst.Call []])
+                                    (funcObject
+                                      { _funcStackSize = 1
+                                      , _funcCode      = ann
+                                        [Inst.LoadDeref 0, Inst.Call []]
+                                      }
                                     )
                                 ]
-                              )
-                              (ann
-                                [ Inst.Push 0
-                                , Inst.FreeVar [(False, 0)]
-                                , Inst.StoreLocal 0
-                                , Inst.LoadLocal 0
-                                , Inst.Call []
-                                ]
-                              )
+                              , _funcCode          = ann
+                                                       [ Inst.Push 0
+                                                       , Inst.FreeVar [(False, 0)]
+                                                       , Inst.StoreLocal 0
+                                                       , Inst.LoadLocal 0
+                                                       , Inst.Call []
+                                                       ]
+                              }
                             )
                         ]
-                      , [Inst.Push 0, Inst.StoreGlobal 1]
+                      , [Inst.Push 0, Inst.StoreGlobal 0]
                       )
       -- it "로컬에 선언된 함수 두 개가 상호 재귀하는 코드 생성"
       --   $             do
@@ -307,12 +312,12 @@ spec = do
     it "하나의 값에 대한 상수 선언문 코드 생성" $ do
       compileStmt (constDeclStmt "값" (litInteger 1))
         `shouldBuild` ( S.fromList [ConstInteger 1]
-                      , [Inst.Push 0, storeGlobal 0]
+                      , [Inst.Push 0, Inst.StoreGlobal 0]
                       )
     it "계산식 상수 선언문 코드 생성" $ do
       compileStmt
           (constDeclStmt "값" (binaryOp Add (litInteger 1) (litInteger 2)))
         `shouldBuild` ( S.fromList [ConstInteger 1, ConstInteger 2]
-                      , [Inst.Push 0, Inst.Push 1, Inst.Add, storeGlobal 0]
+                      , [Inst.Push 0, Inst.Push 1, Inst.Add, Inst.StoreGlobal 0]
                       )
 

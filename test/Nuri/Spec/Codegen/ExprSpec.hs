@@ -104,13 +104,13 @@ spec = do
 
   describe "변수 접근 코드 생성" $ do
     it "변수 이름 접근하는 LoadGlobal 코드 생성" $ do
-      compileExpr (var "값") `shouldBuild` (S.empty, [loadGlobal 0])
+      compileExpr (var "값") `shouldBuild` (S.empty, [Inst.LoadGlobal 0])
 
   describe "함수 호출 코드 생성" $ do
     it "인수가 하나인 함수 호출 코드 생성" $ do
       compileExpr (funcCall (var "던지다") [(litInteger 10, "을")])
         `shouldBuild` ( S.fromList [ConstInteger 10]
-                      , [Inst.Push 0, loadGlobal 0, Inst.Call ["을"]]
+                      , [Inst.Push 0, Inst.LoadGlobal 0, Inst.Call ["을"]]
                       )
     it "인수가 3개인 함수 호출 코드 생성" $ do
       compileExpr
@@ -122,13 +122,13 @@ spec = do
                       , [ Inst.Push 0
                         , Inst.Push 0
                         , Inst.Push 1
-                        , loadGlobal 0
+                        , Inst.LoadGlobal 0
                         , Inst.Call ["에", "을", "와"]
                         ]
                       )
     it "인수가 없는 함수 호출 코드 생성" $ do
       compileExpr (funcCall (var "던지다") [])
-        `shouldBuild` (S.empty, [loadGlobal 0, Inst.Call []])
+        `shouldBuild` (S.empty, [Inst.LoadGlobal 0, Inst.Call []])
   describe "표현식 시퀀스 코드 생성" $ do
     it "표현식이 1개인 시퀀스 코드 생성" $ do
       compileExpr (Seq [Right $ litInteger 10])
@@ -144,12 +144,13 @@ spec = do
       compileExpr (lambda [("값", "을")] (binaryOp Add (var "값") (litInteger 1)))
         `shouldBuild` ( S.fromList
                         [ ConstFunc
-                            (FuncObject
-                              ["을"]
-                              2
-                              0
-                              (S.fromList [ConstInteger 1])
-                              (ann [Inst.LoadLocal 0, Inst.Push 0, Inst.Add])
+                            (funcObject
+                              { _funcJosa       = ["을"]
+                              , _funcStackSize  = 2
+                              , _funcConstTable = S.fromList [ConstInteger 1]
+                              , _funcCode       = ann
+                                [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
+                              }
                             )
                         ]
                       , [Inst.Push 0]
@@ -161,14 +162,12 @@ spec = do
           )
         `shouldBuild` ( S.fromList
                         [ ConstFunc
-                            (FuncObject
-                              ["에", "를"]
-                              2
-                              0
-                              S.empty
-                              (ann
+                            (funcObject
+                              { _funcJosa      = ["에", "를"]
+                              , _funcStackSize = 2
+                              , _funcCode      = ann
                                 [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
-                              )
+                              }
                             )
                         ]
                       , [Inst.Push 0]
@@ -219,7 +218,7 @@ spec = do
                         , Inst.StoreLocal 0
                         , Inst.LoadLocal 0
                         , Inst.Pop
-                        , loadGlobal 0
+                        , Inst.LoadGlobal 0
                         , Inst.Push 1
                         , Inst.Add
                         ]

@@ -30,17 +30,6 @@ import           Text.Megaparsec.Pos                      ( unPos
 
 import           Haneul.Constant
 import           Haneul.Instruction
-import           Haneul.Program
-
--- instance Binary BuilderInternal where
---   put v = do
---     put (toList $ view internalConstTable v)
---   get =
---     BuilderInternal
---       <$> (fromList <$> get)
---       <*> pure S.empty
---       <*> pure 0
---       <*> pure []
 
 instance Binary Constant where
   put ConstNone = do
@@ -86,10 +75,10 @@ putJosaList = putWord8List (putWord8List (put :: Char -> Put) . unpack)
 instance Binary FuncObject where
   put obj = do
     putJosaList (view funcJosa obj)
-    put (view funcMaxStackSize obj)
+    put (view funcStackSize obj)
     put (view funcMaxLocalCount obj)
     put (toList $ view funcConstTable obj)
-    put (view funcBody obj)
+    put (view funcCode obj)
   get = do
     josa          <- get
     maxStackSize  <- get
@@ -98,10 +87,10 @@ instance Binary FuncObject where
     code          <- get
     return
       (FuncObject { _funcJosa          = josa
-                  , _funcBody          = code
+                  , _funcCode          = code
                   , _funcConstTable    = constTable
                   , _funcMaxLocalCount = maxLocalCount
-                  , _funcMaxStackSize  = maxStackSize
+                  , _funcStackSize     = maxStackSize
                   }
       )
 
@@ -191,11 +180,11 @@ instance Binary Pos  where
     line <- get :: Get Word32
     return (mkPos $ fromIntegral line)
 
-instance Binary Program where
-  put p = do
-    put (unpack <$> view programGlobalVarNames p)
-    put (view programStackSize p)
-    put (view programMaxLocalCount p)
-    put (toList $ view programConstTable p)
-    put (view programCode p)
-  get = Program <$> get <*> get <*> get <*> (fromList <$> get) <*> get
+-- instance Binary Program where
+--   put p = do
+--     put (unpack <$> view programGlobalVarNames p)
+--     put (view programStackSize p)
+--     put (view programMaxLocalCount p)
+--     put (toList $ view programConstTable p)
+--     put (view programCode p)
+--   get = Program <$> get <*> get <*> get <*> (fromList <$> get) <*> get

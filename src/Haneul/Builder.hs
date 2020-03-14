@@ -2,6 +2,7 @@ module Haneul.Builder where
 
 import           Control.Monad.RWS                        ( RWS
                                                           , tell
+                                                          , execRWS
                                                           )
 import           Control.Lens                             ( modifying
                                                           , use
@@ -100,4 +101,30 @@ tellCode code = do
 tellInst :: Pos -> MarkedInstruction -> Builder ()
 tellInst pos inst = tellCode [(pos, inst)]
 
+-- toFuncObject :: BuilderInternal -> Builder () -> FuncObject
+-- toFuncObject internal result =
+--   let (internal', code') = execRWS result [] internal
+--       code               = clearMarks internal' code'
+--   in  FuncObject
+--         { _funcGlobalVarNames = toList $ view internalGlobalVarNames internal'
+--         , _funcStackSize      = estimateStackSize code
+--         , _funcMaxLocalCount  = view internalMaxLocalCount internal'
+--         , _funcConstTable     = view internalConstTable internal'
+--         , _funcCode           = code
+--         , _funcJosa           = []
+--         }
 
+internalToFuncObject :: (BuilderInternal, MarkedCode) -> FuncObject
+internalToFuncObject (internal, markedCode) =
+  let code = clearMarks internal markedCode
+  in  FuncObject
+        { _funcGlobalVarNames = toList $ view internalGlobalVarNames internal
+        , _funcStackSize      = estimateStackSize code
+        , _funcMaxLocalCount  = view internalMaxLocalCount internal
+        , _funcConstTable     = view internalConstTable internal
+        , _funcCode           = code
+        , _funcJosa           = []
+        }
+
+runBuilder :: BuilderInternal -> Builder () -> (BuilderInternal, MarkedCode)
+runBuilder i b = execRWS b [] i

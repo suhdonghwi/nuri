@@ -18,9 +18,7 @@ import           Haneul.Builder
 import           Haneul.Constant
 import           Haneul.BuilderInternal
 import qualified Haneul.Instruction            as Inst
-import           Haneul.Instruction                       ( Mark(Mark)
-                                                          , estimateStackSize
-                                                          )
+import           Haneul.Instruction                       ( Mark(Mark) )
 
 litToConst :: Literal -> Constant
 litToConst LitNone        = ConstNone
@@ -152,26 +150,15 @@ compileExpr (Lambda pos args body) = do
 lambdaToFuncObject
   :: [(Text, Text)] -> Expr -> Builder (BuilderInternal, FuncObject)
 lambdaToFuncObject args body = do
-  globalVarNames <- use internalGlobalVarNames
-  varNames       <- use internalLocalVars
-  oldLocalStack  <- ask
-  let newLocalStack     = (S.fromList . fmap snd . toList) varNames
-      (internal, code') = execRWS
+  localVars     <- use internalLocalVars
+  oldLocalStack <- ask
+  let newLocalStack    = (S.fromList . fmap snd . toList) localVars
+      (internal, code) = execRWS
         (do
           sequence_ (addVarName 0 . fst <$> args)
           compileExpr body
         )
         (newLocalStack : oldLocalStack)
-        defaultInternal { _internalGlobalVarNames = globalVarNames }
-      constTable    = view internalConstTable internal
-      maxLocalCount = view internalMaxLocalCount internal
-      code          = clearMarks internal code'
-  return
-    ( internal
-    , FuncObject { _funcJosa          = (snd <$> args)
-                 , _funcBody          = code
-                 , _funcConstTable    = constTable
-                 , _funcMaxLocalCount = maxLocalCount
-                 , _funcMaxStackSize  = estimateStackSize code
-                 }
-    )
+        defaultInternal
+      result = internalToFuncObject (internal, code)
+  return (internal, result { _funcJosa = snd <$> args })

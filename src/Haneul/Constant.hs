@@ -16,12 +16,12 @@ data Constant = ConstNone
 type ConstTable = OSet Constant
 
 data FuncObject = FuncObject { _funcJosa :: [Text],
-                               _funcMaxStackSize :: Word64,
+                               _funcGlobalVarNames :: [Text],
+                               _funcStackSize :: Word64,
                                _funcMaxLocalCount :: Word32,
                                _funcConstTable :: ConstTable,
-                               _funcBody :: Code
+                               _funcCode :: Code
                              }
   deriving (Eq, Show, Ord)
 
 $(makeLenses ''FuncObject)
-

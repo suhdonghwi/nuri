@@ -21,14 +21,14 @@ import           Text.Megaparsec                          ( runParser
                                                           , errorBundlePretty
                                                           )
 import           Text.Pretty.Simple                       ( pPrint )
-import           Text.Printf                              ( printf )
 
 import           Nuri.Stmt
 import           Nuri.Codegen.Stmt
 import           Nuri.Parse.Stmt
 
-import           Haneul.Program
+import           Haneul.Builder
 import           Haneul.BuilderInternal
+import           Haneul.Constant
 import           Haneul.Serial                            ( )
 
 newtype ReplState = ReplState { _prompt :: Text }
@@ -46,13 +46,19 @@ parseInput input fileName = do
       hoistMaybe Nothing
     Right parseResult -> return parseResult
 
-
 printResult :: (NonEmpty Stmt) -> IO ()
 printResult stmts = do
   (liftIO . pPrint) stmts
-  let program       = (toProgram defaultInternal . compileStmts) stmts
-      compiledCode  = view programCode program
-      compiledTable = view programConstTable program
+  let program =
+        ( internalToFuncObject
+          . runBuilder defaultInternal
+              { _internalGlobalVarNames = defaultGlobalNames
+              }
+          . compileStmts
+          )
+          stmts
+      compiledCode  = view funcCode program
+      compiledTable = view funcConstTable program
 
   putStrLn "---------------"
   pPrint compiledTable
@@ -61,8 +67,8 @@ printResult stmts = do
 
   let encodedProgram = encode program
   writeFileLBS "./test.hn" encodedProgram
-  putStrLn $ concat $ ("\\x" ++) . printf "%02x" <$> unpackBytes encodedProgram
-  when ((decode encodedProgram :: Program) == program)
+
+  when ((decode encodedProgram) == program)
        (putStrLn "Program encoding is valid")
 
 repl :: Repl ()

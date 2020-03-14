@@ -19,17 +19,17 @@ data BuilderInternal = BuilderInternal { _internalConstTable :: ConstTable,
 
 $(makeLenses ''BuilderInternal)
 
-defaultGlobalNames :: [Text]
-defaultGlobalNames = ["보여주다"]
+defaultGlobalNames :: S.OSet Text
+defaultGlobalNames = S.fromList ["보여주다"]
 
 defaultInternal :: BuilderInternal
-defaultInternal = BuilderInternal
-  { _internalConstTable     = S.empty
-  , _internalDepth          = 0
-  , _internalLocalVars      = []
-  , _internalMaxLocalCount  = 0
-  , _internalGlobalVarNames = S.fromList defaultGlobalNames
-  , _internalFreeVars       = S.empty
-  , _internalOffset         = 0
-  , _internalMarks          = []
-  }
+defaultInternal = BuilderInternal { _internalConstTable     = S.empty
+                                  , _internalDepth          = 0
+                                  , _internalLocalVars      = []
+                                  , _internalMaxLocalCount  = 0
+                                  , _internalGlobalVarNames = S.empty
+                                  , _internalFreeVars       = S.empty
+                                  , _internalOffset         = 0
+                                  , _internalMarks          = []
+                                  }
+
