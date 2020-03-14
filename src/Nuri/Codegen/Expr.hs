@@ -36,7 +36,7 @@ compileExpr (Lit pos lit) = do
   tellInst pos (Inst.Push $ fromIntegral index)
 
 compileExpr (Var pos ident) = do
-  varNames <- use internalVarNames
+  varNames <- use internalLocalVars
   let identIndices = L.elemIndices ident (snd <$> toList varNames)
   case viaNonEmpty last identIndices of
     Just index -> tellInst pos (Inst.LoadLocal $ fromIntegral index)
@@ -98,7 +98,7 @@ compileExpr (UnaryOp pos op value) = do
     Negative -> tellInst pos Inst.Negate
 
 compileExpr (Seq xs) = do
-  tempVarNames <- use internalVarNames
+  tempVarNames <- use internalLocalVars
 
   modifying internalDepth (+ 1)
   depth <- use internalDepth
@@ -119,11 +119,11 @@ compileExpr (Seq xs) = do
   seqSize       <- process $ toList xs
 
   maxLocalCount <- use internalMaxLocalCount
-  localCount    <- uses internalVarNames genericLength
+  localCount    <- uses internalLocalVars genericLength
   when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
 
   -- 여기에 PopLocal 추가
-  assign internalVarNames tempVarNames
+  assign internalLocalVars tempVarNames
 
   modifying internalDepth (`subtract` 1)
   return seqSize
@@ -153,7 +153,7 @@ lambdaToFuncObject
   :: [(Text, Text)] -> Expr -> Builder (BuilderInternal, FuncObject)
 lambdaToFuncObject args body = do
   globalVarNames <- use internalGlobalVarNames
-  varNames       <- use internalVarNames
+  varNames       <- use internalLocalVars
   oldLocalStack  <- ask
   let newLocalStack     = (S.fromList . fmap snd . toList) varNames
       (internal, code') = execRWS
