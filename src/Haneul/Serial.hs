@@ -21,7 +21,7 @@ import           Data.Char                                ( ord
 import           Data.Set.Ordered                         ( fromList )
 import           Data.Text                                ( unpack )
 
-import           Control.Lens                             ( view )
+import           Control.Lens                             ( (^.) )
 
 import           Text.Megaparsec.Pos                      ( unPos
                                                           , mkPos
@@ -74,23 +74,26 @@ putJosaList = putWord8List (putWord8List (put :: Char -> Put) . unpack)
 
 instance Binary FuncObject where
   put obj = do
-    putJosaList (view funcJosa obj)
-    put (view funcStackSize obj)
-    put (view funcMaxLocalCount obj)
-    put (toList $ view funcConstTable obj)
-    put (view funcCode obj)
+    putJosaList (obj ^. funcJosa)
+    put (obj ^. funcGlobalVarNames)
+    put (obj ^. funcStackSize)
+    put (obj ^. funcMaxLocalCount)
+    put (toList $ obj ^. funcConstTable)
+    put (obj ^. funcCode)
   get = do
-    josa          <- get
-    maxStackSize  <- get
-    maxLocalCount <- get
-    constTable    <- fromList <$> get
-    code          <- get
+    josa           <- get
+    globalVarNames <- get
+    maxStackSize   <- get
+    maxLocalCount  <- get
+    constTable     <- fromList <$> get
+    code           <- get
     return
-      (FuncObject { _funcJosa          = josa
-                  , _funcCode          = code
-                  , _funcConstTable    = constTable
-                  , _funcMaxLocalCount = maxLocalCount
-                  , _funcStackSize     = maxStackSize
+      (FuncObject { _funcJosa           = josa
+                  , _funcGlobalVarNames = globalVarNames
+                  , _funcCode           = code
+                  , _funcConstTable     = constTable
+                  , _funcMaxLocalCount  = maxLocalCount
+                  , _funcStackSize      = maxStackSize
                   }
       )
 

@@ -5,7 +5,6 @@ import           Prelude                           hiding ( writeFile )
 import           System.IO                                ( hFlush )
 
 import           Data.Text                                ( strip )
-import           Data.ByteString.Lazy.Internal            ( unpackBytes )
 
 import           Control.Lens                             ( makeLenses
                                                           , view
