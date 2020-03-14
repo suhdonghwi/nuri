@@ -75,7 +75,7 @@ putJosaList = putWord8List (putWord8List (put :: Char -> Put) . unpack)
 instance Binary FuncObject where
   put obj = do
     putJosaList (obj ^. funcJosa)
-    put (obj ^. funcGlobalVarNames)
+    put (unpack <$> obj ^. funcGlobalVarNames)
     put (obj ^. funcStackSize)
     put (obj ^. funcMaxLocalCount)
     put (toList $ obj ^. funcConstTable)
