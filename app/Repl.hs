@@ -67,8 +67,8 @@ printResult stmts = do
   let encodedProgram = encode program
   writeFileLBS "./test.hn" encodedProgram
 
-  when ((decode encodedProgram) == program)
-       (putStrLn "Program encoding is valid")
+  -- when ((decode encodedProgram) == program)
+  --   (putStrLn "Program encoding is valid")
 
 repl :: Repl ()
 repl = forever $ do
