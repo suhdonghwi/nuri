@@ -1,0 +1,16 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "nuri:lib"
+
+    - path: "./app/Main.hs"
+      component: "nuri:exe:nuri-exe"
+
+    - path: "./app/Repl.hs"
+      component: "nuri:exe:nuri-exe"
+
+    - path: "./app/Paths_nuri.hs"
+      component: "nuri:exe:nuri-exe"
+
+    - path: "./test"
+      component: "nuri:test:nuri-test"
