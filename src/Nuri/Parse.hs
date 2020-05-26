@@ -1,11 +1,10 @@
 module Nuri.Parse where
 
-import qualified Text.Megaparsec               as P
-import           Text.Megaparsec                          ( (<?>) )
-import           Text.Megaparsec.Pos                      ( Pos )
-
-import qualified Text.Megaparsec.Char          as P
-import qualified Text.Megaparsec.Char.Lexer    as L
+import qualified Text.Megaparsec as P
+import Text.Megaparsec ((<?>))
+import qualified Text.Megaparsec.Char as P
+import qualified Text.Megaparsec.Char.Lexer as L
+import Text.Megaparsec.Pos (Pos)
 
 type Parser = P.Parsec Void Text
 
@@ -18,7 +17,8 @@ blockComment = L.skipBlockComment "(*" "*)"
 -- Space Consumer, 공백 문자 (개행 문자 제외) 를 스킵할 때 쓰입니다.
 sc :: Parser ()
 sc = L.space (void $ P.takeWhile1P Nothing isSpace) lineComment blockComment
-  where isSpace x = x == ' ' || x == '\t'
+  where
+    isSpace x = x == ' ' || x == '\t'
 
 -- Space Consumer with Newline, 개행 문자를 포함한 공백 문자를 스킵할 때 쓰입니다.
 scn :: Parser ()
@@ -33,7 +33,7 @@ symbol = L.symbol sc
 reserved :: String -> Parser ()
 reserved s =
   (lexeme . P.try)
-      (sequence (P.char <$> toString s) *> P.notFollowedBy hangulSyllable)
+    (sequence (P.char <$> toString s) *> P.notFollowedBy hangulSyllable)
     <?> concat ["'", s, "'"]
 
 hangulSyllable :: Parser Char

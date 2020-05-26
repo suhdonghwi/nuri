@@ -1,29 +1,28 @@
 module Haneul.Builder where
 
-import           Control.Monad.RWS                        ( RWS
-                                                          , tell
-                                                          , execRWS
-                                                          )
-import           Control.Lens                             ( modifying
-                                                          , use
-                                                          , uses
-                                                          , element
-                                                          , (.~)
-                                                          , view
-                                                          )
-
-import           Data.Set.Ordered                         ( (|>)
-                                                          , findIndex
-                                                          , OSet
-                                                          )
-import           Data.List                                ( (!!) )
-
-import           Text.Megaparsec.Pos                      ( Pos )
-
-import           Haneul.Instruction
-import           Haneul.Constant
-import           Haneul.BuilderInternal
-
+import Control.Lens
+  ( (.~),
+    element,
+    modifying,
+    use,
+    uses,
+    view,
+  )
+import Control.Monad.RWS
+  ( RWS,
+    execRWS,
+    tell,
+  )
+import Data.List ((!!))
+import Data.Set.Ordered
+  ( OSet,
+    findIndex,
+    (|>),
+  )
+import Haneul.BuilderInternal
+import Haneul.Constant
+import Haneul.Instruction
+import Text.Megaparsec.Pos (Pos)
 
 type Builder = RWS [OSet Text] MarkedCode BuilderInternal
 
@@ -69,29 +68,29 @@ clearMarks internal markedCode = fmap (unmarkInst internal) <$> markedCode
 
 unmarkInst :: BuilderInternal -> MarkedInstruction -> Instruction
 unmarkInst internal inst = case inst of
-  Jmp           v -> Jmp (unmark v)
+  Jmp v -> Jmp (unmark v)
   PopJmpIfFalse v -> PopJmpIfFalse (unmark v)
-  Push          v -> Push v
-  Pop             -> Pop
-  StoreGlobal v   -> StoreGlobal v
-  LoadLocal   v   -> LoadLocal v
-  StoreLocal  v   -> StoreLocal v
-  LoadDeref   v   -> LoadDeref v
-  LoadGlobal  v   -> LoadGlobal v
-  Call        v   -> Call v
-  FreeVar     v   -> FreeVar v
-  Add             -> Add
-  Subtract        -> Subtract
-  Multiply        -> Multiply
-  Divide          -> Divide
-  Mod             -> Mod
-  Equal           -> Equal
-  LessThan        -> LessThan
-  GreaterThan     -> GreaterThan
-  Negate          -> Negate
- where
-  unmark (Mark index) =
-    let marks = view internalMarks internal in marks !! fromIntegral index
+  Push v -> Push v
+  Pop -> Pop
+  StoreGlobal v -> StoreGlobal v
+  LoadLocal v -> LoadLocal v
+  StoreLocal v -> StoreLocal v
+  LoadDeref v -> LoadDeref v
+  LoadGlobal v -> LoadGlobal v
+  Call v -> Call v
+  FreeVar v -> FreeVar v
+  Add -> Add
+  Subtract -> Subtract
+  Multiply -> Multiply
+  Divide -> Divide
+  Mod -> Mod
+  Equal -> Equal
+  LessThan -> LessThan
+  GreaterThan -> GreaterThan
+  Negate -> Negate
+  where
+    unmark (Mark index) =
+      let marks = view internalMarks internal in marks !! fromIntegral index
 
 tellCode :: MarkedCode -> Builder ()
 tellCode code = do
@@ -117,13 +116,13 @@ tellInst pos inst = tellCode [(pos, inst)]
 internalToFuncObject :: (BuilderInternal, MarkedCode) -> FuncObject
 internalToFuncObject (internal, markedCode) =
   let code = clearMarks internal markedCode
-  in  FuncObject
-        { _funcGlobalVarNames = toList $ view internalGlobalVarNames internal
-        , _funcStackSize      = estimateStackSize code
-        , _funcMaxLocalCount  = view internalMaxLocalCount internal
-        , _funcConstTable     = view internalConstTable internal
-        , _funcCode           = code
-        , _funcJosa           = []
+   in FuncObject
+        { _funcGlobalVarNames = toList $ view internalGlobalVarNames internal,
+          _funcStackSize = estimateStackSize code,
+          _funcMaxLocalCount = view internalMaxLocalCount internal,
+          _funcConstTable = view internalConstTable internal,
+          _funcCode = code,
+          _funcJosa = []
         }
 
 runBuilder :: BuilderInternal -> Builder () -> (BuilderInternal, MarkedCode)

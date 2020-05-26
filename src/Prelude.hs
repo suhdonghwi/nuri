@@ -1,10 +1,11 @@
 module Prelude
-  ( module Relude
+  ( module Relude,
   )
 where
 
-import           Relude                            hiding ( Undefined
-                                                          , Op
-                                                          , many
-                                                          , some
-                                                          )
+import Relude hiding
+  ( Op,
+    Undefined,
+    many,
+    some,
+  )

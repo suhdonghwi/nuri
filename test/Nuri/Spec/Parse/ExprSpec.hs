@@ -1,18 +1,15 @@
 {-# LANGUAGE OverloadedLists #-}
+
 module Nuri.Spec.Parse.ExprSpec where
 
-import           Test.Hspec
-import           Test.Hspec.Megaparsec
-
-import           Text.Megaparsec
-
-import           NeatInterpolation
-
-import           Nuri.Parse.Expr
-import           Nuri.Expr
-
-import           Nuri.Spec.Util
-import           Nuri.Spec.Parse.Util
+import NeatInterpolation
+import Nuri.Expr
+import Nuri.Parse.Expr
+import Nuri.Spec.Parse.Util
+import Nuri.Spec.Util
+import Test.Hspec
+import Test.Hspec.Megaparsec
+import Text.Megaparsec
 
 spec :: Spec
 spec = do
@@ -119,9 +116,9 @@ spec = do
       it "(부호있는) 두 정수 더하기" $ do
         testParse parseArithmetic "1++2"
           `shouldParse` binaryOp
-                          Add
-                          (litInteger 1)
-                          (unaryOp Positive (litInteger 2))
+            Add
+            (litInteger 1)
+            (unaryOp Positive (litInteger 2))
       it "두 정수 빼기" $ do
         testParse parseArithmetic "2 - 4"
           `shouldParse` binaryOp Subtract (litInteger 2) (litInteger 4)
@@ -151,15 +148,17 @@ spec = do
           `shouldParse` binaryOp GreaterThanEqual (litInteger 8) (litInteger 2)
     describe "복합 연산" $ do
       it "두 정수 나누고 한 정수 더하기" $ do
-        testParse parseArithmetic "4 / 2 + 3" `shouldParse` binaryOp
-          Add
-          (binaryOp Divide (litInteger 4) (litInteger 2))
-          (litInteger 3)
+        testParse parseArithmetic "4 / 2 + 3"
+          `shouldParse` binaryOp
+            Add
+            (binaryOp Divide (litInteger 4) (litInteger 2))
+            (litInteger 3)
       it "두 정수 나누고 한 정수 더하기 (순서 바꿔서)" $ do
-        testParse parseArithmetic "3 + 4 / 2" `shouldParse` binaryOp
-          Add
-          (litInteger 3)
-          (binaryOp Divide (litInteger 4) (litInteger 2))
+        testParse parseArithmetic "3 + 4 / 2"
+          `shouldParse` binaryOp
+            Add
+            (litInteger 3)
+            (binaryOp Divide (litInteger 4) (litInteger 2))
 
   describe "식별자 파싱" $ do
     it "영문 식별자" $ do
@@ -201,8 +200,8 @@ spec = do
     it "인자가 2개인 함수 호출식" $ do
       testParse parseFuncCall "1과 2를 더하다"
         `shouldParse` funcCall
-                        (var "더하다")
-                        [(litInteger 1, "와"), (litInteger 2, "을")]
+          (var "더하다")
+          [(litInteger 1, "와"), (litInteger 2, "을")]
     it "조사가 없는 함수 호출식에 대해서 오류" $ do
       testParse parseFuncCall `shouldFailOn` "1 2를 더하다"
       testParse parseFuncCall `shouldFailOn` "(1 + 1) 피보나치 수 구하다"
@@ -215,146 +214,150 @@ spec = do
     it "한 번 중첩된 식" $ do
       testParse parseNestedFuncCalls "4와 2의 합 구하고, 2로 나누다"
         `shouldParse` funcCall
-                        (var "나누다")
-                        [ ( funcCall
-                            (var "합 구하고")
-                            [(litInteger 4, "와"), (litInteger 2, "의")]
-                          , "_"
-                          )
-                        , (litInteger 2, "로")
-                        ]
+          (var "나누다")
+          [ ( funcCall
+                (var "합 구하고")
+                [(litInteger 4, "와"), (litInteger 2, "의")],
+              "_"
+            ),
+            (litInteger 2, "로")
+          ]
     it "두 번 중첩된 식" $ do
       testParse parseNestedFuncCalls "4와 2를 더하고, 2로 나누고, 3을 더하다"
         `shouldParse` funcCall
-                        (var "더하다")
-                        [ ( funcCall
-                            (var "나누고")
-                            [ ( funcCall
-                                (var "더하고")
-                                [(litInteger 4, "와"), (litInteger 2, "을")]
-                              , "_"
-                              )
-                            , (litInteger 2, "로")
-                            ]
-                          , "_"
-                          )
-                        , (litInteger 3, "을")
-                        ]
+          (var "더하다")
+          [ ( funcCall
+                (var "나누고")
+                [ ( funcCall
+                      (var "더하고")
+                      [(litInteger 4, "와"), (litInteger 2, "을")],
+                    "_"
+                  ),
+                  (litInteger 2, "로")
+                ],
+              "_"
+            ),
+            (litInteger 3, "을")
+          ]
 
   describe "조건식 파싱" $ do
     it "단순 조건식 파싱" $ do
       testParse parseIf "만약 참 이라면 1 아니라면 2"
         `shouldParse` ifExpr (litBool True) (litInteger 1) (litInteger 2)
     it "연산식이 포함된 조건식 파싱" $ do
-      testParse parseIf "만약 1 + 2 이라면 1 * 2 아니라면 2 / 3" `shouldParse` ifExpr
-        (binaryOp Add (litInteger 1) (litInteger 2))
-        (binaryOp Multiply (litInteger 1) (litInteger 2))
-        (binaryOp Divide (litInteger 2) (litInteger 3))
+      testParse parseIf "만약 1 + 2 이라면 1 * 2 아니라면 2 / 3"
+        `shouldParse` ifExpr
+          (binaryOp Add (litInteger 1) (litInteger 2))
+          (binaryOp Multiply (litInteger 1) (litInteger 2))
+          (binaryOp Divide (litInteger 2) (litInteger 3))
     it "함수 호출식 포함된 조건식 파싱" $ do
       testParse parseIf "만약 1을 2에 던지고 받다 이라면 3을 들고, 받다 아니라면 2를 들다"
         `shouldParse` ifExpr
-                        (funcCall (var "던지고 받다")
-                                  [(litInteger 1, "을"), (litInteger 2, "에")]
-                        )
-                        (funcCall
-                          (var "받다")
-                          [(funcCall (var "들고") [(litInteger 3, "을")], "_")]
-                        )
-                        (funcCall (var "들다") [(litInteger 2, "을")])
+          ( funcCall
+              (var "던지고 받다")
+              [(litInteger 1, "을"), (litInteger 2, "에")]
+          )
+          ( funcCall
+              (var "받다")
+              [(funcCall (var "들고") [(litInteger 3, "을")], "_")]
+          )
+          (funcCall (var "들다") [(litInteger 2, "을")])
     it "중첩된 조건식 파싱" $ do
       testParse parseIf "만약 (만약 거짓 이라면 1 아니라면 2) 이라면 1 아니라면 2"
         `shouldParse` ifExpr
-                        (ifExpr (litBool False) (litInteger 1) (litInteger 2))
-                        (litInteger 1)
-                        (litInteger 2)
+          (ifExpr (litBool False) (litInteger 1) (litInteger 2))
+          (litInteger 1)
+          (litInteger 2)
 
   describe "식 우선순위 테스트" $ do
     it "사칙연산 우선순위 괄호를 통해 변경" $ do
-      testParse parseExpr "(1 + 1) / 2" `shouldParse` binaryOp
-        Divide
-        (binaryOp Add (litInteger 1) (litInteger 1))
-        (litInteger 2)
+      testParse parseExpr "(1 + 1) / 2"
+        `shouldParse` binaryOp
+          Divide
+          (binaryOp Add (litInteger 1) (litInteger 1))
+          (litInteger 2)
     it "사칙연산식이 함수 호출식보다 우선순위 높음" $ do
-      testParse parseExpr "1 + 1과 2를 더하다" `shouldParse` binaryOp
-        Add
-        (litInteger 1)
-        (funcCall (var "더하다") [(litInteger 1, "와"), (litInteger 2, "을")])
+      testParse parseExpr "1 + 1과 2를 더하다"
+        `shouldParse` binaryOp
+          Add
+          (litInteger 1)
+          (funcCall (var "더하다") [(litInteger 1, "와"), (litInteger 2, "을")])
     it "함수 호출식과 사칙연산식 우선순위 괄호를 통해 변경" $ do
-      testParse parseExpr "(1 + 1)과 2를 더하다" `shouldParse` funcCall
-        (var "더하다")
-        [(binaryOp Add (litInteger 1) (litInteger 1), "와"), (litInteger 2, "을")]
+      testParse parseExpr "(1 + 1)과 2를 더하다"
+        `shouldParse` funcCall
+          (var "더하다")
+          [(binaryOp Add (litInteger 1) (litInteger 1), "와"), (litInteger 2, "을")]
 
   describe "시퀀스 파싱" $ do
     it "연산식 2개로 이어진 시퀀스" $ do
       testParse
-          parseSeq
-          ([text| 
+        parseSeq
+        ( [text| 
             순서대로
               1 + 1 
               2 * 2
           |]
-          )
+        )
         `shouldParse` Seq
-                        [ Right $ binaryOp Add (litInteger 1) (litInteger 1)
-                        , Right
-                          $ binaryOp Multiply (litInteger 2) (litInteger 2)
-                        ]
-
+          [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
+            Right $
+              binaryOp Multiply (litInteger 2) (litInteger 2)
+          ]
 
     it "비어있는 라인을 포함한 시퀀스" $ do
       testParse
-          parseSeq
-          ([text|
+        parseSeq
+        ( [text|
             순서대로
 
               1
               1을 던지다
           |]
-          )
+        )
         `shouldParse` Seq
-                        [ Right $ litInteger 1
-                        , Right $ funcCall (var "던지다") [(litInteger 1, "을")]
-                        ]
+          [ Right $ litInteger 1,
+            Right $ funcCall (var "던지다") [(litInteger 1, "을")]
+          ]
       testParse
-          parseSeq
-          ([text|
+        parseSeq
+        ( [text|
             순서대로
               1
                                           
               1을 던지다
           |]
-          )
+        )
         `shouldParse` Seq
-                        [ Right $ litInteger 1
-                        , Right $ funcCall (var "던지다") [(litInteger 1, "을")]
-                        ]
+          [ Right $ litInteger 1,
+            Right $ funcCall (var "던지다") [(litInteger 1, "을")]
+          ]
       testParse parseSeq "순서대로\n  1\n\n  1을 던지다"
         `shouldParse` Seq
-                        [ Right $ litInteger 1
-                        , Right $ funcCall (var "던지다") [(litInteger 1, "을")]
-                        ]
-
+          [ Right $ litInteger 1,
+            Right $ funcCall (var "던지다") [(litInteger 1, "을")]
+          ]
 
     it "중간에 함수 선언이 포함된 시퀀스" $ do
       testParse
-          parseSeq
-          ([text|
+        parseSeq
+        ( [text|
             순서대로
               함수 [값]을 더하다:
                 [값] + 1
               1
           |]
-          )
+        )
         `shouldParse` Seq
-                        [ Left $ funcDecl
-                          "더하다"
-                          [("값", "을")]
-                          (binaryOp Add (var "값") (litInteger 1))
-                        , Right $ litInteger 1
-                        ]
+          [ Left $
+              funcDecl
+                "더하다"
+                [("값", "을")]
+                (binaryOp Add (var "값") (litInteger 1)),
+            Right $ litInteger 1
+          ]
       testParse
-          parseSeq
-          ([text|
+        parseSeq
+        ( [text|
             순서대로
               1 + 1
               함수 [값]을 더하다:
@@ -365,39 +368,42 @@ spec = do
 
               1
           |]
-          )
+        )
         `shouldParse` Seq
-                        [ Right $ binaryOp Add (litInteger 1) (litInteger 1)
-                        , Left $ funcDecl
-                          "더하다"
-                          [("값", "을")]
-                          (binaryOp Add (var "값") (litInteger 1))
-                        , Left $ funcDecl
-                          "빼다"
-                          [("값", "을")]
-                          (binaryOp Subtract (var "값") (litInteger 1))
-                        , Right $ litInteger 1
-                        ]
-
+          [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
+            Left $
+              funcDecl
+                "더하다"
+                [("값", "을")]
+                (binaryOp Add (var "값") (litInteger 1)),
+            Left $
+              funcDecl
+                "빼다"
+                [("값", "을")]
+                (binaryOp Subtract (var "값") (litInteger 1)),
+            Right $ litInteger 1
+          ]
 
     it "마지막이 선언문인 시퀀스" $ do
       testParse
-          parseSeq
-          ([text|
+        parseSeq
+        ( [text|
             순서대로
               함수 [값]에 더하다:
                 [값] + 1
               1
               상수 [수]: 10 + 10
           |]
-          )
+        )
         `shouldParse` Seq
-                        [ Left $ funcDecl
-                          "더하다"
-                          [("값", "에")]
-                          (binaryOp Add (var "값") (litInteger 1))
-                        , Right $ litInteger 1
-                        , Left $ constDecl
-                          "수"
-                          (binaryOp Add (litInteger 10) (litInteger 10))
-                        ]
+          [ Left $
+              funcDecl
+                "더하다"
+                [("값", "에")]
+                (binaryOp Add (var "값") (litInteger 1)),
+            Right $ litInteger 1,
+            Left $
+              constDecl
+                "수"
+                (binaryOp Add (litInteger 10) (litInteger 10))
+          ]

@@ -1,40 +1,36 @@
 module Repl where
 
-import           Prelude                           hiding ( writeFile )
+import Control.Lens
+  ( makeLenses,
+    view,
+  )
+import Control.Lens.TH ()
+import Data.Binary
+  ( decode,
+    encode,
+  )
+import Data.Text (strip)
+import Haneul.Builder
+import Haneul.BuilderInternal
+import Haneul.Constant
+import Haneul.Serial ()
+import Nuri.Codegen.Stmt
+import Nuri.Parse.Stmt
+import Nuri.Stmt
+import System.IO (hFlush)
+import Text.Megaparsec
+  ( eof,
+    errorBundlePretty,
+    runParser,
+  )
+import Text.Pretty.Simple (pPrint)
+import Prelude hiding (writeFile)
 
-import           System.IO                                ( hFlush )
-
-import           Data.Text                                ( strip )
-
-import           Control.Lens                             ( makeLenses
-                                                          , view
-                                                          )
-import           Control.Lens.TH                          ( )
-
-import           Data.Binary                              ( encode
-                                                          , decode
-                                                          )
-
-import           Text.Megaparsec                          ( runParser
-                                                          , eof
-                                                          , errorBundlePretty
-                                                          )
-import           Text.Pretty.Simple                       ( pPrint )
-
-import           Nuri.Stmt
-import           Nuri.Codegen.Stmt
-import           Nuri.Parse.Stmt
-
-import           Haneul.Builder
-import           Haneul.BuilderInternal
-import           Haneul.Constant
-import           Haneul.Serial                            ( )
-
-newtype ReplState = ReplState { _prompt :: Text }
+newtype ReplState = ReplState {_prompt :: Text}
 
 $(makeLenses ''ReplState)
 
-newtype Repl a = Repl { unRepl :: StateT ReplState IO a }
+newtype Repl a = Repl {unRepl :: StateT ReplState IO a}
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
 parseInput :: Text -> String -> MaybeT IO (NonEmpty Stmt)
@@ -50,13 +46,14 @@ printResult stmts = do
   (liftIO . pPrint) stmts
   let program =
         ( internalToFuncObject
-          . runBuilder defaultInternal
-              { _internalGlobalVarNames = defaultGlobalNames
-              }
-          . compileStmts
-          )
+            . runBuilder
+              defaultInternal
+                { _internalGlobalVarNames = defaultGlobalNames
+                }
+            . compileStmts
+        )
           stmts
-      compiledCode  = view funcCode program
+      compiledCode = view funcCode program
       compiledTable = view funcConstTable program
 
   putStrLn "---------------"
@@ -67,8 +64,8 @@ printResult stmts = do
   let encodedProgram = encode program
   writeFileLBS "./test.hn" encodedProgram
 
-  -- when ((decode encodedProgram) == program)
-  --   (putStrLn "Program encoding is valid")
+-- when ((decode encodedProgram) == program)
+--   (putStrLn "Program encoding is valid")
 
 repl :: Repl ()
 repl = forever $ do
@@ -81,7 +78,7 @@ repl = forever $ do
   result <- (liftIO . runMaybeT . parseInput input) "(반응형)"
   case result of
     Just stmts -> liftIO (printResult stmts)
-    Nothing    -> pass
+    Nothing -> pass
 
 runRepl :: Repl a -> ReplState -> IO a
 runRepl f = evalStateT (unRepl f)

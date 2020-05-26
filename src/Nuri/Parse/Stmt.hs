@@ -1,12 +1,10 @@
 module Nuri.Parse.Stmt where
 
-import           Text.Megaparsec.Char.Lexer               ( nonIndented )
-
-import           Control.Monad.Combinators.NonEmpty       ( some )
-
-import           Nuri.Parse
-import           Nuri.Parse.Expr
-import           Nuri.Stmt
+import Control.Monad.Combinators.NonEmpty (some)
+import Nuri.Parse
+import Nuri.Parse.Expr
+import Nuri.Stmt
+import Text.Megaparsec.Char.Lexer (nonIndented)
 
 parseStmts :: Parser (NonEmpty Stmt)
 parseStmts = some (nonIndented sc parseStmt <* scn)

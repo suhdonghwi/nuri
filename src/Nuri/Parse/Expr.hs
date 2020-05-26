@@ -1,29 +1,26 @@
 module Nuri.Parse.Expr where
 
-import           Prelude                           hiding ( unwords
-                                                          , fromList
-                                                          )
-
-import           Data.List                                ( foldl1' )
-import           Data.Text                                ( unwords )
-
-import qualified Text.Megaparsec               as P
-import           Text.Megaparsec                          ( (<?>) )
-
-import qualified Text.Megaparsec.Char          as P
-import qualified Text.Megaparsec.Char.Lexer    as L
-
-import           Control.Monad.Combinators.Expr           ( makeExprParser
-                                                          , Operator
-                                                            ( Prefix
-                                                            , InfixL
-                                                            )
-                                                          )
-import           Control.Monad.Combinators.NonEmpty       ( sepBy1 )
-
-import           Nuri.Parse
-import           Nuri.Expr
-import           Nuri.Literal
+import Control.Monad.Combinators.Expr
+  ( Operator
+      ( InfixL,
+        Prefix
+      ),
+    makeExprParser,
+  )
+import Control.Monad.Combinators.NonEmpty (sepBy1)
+import Data.List (foldl1')
+import Data.Text (unwords)
+import Nuri.Expr
+import Nuri.Literal
+import Nuri.Parse
+import qualified Text.Megaparsec as P
+import Text.Megaparsec ((<?>))
+import qualified Text.Megaparsec.Char as P
+import qualified Text.Megaparsec.Char.Lexer as L
+import Prelude hiding
+  ( fromList,
+    unwords,
+  )
 
 parseDecl :: Parser Decl
 parseDecl = parseFuncDecl <|> parseConstDecl
@@ -32,50 +29,50 @@ parseFuncDecl :: Parser Decl
 parseFuncDecl = do
   pos <- getSourceLine
   P.try $ reserved "함수"
-  args     <- argList []
+  args <- argList []
   funcName <- parseFuncIdentifier
-  _        <- symbol ":"
+  _ <- symbol ":"
   scn
   FuncDecl pos funcName args <$> parseExpr
- where
-  argList :: [(Text, Text)] -> Parser [(Text, Text)]
-  argList l = do
-    identPos    <- P.getOffset
-    identResult <- P.observing parseIdentifier
-    case identResult of
-      Left  _     -> return l
-      Right ident -> do
-        josaPos <- P.getOffset
-        josa    <- parseJosa
-        sc
-        when
-          (ident `elem` (fst <$> l))
-          (do
-            P.setOffset (identPos + 1)
-            fail "함수 인자의 이름이 중복됩니다."
-          )
-        when
-          (josa `elem` (snd <$> l))
-          (do
-            P.setOffset josaPos
-            fail "조사는 중복되게 사용할 수 없습니다."
-          )
-        argList (l ++ [(ident, josa)])
+  where
+    argList :: [(Text, Text)] -> Parser [(Text, Text)]
+    argList l = do
+      identPos <- P.getOffset
+      identResult <- P.observing parseIdentifier
+      case identResult of
+        Left _ -> return l
+        Right ident -> do
+          josaPos <- P.getOffset
+          josa <- parseJosa
+          sc
+          when
+            (ident `elem` (fst <$> l))
+            ( do
+                P.setOffset (identPos + 1)
+                fail "함수 인자의 이름이 중복됩니다."
+            )
+          when
+            (josa `elem` (snd <$> l))
+            ( do
+                P.setOffset josaPos
+                fail "조사는 중복되게 사용할 수 없습니다."
+            )
+          argList (l ++ [(ident, josa)])
 
 parseJosa :: Parser Text
 parseJosa =
-  (do
+  ( do
       josa <- toText <$> P.some hangulSyllable
       return
-        (case josa of
-          "으로" -> "로"
-          "과"  -> "와"
-          "를"  -> "을"
-          "는"  -> "은"
-          "가"  -> "이"
-          j    -> j
+        ( case josa of
+            "으로" -> "로"
+            "과" -> "와"
+            "를" -> "을"
+            "는" -> "은"
+            "가" -> "이"
+            j -> j
         )
-    )
+  )
     <?> "조사"
 
 parseConstDecl :: Parser Decl
@@ -94,19 +91,19 @@ parseSeq = do
   scn
   level <- L.indentGuard scn GT P.pos1
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
-  fromExprs <$> sepBy1
-    parseLine
-    (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
-
- where
-  -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
-  fromExprs :: NonEmpty (Either Decl Expr) -> Expr
-  fromExprs (Right expr :| []) = expr
-  fromExprs l                  = Seq l
+  fromExprs
+    <$> sepBy1
+      parseLine
+      (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
+  where
+    -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
+    fromExprs :: NonEmpty (Either Decl Expr) -> Expr
+    fromExprs (Right expr :| []) = expr
+    fromExprs l = Seq l
 
 parseIf :: Parser Expr
 parseIf =
-  (do
+  ( do
       pos <- getSourceLine
       reserved "만약"
       condExpr <- parseExpr
@@ -118,41 +115,42 @@ parseIf =
       reserved "아니라면"
       scn
       If pos condExpr thenExpr <$> parseExpr
-    )
+  )
     <?> "조건식"
 
 parseArithmetic :: Parser Expr
-parseArithmetic = makeExprParser
-  (   (   P.try
-          (  parseTerm
-          <* P.notFollowedBy (void parseTerm <|> void parseFuncIdentifier) -- 후에 조사로 변경
+parseArithmetic =
+  makeExprParser
+    ( ( P.try
+          ( parseTerm
+              <* P.notFollowedBy (void parseTerm <|> void parseFuncIdentifier) -- 후에 조사로 변경
           )
-      <|> parseNestedFuncCalls
+          <|> parseNestedFuncCalls
       )
-  <?> "표현식"
-  )
-  table
- where
-  table =
-    [ [Prefix $ unaryOp "+" Positive, Prefix $ unaryOp "-" Negative]
-    , [ InfixL $ binaryOp "*" Multiply
-      , InfixL $ binaryOp "/" Divide
-      , InfixL $ binaryOp "%" Mod
+        <?> "표현식"
+    )
+    table
+  where
+    table =
+      [ [Prefix $ unaryOp "+" Positive, Prefix $ unaryOp "-" Negative],
+        [ InfixL $ binaryOp "*" Multiply,
+          InfixL $ binaryOp "/" Divide,
+          InfixL $ binaryOp "%" Mod
+        ],
+        [InfixL $ binaryOp "+" Add, InfixL $ binaryOp "-" Subtract],
+        [InfixL $ binaryOp "==" Equal, InfixL $ binaryOp "!=" Inequal],
+        [ InfixL $ binaryOp "<=" LessThanEqual,
+          InfixL $ binaryOp ">=" GreaterThanEqual,
+          InfixL $ binaryOp "<" LessThan,
+          InfixL $ binaryOp ">" GreaterThan
+        ]
       ]
-    , [InfixL $ binaryOp "+" Add, InfixL $ binaryOp "-" Subtract]
-    , [InfixL $ binaryOp "==" Equal, InfixL $ binaryOp "!=" Inequal]
-    , [ InfixL $ binaryOp "<=" LessThanEqual
-      , InfixL $ binaryOp ">=" GreaterThanEqual
-      , InfixL $ binaryOp "<" LessThan
-      , InfixL $ binaryOp ">" GreaterThan
-      ]
-    ]
-  binaryOp opStr op = P.hidden $ do
-    pos <- getSourceLine
-    BinaryOp pos op <$ L.symbol sc opStr
-  unaryOp opStr op = P.hidden $ do
-    pos <- getSourceLine
-    UnaryOp pos op <$ L.symbol sc opStr
+    binaryOp opStr op = P.hidden $ do
+      pos <- getSourceLine
+      BinaryOp pos op <$ L.symbol sc opStr
+    unaryOp opStr op = P.hidden $ do
+      pos <- getSourceLine
+      UnaryOp pos op <$ L.symbol sc opStr
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
@@ -165,31 +163,36 @@ parseNestedFuncCalls = do
 parseFuncCall :: Parser Expr
 parseFuncCall = do
   args <- P.many (liftA2 (,) (parseNonLexemeTerm <?> "함수 인수") (parseJosa <* sc))
-  pos  <- getSourceLine
+  pos <- getSourceLine
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos (Var pos func) args
 
 parseFuncIdentifier :: Parser Text
-parseFuncIdentifier = lexeme
-  (unwords <$> P.sepEndBy1 (P.try $ P.notFollowedBy keyword *> hangulWord)
-                           (P.char ' ')
-  )
- where
-  keywords   = ["함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
-  keyword    = P.choice $ reserved <$> keywords
-  hangulWord = toText <$> P.some hangulSyllable
-    -- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
+parseFuncIdentifier =
+  lexeme
+    ( unwords
+        <$> P.sepEndBy1
+          (P.try $ P.notFollowedBy keyword *> hangulWord)
+          (P.char ' ')
+    )
+  where
+    keywords = ["함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
+    keyword = P.choice $ reserved <$> keywords
+    hangulWord = toText <$> P.some hangulSyllable
+
+-- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 
 parseTerm :: Parser Expr
-parseTerm = lexeme
-  (   parseNoneExpr
-  <|> parseBoolExpr
-  <|> parseCharExpr
-  <|> P.try (parseRealExpr)
-  <|> parseIntegerExpr
-  <|> parseIdentifierExpr
-  <|> parseParens
-  )
+parseTerm =
+  lexeme
+    ( parseNoneExpr
+        <|> parseBoolExpr
+        <|> parseCharExpr
+        <|> P.try (parseRealExpr)
+        <|> parseIntegerExpr
+        <|> parseIdentifierExpr
+        <|> parseParens
+    )
 
 parseNonLexemeTerm :: Parser Expr
 parseNonLexemeTerm =
@@ -209,18 +212,19 @@ parseIdentifierExpr = liftA2 Var getSourceLine parseIdentifier
 
 parseIdentifier :: Parser Text
 parseIdentifier =
-  (P.between
+  ( P.between
       (P.char '[')
       (P.char ']')
-      (toText <$> liftA2
-        (++)
-        (P.some allowedChars)
-        (P.many (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자")))
+      ( toText
+          <$> liftA2
+            (++)
+            (P.some allowedChars)
+            (P.many (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자")))
       )
-    )
+  )
     <?> "변수 이름"
- where
-  allowedChars = hangulSyllable <|> hangulJamo <|> (P.letterChar <?> "영문")
+  where
+    allowedChars = hangulSyllable <|> hangulJamo <|> (P.letterChar <?> "영문")
 
 parseNoneExpr :: Parser Expr
 parseNoneExpr = do
@@ -233,9 +237,9 @@ parseIntegerExpr = do
   pos <- getSourceLine
   val <- zeroNumber <|> parseDecimal
   return $ Lit pos (LitInteger val)
- where
-  zeroNumber =
-    P.char '0' >> parseHexadecimal <|> parseOctal <|> parseBinary <|> return 0
+  where
+    zeroNumber =
+      P.char '0' >> parseHexadecimal <|> parseOctal <|> parseBinary <|> return 0
 
 parseRealExpr :: Parser Expr
 parseRealExpr = Lit <$> getSourceLine <*> (LitReal <$> parseReal)
@@ -263,10 +267,11 @@ parseReal = L.float
 
 parseChar :: Parser Char
 parseChar =
-  (P.between (P.char '\'')
-             (P.char '\'')
-             (P.notFollowedBy (P.char '\'') *> L.charLiteral)
-    )
+  ( P.between
+      (P.char '\'')
+      (P.char '\'')
+      (P.notFollowedBy (P.char '\'') *> L.charLiteral)
+  )
     <?> "문자"
 
 parseBool :: Parser Bool

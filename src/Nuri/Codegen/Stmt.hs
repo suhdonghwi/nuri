@@ -1,13 +1,11 @@
 module Nuri.Codegen.Stmt where
 
-
-import           Nuri.Stmt
-import           Nuri.Expr
-import           Nuri.Codegen.Expr
-import           Nuri.ASTNode
-
-import           Haneul.Builder
-import qualified Haneul.Instruction            as Inst
+import Haneul.Builder
+import qualified Haneul.Instruction as Inst
+import Nuri.ASTNode
+import Nuri.Codegen.Expr
+import Nuri.Expr
+import Nuri.Stmt
 
 compileStmt :: Stmt -> Builder ()
 compileStmt (DeclStmt decl) = do
@@ -16,7 +14,6 @@ compileStmt (DeclStmt decl) = do
 
   index <- addGlobalVarName name
   tellInst pos (Inst.StoreGlobal index)
-
 compileStmt stmt@(ExprStmt expr) = do
   exprSize <- compileExpr expr
   tellInst (getSourceLine stmt) (Inst.Pop)
@@ -25,5 +22,3 @@ compileStmt stmt@(ExprStmt expr) = do
 
 compileStmts :: NonEmpty Stmt -> Builder ()
 compileStmts s = sequence_ (compileStmt <$> s)
-
-

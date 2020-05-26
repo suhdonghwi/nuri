@@ -1,35 +1,35 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Haneul.Serial where
 
-import           Prelude                           hiding ( put
-                                                          , get
-                                                          , fromList
-                                                          )
-
-import           Data.Binary                              ( Binary(put, get)
-                                                          , Get
-                                                          , Put
-                                                          , putWord8
-                                                          , getWord8
-                                                          )
-import           Data.Binary.Put                          ( putDoublebe )
-import           Data.Binary.Get                          ( getDoublebe )
-import           Data.Char                                ( ord
-                                                          , chr
-                                                          )
-
-import           Data.Set.Ordered                         ( fromList )
-import           Data.Text                                ( unpack )
-
-import           Control.Lens                             ( (^.) )
-
-import           Text.Megaparsec.Pos                      ( unPos
-                                                          , mkPos
-                                                          , Pos
-                                                          )
-
-import           Haneul.Constant
-import           Haneul.Instruction
+import Control.Lens ((^.))
+import Data.Binary
+  ( Binary (get, put),
+    Get,
+    Put,
+    getWord8,
+    putWord8,
+  )
+import Data.Binary.Get (getDoublebe)
+import Data.Binary.Put (putDoublebe)
+import Data.Char
+  ( chr,
+    ord,
+  )
+import Data.Set.Ordered (fromList)
+import Data.Text (unpack)
+import Haneul.Constant
+import Haneul.Instruction
+import Text.Megaparsec.Pos
+  ( Pos,
+    mkPos,
+    unPos,
+  )
+import Prelude hiding
+  ( fromList,
+    get,
+    put,
+  )
 
 instance Binary Constant where
   put ConstNone = do
@@ -40,9 +40,9 @@ instance Binary Constant where
   put (ConstReal v) = do
     putWord8 2
     putDoublebe v
-    -- let (base, e) = decodeFloat v
-    -- put (fromIntegral base :: Int64)
-    -- put e
+  -- let (base, e) = decodeFloat v
+  -- put (fromIntegral base :: Int64)
+  -- put e
   put (ConstChar v) = do
     putWord8 3
     put (fromIntegral (ord v) :: Word32)
@@ -63,7 +63,6 @@ instance Binary Constant where
       5 -> ConstFunc <$> get
       _ -> fail "invalid constant type"
 
-
 putWord8List :: (a -> Put) -> [a] -> Put
 putWord8List f l = do
   putWord8 (genericLength l)
@@ -81,20 +80,21 @@ instance Binary FuncObject where
     put (toList $ obj ^. funcConstTable)
     put (obj ^. funcCode)
   get = do
-    josa           <- get
+    josa <- get
     globalVarNames <- get
-    maxStackSize   <- get
-    maxLocalCount  <- get
-    constTable     <- fromList <$> get
-    code           <- get
+    maxStackSize <- get
+    maxLocalCount <- get
+    constTable <- fromList <$> get
+    code <- get
     return
-      (FuncObject { _funcJosa           = josa
-                  , _funcGlobalVarNames = globalVarNames
-                  , _funcCode           = code
-                  , _funcConstTable     = constTable
-                  , _funcMaxLocalCount  = maxLocalCount
-                  , _funcStackSize      = maxStackSize
-                  }
+      ( FuncObject
+          { _funcJosa = josa,
+            _funcGlobalVarNames = globalVarNames,
+            _funcCode = code,
+            _funcConstTable = constTable,
+            _funcMaxLocalCount = maxLocalCount,
+            _funcStackSize = maxStackSize
+          }
       )
 
 instance (Binary a) => Binary (Instruction' a) where
@@ -151,32 +151,32 @@ instance (Binary a) => Binary (Instruction' a) where
   get = do
     inst <- get :: Get Word8
     let getterList =
-          [ Push <$> get
-          , return Pop
-          , LoadLocal <$> get
-          , StoreLocal <$> get
-          , LoadDeref <$> get
-          , StoreGlobal <$> get
-          , LoadGlobal <$> get
-          , Call <$> get
-          , Jmp <$> get
-          , PopJmpIfFalse <$> get
-          , FreeVar <$> get
-          , return Add
-          , return Subtract
-          , return Multiply
-          , return Divide
-          , return Mod
-          , return Equal
-          , return LessThan
-          , return GreaterThan
-          , return Negate
+          [ Push <$> get,
+            return Pop,
+            LoadLocal <$> get,
+            StoreLocal <$> get,
+            LoadDeref <$> get,
+            StoreGlobal <$> get,
+            LoadGlobal <$> get,
+            Call <$> get,
+            Jmp <$> get,
+            PopJmpIfFalse <$> get,
+            FreeVar <$> get,
+            return Add,
+            return Subtract,
+            return Multiply,
+            return Divide,
+            return Mod,
+            return Equal,
+            return LessThan,
+            return GreaterThan,
+            return Negate
           ]
     case getterList !!? (fromIntegral inst) of
       Just action -> action
-      Nothing     -> fail $ "invalid instruction opcode type" ++ show inst
+      Nothing -> fail $ "invalid instruction opcode type" ++ show inst
 
-instance Binary Pos  where
+instance Binary Pos where
   put v = do
     put (fromIntegral (unPos v) :: Word32)
   get = do
