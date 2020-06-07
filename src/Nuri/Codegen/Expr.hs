@@ -129,7 +129,7 @@ compileExpr (Lambda pos args body) = do
   tellInst pos (Inst.Push index)
 
   let freeVarList = toList $ view internalFreeVars internal
-  let processFreeVar [] = return []
+      processFreeVar [] = return []
       processFreeVar ((depth, localIndex) : xs) = do
         val <-
           if depth == 0

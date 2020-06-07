@@ -15,10 +15,8 @@ compileStmt (DeclStmt decl) = do
   index <- addGlobalVarName name
   tellInst pos (Inst.StoreGlobal index)
 compileStmt stmt@(ExprStmt expr) = do
-  exprSize <- compileExpr expr
+  compileExpr expr
   tellInst (getSourceLine stmt) (Inst.Pop)
-
-  return exprSize
 
 compileStmts :: NonEmpty Stmt -> Builder ()
 compileStmts s = sequence_ (compileStmt <$> s)
