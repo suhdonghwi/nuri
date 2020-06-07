@@ -1,9 +1,0 @@
-import Text.Megaparsec
-import Text.Megaparsec.Char.Lexer
-import Data.ByteString.Lazy.Internal
-import Data.Binary
-import Text.Printf
-:set prompt "$ "
-let f x = putStrLn $ concat $ (("\\x" ++) . printf "%02x") <$> (unpackBytes $ encode x)
-let g x = concat $ (("\\x" ++) . printf "%02x") <$> (unpackBytes $ encode x)
-let f x = putStrLn $ (unpackBytes $ encode x)

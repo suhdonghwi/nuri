@@ -37,8 +37,10 @@ compileExpr (Var pos ident) = do
   case viaNonEmpty last identIndices of
     Just index -> tellInst pos (Inst.LoadLocal $ fromIntegral index)
     Nothing -> do
+      -- localVars 중에서 식별자를 찾지 못했을 경우
       outerVars <- ask
       let result =
+            -- 외부 범위에서 변수 식별자 찾기
             viaNonEmpty
               head
               [ (i, j)
@@ -104,21 +106,21 @@ compileExpr (Seq xs) = do
             compileExpr expr
             tellInst pos (Inst.StoreLocal index)
             when (null ys) (tellInst pos (Inst.LoadLocal index))
+          -- 시퀀스의 마지막이 선언인 경우 시퀀스의 최종 결과를 선언한 값으로
           Right expr -> do
             compileExpr expr
             when (not $ null ys) (tellInst (getSourceLine expr) Inst.Pop)
+        -- 시퀀스의 마지막이 아닌 표현식일 경우 Pop
         process ys
-  seqSize <- process $ toList xs
+  process $ toList xs
 
   maxLocalCount <- use internalMaxLocalCount
   localCount <- uses internalLocalVars genericLength
   when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
 
-  -- 여기에 PopLocal 추가
   assign internalLocalVars tempVarNames
 
   modifying internalDepth (`subtract` 1)
-  return seqSize
 compileExpr (Lambda pos args body) = do
   (internal, funcObject) <- lambdaToFuncObject args body
   assign internalGlobalVarNames (view internalGlobalVarNames internal)
@@ -156,4 +158,7 @@ lambdaToFuncObject args body = do
           (newLocalStack : oldLocalStack)
           defaultInternal
       result = internalToFuncObject (internal, code)
-  return (internal, result {_funcJosa = snd <$> args})
+  return
+    ( internal,
+      result {_funcJosa = snd <$> args}
+    )
