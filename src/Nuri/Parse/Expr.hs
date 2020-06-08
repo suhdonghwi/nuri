@@ -38,7 +38,11 @@ parseFuncDecl = do
   args <- parseArgList []
   funcName <- parseFuncIdentifier <* symbol ":"
   scn
-  FuncDecl pos declKind funcName args <$> parseExpr
+  expr <- parseExpr
+
+  let decl = FuncDecl pos declKind funcName args expr
+  modify (decl :)
+  return decl
   where
     parseArgList :: [(Text, Text)] -> Parser [(Text, Text)]
     parseArgList l = do
@@ -95,7 +99,9 @@ parseSeq = do
   reserved "순서대로" <* P.newline
   scn
   level <- L.indentGuard scn GT P.pos1
+  st <- get
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
+  put st
   fromExprs
     <$> sepBy1
       parseLine
@@ -184,8 +190,6 @@ parseFuncIdentifier =
     keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
     keyword = P.choice $ reserved <$> keywords
     hangulWord = toText <$> P.some hangulSyllable
-
--- if word `elem` keywords then fail "예약어를 함수 이름으로 쓸 수 없습니다." else return word
 
 parseTerm :: Parser Expr
 parseTerm =

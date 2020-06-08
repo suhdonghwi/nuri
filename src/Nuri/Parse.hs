@@ -1,12 +1,13 @@
 module Nuri.Parse where
 
+import Nuri.Expr (Decl)
 import qualified Text.Megaparsec as P
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 import Text.Megaparsec.Pos (Pos)
 
-type Parser = P.ParsecT Void Text (State [Text])
+type Parser = P.ParsecT Void Text (State [Decl])
 
 lineComment :: Parser ()
 lineComment = L.skipLineComment "#"
