@@ -25,18 +25,24 @@ import Prelude hiding
 parseDecl :: Parser Decl
 parseDecl = parseFuncDecl <|> parseConstDecl
 
+parseFuncDeclKind :: Parser FuncDeclKind
+parseFuncDeclKind =
+  (pure NormalDecl <* reserved "함수")
+    <|> (pure VerbDecl <* reserved "동사")
+    <|> (pure AdjectiveDecl <* reserved "형용사")
+
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
   pos <- getSourceLine
-  P.try $ reserved "함수"
-  args <- argList []
+  declKind <- parseFuncDeclKind
+  args <- parseArgList []
   funcName <- parseFuncIdentifier
   _ <- symbol ":"
   scn
-  FuncDecl pos NormalDecl funcName args <$> parseExpr
+  FuncDecl pos declKind funcName args <$> parseExpr
   where
-    argList :: [(Text, Text)] -> Parser [(Text, Text)]
-    argList l = do
+    parseArgList :: [(Text, Text)] -> Parser [(Text, Text)]
+    parseArgList l = do
       identPos <- P.getOffset
       identResult <- P.observing parseIdentifier
       case identResult of
@@ -57,7 +63,7 @@ parseFuncDecl = do
                 P.setOffset josaPos
                 fail "조사는 중복되게 사용할 수 없습니다."
             )
-          argList (l ++ [(ident, josa)])
+          parseArgList (l ++ [(ident, josa)])
 
 parseJosa :: Parser Text
 parseJosa =
@@ -176,7 +182,7 @@ parseFuncIdentifier =
           (P.char ' ')
     )
   where
-    keywords = ["함수", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
+    keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
     keyword = P.choice $ reserved <$> keywords
     hangulWord = toText <$> P.some hangulSyllable
 

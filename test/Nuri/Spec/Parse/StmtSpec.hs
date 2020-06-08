@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedLists #-}
 
 module Nuri.Spec.Parse.StmtSpec where
+
 import NeatInterpolation
 import Nuri.Expr
 import Nuri.Parse.Stmt
@@ -10,7 +11,6 @@ import Nuri.Stmt
 import Test.Hspec
 import Test.Hspec.Megaparsec
 
-
 spec :: Spec
 spec = do
   describe "선언문 파싱" $ do
@@ -18,6 +18,7 @@ spec = do
       it "인자가 한 개인 함수" $ do
         testParse parseDeclStmt "함수 [값]을 증가하다:\n  [값]에 1을 더하다"
           `shouldParse` funcDeclStmt
+            NormalDecl
             "증가하다"
             [("값", "을")]
             ( funcCall
@@ -26,8 +27,9 @@ spec = do
             )
 
       it "인자가 여러 개인 함수" $ do
-        testParse parseDeclStmt "함수 [값1]에 [값2]을 더하다:\n   [값1] + [값2]"
+        testParse parseDeclStmt "동사 [값1]에 [값2]을 더하다:\n   [값1] + [값2]"
           `shouldParse` funcDeclStmt
+            VerbDecl
             "더하다"
             [("값1", "에"), ("값2", "을")]
             (binaryOp Add (var "값1") (var "값2"))
@@ -35,6 +37,7 @@ spec = do
       it "함수 이름에 띄어쓰기가 포함된 함수" $ do
         testParse parseDeclStmt "함수 [값1]에 [값2]을 더한 값 구하다:\n  참"
           `shouldParse` funcDeclStmt
+            NormalDecl
             "더한 값 구하다"
             [("값1", "에"), ("값2", "을")]
             (litBool True)
@@ -78,7 +81,7 @@ spec = do
                          )
       it "예약어로 시작하는 이름의 함수 허용" $ do
         testParse parseDeclStmt "함수 [값]을 거짓하다:\n  1"
-          `shouldParse` funcDeclStmt "거짓하다" [("값", "을")] (litInteger 1)
+          `shouldParse` funcDeclStmt NormalDecl "거짓하다" [("값", "을")] (litInteger 1)
 
       it "연산식 시퀀스를 포함한 함수" $ do
         testParse
@@ -90,6 +93,7 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
+            NormalDecl
             "동작"
             []
             ( Seq
@@ -110,6 +114,7 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
+            NormalDecl
             "동작"
             []
             ( Seq
@@ -128,6 +133,7 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
+            NormalDecl
             "동작"
             []
             ( Seq
@@ -141,17 +147,19 @@ spec = do
           parseDeclStmt
           ( [text|
               함수 동작: 순서대로
-                함수 [값]을 더하다:
+                동사 [값]을 더하다:
                   [값] + 1
                 1
             |]
           )
           `shouldParse` funcDeclStmt
+            NormalDecl
             "동작"
             []
             ( Seq
                 [ Left $
                     funcDecl
+                      VerbDecl
                       "더하다"
                       [("값", "을")]
                       (binaryOp Add (var "값") (litInteger 1)),
@@ -165,27 +173,30 @@ spec = do
           ( [text|
               함수 동작: 순서대로
                 1 + 1
-                함수 [값]을 더하다:
+                동사 [값]을 더하다:
                   [값] + 1
 
-                함수 [값]을 빼다:
+                동사 [값]을 빼다:
                   [값] - 1
 
                 1
             |]
           )
           `shouldParse` funcDeclStmt
+            NormalDecl
             "동작"
             []
             ( Seq
                 [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
                   Left $
                     funcDecl
+                      VerbDecl
                       "더하다"
                       [("값", "을")]
                       (binaryOp Add (var "값") (litInteger 1)),
                   Left $
                     funcDecl
+                      VerbDecl
                       "빼다"
                       [("값", "을")]
                       (binaryOp Subtract (var "값") (litInteger 1)),
@@ -205,11 +216,13 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
+            NormalDecl
             "동작"
             []
             ( Seq
                 [ Left $
                     funcDecl
+                      NormalDecl
                       "더하다"
                       [("값", "에")]
                       (binaryOp Add (var "값") (litInteger 1)),
@@ -245,6 +258,7 @@ spec = do
     it "인자가 한 개인 함수" $ do
       testParse parseStmt "함수 [값]에 증가하다:\n  [값]에 1을 더하다"
         `shouldParse` funcDeclStmt
+          NormalDecl
           "증가하다"
           [("값", "에")]
           ( funcCall
@@ -264,8 +278,8 @@ spec = do
               2
           |]
         )
-        `shouldParse` [ funcDeclStmt "더하다" [("값", "에")] (litInteger 1),
-                        funcDeclStmt "빼다" [("값", "을")] (litInteger 2)
+        `shouldParse` [ funcDeclStmt NormalDecl "더하다" [("값", "에")] (litInteger 1),
+                        funcDeclStmt NormalDecl "빼다" [("값", "을")] (litInteger 2)
                       ]
     it "시퀀스를 포함한 함수 여러 개 선언 파싱" $ do
       testParse
@@ -281,6 +295,7 @@ spec = do
           |]
         )
         `shouldParse` [ funcDeclStmt
+                          NormalDecl
                           "더하다"
                           [("값", "에")]
                           ( Seq
@@ -289,6 +304,7 @@ spec = do
                               ]
                           ),
                         funcDeclStmt
+                          NormalDecl
                           "빼다"
                           [("값", "을")]
                           ( Seq

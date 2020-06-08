@@ -15,13 +15,16 @@ litNone = Lit initPos LitNone
 litInteger v = Lit initPos (LitInteger v)
 
 litChar v = Lit initPos (LitChar v)
+
 litReal v = Lit initPos (LitReal v)
 
 litBool v = Lit initPos (LitBool v)
 ifExpr = If initPos
 
+
 binaryOp = BinaryOp initPos
 unaryOp = UnaryOp initPos
+
 
 var = Var initPos
 funcCall = FuncCall initPos
@@ -30,12 +33,9 @@ lambda = Lambda initPos
 
 
 funcDecl = FuncDecl initPos
+
+
+funcDeclStmt = (((DeclStmt .) .) .) . funcDecl
 constDecl = ConstDecl initPos
 
-
-funcDeclStmt = ((DeclStmt .) .) . funcDecl
-
 constDeclStmt = (DeclStmt .) . constDecl
-
-
-

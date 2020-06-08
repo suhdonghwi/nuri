@@ -18,6 +18,7 @@ spec = do
       it "인자가 하나인 함수 선언 코드 생성" $
         compileStmt
           ( funcDeclStmt
+              NormalDecl
               "더하다"
               [("값", "을")]
               (binaryOp Add (var "값") (litInteger 1))
@@ -39,6 +40,7 @@ spec = do
       it "인자가 두 개인 함수 선언 코드 생성" $
         compileStmt
           ( funcDeclStmt
+              NormalDecl
               "더하다"
               [("수1", "에"), ("수2", "을")]
               (binaryOp Add (var "수1") (var "수2"))
@@ -61,6 +63,7 @@ spec = do
           compileStmt (constDeclStmt "값" (litInteger 1))
           compileStmt
             ( funcDeclStmt
+                NormalDecl
                 "더하다"
                 [("수", "을")]
                 (binaryOp Add (var "수") (var "값"))
@@ -89,6 +92,7 @@ spec = do
           compileStmt (constDeclStmt "값" (litInteger 1))
           compileStmt
             ( funcDeclStmt
+                NormalDecl
                 "더하다"
                 [("값", "을")]
                 (binaryOp Add (var "값") (litInteger 2))
@@ -116,6 +120,7 @@ spec = do
         do
           compileStmt
             ( funcDeclStmt
+                NormalDecl
                 "더하다"
                 [("값1", "을")]
                 ( Seq
@@ -148,6 +153,7 @@ spec = do
         do
           compileStmt
             ( funcDeclStmt
+                NormalDecl
                 "동작"
                 []
                 ( Seq
@@ -183,14 +189,16 @@ spec = do
         do
           compileStmt
             ( funcDeclStmt
+                NormalDecl
                 "바깥"
                 [("값", "을")]
                 ( Seq
                     [ Left $
                         funcDecl
+                          NormalDecl
                           "중간"
                           []
-                          (Seq [Left $ funcDecl "안쪽" [] (var "값"), Right $ var "안쪽"]),
+                          (Seq [Left $ funcDecl NormalDecl "안쪽" [] (var "값"), Right $ var "안쪽"]),
                       Right $ var "중간"
                     ]
                 )
@@ -245,10 +253,11 @@ spec = do
         do
           compileStmt
             ( funcDeclStmt
+                NormalDecl
                 "동작"
                 []
                 ( Seq
-                    [ Left $ funcDecl "재귀" [] (funcCall (var "재귀") []),
+                    [ Left $ funcDecl NormalDecl "재귀" [] (funcCall (var "재귀") []),
                       Right $ funcCall (var "재귀") []
                     ]
                 )

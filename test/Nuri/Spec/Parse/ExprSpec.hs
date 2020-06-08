@@ -342,7 +342,7 @@ spec = do
         parseSeq
         ( [text|
             순서대로
-              함수 [값]을 더하다:
+              동사 [값]을 더하다:
                 [값] + 1
               1
           |]
@@ -350,6 +350,7 @@ spec = do
         `shouldParse` Seq
           [ Left $
               funcDecl
+                VerbDecl
                 "더하다"
                 [("값", "을")]
                 (binaryOp Add (var "값") (litInteger 1)),
@@ -360,7 +361,7 @@ spec = do
         ( [text|
             순서대로
               1 + 1
-              함수 [값]을 더하다:
+              동사 [값]을 더하다:
                 [값] + 1
 
               함수 [값]을 빼다:
@@ -373,11 +374,13 @@ spec = do
           [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
             Left $
               funcDecl
+                VerbDecl
                 "더하다"
                 [("값", "을")]
                 (binaryOp Add (var "값") (litInteger 1)),
             Left $
               funcDecl
+                NormalDecl
                 "빼다"
                 [("값", "을")]
                 (binaryOp Subtract (var "값") (litInteger 1)),
@@ -389,7 +392,7 @@ spec = do
         parseSeq
         ( [text|
             순서대로
-              함수 [값]에 더하다:
+              형용사 [값1]과 [값2]가 같다:
                 [값] + 1
               1
               상수 [수]: 10 + 10
@@ -398,8 +401,9 @@ spec = do
         `shouldParse` Seq
           [ Left $
               funcDecl
-                "더하다"
-                [("값", "에")]
+                AdjectiveDecl
+                "같다"
+                [("값1", "와"), ("값2", "이")]
                 (binaryOp Add (var "값") (litInteger 1)),
             Right $ litInteger 1,
             Left $
