@@ -36,8 +36,7 @@ parseFuncDecl = do
   pos <- getSourceLine
   declKind <- parseFuncDeclKind
   args <- parseArgList []
-  funcName <- parseFuncIdentifier
-  _ <- symbol ":"
+  funcName <- parseFuncIdentifier <* symbol ":"
   scn
   FuncDecl pos declKind funcName args <$> parseExpr
   where

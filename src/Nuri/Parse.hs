@@ -6,7 +6,7 @@ import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 import Text.Megaparsec.Pos (Pos)
 
-type Parser = P.Parsec Void Text
+type Parser = P.ParsecT Void Text (State [Text])
 
 lineComment :: Parser ()
 lineComment = L.skipLineComment "#"

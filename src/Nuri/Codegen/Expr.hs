@@ -105,12 +105,12 @@ compileExpr (Seq xs) = do
             index <- addVarName depth name
             compileExpr expr
             tellInst pos (Inst.StoreLocal index)
+            -- 시퀀스의 마지막이 선언인 경우 시퀀스의 최종 결과를 선언한 값으로
             when (null ys) (tellInst pos (Inst.LoadLocal index))
-          -- 시퀀스의 마지막이 선언인 경우 시퀀스의 최종 결과를 선언한 값으로
           Right expr -> do
             compileExpr expr
+            -- 시퀀스의 마지막이 아닌 표현식일 경우 Pop
             when (not $ null ys) (tellInst (getSourceLine expr) Inst.Pop)
-        -- 시퀀스의 마지막이 아닌 표현식일 경우 Pop
         process ys
   process $ toList xs
 

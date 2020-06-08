@@ -21,7 +21,7 @@ import System.IO (hFlush)
 import Text.Megaparsec
   ( eof,
     errorBundlePretty,
-    runParser,
+    runParserT,
   )
 import Text.Pretty.Simple (pPrint)
 import Prelude hiding (writeFile)
@@ -35,7 +35,7 @@ newtype Repl a = Repl {unRepl :: StateT ReplState IO a}
 
 parseInput :: Text -> String -> MaybeT IO (NonEmpty Stmt)
 parseInput input fileName = do
-  case runParser (parseStmts <* eof) fileName input of
+  case evalState (runParserT (parseStmts <* eof) fileName input) [] of
     Left err -> do
       (liftIO . putTextLn . toText . errorBundlePretty) err
       hoistMaybe Nothing
