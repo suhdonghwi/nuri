@@ -33,7 +33,7 @@ parseFuncDecl = do
   funcName <- parseFuncIdentifier
   _ <- symbol ":"
   scn
-  FuncDecl pos funcName args <$> parseExpr
+  FuncDecl pos NormalDecl funcName args <$> parseExpr
   where
     argList :: [(Text, Text)] -> Parser [(Text, Text)]
     argList l = do

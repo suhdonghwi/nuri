@@ -100,19 +100,6 @@ tellCode code = do
 tellInst :: Pos -> MarkedInstruction -> Builder ()
 tellInst pos inst = tellCode [(pos, inst)]
 
--- toFuncObject :: BuilderInternal -> Builder () -> FuncObject
--- toFuncObject internal result =
---   let (internal', code') = execRWS result [] internal
---       code               = clearMarks internal' code'
---   in  FuncObject
---         { _funcGlobalVarNames = toList $ view internalGlobalVarNames internal'
---         , _funcStackSize      = estimateStackSize code
---         , _funcMaxLocalCount  = view internalMaxLocalCount internal'
---         , _funcConstTable     = view internalConstTable internal'
---         , _funcCode           = code
---         , _funcJosa           = []
---         }
-
 internalToFuncObject :: (BuilderInternal, MarkedCode) -> FuncObject
 internalToFuncObject (internal, markedCode) =
   let code = clearMarks internal markedCode

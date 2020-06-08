@@ -28,15 +28,15 @@ data Instruction' a
 newtype Mark = Mark Word32
 
 type MarkedInstruction = Instruction' Mark
+
 type Instruction = Instruction' Word32
 
-
 type Ann t = (Pos, t)
-
 type MarkedCode = [Ann MarkedInstruction]
 
-
 type Code = [Ann Instruction]
+
+
 estimateStackSize :: Code -> Word64
 estimateStackSize input = sizeLoop 0 0 0 input
   where
