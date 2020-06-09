@@ -9,7 +9,7 @@ import Control.Monad.Combinators.Expr
   )
 import Control.Monad.Combinators.NonEmpty (sepBy1)
 import Data.List (foldl1')
-import Data.Text (unwords)
+import qualified Data.Text as T
 import Nuri.Expr
 import Nuri.Literal
 import Nuri.Parse
@@ -165,23 +165,47 @@ parseArithmetic =
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  calls <- P.sepBy1 (parseFuncCall <?> "함수 호출식") (symbol ",")
+  initCalls <- P.many (parseNestedFuncCall <?> "함수 호출식")
+  lastCall <- parseFuncCall
+
   let addArg arg (FuncCall pos func args) =
         FuncCall pos func ((arg, "_") : args)
       addArg _ _ = error "불가능한 상황"
-  return $ foldl1' addArg calls
+  return $ foldl1' addArg (initCalls ++ [lastCall])
+
+parseNestedFuncCall :: Parser Expr
+parseNestedFuncCall = do
+  (args, pos, ident) <- P.try $ do
+    args <- parseArguments
+    pos <- getSourceLine
+    ident <- parseFuncIdentifier <* symbol ","
+    return (args, pos, ident)
+
+  if T.last ident == '고'
+    then do
+      st <- get
+      let originalIdent = T.snoc (T.init ident) '다'
+      let isPossible (FuncDecl _ VerbDecl n _ _) = n == originalIdent
+          isPossible _ = False
+      if any isPossible st
+        then return $ FuncCall pos (Var pos originalIdent) args
+        else fail $ "활용할 수 있는 동사 '" ++ toString originalIdent ++ "'이(가) 없습니다."
+    else fail "여기에서는 활용이 '~하고' 형태여야합니다."
 
 parseFuncCall :: Parser Expr
 parseFuncCall = do
-  args <- P.many (liftA2 (,) (parseNonLexemeTerm <?> "함수 인수") (parseJosa <* sc))
+  args <- parseArguments
   pos <- getSourceLine
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos (Var pos func) args
 
+parseArguments :: Parser [(Expr, Text)]
+parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm <?> "함수 인수") (parseJosa <* sc)
+
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier =
   lexeme
-    ( unwords
+    ( T.unwords
         <$> P.sepEndBy1
           (P.try $ P.notFollowedBy keyword *> hangulWord)
           (P.char ' ')

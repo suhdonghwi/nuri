@@ -216,7 +216,7 @@ spec = do
         `shouldParse` funcCall
           (var "나누다")
           [ ( funcCall
-                (var "합 구하고")
+                (var "합 구하다")
                 [(litInteger 4, "와"), (litInteger 2, "의")],
               "_"
             ),
@@ -227,9 +227,9 @@ spec = do
         `shouldParse` funcCall
           (var "더하다")
           [ ( funcCall
-                (var "나누고")
+                (var "나누다")
                 [ ( funcCall
-                      (var "더하고")
+                      (var "더하다")
                       [(litInteger 4, "와"), (litInteger 2, "을")],
                     "_"
                   ),
@@ -239,6 +239,8 @@ spec = do
             ),
             (litInteger 3, "을")
           ]
+    it "잘못된 활용을 한 식" $ do
+      testParse parseNestedFuncCalls `shouldFailOn` "4와 2를 더하다, 2로 나누다"
 
   describe "조건식 파싱" $ do
     it "단순 조건식 파싱" $ do
@@ -259,7 +261,7 @@ spec = do
           )
           ( funcCall
               (var "받다")
-              [(funcCall (var "들고") [(litInteger 3, "을")], "_")]
+              [(funcCall (var "들다") [(litInteger 3, "을")], "_")]
           )
           (funcCall (var "들다") [(litInteger 2, "을")])
     it "중첩된 조건식 파싱" $ do
