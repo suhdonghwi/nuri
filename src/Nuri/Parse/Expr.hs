@@ -25,8 +25,8 @@ import Prelude hiding
 parseDecl :: Parser Decl
 parseDecl = parseFuncDecl <|> parseConstDecl
 
-parseFuncDeclKind :: Parser FuncDeclKind
-parseFuncDeclKind =
+parseDeclKind :: Parser DeclKind
+parseDeclKind =
   (pure NormalDecl <* reserved "함수")
     <|> (pure VerbDecl <* reserved "동사")
     <|> (pure AdjectiveDecl <* reserved "형용사")
@@ -34,7 +34,7 @@ parseFuncDeclKind =
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
   pos <- getSourceLine
-  declKind <- parseFuncDeclKind
+  declKind <- parseDeclKind
   args <- parseArgList []
   funcName <- parseFuncIdentifier <* symbol ":"
   scn

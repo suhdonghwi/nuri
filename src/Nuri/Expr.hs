@@ -4,11 +4,11 @@ import Nuri.ASTNode
 import Nuri.Literal
 import Text.Megaparsec.Pos (Pos)
 
-data FuncDeclKind = NormalDecl | VerbDecl | AdjectiveDecl
+data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
   deriving (Eq, Show)
 
 data Decl
-  = FuncDecl Pos FuncDeclKind Text [(Text, Text)] Expr
+  = FuncDecl Pos DeclKind Text [(Text, Text)] Expr
   | ConstDecl Pos Text Expr
   deriving (Show)
 
@@ -21,6 +21,8 @@ instance Eq Decl where
 instance ASTNode Decl where
   getSourceLine (FuncDecl pos _ _ _ _) = pos
   getSourceLine (ConstDecl pos _ _) = pos
+
+-- findDecl :: [Decl] -> Text -> DeclKind -> Bool
 
 declToExpr :: Decl -> (Pos, Text, Expr)
 declToExpr (FuncDecl pos _ funcName args body) =
