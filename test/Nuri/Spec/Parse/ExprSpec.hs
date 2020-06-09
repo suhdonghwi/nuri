@@ -239,7 +239,7 @@ spec = do
             ),
             (litInteger 3, "을")
           ]
-    it "잘못된 활용을 한 식" $ do
+    it "잘못된 동사 활용을 한 식" $ do
       testParse parseNestedFuncCalls `shouldFailOn` "4와 2를 더하다, 2로 나누다"
 
   describe "조건식 파싱" $ do

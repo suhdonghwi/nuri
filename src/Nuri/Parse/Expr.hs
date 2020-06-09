@@ -23,7 +23,7 @@ import Prelude hiding
   )
 
 parseDecl :: Parser Decl
-parseDecl = parseFuncDecl <|> parseConstDecl
+parseDecl = P.try parseFuncDecl <|> parseConstDecl
 
 parseDeclKind :: String -> Parser DeclKind
 parseDeclKind normalText =

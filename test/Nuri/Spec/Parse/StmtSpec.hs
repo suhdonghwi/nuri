@@ -240,11 +240,23 @@ spec = do
         testParse parseDeclStmt "상수 [값]: 1"
           `shouldParse` constDeclStmt NormalDecl "값" (litInteger 1)
       it "계산식 상수 선언" $ do
-        testParse parseDeclStmt "상수 [값] : 1 * 2"
+        testParse parseDeclStmt "상수 [값]: 1 * 2"
           `shouldParse` constDeclStmt
             NormalDecl
             "값"
             (binaryOp Multiply (litInteger 1) (litInteger 2))
+      it "동사 상수 선언" $ do
+        testParse parseDeclStmt "동사 [하나 더하다]: 1을 더하다"
+          `shouldParse` constDeclStmt
+            VerbDecl
+            "하나 더하다"
+            (funcCall (var "더하다") [(litInteger 1, "을")])
+      it "형용사 상수 선언" $ do
+        testParse parseDeclStmt "형용사 [동일하다]: 같다"
+          `shouldParse` constDeclStmt
+            AdjectiveDecl
+            "동일하다"
+            (funcCall (var "같다") [])
 
   describe "표현식 구문 파싱" $ do
     it "계산식 구문" $ do

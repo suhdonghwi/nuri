@@ -24,7 +24,7 @@ instance ASTNode Decl where
 
 checkDecl :: DeclKind -> Text -> Decl -> Bool
 checkDecl kind' name' (FuncDecl _ kind name _ _) = (kind == kind') && (name == name')
-checkDecl _ _ _ = False
+checkDecl kind' name' (ConstDecl _ kind name _) = (kind == kind') && (name == name')
 
 declToExpr :: Decl -> (Pos, Text, Expr)
 declToExpr (FuncDecl pos _ funcName args body) =
