@@ -23,7 +23,10 @@ import Prelude hiding
   )
 
 parseDecl :: Parser Decl
-parseDecl = P.try parseFuncDecl <|> parseConstDecl
+parseDecl = do
+  decl <- P.try parseFuncDecl <|> parseConstDecl
+  modify (decl :)
+  return decl
 
 parseDeclKind :: String -> Parser DeclKind
 parseDeclKind normalText =
@@ -38,11 +41,7 @@ parseFuncDecl = do
   args <- parseArgList []
   funcName <- parseFuncIdentifier <* symbol ":"
   scn
-  expr <- parseExpr
-
-  let decl = FuncDecl pos declKind funcName args expr
-  modify (decl :)
-  return decl
+  FuncDecl pos declKind funcName args <$> parseExpr
   where
     parseArgList :: [(Text, Text)] -> Parser [(Text, Text)]
     parseArgList l = do
