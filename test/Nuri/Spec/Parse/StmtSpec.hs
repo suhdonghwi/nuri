@@ -313,3 +313,20 @@ spec = do
                               ]
                           )
                       ]
+    it "함수 여러 개 선언 뒤 동사 활용 파싱" $ do
+      testParse
+        parseStmts
+        ( [text|
+            동사 [값]에 가하다: 
+              1
+
+            동사 [값]을 걷다: 
+              2
+            
+            10에 가하고, 걷다
+          |]
+        )
+        `shouldParse` [ funcDeclStmt VerbDecl "가하다" [("값", "에")] (litInteger 1),
+                        funcDeclStmt VerbDecl "걷다" [("값", "을")] (litInteger 2),
+                        ExprStmt $ funcCall (var "걷다") [(funcCall (var "가하다") [(litInteger 10, "에")], "_")]
+                      ]
