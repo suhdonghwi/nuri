@@ -330,3 +330,18 @@ spec = do
                         funcDeclStmt VerbDecl "걷다" [("값", "을")] (litInteger 2),
                         ExprStmt $ funcCall (var "걷다") [(funcCall (var "가하다") [(litInteger 10, "에")], "_")]
                       ]
+    it "시퀀스에서 함수 선언 뒤 외부 스코프에서 활용하면 에러" $ do
+      testParse
+        parseStmts
+        `shouldFailOn` ( [text|
+            순서대로
+              동사 [값]에 가하다: 
+                1
+              1
+
+            동사 [값]을 걷다: 
+              2
+            
+            10에 가하고, 걷다
+          |]
+                       )

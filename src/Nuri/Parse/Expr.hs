@@ -101,11 +101,13 @@ parseSeq = do
   level <- L.indentGuard scn GT P.pos1
   st <- get
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
+  result <-
+    fromExprs
+      <$> sepBy1
+        parseLine
+        (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
   put st
-  fromExprs
-    <$> sepBy1
-      parseLine
-      (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
+  return result
   where
     -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
     fromExprs :: NonEmpty (Either Decl Expr) -> Expr
@@ -175,11 +177,12 @@ parseNestedFuncCalls = do
 
 parseNestedFuncCall :: Parser Expr
 parseNestedFuncCall = do
-  (args, pos, ident) <- P.try $ do
+  (args, pos, offset, ident) <- P.try $ do
     args <- parseArguments
     pos <- getSourceLine
+    offset <- P.getOffset
     ident <- parseFuncIdentifier <* symbol ","
-    return (args, pos, ident)
+    return (args, pos, offset, ident)
 
   if T.last ident == '고'
     then do
@@ -187,8 +190,12 @@ parseNestedFuncCall = do
       let originalIdent = T.snoc (T.init ident) '다'
       if any (checkDecl VerbDecl originalIdent) st
         then return $ FuncCall pos (Var pos originalIdent) args
-        else fail $ "활용할 수 있는 동사 '" ++ toString originalIdent ++ "'이(가) 없습니다."
-    else fail "여기에서는 활용이 '~하고' 형태여야합니다."
+        else do
+          P.setOffset offset
+          fail $ "활용할 수 있는 동사 '" ++ toString originalIdent ++ "'이(가) 없습니다."
+    else do
+      P.setOffset (offset + T.length ident - 1)
+      fail "여기에서는 활용이 '~하고' 형태여야합니다."
 
 parseFuncCall :: Parser Expr
 parseFuncCall = do
