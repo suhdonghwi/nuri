@@ -52,6 +52,21 @@ spec = do
                 1 반환하다
             |]
                          )
+
+      it "용언 함수의 이름이 ~(하)다 꼴이 아니면 오류" $ do
+        testParse parseDeclStmt
+          `shouldFailOn` ( [text|
+              동사 [값]을 보기:
+                1 반환하다
+            |]
+                         )
+        testParse parseDeclStmt
+          `shouldFailOn` ( [text|
+              형용사 [값]을 화기:
+                1 반환하다
+            |]
+                         )
+
       it "인자에 대한 조사가 없으면 오류" $ do
         testParse parseDeclStmt
           `shouldFailOn` ( [text|
@@ -257,6 +272,18 @@ spec = do
             AdjectiveDecl
             "동일하다"
             (funcCall (var "같다") [])
+
+      it "용언 상수의 이름이 ~(하)다 꼴이 아니면 오류" $ do
+        testParse parseDeclStmt
+          `shouldFailOn` ( [text|
+              동사 [값]: 1
+            |]
+                         )
+        testParse parseDeclStmt
+          `shouldFailOn` ( [text|
+              형용사 [값]: 2
+            |]
+                         )
 
   describe "표현식 구문 파싱" $ do
     it "계산식 구문" $ do

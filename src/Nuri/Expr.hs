@@ -7,13 +7,13 @@ import Text.Megaparsec.Pos (Pos)
 data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
   deriving (Eq, Show)
 
-data Decl = Decl Pos DeclKind Text DeclType
-  deriving (Show)
-
 data DeclType
   = FuncDecl [(Text, Text)] Expr
   | ConstDecl Expr
   deriving (Eq, Show)
+
+data Decl = Decl Pos DeclKind Text DeclType
+  deriving (Show)
 
 instance Eq Decl where
   Decl _ k1 n1 t1 == Decl _ k2 n2 t2 = (k1 == k2) && (n1 == n2) && (t1 == t2)

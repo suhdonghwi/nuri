@@ -24,7 +24,7 @@ import Prelude hiding
 
 parseDecl :: Parser Decl
 parseDecl = do
-  decl <- P.try parseFuncDecl <|> parseConstDecl
+  decl <- parseFuncDecl <|> parseConstDecl
   modify (decl :)
   return decl
 
@@ -34,12 +34,25 @@ parseDeclKind normalText =
     <|> (pure VerbDecl <* reserved "동사")
     <|> (pure AdjectiveDecl <* reserved "형용사")
 
+checkValidIdentifier :: DeclKind -> Text -> Parser ()
+checkValidIdentifier kind name = do
+  if kind `elem` [VerbDecl, AdjectiveDecl]
+    then when (not $ T.last name == '다') $ do
+      offset <- P.getOffset
+      P.setOffset (offset - 1)
+      fail "용언을 선언할 때는 식별자가 ~(하)다 꼴이어야 합니다."
+    else pass
+
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
-  pos <- getSourceLine
-  declKind <- parseDeclKind "함수"
-  args <- parseArgList []
-  funcName <- parseFuncIdentifier <* symbol ":"
+  (pos, declKind, args, funcName) <- P.try $ do
+    pos <- getSourceLine
+    declKind <- parseDeclKind "함수"
+    args <- parseArgList []
+    funcName <- parseFuncIdentifier <* symbol ":"
+    return (pos, declKind, args, funcName)
+
+  checkValidIdentifier declKind funcName
   scn
   Decl pos declKind funcName <$> (FuncDecl args <$> parseExpr)
   where
@@ -88,6 +101,7 @@ parseConstDecl = do
   pos <- getSourceLine
   declKind <- parseDeclKind "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
+  checkValidIdentifier declKind identifier
   Decl pos declKind identifier <$> ConstDecl <$> parseExpr
 
 parseExpr :: Parser Expr
