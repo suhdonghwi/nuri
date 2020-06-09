@@ -119,14 +119,25 @@ parseIf =
       pos <- getSourceLine
       reserved "만약"
       condExpr <- parseExpr
-      scn
-      reserved "이라면"
+      let parseThen e = return e <* (scn >> reserved "이라면")
+      condExpr' <-
+        case condExpr of
+          e@(FuncCall p1 (Var p2 name) args) ->
+            if T.last name == '면'
+              then do
+                let name' = T.init name
+                st <- get
+                if any (checkDecl AdjectiveDecl name') st
+                  then return $ FuncCall p1 (Var p2 name') args
+                  else fail $ "활용할 수 있는 형용사 '" ++ toString name' ++ "'이(가) 없습니다."
+              else parseThen e
+          e -> parseThen e
       scn
       thenExpr <- parseExpr
       scn
       reserved "아니라면"
       scn
-      If pos condExpr thenExpr <$> parseExpr
+      If pos condExpr' thenExpr <$> parseExpr
   )
     <?> "조건식"
 
