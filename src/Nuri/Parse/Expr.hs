@@ -24,10 +24,10 @@ import Prelude hiding
 
 parseDecl :: Parser Decl
 parseDecl = do
-  decl@(Decl pos kind name t) <- parseConstDecl <|> parseFuncDecl
+  decl@(Decl pos kind name expr t) <- parseConstDecl <|> parseFuncDecl
   modify (decl :)
   when (kind == AdjectiveDecl) $ do
-    let negateDecl = Decl pos kind (T.append (T.init name) "지 않다") t
+    let negateDecl = Decl pos kind (T.append (T.init name) "지 않다") expr t
     modify (negateDecl :)
     pass
   return decl
@@ -56,7 +56,7 @@ parseFuncDecl = do
 
   checkValidIdentifier offset declKind funcName
   scn
-  Decl pos declKind funcName <$> (FuncDecl args <$> parseExpr)
+  Decl pos declKind funcName <$> parseExpr <*> pure (FuncDecl args)
   where
     parseArgList :: [(Text, Text)] -> Parser [(Text, Text)]
     parseArgList l = do
@@ -108,7 +108,7 @@ parseConstDecl = do
     return (pos, declKind, offset, identifier)
 
   checkValidIdentifier (offset + 1) declKind identifier
-  Decl pos declKind identifier <$> ConstDecl <$> parseExpr
+  Decl pos declKind identifier <$> parseExpr <*> pure ConstDecl
 
 parseExpr :: Parser Expr
 parseExpr = parseIf <|> parseSeq <|> parseArithmetic
