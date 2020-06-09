@@ -22,7 +22,9 @@ instance ASTNode Decl where
   getSourceLine (FuncDecl pos _ _ _ _) = pos
   getSourceLine (ConstDecl pos _ _) = pos
 
--- findDecl :: [Decl] -> Text -> DeclKind -> Bool
+checkDecl :: DeclKind -> Text -> Decl -> Bool
+checkDecl kind' name' (FuncDecl _ kind name _ _) = (kind == kind') && (name == name')
+checkDecl _ _ _ = False
 
 declToExpr :: Decl -> (Pos, Text, Expr)
 declToExpr (FuncDecl pos _ funcName args body) =

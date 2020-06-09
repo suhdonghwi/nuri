@@ -185,9 +185,7 @@ parseNestedFuncCall = do
     then do
       st <- get
       let originalIdent = T.snoc (T.init ident) '다'
-      let isPossible (FuncDecl _ VerbDecl n _ _) = n == originalIdent
-          isPossible _ = False
-      if any isPossible st
+      if any (checkDecl VerbDecl originalIdent) st
         then return $ FuncCall pos (Var pos originalIdent) args
         else fail $ "활용할 수 있는 동사 '" ++ toString originalIdent ++ "'이(가) 없습니다."
     else fail "여기에서는 활용이 '~하고' 형태여야합니다."
