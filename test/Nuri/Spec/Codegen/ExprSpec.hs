@@ -178,7 +178,7 @@ spec = do
     it "하나의 값에 대한 상수 선언문 코드 생성" $ do
       compileExpr
         ( Seq
-            [ Left $ constDecl "값" (litInteger 1),
+            [ Left $ constDecl NormalDecl "값" (litInteger 1),
               Right $ binaryOp Add (var "값") (litInteger 2)
             ]
         )
@@ -193,7 +193,7 @@ spec = do
     it "계산식 상수 선언문 코드 생성" $ do
       compileExpr
         ( Seq
-            [ Left $ constDecl "값" (binaryOp Add (litInteger 1) (litInteger 2)),
+            [ Left $ constDecl NormalDecl "값" (binaryOp Add (litInteger 1) (litInteger 2)),
               Right $ binaryOp Add (var "값") (litInteger 3)
             ]
         )
@@ -211,7 +211,7 @@ spec = do
     it "현재 스코프에 없는 상수는 전역 상수로 취급" $ do
       compileExpr
         ( Seq
-            [ Right $ Seq [Left $ constDecl "값" (litInteger 5), Right $ var "값"],
+            [ Right $ Seq [Left $ constDecl NormalDecl "값" (litInteger 5), Right $ var "값"],
               Right $ binaryOp Add (var "값") (litInteger 3)
             ]
         )
@@ -228,8 +228,8 @@ spec = do
     it "같은 이름의 상수는 섀도잉 적용" $ do
       compileExpr
         ( Seq
-            [ Left $ constDecl "값" (litInteger 10),
-              Left $ constDecl "값" (litInteger 5),
+            [ Left $ constDecl NormalDecl "값" (litInteger 10),
+              Left $ constDecl NormalDecl "값" (litInteger 5),
               Right $ var "값"
             ]
         )
@@ -243,8 +243,8 @@ spec = do
                       )
       compileExpr
         ( Seq
-            [ Left $ constDecl "값" (litInteger 10),
-              Right $ Seq [Left $ constDecl "값" (litInteger 5), Right $ var "값"],
+            [ Left $ constDecl NormalDecl "값" (litInteger 10),
+              Right $ Seq [Left $ constDecl NormalDecl "값" (litInteger 5), Right $ var "값"],
               Right $ binaryOp Add (var "값") (litInteger 3)
             ]
         )

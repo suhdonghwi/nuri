@@ -9,18 +9,18 @@ data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
 
 data Decl
   = FuncDecl Pos DeclKind Text [(Text, Text)] Expr
-  | ConstDecl Pos Text Expr
+  | ConstDecl Pos DeclKind Text Expr
   deriving (Show)
 
 instance Eq Decl where
   FuncDecl _ k1 f1 a1 b1 == FuncDecl _ k2 f2 a2 b2 =
     (k1 == k2) && (f1 == f2) && (a1 == a2) && (b1 == b2)
-  ConstDecl _ n1 e1 == ConstDecl _ n2 e2 = (n1 == n2) && (e1 == e2)
+  ConstDecl _ k1 n1 e1 == ConstDecl _ k2 n2 e2 = (k1 == k2) && (n1 == n2) && (e1 == e2)
   _ == _ = False
 
 instance ASTNode Decl where
   getSourceLine (FuncDecl pos _ _ _ _) = pos
-  getSourceLine (ConstDecl pos _ _) = pos
+  getSourceLine (ConstDecl pos _ _ _) = pos
 
 checkDecl :: DeclKind -> Text -> Decl -> Bool
 checkDecl kind' name' (FuncDecl _ kind name _ _) = (kind == kind') && (name == name')
@@ -29,7 +29,7 @@ checkDecl _ _ _ = False
 declToExpr :: Decl -> (Pos, Text, Expr)
 declToExpr (FuncDecl pos _ funcName args body) =
   (pos, funcName, Lambda pos args body)
-declToExpr (ConstDecl pos constName expr) = (pos, constName, expr)
+declToExpr (ConstDecl pos _ constName expr) = (pos, constName, expr)
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
   = Lit Pos Literal

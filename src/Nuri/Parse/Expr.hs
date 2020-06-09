@@ -25,16 +25,16 @@ import Prelude hiding
 parseDecl :: Parser Decl
 parseDecl = parseFuncDecl <|> parseConstDecl
 
-parseDeclKind :: Parser DeclKind
-parseDeclKind =
-  (pure NormalDecl <* reserved "함수")
+parseDeclKind :: String -> Parser DeclKind
+parseDeclKind normalText =
+  (pure NormalDecl <* reserved normalText)
     <|> (pure VerbDecl <* reserved "동사")
     <|> (pure AdjectiveDecl <* reserved "형용사")
 
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
   pos <- getSourceLine
-  declKind <- parseDeclKind
+  declKind <- parseDeclKind "함수"
   args <- parseArgList []
   funcName <- parseFuncIdentifier <* symbol ":"
   scn
@@ -87,9 +87,9 @@ parseJosa =
 parseConstDecl :: Parser Decl
 parseConstDecl = do
   pos <- getSourceLine
-  P.try $ reserved "상수"
+  declKind <- parseDeclKind "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
-  ConstDecl pos identifier <$> parseExpr
+  ConstDecl pos declKind identifier <$> parseExpr
 
 parseExpr :: Parser Expr
 parseExpr = parseIf <|> parseSeq <|> parseArithmetic
@@ -99,8 +99,8 @@ parseSeq = do
   reserved "순서대로" <* P.newline
   scn
   level <- L.indentGuard scn GT P.pos1
-  st <- get
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
+  st <- get
   result <-
     fromExprs
       <$> sepBy1

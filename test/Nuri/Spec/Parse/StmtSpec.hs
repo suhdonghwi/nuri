@@ -229,6 +229,7 @@ spec = do
                   Right $ litInteger 1,
                   Left $
                     constDecl
+                      NormalDecl
                       "수"
                       (binaryOp Add (litInteger 10) (litInteger 10))
                 ]
@@ -237,10 +238,11 @@ spec = do
     describe "상수 선언문 파싱" $ do
       it "단순 리터럴 상수 선언" $ do
         testParse parseDeclStmt "상수 [값]: 1"
-          `shouldParse` constDeclStmt "값" (litInteger 1)
+          `shouldParse` constDeclStmt NormalDecl "값" (litInteger 1)
       it "계산식 상수 선언" $ do
         testParse parseDeclStmt "상수 [값] : 1 * 2"
           `shouldParse` constDeclStmt
+            NormalDecl
             "값"
             (binaryOp Multiply (litInteger 1) (litInteger 2))
 

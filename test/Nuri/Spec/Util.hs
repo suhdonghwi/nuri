@@ -27,14 +27,15 @@ unaryOp = UnaryOp initPos
 
 
 var = Var initPos
+
 funcCall = FuncCall initPos
 lambda = Lambda initPos
 
+
 funcDecl = FuncDecl initPos
 
-
 funcDeclStmt = (((DeclStmt .) .) .) . funcDecl
+
 constDecl = ConstDecl initPos
 
-
-constDeclStmt = (DeclStmt .) . constDecl
+constDeclStmt = ((DeclStmt .) .) . constDecl

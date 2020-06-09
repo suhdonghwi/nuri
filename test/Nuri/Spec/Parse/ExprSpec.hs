@@ -410,6 +410,7 @@ spec = do
             Right $ litInteger 1,
             Left $
               constDecl
+                NormalDecl
                 "수"
                 (binaryOp Add (litInteger 10) (litInteger 10))
           ]
