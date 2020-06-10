@@ -264,12 +264,6 @@ spec = do
               [(funcCall (var "들다") [(litInteger 3, "을")], "_")]
           )
           (funcCall (var "들다") [(litInteger 2, "을")])
-    it "형용사 활용이 들어간 조건을 가진 조건식 파싱" $ do
-      testParse parseIf "만약 1과 2가 같다면 1 아니라면 2"
-        `shouldParse` ifExpr
-          (funcCall (var "같다") [(litInteger 1, "와"), (litInteger 2, "이")])
-          (litInteger 1)
-          (litInteger 2)
     it "중첩된 조건식 파싱" $ do
       testParse parseIf "만약 (만약 거짓 이라면 1 아니라면 2) 이라면 1 아니라면 2"
         `shouldParse` ifExpr

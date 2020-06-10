@@ -371,24 +371,6 @@ spec = do
                         funcDeclStmt VerbDecl "걷다" [("값", "을")] (litInteger 2),
                         ExprStmt $ funcCall (var "걷다") [(funcCall (var "가하다") [(litInteger 10, "에")], "_")]
                       ]
-    it "형용사 선언 뒤 '~(다)면' 용언 활용 파싱" $ do
-      testParse
-        parseStmts
-        ( [text|
-            형용사 [값]이 작다: 1
-            만약 1이 작다면
-                20
-              아니라면
-                10
-          |]
-        )
-        `shouldParse` [ funcDeclStmt AdjectiveDecl "작다" [("값", "이")] (litInteger 1),
-                        ExprStmt $
-                          ifExpr
-                            (funcCall (var "작다") [(litInteger 1, "이")])
-                            (litInteger 20)
-                            (litInteger 10)
-                      ]
     it "시퀀스에서 함수 선언 뒤 외부 스코프에서 활용하면 에러" $ do
       testParse
         parseStmts
