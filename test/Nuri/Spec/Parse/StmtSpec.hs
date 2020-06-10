@@ -389,24 +389,6 @@ spec = do
                             (litInteger 20)
                             (litInteger 10)
                       ]
-    it "형용사 선언 뒤 '~지 않다' 용언 활용 파싱" $ do
-      testParse
-        parseStmts
-        ( [text|
-            형용사 [값]이 작다: 1
-            만약 1이 작지 않다면
-                20
-              아니라면
-                10
-          |]
-        )
-        `shouldParse` [ funcDeclStmt AdjectiveDecl "작다" [("값", "이")] (litInteger 1),
-                        ExprStmt $
-                          ifExpr
-                            (funcCall (var "작지 않다") [(litInteger 1, "이")])
-                            (litInteger 20)
-                            (litInteger 10)
-                      ]
     it "시퀀스에서 함수 선언 뒤 외부 스코프에서 활용하면 에러" $ do
       testParse
         parseStmts

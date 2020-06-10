@@ -24,12 +24,8 @@ import Prelude hiding
 
 parseDecl :: Parser Decl
 parseDecl = do
-  decl@(Decl pos kind name t) <- parseConstDecl <|> parseFuncDecl
+  decl <- parseConstDecl <|> parseFuncDecl
   modify (decl :)
-  when (kind == AdjectiveDecl) $ do
-    let negateDecl = Decl pos kind (T.append (T.init name) "지 않다") t
-    modify (negateDecl :)
-    pass
   return decl
 
 parseDeclKind :: String -> Parser DeclKind
