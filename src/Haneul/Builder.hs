@@ -88,6 +88,9 @@ unmarkInst internal inst = case inst of
   LessThan -> LessThan
   GreaterThan -> GreaterThan
   Negate -> Negate
+  LogicNot -> LogicNot
+  LogicAnd -> LogicAnd
+  LogicOr -> LogicOr
   where
     unmark (Mark index) =
       let marks = view internalMarks internal in marks !! fromIntegral index

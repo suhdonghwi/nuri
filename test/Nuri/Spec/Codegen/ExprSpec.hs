@@ -100,6 +100,9 @@ spec = do
     it "음수 코드 생성" $ do
       compileExpr (unaryOp Negative (litInteger 10))
         `shouldBuild` (S.fromList [ConstInteger 10], [Inst.Push 0, Inst.Negate])
+    it "논리 부정 코드 생성" $ do
+      compileExpr (unaryOp LogicNot (litBool False))
+        `shouldBuild` (S.fromList [ConstBool False], [Inst.Push 0, Inst.LogicNot])
 
   describe "변수 접근 코드 생성" $ do
     it "변수 이름 접근하는 LoadGlobal 코드 생성" $ do

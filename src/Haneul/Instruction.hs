@@ -23,6 +23,9 @@ data Instruction' a
   | LessThan
   | GreaterThan
   | Negate
+  | LogicNot
+  | LogicAnd
+  | LogicOr
   deriving (Eq, Show, Ord)
 
 newtype Mark = Mark Word32
@@ -32,10 +35,10 @@ type MarkedInstruction = Instruction' Mark
 type Instruction = Instruction' Word32
 
 type Ann t = (Pos, t)
+
 type MarkedCode = [Ann MarkedInstruction]
 
 type Code = [Ann Instruction]
-
 
 estimateStackSize :: Code -> Word64
 estimateStackSize input = sizeLoop 0 0 0 input
@@ -63,4 +66,5 @@ estimateStackSize input = sizeLoop 0 0 0 input
       PopJmpIfFalse _ -> -1
       FreeVar _ -> 0
       Negate -> 0
+      LogicNot -> 0
       _ -> -1 -- 이항 연산 인스트럭션들

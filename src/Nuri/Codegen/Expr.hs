@@ -86,11 +86,14 @@ compileExpr (BinaryOp pos op lhs rhs) = do
     GreaterThan -> tellInst pos (Inst.GreaterThan)
     LessThanEqual -> tellCode [(pos, Inst.GreaterThan), (pos, Inst.Negate)]
     GreaterThanEqual -> tellCode [(pos, Inst.LessThan), (pos, Inst.Negate)]
+    LogicAnd -> tellCode [(pos, Inst.LogicAnd)]
+    LogicOr -> tellCode [(pos, Inst.LogicOr)]
 compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of
     Positive -> pass
     Negative -> tellInst pos Inst.Negate
+    LogicNot -> tellInst pos Inst.LogicNot
 compileExpr (Seq xs) = do
   tempVarNames <- use internalLocalVars
 
