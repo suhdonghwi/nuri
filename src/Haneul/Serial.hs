@@ -148,6 +148,12 @@ instance (Binary a) => Binary (Instruction' a) where
     putWord8 18
   put Negate = do
     putWord8 19
+  put LogicNot = do
+    putWord8 20
+  put LogicAnd = do
+    putWord8 21
+  put LogicOr = do
+    putWord8 22
   get = do
     inst <- get :: Get Word8
     let getterList =
@@ -170,7 +176,10 @@ instance (Binary a) => Binary (Instruction' a) where
             return Equal,
             return LessThan,
             return GreaterThan,
-            return Negate
+            return Negate,
+            return LogicNot,
+            return LogicAnd,
+            return LogicOr
           ]
     case getterList !!? (fromIntegral inst) of
       Just action -> action
@@ -182,12 +191,3 @@ instance Binary Pos where
   get = do
     line <- get :: Get Word32
     return (mkPos $ fromIntegral line)
-
--- instance Binary Program where
---   put p = do
---     put (unpack <$> view programGlobalVarNames p)
---     put (view programStackSize p)
---     put (view programMaxLocalCount p)
---     put (toList $ view programConstTable p)
---     put (view programCode p)
---   get = Program <$> get <*> get <*> get <*> (fromList <$> get) <*> get
