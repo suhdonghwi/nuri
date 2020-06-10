@@ -160,7 +160,10 @@ parseArithmetic =
     table
   where
     table =
-      [ [Prefix $ unaryOp "+" Positive, Prefix $ unaryOp "-" Negative],
+      [ [ Prefix $ unaryOp "+" Positive,
+          Prefix $ unaryOp "-" Negative,
+          Prefix $ unaryOp "!" LogicNot
+        ],
         [ InfixL $ binaryOp "*" Multiply,
           InfixL $ binaryOp "/" Divide,
           InfixL $ binaryOp "%" Mod
@@ -171,6 +174,9 @@ parseArithmetic =
           InfixL $ binaryOp ">=" GreaterThanEqual,
           InfixL $ binaryOp "<" LessThan,
           InfixL $ binaryOp ">" GreaterThan
+        ],
+        [ InfixL $ binaryOp "그리고" LogicAnd,
+          InfixL $ binaryOp "또는" LogicOr
         ]
       ]
     binaryOp opStr op = P.hidden $ do
@@ -231,7 +237,7 @@ parseFuncIdentifier =
           (P.char ' ')
     )
   where
-    keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로"]
+    keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로", "그리고", "또는"]
     keyword = P.choice $ reserved <$> keywords
     hangulWord = toText <$> P.some hangulSyllable
 

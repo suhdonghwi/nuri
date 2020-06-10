@@ -100,6 +100,9 @@ spec = do
       it "음의 부호 실수" $ do
         testParse parseArithmetic "-2.5"
           `shouldParse` unaryOp Negative (litReal 2.5)
+      it "논리 부정 부울값" $ do
+        testParse parseArithmetic "!참"
+          `shouldParse` unaryOp LogicNot (litBool True)
     describe "이항 연산자" $ do
       it "두 정수 더하기" $ do
         testParse parseArithmetic "1 + 2"
@@ -146,6 +149,12 @@ spec = do
       it "두 정수 대소 비교 (GTE)" $ do
         testParse parseArithmetic "8 >= 2"
           `shouldParse` binaryOp GreaterThanEqual (litInteger 8) (litInteger 2)
+      it "두 부울값 '그리고' 연산" $ do
+        testParse parseArithmetic "참 그리고 거짓"
+          `shouldParse` binaryOp LogicAnd (litBool True) (litBool False)
+      it "두 부울값 '또는' 연산" $ do
+        testParse parseArithmetic "참 또는 거짓"
+          `shouldParse` binaryOp LogicOr (litBool True) (litBool False)
     describe "복합 연산" $ do
       it "두 정수 나누고 한 정수 더하기" $ do
         testParse parseArithmetic "4 / 2 + 3"
@@ -252,7 +261,7 @@ spec = do
           (binaryOp Add (litInteger 1) (litInteger 2))
           (binaryOp Multiply (litInteger 1) (litInteger 2))
           (binaryOp Divide (litInteger 2) (litInteger 3))
-    it "함수 호출식 포함된 조건식 파싱" $ do
+    it "함수 호출식이 포함된 조건식 파싱" $ do
       testParse parseIf "만약 1을 2에 던지고 받다 이라면 3을 들고, 받다 아니라면 2를 들다"
         `shouldParse` ifExpr
           ( funcCall
@@ -264,6 +273,27 @@ spec = do
               [(funcCall (var "들다") [(litInteger 3, "을")], "_")]
           )
           (funcCall (var "들다") [(litInteger 2, "을")])
+    it "논리 연산자를 사용한 조건식 파싱" $ do
+      testParse parseIf "만약 1이 크다 그리고 2가 짧다 또는 5가 길다 이라면 3 아니라면 4"
+        `shouldParse` ifExpr
+          ( binaryOp
+              LogicOr
+              ( binaryOp
+                  LogicAnd
+                  ( funcCall
+                      (var "크다")
+                      [(litInteger 1, "이")]
+                  )
+                  ( funcCall
+                      (var "짧다")
+                      [(litInteger 2, "이")]
+                  )
+              )
+              (funcCall (var "길다") [(litInteger 5, "이")])
+          )
+          (litInteger 3)
+          (litInteger 4)
+
     it "중첩된 조건식 파싱" $ do
       testParse parseIf "만약 (만약 거짓 이라면 1 아니라면 2) 이라면 1 아니라면 2"
         `shouldParse` ifExpr

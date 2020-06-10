@@ -84,7 +84,9 @@ data BinaryOperator
   | GreaterThan
   | LessThanEqual
   | GreaterThanEqual
+  | LogicAnd
+  | LogicOr
   deriving (Eq, Show)
 
-data UnaryOperator = Positive | Negative
+data UnaryOperator = Positive | Negative | LogicNot
   deriving (Eq, Show)
