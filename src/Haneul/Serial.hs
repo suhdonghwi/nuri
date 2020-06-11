@@ -74,14 +74,14 @@ putJosaList = putWord8List (putWord8List (put :: Char -> Put) . unpack)
 instance Binary FuncObject where
   put obj = do
     putJosaList (obj ^. funcJosa)
-    put (unpack <$> obj ^. funcGlobalVarNames)
+    put (unpack <$> toList (obj ^. funcGlobalVarNames))
     put (obj ^. funcStackSize)
     put (obj ^. funcMaxLocalCount)
     put (toList $ obj ^. funcConstTable)
     put (obj ^. funcCode)
   get = do
     josa <- get
-    globalVarNames <- get
+    globalVarNames <- fromList <$> get
     maxStackSize <- get
     maxLocalCount <- get
     constTable <- fromList <$> get

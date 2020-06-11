@@ -107,7 +107,7 @@ internalToFuncObject :: (BuilderInternal, MarkedCode) -> FuncObject
 internalToFuncObject (internal, markedCode) =
   let code = clearMarks internal markedCode
    in FuncObject
-        { _funcGlobalVarNames = toList $ view internalGlobalVarNames internal,
+        { _funcGlobalVarNames = view internalGlobalVarNames internal,
           _funcStackSize = estimateStackSize code,
           _funcMaxLocalCount = view internalMaxLocalCount internal,
           _funcConstTable = view internalConstTable internal,

@@ -126,7 +126,6 @@ compileExpr (Seq xs) = do
   modifying internalDepth (`subtract` 1)
 compileExpr (Lambda pos args body) = do
   (internal, funcObject) <- lambdaToFuncObject args body
-  assign internalGlobalVarNames (view internalGlobalVarNames internal)
 
   index <- addConstant (ConstFunc funcObject)
   tellInst pos (Inst.Push index)

@@ -31,7 +31,7 @@ funcObject =
   FuncObject
     { _funcCode = [],
       _funcConstTable = S.empty,
-      _funcGlobalVarNames = [],
+      _funcGlobalVarNames = S.empty,
       _funcJosa = [],
       _funcMaxLocalCount = 0,
       _funcStackSize = 0

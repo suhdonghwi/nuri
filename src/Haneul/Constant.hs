@@ -17,7 +17,7 @@ type ConstTable = OSet Constant
 
 data FuncObject = FuncObject
   { _funcJosa :: [Text],
-    _funcGlobalVarNames :: [Text],
+    _funcGlobalVarNames :: OSet Text,
     _funcStackSize :: Word64,
     _funcMaxLocalCount :: Word32,
     _funcConstTable :: ConstTable,

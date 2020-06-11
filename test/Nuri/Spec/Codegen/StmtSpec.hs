@@ -73,7 +73,7 @@ spec = do
                               ConstFunc
                                 ( funcObject
                                     { _funcJosa = ["을"],
-                                      _funcGlobalVarNames = ["값"],
+                                      _funcGlobalVarNames = S.fromList ["값"],
                                       _funcStackSize = 2,
                                       _funcCode =
                                         ann
@@ -113,7 +113,7 @@ spec = do
                           [ Inst.Push 0,
                             Inst.StoreGlobal 0,
                             Inst.Push 1,
-                            Inst.StoreGlobal 0
+                            Inst.StoreGlobal 1
                           ]
                         )
       it "함수의 인자를 참조하는 함수 코드 생성" $

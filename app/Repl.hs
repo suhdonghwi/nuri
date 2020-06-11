@@ -57,8 +57,7 @@ printResult stmts = do
       compiledTable = view funcConstTable program
 
   putStrLn "---------------"
-  pPrint compiledTable
-  pPrint compiledCode
+  pPrint program
   putStrLn "---------------"
 
   let encodedProgram = encode program

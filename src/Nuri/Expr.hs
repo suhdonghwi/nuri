@@ -21,8 +21,6 @@ instance Eq Decl where
 instance ASTNode Decl where
   getSourceLine (Decl pos _ _ _) = pos
 
-
-
 declToExpr :: Decl -> (Pos, Text, Expr)
 declToExpr (Decl pos _ name t) =
   case t of
