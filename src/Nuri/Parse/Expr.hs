@@ -47,6 +47,7 @@ parseFuncDecl = do
   offset <- P.getOffset
   funcName <- parseFuncIdentifier <* symbol ":"
   modify ((declKind, funcName) :)
+  modify (++ ((declKind,) <$> (fst <$> args)))
 
   checkValidIdentifier offset declKind funcName
   scn
@@ -207,7 +208,9 @@ parseFuncCall :: Parser Expr
 parseFuncCall = do
   args <- parseArguments
   pos <- getSourceLine
+  offset <- P.getOffset
   func <- parseFuncIdentifier <?> "함수 이름"
+  _ <- resolveDecl func [NormalDecl, VerbDecl, AdjectiveDecl] offset
   return $ FuncCall pos (Var pos func) args
 
 parseArguments :: Parser [(Expr, Text)]
@@ -252,7 +255,12 @@ parseParens :: Parser Expr
 parseParens = P.between (P.char '(' >> sc) (sc >> P.char ')') parseExpr
 
 parseIdentifierExpr :: Parser Expr
-parseIdentifierExpr = liftA2 Var getSourceLine parseIdentifier
+parseIdentifierExpr = do
+  pos <- getSourceLine
+  offset <- P.getOffset
+  ident <- parseIdentifier
+  _ <- resolveDecl ident [NormalDecl, VerbDecl, AdjectiveDecl] offset
+  return $ Var pos ident
 
 parseIdentifier :: Parser Text
 parseIdentifier =

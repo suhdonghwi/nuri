@@ -171,30 +171,30 @@ spec = do
 
   describe "식별자 파싱" $ do
     it "영문 식별자" $ do
-      testParse parseIdentifierExpr "[foo]" `shouldParse` var "foo"
+      testParse parseIdentifier "[foo]" `shouldParse` "foo"
     it "(대문자) 영문 식별자" $ do
-      testParse parseIdentifierExpr "[Foo]" `shouldParse` var "Foo"
+      testParse parseIdentifier "[Foo]" `shouldParse` "Foo"
     it "한글 음절 식별자" $ do
-      testParse parseIdentifierExpr "[사과]" `shouldParse` var "사과"
+      testParse parseIdentifier "[사과]" `shouldParse` "사과"
     it "한글 자음 식별자" $ do
-      testParse parseIdentifierExpr "[ㅅㄷㅎ]" `shouldParse` var "ㅅㄷㅎ"
+      testParse parseIdentifier "[ㅅㄷㅎ]" `shouldParse` "ㅅㄷㅎ"
     it "한글 모음 식별자" $ do
-      testParse parseIdentifierExpr "[ㅓㅗㅜㅣ]" `shouldParse` var "ㅓㅗㅜㅣ"
+      testParse parseIdentifier "[ㅓㅗㅜㅣ]" `shouldParse` "ㅓㅗㅜㅣ"
     it "숫자가 포함된 식별자" $ do
-      testParse parseIdentifierExpr "[사람2]" `shouldParse` var "사람2"
+      testParse parseIdentifier "[사람2]" `shouldParse` "사람2"
     it "공백이 포함된 식별자" $ do
-      testParse parseIdentifierExpr "[사과는 맛있다]" `shouldParse` var "사과는 맛있다"
+      testParse parseIdentifier "[사과는 맛있다]" `shouldParse` "사과는 맛있다"
     it "숫자로 시작하는 식별자에 대해 오류" $ do
-      testParse parseIdentifierExpr `shouldFailOn` "[10마리 펭귄]"
+      testParse parseIdentifier `shouldFailOn` "[10마리 펭귄]"
     it "공백으로 시작하는 식별자에 대해 오류" $ do
-      testParse parseIdentifierExpr `shouldFailOn` "[ Foo]"
+      testParse parseIdentifier `shouldFailOn` "[ Foo]"
     -- it "공백으로 끝나는 식별자는 트리밍" $ do
     --   testParse parseIdentifierExpr "[Foo ]" `shouldParse` var "Foo"
     it "공백만 포함된 식별자에 대해서 오류" $ do
-      testParse parseIdentifierExpr `shouldFailOn` "[  ]"
-      testParse parseIdentifierExpr `shouldFailOn` "[\t]"
+      testParse parseIdentifier `shouldFailOn` "[  ]"
+      testParse parseIdentifier `shouldFailOn` "[\t]"
     it "비어있는 식별자에 대해서 오류" $ do
-      testParse parseIdentifierExpr `shouldFailOn` "[]"
+      testParse parseIdentifier `shouldFailOn` "[]"
 
   describe "함수 이름 파싱" $ do
     it "띄어쓰기 없는 한 단어" $ do
@@ -217,7 +217,7 @@ spec = do
     it "조사가 떨어져 있는 경우 오류" $ do
       testParse parseFuncCall `shouldFailOn` "1 과 2 를 더하다"
     it "인자가 없는 함수 호출식" $ do
-      testParse parseFuncCall "깨우다" `shouldParse` funcCall (var "깨우다") []
+      testParse parseFuncCall "던지다" `shouldParse` funcCall (var "던지다") []
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
@@ -262,19 +262,19 @@ spec = do
           (binaryOp Multiply (litInteger 1) (litInteger 2))
           (binaryOp Divide (litInteger 2) (litInteger 3))
     it "함수 호출식이 포함된 조건식 파싱" $ do
-      testParse parseIf "만약 1을 2에 던지고 받다 이라면 3을 들고, 받다 아니라면 2를 들다"
+      testParse parseIf "만약 1과 2의 합 구하다 이라면 3을 던지고, 받다 아니라면 2를 던지다"
         `shouldParse` ifExpr
           ( funcCall
-              (var "던지고 받다")
-              [(litInteger 1, "을"), (litInteger 2, "에")]
+              (var "합 구하다")
+              [(litInteger 1, "와"), (litInteger 2, "의")]
           )
           ( funcCall
               (var "받다")
-              [(funcCall (var "들다") [(litInteger 3, "을")], "_")]
+              [(funcCall (var "던지다") [(litInteger 3, "을")], "_")]
           )
-          (funcCall (var "들다") [(litInteger 2, "을")])
+          (funcCall (var "던지다") [(litInteger 2, "을")])
     it "논리 연산자를 사용한 조건식 파싱" $ do
-      testParse parseIf "만약 1이 크다 그리고 2가 짧다 또는 5가 길다 이라면 3 아니라면 4"
+      testParse parseIf "만약 1이 크다 그리고 2가 작다 또는 5가 크다 이라면 3 아니라면 4"
         `shouldParse` ifExpr
           ( binaryOp
               LogicOr
@@ -285,11 +285,11 @@ spec = do
                       [(litInteger 1, "이")]
                   )
                   ( funcCall
-                      (var "짧다")
+                      (var "작다")
                       [(litInteger 2, "이")]
                   )
               )
-              (funcCall (var "길다") [(litInteger 5, "이")])
+              (funcCall (var "크다") [(litInteger 5, "이")])
           )
           (litInteger 3)
           (litInteger 4)
@@ -425,7 +425,7 @@ spec = do
         ( [text|
             순서대로
               형용사 [값1]과 [값2]가 같다:
-                [값] + 1
+                [값1] + 1
               1
               상수 [수]: 10 + 10
           |]
@@ -436,7 +436,7 @@ spec = do
                 AdjectiveDecl
                 "같다"
                 [("값1", "와"), ("값2", "이")]
-                (binaryOp Add (var "값") (litInteger 1)),
+                (binaryOp Add (var "값1") (litInteger 1)),
             Right $ litInteger 1,
             Left $
               constDecl
