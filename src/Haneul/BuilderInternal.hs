@@ -3,6 +3,7 @@ module Haneul.BuilderInternal where
 import Control.Lens (makeLenses)
 import qualified Data.Set.Ordered as S
 import Haneul.Constant
+import Nuri.Expr
 
 data BuilderInternal = BuilderInternal
   { _internalConstTable :: ConstTable,
@@ -18,8 +19,8 @@ data BuilderInternal = BuilderInternal
 
 $(makeLenses ''BuilderInternal)
 
-defaultGlobalNames :: S.OSet Text
-defaultGlobalNames = S.fromList ["보여주다"]
+defaultDecls :: [(DeclKind, Text)]
+defaultDecls = [(VerbDecl, "보여주다")]
 
 defaultInternal :: BuilderInternal
 defaultInternal =

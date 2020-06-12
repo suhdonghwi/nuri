@@ -7,6 +7,7 @@ import Control.Lens
 import Control.Lens.TH ()
 import Data.Binary (encode)
 import Data.Text (strip)
+import qualified Data.Set.Ordered as S
 import Haneul.Builder
 import Haneul.BuilderInternal
 import Haneul.Serial ()
@@ -31,7 +32,7 @@ newtype Repl a = Repl {unRepl :: StateT ReplState IO a}
 
 parseInput :: Text -> String -> MaybeT IO (NonEmpty Stmt)
 parseInput input fileName = do
-  case evalState (runParserT (parseStmts <* eof) fileName input) [] of
+  case evalState (runParserT (parseStmts <* eof) fileName input) defaultDecls of
     Left err -> do
       (liftIO . putTextLn . toText . errorBundlePretty) err
       hoistMaybe Nothing
@@ -44,7 +45,7 @@ printResult stmts = do
         ( internalToFuncObject
             . runBuilder
               defaultInternal
-                { _internalGlobalVarNames = defaultGlobalNames
+                { _internalGlobalVarNames = S.fromList (snd <$> defaultDecls)
                 }
             . compileStmts
         )
