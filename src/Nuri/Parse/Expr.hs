@@ -28,9 +28,9 @@ parseDecl = do
   modify (decl :)
   return decl
 
-parseDeclKind :: String -> Parser DeclKind
-parseDeclKind normalText =
-  (pure NormalDecl <* reserved normalText)
+parseDeclKind :: Parser DeclKind
+parseDeclKind =
+  (pure NormalDecl <* reserved "함수")
     <|> (pure VerbDecl <* reserved "동사")
     <|> (pure AdjectiveDecl <* reserved "형용사")
 
@@ -45,7 +45,7 @@ checkValidIdentifier offset kind name = do
 parseFuncDecl :: Parser Decl
 parseFuncDecl = do
   pos <- getSourceLine
-  declKind <- parseDeclKind "함수"
+  declKind <- parseDeclKind
   args <- parseArgList []
   offset <- P.getOffset
   funcName <- parseFuncIdentifier <* symbol ":"
@@ -96,15 +96,10 @@ parseJosa =
 
 parseConstDecl :: Parser Decl
 parseConstDecl = do
-  (pos, declKind, offset, identifier) <- P.try $ do
-    pos <- getSourceLine
-    declKind <- parseDeclKind "상수"
-    offset <- P.getOffset
-    identifier <- lexeme parseIdentifier <* symbol ":"
-    return (pos, declKind, offset, identifier)
-
-  checkValidIdentifier (offset + 1) declKind identifier
-  Decl pos declKind identifier <$> ConstDecl <$> parseExpr
+  pos <- getSourceLine
+  reserved "상수"
+  identifier <- lexeme parseIdentifier <* symbol ":"
+  Decl pos NormalDecl identifier <$> ConstDecl <$> parseExpr
 
 parseExpr :: Parser Expr
 parseExpr = parseIf <|> parseSeq <|> parseArithmetic
