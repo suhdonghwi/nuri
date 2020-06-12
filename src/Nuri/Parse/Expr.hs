@@ -97,6 +97,7 @@ parseConstDecl = do
   pos <- getSourceLine
   reserved "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
+  modify ((NormalDecl, identifier) :)
   Decl pos identifier <$> ConstDecl <$> parseExpr
 
 parseExpr :: Parser Expr
