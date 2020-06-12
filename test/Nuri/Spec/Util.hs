@@ -32,10 +32,10 @@ funcCall = FuncCall initPos
 lambda = Lambda initPos
 
 
-funcDecl kind name args body = Decl initPos kind name (FuncDecl args body)
+funcDecl kind name args body = Decl initPos name (FuncDecl kind args body)
 
 funcDeclStmt = (((DeclStmt .) .) .) . funcDecl
 
-constDecl kind name expr = Decl initPos kind name (ConstDecl expr)
+constDecl name expr = Decl initPos name (ConstDecl expr)
 
-constDeclStmt = ((DeclStmt .) .) . constDecl
+constDeclStmt = (DeclStmt .) . constDecl

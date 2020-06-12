@@ -5,14 +5,10 @@ import Control.Lens
     view,
   )
 import Control.Lens.TH ()
-import Data.Binary
-  ( decode,
-    encode,
-  )
+import Data.Binary (encode)
 import Data.Text (strip)
 import Haneul.Builder
 import Haneul.BuilderInternal
-import Haneul.Constant
 import Haneul.Serial ()
 import Nuri.Codegen.Stmt
 import Nuri.Parse.Stmt
@@ -53,8 +49,6 @@ printResult stmts = do
             . compileStmts
         )
           stmts
-      compiledCode = view funcCode program
-      compiledTable = view funcConstTable program
 
   putStrLn "---------------"
   pPrint program

@@ -8,23 +8,23 @@ data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
   deriving (Eq, Show)
 
 data DeclType
-  = FuncDecl [(Text, Text)] Expr
+  = FuncDecl DeclKind [(Text, Text)] Expr
   | ConstDecl Expr
   deriving (Eq, Show)
 
-data Decl = Decl Pos DeclKind Text DeclType
+data Decl = Decl Pos Text DeclType
   deriving (Show)
 
 instance Eq Decl where
-  Decl _ k1 n1 t1 == Decl _ k2 n2 t2 = (k1 == k2) && (n1 == n2) && (t1 == t2)
+  Decl _ n1 t1 == Decl _ n2 t2 = (n1 == n2) && (t1 == t2)
 
 instance ASTNode Decl where
-  getSourceLine (Decl pos _ _ _) = pos
+  getSourceLine (Decl pos _ _) = pos
 
 declToExpr :: Decl -> (Pos, Text, Expr)
-declToExpr (Decl pos _ name t) =
+declToExpr (Decl pos name t) =
   case t of
-    FuncDecl args body -> (pos, name, Lambda pos args body)
+    FuncDecl _ args body -> (pos, name, Lambda pos args body)
     ConstDecl expr -> (pos, name, expr)
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값

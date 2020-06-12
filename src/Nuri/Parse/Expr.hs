@@ -52,7 +52,7 @@ parseFuncDecl = do
 
   checkValidIdentifier offset declKind funcName
   scn
-  Decl pos declKind funcName <$> (FuncDecl args <$> parseExpr)
+  Decl pos funcName <$> (FuncDecl declKind args <$> parseExpr)
   where
     parseArgList :: [(Text, Text)] -> Parser [(Text, Text)]
     parseArgList l = do
@@ -99,7 +99,7 @@ parseConstDecl = do
   pos <- getSourceLine
   reserved "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
-  Decl pos NormalDecl identifier <$> ConstDecl <$> parseExpr
+  Decl pos identifier <$> ConstDecl <$> parseExpr
 
 parseExpr :: Parser Expr
 parseExpr = parseIf <|> parseSeq <|> parseArithmetic
