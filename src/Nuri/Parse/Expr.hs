@@ -112,17 +112,12 @@ parseSeq = do
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
   st <- get
   result <-
-    fromExprs
+    Seq
       <$> sepBy1
         parseLine
         (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
   put st
   return result
-  where
-    -- 함수의 본문이 단일 표현식일 경우 Seq이 아닌 단일 표현식을 그대로 반환 시켜주기 위함
-    fromExprs :: NonEmpty (Either Decl Expr) -> Expr
-    fromExprs (Right expr :| []) = expr
-    fromExprs l = Seq l
 
 parseIf :: Parser Expr
 parseIf =
