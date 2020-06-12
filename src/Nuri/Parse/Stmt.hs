@@ -7,7 +7,7 @@ import Nuri.Stmt
 import Text.Megaparsec.Char.Lexer (nonIndented)
 
 parseStmts :: Parser (NonEmpty Stmt)
-parseStmts = some (nonIndented sc parseStmt <* scn)
+parseStmts = scn >> some (nonIndented sc parseStmt <* scn)
 
 parseStmt :: Parser Stmt
 parseStmt = parseDeclStmt <|> parseExprStmt
