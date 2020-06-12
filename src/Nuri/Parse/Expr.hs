@@ -23,10 +23,7 @@ import Prelude hiding
   )
 
 parseDecl :: Parser Decl
-parseDecl = do
-  decl <- parseConstDecl <|> parseFuncDecl
-  modify (decl :)
-  return decl
+parseDecl = parseConstDecl <|> parseFuncDecl
 
 parseDeclKind :: Parser DeclKind
 parseDeclKind =
@@ -49,6 +46,7 @@ parseFuncDecl = do
   args <- parseArgList []
   offset <- P.getOffset
   funcName <- parseFuncIdentifier <* symbol ":"
+  modify ((declKind, funcName) :)
 
   checkValidIdentifier offset declKind funcName
   scn

@@ -1,13 +1,13 @@
 module Nuri.Parse where
 
-import Nuri.Expr (Decl (Decl), DeclKind (..), DeclType (FuncDecl))
+import Nuri.Expr (DeclKind (..))
 import qualified Text.Megaparsec as P
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 import Text.Megaparsec.Pos (Pos)
 
-type Parser = P.ParsecT Void Text (State [Decl])
+type Parser = P.ParsecT Void Text (State [(DeclKind, Text)])
 
 lineComment :: Parser ()
 lineComment = L.skipLineComment "#"
@@ -51,13 +51,13 @@ resolveDecl :: Text -> [DeclKind] -> Int -> Parser DeclKind
 resolveDecl name kinds offset = do
   st <- get
   case find (checkDecl name) st of
-    Just (Decl _ _ (FuncDecl kind _ _)) -> return kind
+    Just (kind, _) -> return kind
     _ -> do
       let missingKinds = intercalate " 또는 " (declKindName <$> kinds)
       P.setOffset offset
       fail $ missingKinds ++ " '" ++ toString name ++ "'을(를) 찾을 수 없습니다."
   where
-    checkDecl n' (Decl _ n _) = n == n'
+    checkDecl n' (_, n) = n == n'
     declKindName kind =
       case kind of
         NormalDecl -> "함수"
