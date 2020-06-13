@@ -8,9 +8,8 @@ import Nuri.Expr
 import Nuri.Stmt
 
 compileStmt :: Stmt -> Builder ()
-compileStmt (DeclStmt decl) = do
-  let (pos, name, expr) = declToExpr decl
-  compileExpr expr
+compileStmt (DeclStmt (Decl pos _ name t)) = do
+  compileExpr (declToExpr pos t)
 
   index <- addGlobalVarName name
   tellInst pos (Inst.StoreGlobal index)

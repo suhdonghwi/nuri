@@ -21,11 +21,11 @@ instance Eq Decl where
 instance ASTNode Decl where
   getSourceLine (Decl pos _ _ _) = pos
 
-declToExpr :: Decl -> (Pos, Text, Expr)
-declToExpr (Decl pos _ name t) =
+declToExpr :: Pos -> DeclType -> Expr
+declToExpr pos t =
   case t of
-    FuncDecl args body -> (pos, name, Lambda pos args body)
-    ConstDecl expr -> (pos, name, expr)
+    FuncDecl args body -> Lambda pos args body
+    ConstDecl expr -> expr
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
   = Lit Pos Literal
@@ -65,7 +65,7 @@ instance ASTNode Expr where
   getSourceLine (If pos _ _ _) = pos
   getSourceLine (UnaryOp pos _ _) = pos
   getSourceLine (Seq (x :| _)) = case x of
-    Left decl -> let (pos, _, _) = declToExpr decl in pos
+    Left (Decl pos _ _ _) -> pos
     Right expr -> getSourceLine expr
   getSourceLine (Lambda pos _ _) = pos
 

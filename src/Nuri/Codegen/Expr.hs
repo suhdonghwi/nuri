@@ -103,8 +103,8 @@ compileExpr (Seq xs) = do
   let process [] = pass
       process (y : ys) = do
         case y of
-          Left decl -> do
-            let (pos, name, expr) = declToExpr decl
+          Left (Decl pos _ name t) -> do
+            let expr = declToExpr pos t
             index <- addVarName depth name
             compileExpr expr
             tellInst pos (Inst.StoreLocal index)
