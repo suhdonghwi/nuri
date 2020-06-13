@@ -240,8 +240,8 @@ spec = do
                         [ Inst.Push 0,
                           Inst.StoreLocal 0,
                           Inst.Push 1,
-                          Inst.StoreLocal 1,
-                          Inst.LoadLocal 1
+                          Inst.StoreLocal 0,
+                          Inst.LoadLocal 0
                         ]
                       )
       compileExpr

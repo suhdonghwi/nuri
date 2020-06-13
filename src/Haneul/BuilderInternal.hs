@@ -8,7 +8,7 @@ import Nuri.Expr
 data BuilderInternal = BuilderInternal
   { _internalConstTable :: ConstTable,
     _internalDepth :: Word8,
-    _internalLocalVars :: [(Word8, Text)],
+    _internalLocalVars :: S.OSet (Word8, Text),
     _internalMaxLocalCount :: Word32,
     _internalGlobalVarNames :: S.OSet Text,
     _internalFreeVars :: S.OSet (Word8, Word8),
@@ -27,7 +27,7 @@ defaultInternal =
   BuilderInternal
     { _internalConstTable = S.empty,
       _internalDepth = 0,
-      _internalLocalVars = [],
+      _internalLocalVars = S.empty,
       _internalMaxLocalCount = 0,
       _internalGlobalVarNames = S.empty,
       _internalFreeVars = S.empty,

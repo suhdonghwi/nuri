@@ -35,9 +35,10 @@ addConstant value = do
 
 addVarName :: Word8 -> Text -> Builder Word32
 addVarName depth value = do
-  modifying internalLocalVars (++ [(depth, value)])
+  modifying internalLocalVars (|> (depth, value))
   table <- use internalLocalVars
-  return $ genericLength table - 1
+  let (Just index) = findIndex (depth, value) table
+  return $ fromIntegral index
 
 addGlobalVarName :: Text -> Builder Word32
 addGlobalVarName value = do

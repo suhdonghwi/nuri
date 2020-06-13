@@ -12,7 +12,7 @@ data DeclType
   | ConstDecl Expr
   deriving (Eq, Show)
 
-data Decl = Decl Pos DeclKind Text DeclType
+data Decl = Decl Pos DeclKind Text (Maybe DeclType)
   deriving (Show)
 
 instance Eq Decl where

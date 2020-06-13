@@ -103,13 +103,16 @@ compileExpr (Seq xs) = do
   let process [] = pass
       process (y : ys) = do
         case y of
-          Left (Decl pos _ name t) -> do
-            let expr = declToExpr pos t
-            index <- addVarName depth name
-            compileExpr expr
-            tellInst pos (Inst.StoreLocal index)
-            -- 시퀀스의 마지막이 선언인 경우 시퀀스의 최종 결과를 선언한 값으로
-            when (null ys) (tellInst pos (Inst.LoadLocal index))
+          Left (Decl pos _ name decl) ->
+            case decl of
+              Just t -> do
+                let expr = declToExpr pos t
+                index <- addVarName depth name
+                compileExpr expr
+                tellInst pos (Inst.StoreLocal index)
+                -- 시퀀스의 마지막이 선언인 경우 시퀀스의 최종 결과를 선언한 값으로
+                when (null ys) (tellInst pos (Inst.LoadLocal index))
+              Nothing -> addVarName depth name >> pass
           Right expr -> do
             compileExpr expr
             -- 시퀀스의 마지막이 아닌 표현식일 경우 Pop
@@ -118,7 +121,7 @@ compileExpr (Seq xs) = do
   process $ toList xs
 
   maxLocalCount <- use internalMaxLocalCount
-  localCount <- uses internalLocalVars genericLength
+  localCount <- uses internalLocalVars (fromIntegral . S.size)
   when (localCount > maxLocalCount) (assign internalMaxLocalCount localCount)
 
   assign internalLocalVars tempVarNames

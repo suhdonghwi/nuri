@@ -360,3 +360,45 @@ spec = do
             10에 가하고, 걷다
           |]
                        )
+    it "함수 전방 선언 문법으로 전역 상호재귀 함수 선언 파싱" $ do
+      testParse
+        parseStmts
+        ( [text|
+            동사 두번째 하다
+            동사 첫번째 하다: 
+              두번째 하다
+
+            동사 두번째 하다: 
+              첫번째 하다
+            
+            첫번째 하다
+          |]
+        )
+        `shouldParse` [ funcForwardStmt VerbDecl "두번째 하다",
+                        funcDeclStmt VerbDecl "첫번째 하다" [] (funcCall (var "두번째 하다") []),
+                        funcDeclStmt VerbDecl "두번째 하다" [] (funcCall (var "첫번째 하다") []),
+                        ExprStmt $ funcCall (var "첫번째 하다") []
+                      ]
+    it "함수 전방 선언 문법으로 시퀀스 상호재귀 함수 선언 파싱" $ do
+      testParse
+        parseStmts
+        ( [text|
+            순서대로
+              동사 두번째 하다 
+              동사 첫번째 하다: 
+                두번째 하다
+
+              동사 두번째 하다: 
+                첫번째 하다
+              
+              첫번째 하다
+          |]
+        )
+        `shouldParse` [ ExprStmt $
+                          Seq
+                            [ Left $ funcForward VerbDecl "두번째 하다",
+                              Left $ funcDecl VerbDecl "첫번째 하다" [] (funcCall (var "두번째 하다") []),
+                              Left $ funcDecl VerbDecl "두번째 하다" [] (funcCall (var "첫번째 하다") []),
+                              Right $ funcCall (var "첫번째 하다") []
+                            ]
+                      ]

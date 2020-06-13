@@ -45,13 +45,20 @@ parseFuncDecl = do
   declKind <- parseDeclKind
   args <- parseArgList []
   offset <- P.getOffset
-  funcName <- parseFuncIdentifier <* symbol ":"
-  modify ((declKind, funcName) :)
-  modify (++ ((declKind,) <$> (fst <$> args)))
-
+  funcName <- parseFuncIdentifier
   checkValidIdentifier offset declKind funcName
-  scn
-  Decl pos declKind funcName <$> (FuncDecl args <$> parseExpr)
+
+  modify ((declKind, funcName) :)
+  colon <- P.observing (symbol ":")
+  case colon of
+    Left _ -> return $ Decl pos declKind funcName Nothing
+    Right _ -> do
+      scn
+      st <- get
+      modify (++ ((NormalDecl,) <$> (fst <$> args)))
+      result <- Decl pos declKind funcName <$> (Just . FuncDecl args <$> parseExpr)
+      put st
+      return result
   where
     parseArgList :: [(Text, Text)] -> Parser [(Text, Text)]
     parseArgList l = do
@@ -99,7 +106,7 @@ parseConstDecl = do
   reserved "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
   modify ((NormalDecl, identifier) :)
-  Decl pos NormalDecl identifier <$> ConstDecl <$> parseExpr
+  Decl pos NormalDecl identifier <$> Just . ConstDecl <$> parseExpr
 
 parseExpr :: Parser Expr
 parseExpr = parseIf <|> parseSeq <|> parseArithmetic
