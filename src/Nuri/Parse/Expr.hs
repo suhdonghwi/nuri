@@ -49,6 +49,9 @@ parseFuncDecl = do
   checkValidIdentifier offset declKind funcName
 
   modify ((declKind, funcName) :)
+  when (declKind == AdjectiveDecl) $
+    modify ((AdjectiveDecl, T.init funcName <> "지 않다") :)
+
   colon <- P.observing (symbol ":")
   case colon of
     Left _ -> return $ Decl pos declKind funcName Nothing
@@ -119,12 +122,12 @@ parseSeq = do
   let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
   st <- get
   result <-
-    Seq
-      <$> sepBy1
-        parseLine
-        (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
+    sepBy1
+      parseLine
+      (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
+  when (isLeft $ last result) $ fail "순서 표현식의 마지막은 선언문이 아닌 표현식이어야 합니다."
   put st
-  return result
+  return $ Seq result
 
 parseIf :: Parser Expr
 parseIf =

@@ -419,27 +419,14 @@ spec = do
             Right $ litInteger 1
           ]
 
-    it "마지막이 선언문인 시퀀스" $ do
+    it "마지막이 선언문인 시퀀스에 대해서 오류" $ do
       testParse
         parseSeq
-        ( [text|
+        `shouldFailOn` ( [text|
             순서대로
               형용사 [값1]과 [값2]가 같다:
                 [값1] + 1
               1
               상수 [수]: 10 + 10
           |]
-        )
-        `shouldParse` Seq
-          [ Left $
-              funcDecl
-                AdjectiveDecl
-                "같다"
-                [("값1", "와"), ("값2", "이")]
-                (binaryOp Add (var "값1") (litInteger 1)),
-            Right $ litInteger 1,
-            Left $
-              constDecl
-                "수"
-                (binaryOp Add (litInteger 10) (litInteger 10))
-          ]
+                       )

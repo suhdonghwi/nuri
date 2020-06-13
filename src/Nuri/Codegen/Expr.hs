@@ -81,11 +81,11 @@ compileExpr (BinaryOp pos op lhs rhs) = do
     Divide -> tellInst pos (Inst.Divide)
     Mod -> tellInst pos (Inst.Mod)
     Equal -> tellInst pos (Inst.Equal)
-    Inequal -> tellCode [(pos, Inst.Equal), (pos, Inst.Negate)]
+    Inequal -> tellCode [(pos, Inst.Equal), (pos, Inst.LogicNot)]
     LessThan -> tellInst pos (Inst.LessThan)
     GreaterThan -> tellInst pos (Inst.GreaterThan)
-    LessThanEqual -> tellCode [(pos, Inst.GreaterThan), (pos, Inst.Negate)]
-    GreaterThanEqual -> tellCode [(pos, Inst.LessThan), (pos, Inst.Negate)]
+    LessThanEqual -> tellCode [(pos, Inst.GreaterThan), (pos, Inst.LogicNot)]
+    GreaterThanEqual -> tellCode [(pos, Inst.LessThan), (pos, Inst.LogicNot)]
     LogicAnd -> tellCode [(pos, Inst.LogicAnd)]
     LogicOr -> tellCode [(pos, Inst.LogicOr)]
 compileExpr (UnaryOp pos op value) = do
@@ -103,16 +103,18 @@ compileExpr (Seq xs) = do
   let process [] = pass
       process (y : ys) = do
         case y of
-          Left (Decl pos _ name decl) ->
-            case decl of
-              Just t -> do
-                let expr = declToExpr pos t
-                index <- addVarName depth name
-                compileExpr expr
-                tellInst pos (Inst.StoreLocal index)
-                -- 시퀀스의 마지막이 선언인 경우 시퀀스의 최종 결과를 선언한 값으로
-                when (null ys) (tellInst pos (Inst.LoadLocal index))
-              Nothing -> addVarName depth name >> pass
+          Left (Decl pos kind name (Just t)) -> do
+            let declList = declToExpr pos kind name t
+            sequence_ (addVarName depth . fst <$> declList)
+
+            let register (n, b) = do
+                  compileExpr b
+                  index <- addVarName depth n
+                  tellInst pos (Inst.StoreLocal index)
+
+            sequence_ (register <$> declList)
+          Left (Decl _ _ name Nothing) ->
+            addVarName depth name >> pass
           Right expr -> do
             compileExpr expr
             -- 시퀀스의 마지막이 아닌 표현식일 경우 Pop

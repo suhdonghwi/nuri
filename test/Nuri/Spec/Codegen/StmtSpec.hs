@@ -149,42 +149,6 @@ spec = do
                             ],
                           [Inst.Push 0, Inst.StoreGlobal 0]
                         )
-      it "시퀀스의 마지막이 선언 문인 함수 코드 생성" $
-        do
-          compileStmt
-            ( funcDeclStmt
-                NormalDecl
-                "동작"
-                []
-                ( Seq
-                    [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
-                      Left $ constDecl "값" (litInteger 10)
-                    ]
-                )
-            )
-          `shouldBuild` ( S.fromList
-                            [ ConstFunc
-                                ( funcObject
-                                    { _funcStackSize = 2,
-                                      _funcMaxLocalCount = 1,
-                                      _funcConstTable =
-                                        S.fromList
-                                          [ConstInteger 1, ConstInteger 10],
-                                      _funcCode =
-                                        ann
-                                          [ Inst.Push 0,
-                                            Inst.Push 0,
-                                            Inst.Add,
-                                            Inst.Pop,
-                                            Inst.Push 1,
-                                            Inst.StoreLocal 0,
-                                            Inst.LoadLocal 0
-                                          ]
-                                    }
-                                )
-                            ],
-                          [Inst.Push 0, Inst.StoreGlobal 0]
-                        )
       it "3개 이상의 스코프가 중첩된 클로저 코드 생성" $
         do
           compileStmt
@@ -338,6 +302,36 @@ spec = do
                                 )
                             ],
                           [Inst.Push 0, Inst.StoreGlobal 0]
+                        )
+      it "형용사 함수 선언 코드 생성" $
+        compileStmt
+          ( funcDeclStmt
+              AdjectiveDecl
+              "같다"
+              [("값1", "와"), ("값2", "이")]
+              (binaryOp Equal (var "값1") (var "값2"))
+          )
+          `shouldBuild` ( S.fromList
+                            [ ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcCode =
+                                        ann
+                                          [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
+                                    }
+                                ),
+                              ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcCode =
+                                        ann
+                                          [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal, Inst.LogicNot]
+                                    }
+                                )
+                            ],
+                          [Inst.Push 0, Inst.StoreGlobal 0, Inst.Push 1, Inst.StoreGlobal 1]
                         )
   describe "상수 선언문 코드 생성" $ do
     it "하나의 값에 대한 상수 선언문 코드 생성" $ do

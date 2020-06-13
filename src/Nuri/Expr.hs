@@ -1,5 +1,6 @@
 module Nuri.Expr where
 
+import qualified Data.Text as T
 import Nuri.ASTNode
 import Nuri.Literal
 import Text.Megaparsec.Pos (Pos)
@@ -21,11 +22,17 @@ instance Eq Decl where
 instance ASTNode Decl where
   getSourceLine (Decl pos _ _ _) = pos
 
-declToExpr :: Pos -> DeclType -> Expr
-declToExpr pos t =
+declToExpr :: Pos -> DeclKind -> Text -> DeclType -> [(Text, Expr)]
+declToExpr pos kind name t =
   case t of
-    FuncDecl args body -> Lambda pos args body
-    ConstDecl expr -> expr
+    FuncDecl args body ->
+      let baseDecl = [(name, Lambda pos args body)]
+          extraDecl = case kind of
+            AdjectiveDecl ->
+              [(T.init name <> "지 않다", Lambda pos args (UnaryOp pos LogicNot body))]
+            _ -> []
+       in baseDecl ++ extraDecl
+    ConstDecl expr -> [(name, expr)]
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
   = Lit Pos Literal

@@ -219,35 +219,17 @@ spec = do
                 ]
             )
 
-      it "시퀀스 끝이 선언문인 함수" $ do
+      it "시퀀스 끝이 선언문인 함수에 대해서 오류" $ do
         testParse
           parseDeclStmt
-          ( [text|
+          `shouldFailOn` ( [text|
               함수 동작: 순서대로
                 함수 [값]에 더하다:
                   [값] + 1
                 1
                 상수 [수]: 10 + 10
             |]
-          )
-          `shouldParse` funcDeclStmt
-            NormalDecl
-            "동작"
-            []
-            ( Seq
-                [ Left $
-                    funcDecl
-                      NormalDecl
-                      "더하다"
-                      [("값", "에")]
-                      (binaryOp Add (var "값") (litInteger 1)),
-                  Right $ litInteger 1,
-                  Left $
-                    constDecl
-                      "수"
-                      (binaryOp Add (litInteger 10) (litInteger 10))
-                ]
-            )
+                         )
 
     describe "상수 선언문 파싱" $ do
       it "단순 리터럴 상수 선언" $ do
