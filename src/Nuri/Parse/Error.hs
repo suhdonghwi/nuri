@@ -144,7 +144,7 @@ showTokens = stringPretty
 
 stringPretty :: NonEmpty Char -> String
 stringPretty (x :| []) = charPretty x
-stringPretty ('\r' :| "\n") = "줄바꿈"
+stringPretty ('\r' :| "\n") = "줄 바꿈"
 stringPretty xs = "\"" <> concatMap f (NE.toList xs) <> "\""
   where
     f ch =
