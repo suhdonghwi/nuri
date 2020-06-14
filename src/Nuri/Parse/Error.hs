@@ -6,7 +6,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Nuri.ParseError (errorBundlePretty) where
+module Nuri.Parse.Error (errorBundlePretty) where
 
 import qualified Data.Set as S
 import Data.Text.ICU.Char (EastAsianWidth (..), EastAsianWidth_ (..), property)

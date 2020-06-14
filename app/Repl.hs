@@ -13,7 +13,7 @@ import Haneul.BuilderInternal
 import Haneul.Serial ()
 import Nuri.Codegen.Stmt
 import Nuri.Parse.Stmt
-import Nuri.ParseError (errorBundlePretty)
+import Nuri.Parse.Error (errorBundlePretty)
 import Nuri.Stmt
 import System.IO (hFlush)
 import Text.Megaparsec
