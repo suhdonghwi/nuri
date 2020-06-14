@@ -14,18 +14,17 @@ import Data.Text.ICU.Char (EastAsianWidth (..), EastAsianWidth_ (..), property)
 import Text.Megaparsec (PosState, pstateSourcePos)
 import Text.Megaparsec.Error hiding (errorBundlePretty, parseErrorTextPretty)
 import Text.Megaparsec.Pos
-import Text.Megaparsec.Stream
+import Text.Megaparsec.Stream hiding (showTokens)
 
 isWide :: Char -> Bool
 isWide c = property EastAsianWidth c `elem` [EAFull, EAWide]
 
 errorBundlePretty ::
-  forall s e.
-  ( Stream s,
-    ShowErrorComponent e
+  forall e.
+  ( ShowErrorComponent e
   ) =>
   -- | Parse error bundle to display
-  ParseErrorBundle s e ->
+  ParseErrorBundle Text e ->
   -- | Textual rendition of the bundle
   String
 errorBundlePretty ParseErrorBundle {..} =
@@ -33,9 +32,9 @@ errorBundlePretty ParseErrorBundle {..} =
    in drop 1 (r "")
   where
     f ::
-      (String -> String, PosState s) ->
-      ParseError s e ->
-      (String -> String, PosState s)
+      (String -> String, PosState Text) ->
+      ParseError Text e ->
+      (String -> String, PosState Text)
     f (o, !pst) e = (o . (outChunk ++), pst')
       where
         (sline, pst') = reachOffset (errorOffset e) pst
@@ -64,17 +63,16 @@ errorBundlePretty ParseErrorBundle {..} =
             then slineLen - rpshift + 1
             else elen
         slineLen = length sline
-        pxy = Proxy :: Proxy s
         elen =
           case e of
             TrivialError _ Nothing _ -> 1
-            TrivialError _ (Just x) _ -> errorItemLength pxy x
+            TrivialError _ (Just x) _ -> errorItemLength x
             FancyError _ xs ->
               S.foldl' (\a b -> max a (errorFancyLength b)) 1 xs
 
-errorItemLength :: Stream s => Proxy s -> ErrorItem (Token s) -> Int
-errorItemLength pxy = \case
-  Tokens ts -> tokensLength pxy ts
+errorItemLength :: ErrorItem (Token Text) -> Int
+errorItemLength = \case
+  Tokens ts -> NE.length ts
   _ -> 1
 
 errorFancyLength :: ShowErrorComponent e => ErrorFancy e -> Int
@@ -83,28 +81,26 @@ errorFancyLength = \case
   _ -> 1
 
 parseErrorTextPretty ::
-  forall s e.
-  (Stream s, ShowErrorComponent e) =>
+  forall e.
+  (ShowErrorComponent e) =>
   -- | Parse error to render
-  ParseError s e ->
+  ParseError Text e ->
   -- | Result of rendering
   String
 parseErrorTextPretty (TrivialError _ us ps) =
   if isNothing us && S.null ps
     then "알 수 없는 파싱 에러입니다.\n"
     else
-      messageItemsPretty (showErrorItem pxy `S.map` maybe S.empty S.singleton us) "이(가) 아닌"
-        <> messageItemsPretty (showErrorItem pxy `S.map` ps) "이(가) 올 자리입니다."
-  where
-    pxy = Proxy :: Proxy s
+      messageItemsPretty (showErrorItem `S.map` maybe S.empty S.singleton us) "이(가) 아닌"
+        <> messageItemsPretty (showErrorItem `S.map` ps) "이(가) 올 자리입니다."
 parseErrorTextPretty (FancyError _ xs) =
   if S.null xs
     then "알 수 없는 파싱 에러입니다.\n"
     else toString $ unlines (toText <$> (showErrorFancy <$> S.toAscList xs))
 
-showErrorItem :: Stream s => Proxy s -> ErrorItem (Token s) -> String
-showErrorItem pxy = \case
-  Tokens ts -> showTokens pxy ts
+showErrorItem :: ErrorItem Char -> String
+showErrorItem = \case
+  Tokens ts -> showTokens ts
   Label label -> NE.toList label
   EndOfInput -> "입력의 끝"
 
@@ -142,3 +138,62 @@ orList :: NonEmpty String -> String
 orList (x :| []) = x
 orList (x :| [y]) = x <> " 또는 " <> y
 orList xs = intercalate ", " (toList xs) <> " 중 하나"
+
+showTokens :: NonEmpty Char -> String
+showTokens = stringPretty
+
+stringPretty :: NonEmpty Char -> String
+stringPretty (x :| []) = charPretty x
+stringPretty ('\r' :| "\n") = "줄바꿈"
+stringPretty xs = "\"" <> concatMap f (NE.toList xs) <> "\""
+  where
+    f ch =
+      case charPretty' ch of
+        Nothing -> [ch]
+        Just pretty -> "<" <> pretty <> ">"
+
+-- | @charPretty ch@ returns user-friendly string representation of given
+-- character @ch@, suitable for using in error messages.
+charPretty :: Char -> String
+charPretty ' ' = "공백"
+charPretty ch = fromMaybe ("'" <> [ch] <> "'") (charPretty' ch)
+
+-- | If the given character has a pretty representation, return that,
+-- otherwise 'Nothing'. This is an internal helper.
+charPretty' :: Char -> Maybe String
+charPretty' = \case
+  '\NUL' -> Just "널 문자"
+  '\SOH' -> Just "헤딩의 시작"
+  '\STX' -> Just "텍스트의 시작"
+  '\ETX' -> Just "텍스트의 끝"
+  '\EOT' -> Just "전송의 끝"
+  '\ENQ' -> Just "조사 문자"
+  '\ACK' -> Just "인정 문자"
+  '\BEL' -> Just "벨 문자"
+  '\BS' -> Just "백스페이스"
+  '\t' -> Just "탭"
+  '\n' -> Just "줄 바꿈"
+  '\v' -> Just "세로 탭"
+  '\f' -> Just "폼 피드"
+  '\r' -> Just "캐리지 리턴 문자"
+  '\SO' -> Just "쉬프트 아웃"
+  '\SI' -> Just "쉬프트 인"
+  '\DLE' -> Just "데이터 링크 이스케이프"
+  '\DC1' -> Just "기기 제어 1"
+  '\DC2' -> Just "기기 제어 2"
+  '\DC3' -> Just "기기 제어 3"
+  '\DC4' -> Just "기기 제어 4"
+  '\NAK' -> Just "불인정"
+  '\SYN' -> Just "동기화 대기"
+  '\ETB' -> Just "전송 블럭의 끝"
+  '\CAN' -> Just "취소"
+  '\EM' -> Just "미디어의 끝"
+  '\SUB' -> Just "대체"
+  '\ESC' -> Just "ESC"
+  '\FS' -> Just "파일 구분자"
+  '\GS' -> Just "그룹 구분자"
+  '\RS' -> Just "레코드 구분자"
+  '\US' -> Just "단위 구분자"
+  '\DEL' -> Just "삭제"
+  '\160' -> Just "줄 바꿈 없는 공백"
+  _ -> Nothing
