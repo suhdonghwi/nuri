@@ -6,12 +6,12 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Nuri.ParseError where
+module Nuri.ParseError (errorBundlePretty) where
 
-import qualified Data.Set as E
+import qualified Data.Set as S
 import Data.Text.ICU.Char (EastAsianWidth (..), EastAsianWidth_ (..), property)
 import Text.Megaparsec (PosState, pstateSourcePos)
-import Text.Megaparsec.Error
+import Text.Megaparsec.Error hiding (errorBundlePretty)
 import Text.Megaparsec.Pos
 import Text.Megaparsec.Stream
 
@@ -69,7 +69,7 @@ errorBundlePretty ParseErrorBundle {..} =
             TrivialError _ Nothing _ -> 1
             TrivialError _ (Just x) _ -> errorItemLength pxy x
             FancyError _ xs ->
-              E.foldl' (\a b -> max a (errorFancyLength b)) 1 xs
+              S.foldl' (\a b -> max a (errorFancyLength b)) 1 xs
 
 errorItemLength :: Stream s => Proxy s -> ErrorItem (Token s) -> Int
 errorItemLength pxy = \case

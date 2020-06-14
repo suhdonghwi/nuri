@@ -38,6 +38,7 @@ dependencies:
   - hspec
   - hspec-megaparsec
   - neat-interpolation
+  - text-icu
 
 default-extensions:
   - OverloadedStrings
