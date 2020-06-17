@@ -91,8 +91,11 @@ parseErrorTextPretty (TrivialError _ us ps) =
   if isNothing us && S.null ps
     then "알 수 없는 파싱 에러입니다.\n"
     else
-      messageItemsPretty (showErrorItem `S.map` maybe S.empty S.singleton us) "이(가) 아닌"
-        <> messageItemsPretty (showErrorItem `S.map` ps) "이(가) 올 자리입니다."
+      let gotMessage = messageItemsPretty (showErrorItem `S.map` maybe S.empty S.singleton us)
+          expectedMessage = messageItemsPretty (showErrorItem `S.map` ps)
+       in if null expectedMessage
+            then gotMessage ++ "이(가) 올 자리가 아닙니다."
+            else gotMessage ++ "이(가) 아닌 " ++ expectedMessage ++ "이(가) 올 자리입니다."
 parseErrorTextPretty (FancyError _ xs) =
   if S.null xs
     then "알 수 없는 파싱 에러입니다.\n"
@@ -126,13 +129,11 @@ messageItemsPretty ::
   -- | Collection of messages
   Set String ->
   -- | Prefix to prepend
-  String ->
-  -- | Result of rendering
   String
-messageItemsPretty ts postfix
+messageItemsPretty ts
   | S.null ts = ""
   | otherwise =
-    (orList . NE.fromList . S.toAscList) ts <> postfix <> "\n"
+    (orList . NE.fromList . S.toAscList) ts
 
 orList :: NonEmpty String -> String
 orList (x :| []) = x
