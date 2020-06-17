@@ -286,7 +286,7 @@ parseIdentifier =
   )
     <?> "변수 이름"
   where
-    allowedChars = hangulSyllable <|> hangulJamo <|> (P.letterChar <?> "영문")
+    allowedChars = (hangulSyllable <|> hangulJamo <|> P.letterChar) <?> "한글 또는 영문"
 
 parseNoneExpr :: Parser Expr
 parseNoneExpr = do
