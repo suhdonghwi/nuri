@@ -17,11 +17,14 @@ import Text.Megaparsec.Pos
 import Text.Megaparsec.Stream hiding (showTokens)
 
 byJongseong :: String -> String -> String -> String
-byJongseong text s1 s2 =
+byJongseong s1 s2 text =
   let lastChar = last `viaNonEmpty` text
    in case lastChar of
         Nothing -> ""
         Just ch -> if (ord ch - 0xAC00) `mod` 28 > 0 then text <> s1 else text <> s2
+
+byJongseongSubject :: String -> String
+byJongseongSubject = byJongseong "이" "가"
 
 isWide :: Char -> Bool
 isWide c = property EastAsianWidth c `elem` [EAFull, EAWide]
@@ -101,8 +104,8 @@ parseErrorTextPretty (TrivialError _ us ps) =
       let gotMessage = messageItemsPretty (showErrorItem `S.map` maybe S.empty S.singleton us)
           expectedMessage = messageItemsPretty (showErrorItem `S.map` ps)
        in if null expectedMessage
-            then byJongseong gotMessage "이" "가" <> " 올 자리가 아닙니다."
-            else byJongseong gotMessage "이" "가" <> " 아닌 " ++ byJongseong expectedMessage "이" "가" ++ " 올 자리입니다."
+            then byJongseongSubject gotMessage <> " 올 자리가 아닙니다."
+            else byJongseongSubject gotMessage <> " 아닌 " ++ byJongseongSubject expectedMessage ++ " 올 자리입니다."
 parseErrorTextPretty (FancyError _ xs) =
   if S.null xs
     then "알 수 없는 파싱 에러입니다.\n"
