@@ -22,6 +22,12 @@ import Prelude hiding
     unwords,
   )
 
+keywords :: [String]
+keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로", "그리고", "또는"]
+
+parseKeyword :: Parser ()
+parseKeyword = P.choice $ reserved <$> keywords
+
 parseDecl :: Parser Decl
 parseDecl = parseConstDecl <|> parseFuncDecl
 
@@ -90,6 +96,7 @@ parseFuncDecl = do
 parseJosa :: Parser Text
 parseJosa =
   ( do
+      P.notFollowedBy parseKeyword
       josa <- toText <$> P.some hangulSyllable
       return
         ( case josa of
@@ -151,7 +158,7 @@ parseArithmetic =
   makeExprParser
     ( ( P.try
           ( parseTerm
-              <* P.notFollowedBy (void parseTerm <|> void parseFuncIdentifier) -- 후에 조사로 변경
+              <* P.notFollowedBy (void parseJosa) -- 후에 조사로 변경
           )
           <|> parseNestedFuncCalls
       )
@@ -231,12 +238,10 @@ parseFuncIdentifier =
   lexeme
     ( T.unwords
         <$> P.sepEndBy1
-          (P.try $ P.notFollowedBy keyword *> hangulWord)
+          (P.try $ P.notFollowedBy parseKeyword *> hangulWord)
           (P.char ' ')
     )
   where
-    keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로", "그리고", "또는"]
-    keyword = P.choice $ reserved <$> keywords
     hangulWord = toText <$> P.some hangulSyllable
 
 parseTerm :: Parser Expr
