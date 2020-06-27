@@ -25,7 +25,20 @@ import Prelude hiding
 parseKeyword :: Parser ()
 parseKeyword = P.choice $ reserved <$> keywords
   where
-    keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로", "그리고", "또는"]
+    keywords =
+      [ "함수",
+        "동사",
+        "형용사",
+        "없음",
+        "참",
+        "거짓",
+        "만약",
+        "이라면",
+        "아니라면",
+        "순서대로",
+        "그리고",
+        "또는"
+      ]
 
 parseDecl :: Parser Decl
 parseDecl = parseConstDecl <|> parseFuncDecl
@@ -155,13 +168,7 @@ parseIf =
 parseArithmetic :: Parser Expr
 parseArithmetic =
   makeExprParser
-    ( ( P.try
-          ( parseTerm <* P.notFollowedBy parseJosa -- 후에 조사로 변경
-          )
-          <|> parseNestedFuncCalls
-      )
-        <?> "표현식"
-    )
+    ((P.try parseNestedFuncCalls <|> parseTerm) <?> "표현식")
     table
   where
     table =
