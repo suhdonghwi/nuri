@@ -10,7 +10,7 @@ testParse parser input = evalState (runParserT (scn *> parser <* scn <* eof) "(t
     initState =
       [ (VerbDecl, "더하다"),
         (VerbDecl, "나누다"),
-        (VerbDecl, "합 구하다"),
+        (VerbDecl, "합하다"),
         (VerbDecl, "던지다"),
         (VerbDecl, "받다"),
         (VerbDecl, "보여주다"),

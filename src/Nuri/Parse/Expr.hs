@@ -241,11 +241,7 @@ parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm <?> "함수 인수") (p
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier =
   lexeme
-    ( T.unwords
-        <$> P.sepEndBy1
-          (P.try $ P.notFollowedBy parseKeyword *> hangulWord)
-          (P.char ' ')
-    )
+    (P.notFollowedBy parseKeyword *> hangulWord)
   where
     hangulWord = toText <$> P.some hangulSyllable
 

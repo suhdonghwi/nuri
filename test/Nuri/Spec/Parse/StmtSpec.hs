@@ -34,14 +34,6 @@ spec = do
             [("값1", "에"), ("값2", "을")]
             (binaryOp Add (var "값1") (var "값2"))
 
-      it "함수 이름에 띄어쓰기가 포함된 함수" $ do
-        testParse parseDeclStmt "함수 [값1]에 [값2]을 더한 값 구하다:\n  참"
-          `shouldParse` funcDeclStmt
-            NormalDecl
-            "더한 값 구하다"
-            [("값1", "에"), ("값2", "을")]
-            (litBool True)
-
       it "함수의 본문이 없으면 오류" $ do
         testParse parseDeclStmt `shouldFailOn` "함수 [값]을 증가하다:"
 
@@ -346,41 +338,41 @@ spec = do
       testParse
         parseStmts
         ( [text|
-            동사 두번째 하다
-            동사 첫번째 하다: 
-              두번째 하다
+            동사 두번째하다
+            동사 첫번째하다: 
+              두번째하다
 
-            동사 두번째 하다: 
-              첫번째 하다
+            동사 두번째하다: 
+              첫번째하다
             
-            첫번째 하다
+            첫번째하다
           |]
         )
-        `shouldParse` [ funcForwardStmt VerbDecl "두번째 하다",
-                        funcDeclStmt VerbDecl "첫번째 하다" [] (funcCall (var "두번째 하다") []),
-                        funcDeclStmt VerbDecl "두번째 하다" [] (funcCall (var "첫번째 하다") []),
-                        ExprStmt $ funcCall (var "첫번째 하다") []
+        `shouldParse` [ funcForwardStmt VerbDecl "두번째하다",
+                        funcDeclStmt VerbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
+                        funcDeclStmt VerbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
+                        ExprStmt $ funcCall (var "첫번째하다") []
                       ]
     it "함수 전방 선언 문법으로 시퀀스 상호재귀 함수 선언 파싱" $ do
       testParse
         parseStmts
         ( [text|
             순서대로
-              동사 두번째 하다 
-              동사 첫번째 하다: 
-                두번째 하다
+              동사 두번째하다 
+              동사 첫번째하다: 
+                두번째하다
 
-              동사 두번째 하다: 
-                첫번째 하다
+              동사 두번째하다: 
+                첫번째하다
               
-              첫번째 하다
+              첫번째하다
           |]
         )
         `shouldParse` [ ExprStmt $
                           Seq
-                            [ Left $ funcForward VerbDecl "두번째 하다",
-                              Left $ funcDecl VerbDecl "첫번째 하다" [] (funcCall (var "두번째 하다") []),
-                              Left $ funcDecl VerbDecl "두번째 하다" [] (funcCall (var "첫번째 하다") []),
-                              Right $ funcCall (var "첫번째 하다") []
+                            [ Left $ funcForward VerbDecl "두번째하다",
+                              Left $ funcDecl VerbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
+                              Left $ funcDecl VerbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
+                              Right $ funcCall (var "첫번째하다") []
                             ]
                       ]
