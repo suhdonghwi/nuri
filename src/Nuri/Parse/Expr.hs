@@ -200,39 +200,34 @@ parseArithmetic =
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  initCalls <- P.many (P.try parseNestedFuncCall <?> "함수 호출식")
-  lastCall <- parseFuncCall
-
-  let addArg arg (FuncCall pos func args) =
-        FuncCall pos func ((arg, "_") : args)
-      addArg _ _ = error "불가능한 상황"
-  return $ foldl1' addArg (initCalls ++ [lastCall])
-
-parseNestedFuncCall :: Parser Expr
-parseNestedFuncCall = do
-  (args, pos, offset, ident) <- P.try $ do
-    args <- parseArguments
-    pos <- getSourceLine
-    offset <- P.getOffset
-    ident <- parseFuncIdentifier
-    return (args, pos, offset, ident)
-
-  if T.last ident == '고'
-    then do
-      let originalIdent = T.snoc (T.init ident) '다'
-      _ <- resolveDecl originalIdent [VerbDecl] offset
-      return $ FuncCall pos (Var pos originalIdent) args
-    else do
-      P.setOffset (offset + T.length ident - 1)
-      fail "여기에서는 활용이 '~하고' 형태여야합니다."
+  calls <- P.some (parseFuncCall <?> "함수 호출식")
+  processedCalls <- process calls
+  return $ foldl1' addArg processedCalls
+  where
+    process :: [Expr] -> Parser [Expr]
+    process (x@(FuncCall _ (Var _ ident) _) : []) = do
+      _ <- resolveDecl ident [NormalDecl, VerbDecl, AdjectiveDecl] 0
+      return [x]
+    process (FuncCall pos (Var _ ident) args : xs) =
+      if T.last ident == '고'
+        then do
+          let originalIdent = T.snoc (T.init ident) '다'
+          _ <- resolveDecl originalIdent [VerbDecl] 0
+          pxs <- process xs
+          return (FuncCall pos (Var pos originalIdent) args : pxs)
+        else do
+          -- offset 설정
+          fail "여기에서는 활용이 '~하고' 형태여야합니다."
+    addArg :: Expr -> Expr -> Expr
+    addArg arg (FuncCall pos func args) =
+      FuncCall pos func ((arg, "_") : args)
+    addArg _ _ = error "불가능한 상황"
 
 parseFuncCall :: Parser Expr
 parseFuncCall = do
   args <- parseArguments
   pos <- getSourceLine
-  offset <- P.getOffset
   func <- parseFuncIdentifier <?> "함수 이름"
-  _ <- resolveDecl func [NormalDecl, VerbDecl, AdjectiveDecl] offset
   return $ FuncCall pos (Var pos func) args
 
 parseArguments :: Parser [(Expr, Text)]
