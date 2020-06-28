@@ -68,7 +68,7 @@ parseFuncDecl = do
 
   modify ((declKind, funcName) :)
   when (declKind == AdjectiveDecl) $
-    modify ((AdjectiveDecl, T.init funcName <> "지 않다") :)
+    modify ((AdjectiveDecl, T.init funcName <> "지_않다") :)
 
   colon <- P.observing (symbol ":")
   case colon of
@@ -200,7 +200,7 @@ parseArithmetic =
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  initCalls <- P.many (parseNestedFuncCall <?> "함수 호출식")
+  initCalls <- P.many (P.try parseNestedFuncCall <?> "함수 호출식")
   lastCall <- parseFuncCall
 
   let addArg arg (FuncCall pos func args) =
@@ -214,7 +214,7 @@ parseNestedFuncCall = do
     args <- parseArguments
     pos <- getSourceLine
     offset <- P.getOffset
-    ident <- parseFuncIdentifier <* symbol ","
+    ident <- parseFuncIdentifier
     return (args, pos, offset, ident)
 
   if T.last ident == '고'
@@ -239,11 +239,9 @@ parseArguments :: Parser [(Expr, Text)]
 parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm <?> "함수 인수") (parseJosa <* sc)
 
 parseFuncIdentifier :: Parser Text
-parseFuncIdentifier =
-  lexeme
-    (P.notFollowedBy parseKeyword *> hangulWord)
+parseFuncIdentifier = lexeme (P.notFollowedBy parseKeyword *> hangulWord)
   where
-    hangulWord = toText <$> P.some hangulSyllable
+    hangulWord = toText <$> P.some (hangulSyllable <|> P.char '_')
 
 parseTerm :: Parser Expr
 parseTerm =

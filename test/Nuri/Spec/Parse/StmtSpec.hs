@@ -312,7 +312,7 @@ spec = do
             동사 [값]을 걷다: 
               2
             
-            10에 가하고, 걷다
+            10에 가하고 걷다
           |]
         )
         `shouldParse` [ funcDeclStmt VerbDecl "가하다" [("값", "에")] (litInteger 1),

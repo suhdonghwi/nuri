@@ -219,7 +219,7 @@ spec = do
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4와 2를 합하고, 2로 나누다"
+      testParse parseNestedFuncCalls "4와 2를 합하고 2로 나누다"
         `shouldParse` funcCall
           (var "나누다")
           [ ( funcCall
@@ -230,7 +230,7 @@ spec = do
             (litInteger 2, "로")
           ]
     it "두 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4와 2를 더하고, 2로 나누고, 3을 더하다"
+      testParse parseNestedFuncCalls "4와 2를 더하고 2로 나누고 3을 더하다"
         `shouldParse` funcCall
           (var "더하다")
           [ ( funcCall
@@ -260,7 +260,7 @@ spec = do
           (binaryOp Multiply (litInteger 1) (litInteger 2))
           (binaryOp Divide (litInteger 2) (litInteger 3))
     it "함수 호출식이 포함된 조건식 파싱" $ do
-      testParse parseIf "만약 1과 2를 합하다 이라면 3을 던지고, 받다 아니라면 2를 던지다"
+      testParse parseIf "만약 1과 2를 합하다 이라면 3을 던지고 받다 아니라면 2를 던지다"
         `shouldParse` ifExpr
           ( funcCall
               (var "합하다")
