@@ -19,7 +19,15 @@ import Data.Char
 import Data.Set.Ordered (fromList)
 import Data.Text (unpack)
 import Haneul.Constant
-import Haneul.Instruction
+    ( funcCode,
+      funcConstTable,
+      funcGlobalVarNames,
+      funcJosa,
+      funcMaxLocalCount,
+      funcStackSize,
+      Constant(..),
+      FuncObject(..) )
+import Haneul.Instruction ( Instruction'(..) )
 import Text.Megaparsec.Pos
   ( Pos,
     mkPos,

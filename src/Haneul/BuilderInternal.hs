@@ -1,9 +1,9 @@
 module Haneul.BuilderInternal where
 
 import Control.Lens (makeLenses)
-import qualified Data.Set.Ordered as S
-import Haneul.Constant
-import Nuri.Expr
+import qualified Data.Set.Ordered as S ( OSet, empty )
+import Haneul.Constant ( ConstTable )
+import Nuri.Expr ( DeclKind(VerbDecl) )
 
 data BuilderInternal = BuilderInternal
   { _internalConstTable :: ConstTable,

@@ -2,7 +2,6 @@ module Nuri.Codegen.Stmt where
 
 import Haneul.Builder ( addGlobalVarName, tellInst, Builder )
 import qualified Haneul.Instruction as Inst
-    ( Instruction'(Pop, StoreGlobal) )
 import Nuri.ASTNode ( ASTNode(getSourceLine) )
 import Nuri.Codegen.Expr ( compileExpr )
 import Nuri.Expr ( declToExpr, Decl(Decl) )
