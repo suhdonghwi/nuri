@@ -8,16 +8,39 @@ import Control.Lens
     view,
   )
 import Control.Monad.RWS (execRWS)
-import qualified Data.List as L
-import qualified Data.Set.Ordered as S
+import qualified Data.List as L 
+import qualified Data.Set.Ordered as S 
+
 import Haneul.Builder
+    ( addConstant,
+      addFreeVar,
+      addGlobalVarName,
+      addVarName,
+      createMark,
+      internalToFuncObject,
+      setMark,
+      tellCode,
+      tellInst,
+      Builder )
 import Haneul.BuilderInternal
-import Haneul.Constant
+    ( BuilderInternal,
+      internalDepth,
+      internalFreeVars,
+      internalLocalVars,
+      internalMaxLocalCount,
+      defaultInternal )
+import Haneul.Constant ( Constant(..), FuncObject(_funcJosa) )
 import qualified Haneul.Instruction as Inst
+    ( Instruction'(..) )
 import Haneul.Instruction (Mark (Mark))
-import Nuri.ASTNode
+import Nuri.ASTNode ( ASTNode(getSourceLine) )
 import Nuri.Expr
-import Nuri.Literal
+    ( declToExpr,
+      BinaryOperator(..),
+      Decl(Decl),
+      Expr(..),
+      UnaryOperator(LogicNot, Negative, Positive) )
+import Nuri.Literal ( Literal(..) )
 
 litToConst :: Literal -> Constant
 litToConst LitNone = ConstNone

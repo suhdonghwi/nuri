@@ -1,8 +1,8 @@
 module Nuri.Expr where
 
-import qualified Data.Text as T
-import Nuri.ASTNode
-import Nuri.Literal
+import qualified Data.Text as T 
+import Nuri.ASTNode ( ASTNode(..) )
+import Nuri.Literal ( Literal )
 import Text.Megaparsec.Pos (Pos)
 
 data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl

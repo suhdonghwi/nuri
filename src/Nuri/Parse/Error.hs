@@ -10,11 +10,19 @@ module Nuri.Parse.Error (errorBundlePretty) where
 
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Set as S
+
 import Data.Text.ICU.Char (EastAsianWidth (..), EastAsianWidth_ (..), property)
 import Text.Megaparsec (PosState, pstateSourcePos)
-import Text.Megaparsec.Error hiding (errorBundlePretty, parseErrorTextPretty)
+import Text.Megaparsec.Error
+    ( ShowErrorComponent(..),
+      ParseErrorBundle(..),
+      errorOffset,
+      ErrorFancy(..),
+      ErrorItem(..),
+      ParseError(..) )
 import Text.Megaparsec.Pos
-import Text.Megaparsec.Stream hiding (showTokens)
+    ( sourcePosPretty, unPos, SourcePos(sourceColumn, sourceLine) )
+import Text.Megaparsec.Stream ( Stream(reachOffset, Token) )
 
 byJongseong :: String -> String -> String -> String
 byJongseong s1 s2 text =

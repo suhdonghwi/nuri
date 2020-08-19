@@ -1,9 +1,9 @@
 module Nuri.Parse.Stmt where
 
 import Control.Monad.Combinators.NonEmpty (some)
-import Nuri.Parse
-import Nuri.Parse.Expr
-import Nuri.Stmt
+import Nuri.Parse ( sc, scn, Parser )
+import Nuri.Parse.Expr ( parseDecl, parseExpr )
+import Nuri.Stmt ( Stmt(..) )
 import Text.Megaparsec.Char.Lexer (nonIndented)
 
 parseStmts :: Parser (NonEmpty Stmt)

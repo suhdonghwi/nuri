@@ -1,11 +1,12 @@
 module Nuri.Codegen.Stmt where
 
-import Haneul.Builder
+import Haneul.Builder ( addGlobalVarName, tellInst, Builder )
 import qualified Haneul.Instruction as Inst
-import Nuri.ASTNode
-import Nuri.Codegen.Expr
-import Nuri.Expr
-import Nuri.Stmt
+    ( Instruction'(Pop, StoreGlobal) )
+import Nuri.ASTNode ( ASTNode(getSourceLine) )
+import Nuri.Codegen.Expr ( compileExpr )
+import Nuri.Expr ( declToExpr, Decl(Decl) )
+import Nuri.Stmt ( Stmt(..) )
 
 compileStmt :: Stmt -> Builder ()
 compileStmt (DeclStmt (Decl pos kind name (Just t))) = do
