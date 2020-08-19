@@ -20,8 +20,23 @@ import Data.Set.Ordered
     (|>),
   )
 import Haneul.BuilderInternal
-import Haneul.Constant
+    ( BuilderInternal,
+      internalConstTable,
+      internalFreeVars,
+      internalGlobalVarNames,
+      internalLocalVars,
+      internalMarks,
+      internalMaxLocalCount,
+      internalOffset )
+import Haneul.Constant ( Constant, FuncObject(..) )
 import Haneul.Instruction
+    ( estimateStackSize,
+      Code,
+      Instruction,
+      Instruction'(..),
+      Mark(Mark),
+      MarkedCode,
+      MarkedInstruction )
 import Text.Megaparsec.Pos (Pos)
 
 type Builder = RWS [OSet Text] MarkedCode BuilderInternal

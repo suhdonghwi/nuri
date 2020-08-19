@@ -10,9 +10,27 @@ import Control.Monad.Combinators.Expr
 import Control.Monad.Combinators.NonEmpty (sepBy1)
 import Data.List (foldl1')
 import qualified Data.Text as T
+    ( length, last, init, snoc, unwords )
 import Nuri.Expr
+    ( BinaryOperator(..),
+      Decl(..),
+      DeclKind(..),
+      DeclType(ConstDecl, FuncDecl),
+      Expr(..),
+      UnaryOperator(..) )
 import Nuri.Literal
+    ( Literal(..) )
 import Nuri.Parse
+    ( getSourceLine,
+      hangulJamo,
+      hangulSyllable,
+      lexeme,
+      reserved,
+      resolveDecl,
+      sc,
+      scn,
+      symbol,
+      Parser )
 import qualified Text.Megaparsec as P
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec.Char as P
