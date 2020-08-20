@@ -5,7 +5,7 @@ import Nuri.ASTNode ( ASTNode(..) )
 import Nuri.Literal ( Literal )
 import Text.Megaparsec.Pos (Pos)
 
-data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
+data DeclKind = NormalDecl | AdjectiveDecl
   deriving (Eq, Show)
 
 data DeclType

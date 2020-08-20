@@ -27,9 +27,9 @@ spec = do
             )
 
       it "인자가 여러 개인 함수" $ do
-        testParse parseDeclStmt "동사 [값1]에 [값2]을 더하다:\n   [값1] + [값2]"
+        testParse parseDeclStmt "함수 [값1]에 [값2]을 더하다:\n   [값1] + [값2]"
           `shouldParse` funcDeclStmt
-            VerbDecl
+            NormalDecl
             "더하다"
             [("값1", "에"), ("값2", "을")]
             (binaryOp Add (var "값1") (var "값2"))
@@ -56,7 +56,7 @@ spec = do
       it "용언 함수의 이름이 ~(하)다 꼴이 아니면 오류" $ do
         testParse parseDeclStmt
           `shouldFailOn` ( [text|
-              동사 [값]을 보기:
+              함수 [값]을 보기:
                 1 반환하다
             |]
                          )
@@ -162,7 +162,7 @@ spec = do
           parseDeclStmt
           ( [text|
               함수 동작: 순서대로
-                동사 [값]을 더하다:
+                함수 [값]을 더하다:
                   [값] + 1
                 1
             |]
@@ -174,7 +174,7 @@ spec = do
             ( Seq
                 [ Left $
                     funcDecl
-                      VerbDecl
+                      NormalDecl
                       "더하다"
                       [("값", "을")]
                       (binaryOp Add (var "값") (litInteger 1)),
@@ -188,10 +188,10 @@ spec = do
           ( [text|
               함수 동작: 순서대로
                 1 + 1
-                동사 [값]을 더하다:
+                함수 [값]을 더하다:
                   [값] + 1
 
-                동사 [값]을 빼다:
+                함수 [값]을 빼다:
                   [값] - 1
 
                 1
@@ -205,13 +205,13 @@ spec = do
                 [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
                   Left $
                     funcDecl
-                      VerbDecl
+                      NormalDecl
                       "더하다"
                       [("값", "을")]
                       (binaryOp Add (var "값") (litInteger 1)),
                   Left $
                     funcDecl
-                      VerbDecl
+                      NormalDecl
                       "빼다"
                       [("값", "을")]
                       (binaryOp Subtract (var "값") (litInteger 1)),
@@ -310,33 +310,16 @@ spec = do
                               ]
                           )
                       ]
-    it "동사 여러 개 선언 뒤 '~(하)고' 용언 활용 파싱" $ do
-      testParse
-        parseStmts
-        ( [text|
-            동사 [값]에 가하다: 
-              1
-
-            동사 [값]을 걷다: 
-              2
-            
-            10에 가하고, 걷다
-          |]
-        )
-        `shouldParse` [ funcDeclStmt VerbDecl "가하다" [("값", "에")] (litInteger 1),
-                        funcDeclStmt VerbDecl "걷다" [("값", "을")] (litInteger 2),
-                        ExprStmt $ funcCall (var "걷다") [(funcCall (var "가하다") [(litInteger 10, "에")], "_")]
-                      ]
     it "시퀀스에서 함수 선언 뒤 외부 스코프에서 활용하면 에러" $ do
       testParse
         parseStmts
         `shouldFailOn` ( [text|
             순서대로
-              동사 [값]에 가하다: 
+              함수 [값]에 가하다: 
                 1
               1
 
-            동사 [값]을 걷다: 
+            함수 [값]을 걷다: 
               2
             
             10에 가하고, 걷다
@@ -346,19 +329,19 @@ spec = do
       testParse
         parseStmts
         ( [text|
-            동사 두번째 하다
-            동사 첫번째 하다: 
+            함수 두번째 하다
+            함수 첫번째 하다: 
               두번째 하다
 
-            동사 두번째 하다: 
+            함수 두번째 하다: 
               첫번째 하다
             
             첫번째 하다
           |]
         )
-        `shouldParse` [ funcForwardStmt VerbDecl "두번째 하다",
-                        funcDeclStmt VerbDecl "첫번째 하다" [] (funcCall (var "두번째 하다") []),
-                        funcDeclStmt VerbDecl "두번째 하다" [] (funcCall (var "첫번째 하다") []),
+        `shouldParse` [ funcForwardStmt NormalDecl "두번째 하다",
+                        funcDeclStmt NormalDecl "첫번째 하다" [] (funcCall (var "두번째 하다") []),
+                        funcDeclStmt NormalDecl "두번째 하다" [] (funcCall (var "첫번째 하다") []),
                         ExprStmt $ funcCall (var "첫번째 하다") []
                       ]
     it "함수 전방 선언 문법으로 시퀀스 상호재귀 함수 선언 파싱" $ do
@@ -366,11 +349,11 @@ spec = do
         parseStmts
         ( [text|
             순서대로
-              동사 두번째 하다 
-              동사 첫번째 하다: 
+              함수 두번째 하다 
+              함수 첫번째 하다: 
                 두번째 하다
 
-              동사 두번째 하다: 
+              함수 두번째 하다: 
                 첫번째 하다
               
               첫번째 하다
@@ -378,9 +361,9 @@ spec = do
         )
         `shouldParse` [ ExprStmt $
                           Seq
-                            [ Left $ funcForward VerbDecl "두번째 하다",
-                              Left $ funcDecl VerbDecl "첫번째 하다" [] (funcCall (var "두번째 하다") []),
-                              Left $ funcDecl VerbDecl "두번째 하다" [] (funcCall (var "첫번째 하다") []),
+                            [ Left $ funcForward NormalDecl "두번째 하다",
+                              Left $ funcDecl NormalDecl "첫번째 하다" [] (funcCall (var "두번째 하다") []),
+                              Left $ funcDecl NormalDecl "두번째 하다" [] (funcCall (var "첫번째 하다") []),
                               Right $ funcCall (var "첫번째 하다") []
                             ]
                       ]

@@ -61,5 +61,4 @@ resolveDecl name kinds offset = do
     declKindName kind =
       case kind of
         NormalDecl -> "함수"
-        VerbDecl -> "동사"
         AdjectiveDecl -> "형용사"

@@ -46,15 +46,14 @@ parseDecl = parseConstDecl <|> parseFuncDecl
 parseDeclKind :: Parser DeclKind
 parseDeclKind =
   (pure NormalDecl <* reserved "함수")
-    <|> (pure VerbDecl <* reserved "동사")
     <|> (pure AdjectiveDecl <* reserved "형용사")
 
 checkValidIdentifier :: Int -> DeclKind -> Text -> Parser ()
 checkValidIdentifier offset kind name = do
-  if kind `elem` [VerbDecl, AdjectiveDecl]
+  if kind `elem` [AdjectiveDecl]
     then when (not $ T.last name == '다') $ do
       P.setOffset offset
-      fail "용언을 선언할 때는 식별자가 ~(하)다 꼴이어야 합니다."
+      fail "형용사를 선언할 때는 식별자가 ~(하)다 꼴이어야 합니다."
     else pass
 
 parseFuncDecl :: Parser Decl
@@ -171,7 +170,7 @@ parseArithmetic =
           ( parseTerm
               <* P.notFollowedBy (void parseTerm <|> void parseFuncIdentifier) -- 후에 조사로 변경
           )
-          <|> parseNestedFuncCalls
+          <|> parseFuncCall
       )
         <?> "표현식"
     )
@@ -204,41 +203,13 @@ parseArithmetic =
       pos <- getSourceLine
       UnaryOp pos op <$ L.symbol sc opStr
 
-parseNestedFuncCalls :: Parser Expr
-parseNestedFuncCalls = do
-  initCalls <- P.many (parseNestedFuncCall <?> "함수 호출식")
-  lastCall <- parseFuncCall
-
-  let addArg arg (FuncCall pos func args) =
-        FuncCall pos func ((arg, "_") : args)
-      addArg _ _ = error "불가능한 상황"
-  return $ foldl1' addArg (initCalls ++ [lastCall])
-
-parseNestedFuncCall :: Parser Expr
-parseNestedFuncCall = do
-  (args, pos, offset, ident) <- P.try $ do
-    args <- parseArguments
-    pos <- getSourceLine
-    offset <- P.getOffset
-    ident <- parseFuncIdentifier <* symbol ","
-    return (args, pos, offset, ident)
-
-  if T.last ident == '고'
-    then do
-      let originalIdent = T.snoc (T.init ident) '다'
-      _ <- resolveDecl originalIdent [VerbDecl] offset
-      return $ FuncCall pos (Var pos originalIdent) args
-    else do
-      P.setOffset (offset + T.length ident - 1)
-      fail "여기에서는 활용이 '~하고' 형태여야합니다."
-
 parseFuncCall :: Parser Expr
 parseFuncCall = do
   args <- parseArguments
   pos <- getSourceLine
   offset <- P.getOffset
   func <- parseFuncIdentifier <?> "함수 이름"
-  _ <- resolveDecl func [NormalDecl, VerbDecl, AdjectiveDecl] offset
+  _ <- resolveDecl func [NormalDecl, AdjectiveDecl] offset
   return $ FuncCall pos (Var pos func) args
 
 parseArguments :: Parser [(Expr, Text)]
@@ -253,7 +224,7 @@ parseFuncIdentifier =
           (P.char ' ')
     )
   where
-    keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로", "그리고", "또는"]
+    keywords = ["함수", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로", "그리고", "또는"]
     keyword = P.choice $ reserved <$> keywords
     hangulWord = toText <$> P.some hangulSyllable
 
@@ -287,7 +258,7 @@ parseIdentifierExpr = do
   pos <- getSourceLine
   offset <- P.getOffset
   ident <- parseIdentifier
-  _ <- resolveDecl ident [NormalDecl, VerbDecl, AdjectiveDecl] offset
+  _ <- resolveDecl ident [NormalDecl, AdjectiveDecl] offset
   return $ Var pos ident
 
 parseIdentifier :: Parser Text

@@ -219,38 +219,6 @@ spec = do
     it "인자가 없는 함수 호출식" $ do
       testParse parseFuncCall "던지다" `shouldParse` funcCall (var "던지다") []
 
-  describe "중첩된 함수 호출식 파싱" $ do
-    it "한 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4와 2의 합 구하고, 2로 나누다"
-        `shouldParse` funcCall
-          (var "나누다")
-          [ ( funcCall
-                (var "합 구하다")
-                [(litInteger 4, "와"), (litInteger 2, "의")],
-              "_"
-            ),
-            (litInteger 2, "로")
-          ]
-    it "두 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4와 2를 더하고, 2로 나누고, 3을 더하다"
-        `shouldParse` funcCall
-          (var "더하다")
-          [ ( funcCall
-                (var "나누다")
-                [ ( funcCall
-                      (var "더하다")
-                      [(litInteger 4, "와"), (litInteger 2, "을")],
-                    "_"
-                  ),
-                  (litInteger 2, "로")
-                ],
-              "_"
-            ),
-            (litInteger 3, "을")
-          ]
-    it "잘못된 동사 활용을 한 식" $ do
-      testParse parseNestedFuncCalls `shouldFailOn` "4와 2를 더하다, 2로 나누다"
-
   describe "조건식 파싱" $ do
     it "단순 조건식 파싱" $ do
       testParse parseIf "만약 참 이라면 1 아니라면 2"
@@ -262,16 +230,13 @@ spec = do
           (binaryOp Multiply (litInteger 1) (litInteger 2))
           (binaryOp Divide (litInteger 2) (litInteger 3))
     it "함수 호출식이 포함된 조건식 파싱" $ do
-      testParse parseIf "만약 1과 2의 합 구하다 이라면 3을 던지고, 받다 아니라면 2를 던지다"
+      testParse parseIf "만약 1과 2의 합 구하다 이라면 3을 던지다 아니라면 2를 던지다"
         `shouldParse` ifExpr
           ( funcCall
               (var "합 구하다")
               [(litInteger 1, "와"), (litInteger 2, "의")]
           )
-          ( funcCall
-              (var "받다")
-              [(funcCall (var "던지다") [(litInteger 3, "을")], "_")]
-          )
+          (funcCall (var "던지다") [(litInteger 3, "을")])
           (funcCall (var "던지다") [(litInteger 2, "을")])
     it "논리 연산자를 사용한 조건식 파싱" $ do
       testParse parseIf "만약 1이 크다 그리고 2가 작다 또는 5가 크다 이라면 3 아니라면 4"
@@ -374,7 +339,7 @@ spec = do
         parseSeq
         ( [text|
             순서대로
-              동사 [값]을 더하다:
+              함수 [값]을 더하다:
                 [값] + 1
               1
           |]
@@ -382,7 +347,7 @@ spec = do
         `shouldParse` Seq
           [ Left $
               funcDecl
-                VerbDecl
+                NormalDecl
                 "더하다"
                 [("값", "을")]
                 (binaryOp Add (var "값") (litInteger 1)),
@@ -393,7 +358,7 @@ spec = do
         ( [text|
             순서대로
               1 + 1
-              동사 [값]을 더하다:
+              함수 [값]을 더하다:
                 [값] + 1
 
               함수 [값]을 빼다:
@@ -406,7 +371,7 @@ spec = do
           [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
             Left $
               funcDecl
-                VerbDecl
+                NormalDecl
                 "더하다"
                 [("값", "을")]
                 (binaryOp Add (var "값") (litInteger 1)),
