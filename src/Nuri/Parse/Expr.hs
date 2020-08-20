@@ -8,9 +8,8 @@ import Control.Monad.Combinators.Expr
     makeExprParser,
   )
 import Control.Monad.Combinators.NonEmpty (sepBy1)
-import Data.List (foldl1')
 import qualified Data.Text as T
-    ( length, last, init, snoc, unwords )
+    ( last, init, unwords )
 import Nuri.Expr
     ( BinaryOperator(..),
       Decl(..),
