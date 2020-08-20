@@ -17,12 +17,6 @@ shouldBuild actual expected =
 defaultI :: BuilderInternal
 defaultI = defaultInternal
 
--- loadGlobal :: Word32 -> Instruction
--- loadGlobal = LoadGlobal . (+ genericLength (toList defaultGlobalNames))
-
--- storeGlobal :: Word32 -> Instruction
--- storeGlobal = StoreGlobal . (+ genericLength (toList defaultGlobalNames))
-
 ann :: [Instruction] -> [Ann Instruction]
 ann = fmap (initPos,)
 
