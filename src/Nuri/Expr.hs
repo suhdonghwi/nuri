@@ -23,15 +23,9 @@ instance ASTNode Decl where
   getSourceLine (Decl pos _ _ _) = pos
 
 declToExpr :: Pos -> DeclKind -> Text -> DeclType -> [(Text, Expr)]
-declToExpr pos kind name t =
+declToExpr pos _ name t =
   case t of
-    FuncDecl args body ->
-      let baseDecl = [(name, Lambda pos args body)]
-          extraDecl = case kind of
-            AdjectiveDecl ->
-              [(T.init name <> "지_않다", Lambda pos args (UnaryOp pos LogicNot body))]
-            _ -> []
-       in baseDecl ++ extraDecl
+    FuncDecl args body -> [(name, Lambda pos args body)]
     ConstDecl expr -> [(name, expr)]
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값

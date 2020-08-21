@@ -85,8 +85,6 @@ parseFuncDecl = do
   checkValidIdentifier offset declKind funcName
 
   modify ((declKind, funcName) :)
-  when (declKind == AdjectiveDecl) $
-    modify ((AdjectiveDecl, T.init funcName <> "지_않다") :)
 
   colon <- P.observing (symbol ":")
   case colon of

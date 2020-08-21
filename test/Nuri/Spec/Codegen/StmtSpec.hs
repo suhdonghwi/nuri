@@ -320,18 +320,9 @@ spec = do
                                         ann
                                           [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
                                     }
-                                ),
-                              ConstFunc
-                                ( funcObject
-                                    { _funcJosa = ["와", "이"],
-                                      _funcStackSize = 2,
-                                      _funcCode =
-                                        ann
-                                          [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal, Inst.LogicNot]
-                                    }
                                 )
                             ],
-                          [Inst.Push 0, Inst.StoreGlobal 0, Inst.Push 1, Inst.StoreGlobal 1]
+                          [Inst.Push 0, Inst.StoreGlobal 0]
                         )
   describe "상수 선언문 코드 생성" $ do
     it "하나의 값에 대한 상수 선언문 코드 생성" $ do
