@@ -12,138 +12,25 @@ import Data.List (foldl1')
 import qualified Data.Text as T
 import Nuri.Expr
   ( BinaryOperator (..),
-    Decl (..),
     DeclKind (..),
-    DeclType (ConstDecl, FuncDecl),
     Expr (..),
     UnaryOperator (..),
   )
 import Nuri.Parse
   ( Parser,
     getSourceLine,
-    hangulSyllable,
-    lexeme,
     reserved,
     resolveDecl,
     sc,
     scn,
-    symbol,
   )
-import Nuri.Parse.Term (parseIdentifier, parseNonLexemeTerm, parseTerm)
+import Nuri.Parse.Decl (parseDecl)
+import Nuri.Parse.Term (parseNonLexemeTerm, parseTerm)
+import Nuri.Parse.Util (parseFuncIdentifier, parseJosa)
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
-import Prelude hiding
-  ( fromList,
-    unwords,
-  )
-
-parseKeyword :: Parser ()
-parseKeyword = P.choice $ reserved <$> keywords
-  where
-    keywords =
-      [ "함수",
-        "동사",
-        "형용사",
-        "없음",
-        "참",
-        "거짓",
-        "만약",
-        "이라면",
-        "아니라면",
-        "순서대로",
-        "그리고",
-        "또는"
-      ]
-
-parseDecl :: Parser Decl
-parseDecl = parseConstDecl <|> parseFuncDecl
-
-parseDeclKind :: Parser DeclKind
-parseDeclKind =
-  (pure NormalDecl <* reserved "함수")
-    <|> (pure VerbDecl <* reserved "동사")
-    <|> (pure AdjectiveDecl <* reserved "형용사")
-
-checkValidIdentifier :: Int -> DeclKind -> Text -> Parser ()
-checkValidIdentifier offset kind name = do
-  if kind `elem` [VerbDecl, AdjectiveDecl]
-    then when (not $ T.last name == '다') $ do
-      P.setOffset offset
-      fail "용언을 선언할 때는 식별자가 ~(하)다 꼴이어야 합니다."
-    else pass
-
-parseFuncDecl :: Parser Decl
-parseFuncDecl = do
-  pos <- getSourceLine
-  declKind <- parseDeclKind
-  args <- parseArgList []
-  offset <- P.getOffset
-  funcName <- parseFuncIdentifier
-  checkValidIdentifier offset declKind funcName
-
-  modify ((declKind, funcName) :)
-
-  colon <- P.observing (symbol ":")
-  case colon of
-    Left _ -> return $ Decl pos declKind funcName Nothing
-    Right _ -> do
-      scn
-      st <- get
-      modify (++ ((NormalDecl,) <$> (fst <$> args)))
-      result <- Decl pos declKind funcName <$> (Just . FuncDecl args <$> parseExpr)
-      put st
-      return result
-  where
-    parseArgList :: [(Text, Text)] -> Parser [(Text, Text)]
-    parseArgList l = do
-      identPos <- P.getOffset
-      identResult <- P.observing parseIdentifier
-      case identResult of
-        Left _ -> return l
-        Right ident -> do
-          josaPos <- P.getOffset
-          josa <- parseJosa
-          sc
-          when
-            (ident `elem` (fst <$> l))
-            ( do
-                P.setOffset (identPos + 1)
-                fail "함수 인자의 이름이 중복됩니다."
-            )
-          when
-            (josa `elem` (snd <$> l))
-            ( do
-                P.setOffset josaPos
-                fail "조사는 중복되게 사용할 수 없습니다."
-            )
-          parseArgList (l ++ [(ident, josa)])
-
-parseJosa :: Parser Text
-parseJosa =
-  ( do
-      P.notFollowedBy parseKeyword
-      josa <- toText <$> P.some hangulSyllable
-      return
-        ( case josa of
-            "으로" -> "로"
-            "과" -> "와"
-            "를" -> "을"
-            "는" -> "은"
-            "가" -> "이"
-            j -> j
-        )
-  )
-    <?> "조사"
-
-parseConstDecl :: Parser Decl
-parseConstDecl = do
-  pos <- getSourceLine
-  reserved "상수"
-  identifier <- lexeme parseIdentifier <* symbol ":"
-  modify ((NormalDecl, identifier) :)
-  Decl pos NormalDecl identifier <$> Just . ConstDecl <$> parseExpr
 
 parseExpr :: Parser Expr
 parseExpr = parseIf <|> parseSeq <|> parseArithmetic
@@ -153,7 +40,7 @@ parseSeq = do
   reserved "순서대로" <* P.newline
   scn
   level <- L.indentGuard scn GT P.pos1
-  let parseLine = (Left <$> parseDecl) <|> (Right <$> parseExpr)
+  let parseLine = (Left <$> parseDecl parseExpr) <|> (Right <$> parseExpr)
   st <- get
   result <-
     sepBy1
@@ -249,8 +136,3 @@ parseFuncCall = do
 
 parseArguments :: Parser [(Expr, Text)]
 parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm parseExpr <?> "함수 인수") (parseJosa <* sc)
-
-parseFuncIdentifier :: Parser Text
-parseFuncIdentifier = lexeme (P.notFollowedBy parseKeyword *> hangulWord)
-  where
-    hangulWord = toText <$> P.some (hangulSyllable <|> P.char '_')

@@ -6,6 +6,7 @@ import NeatInterpolation
 import Nuri.Expr
 import Nuri.Parse.Expr
 import Nuri.Parse.Term
+import Nuri.Parse.Util
 import Nuri.Spec.Parse.Util
 import Nuri.Spec.Util
 import Test.Hspec

@@ -1,8 +1,22 @@
 module Nuri.Parse.Term where
 
 import Nuri.Expr
+  ( DeclKind (..),
+    Expr (..),
+  )
 import Nuri.Literal
+  ( Literal (..),
+  )
 import Nuri.Parse
+  ( Parser,
+    getSourceLine,
+    hangulJamo,
+    hangulSyllable,
+    lexeme,
+    reserved,
+    resolveDecl,
+    sc,
+  )
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
