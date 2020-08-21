@@ -40,6 +40,24 @@ import Prelude hiding
     unwords,
   )
 
+parseKeyword :: Parser ()
+parseKeyword = P.choice $ reserved <$> keywords
+  where
+    keywords =
+      [ "함수",
+        "동사",
+        "형용사",
+        "없음",
+        "참",
+        "거짓",
+        "만약",
+        "이라면",
+        "아니라면",
+        "순서대로",
+        "그리고",
+        "또는"
+      ]
+
 parseDecl :: Parser Decl
 parseDecl = parseConstDecl <|> parseFuncDecl
 
@@ -68,7 +86,7 @@ parseFuncDecl = do
 
   modify ((declKind, funcName) :)
   when (declKind == AdjectiveDecl) $
-    modify ((AdjectiveDecl, T.init funcName <> "지 않다") :)
+    modify ((AdjectiveDecl, T.init funcName <> "지_않다") :)
 
   colon <- P.observing (symbol ":")
   case colon of
@@ -108,6 +126,7 @@ parseFuncDecl = do
 parseJosa :: Parser Text
 parseJosa =
   ( do
+      P.notFollowedBy parseKeyword
       josa <- toText <$> P.some hangulSyllable
       return
         ( case josa of
@@ -167,14 +186,7 @@ parseIf =
 parseArithmetic :: Parser Expr
 parseArithmetic =
   makeExprParser
-    ( ( P.try
-          ( parseTerm
-              <* P.notFollowedBy (void parseTerm <|> void parseFuncIdentifier) -- 후에 조사로 변경
-          )
-          <|> parseNestedFuncCalls
-      )
-        <?> "표현식"
-    )
+    ((P.try parseNestedFuncCalls <|> parseTerm) <?> "표현식")
     table
   where
     table =
@@ -206,56 +218,43 @@ parseArithmetic =
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  initCalls <- P.many (parseNestedFuncCall <?> "함수 호출식")
-  lastCall <- parseFuncCall
-
-  let addArg arg (FuncCall pos func args) =
-        FuncCall pos func ((arg, "_") : args)
-      addArg _ _ = error "불가능한 상황"
-  return $ foldl1' addArg (initCalls ++ [lastCall])
-
-parseNestedFuncCall :: Parser Expr
-parseNestedFuncCall = do
-  (args, pos, offset, ident) <- P.try $ do
-    args <- parseArguments
-    pos <- getSourceLine
-    offset <- P.getOffset
-    ident <- parseFuncIdentifier <* symbol ","
-    return (args, pos, offset, ident)
-
-  if T.last ident == '고'
-    then do
-      let originalIdent = T.snoc (T.init ident) '다'
-      _ <- resolveDecl originalIdent [VerbDecl] offset
-      return $ FuncCall pos (Var pos originalIdent) args
-    else do
-      P.setOffset (offset + T.length ident - 1)
-      fail "여기에서는 활용이 '~하고' 형태여야합니다."
+  calls <- P.some (parseFuncCall <?> "함수 호출식")
+  processedCalls <- process calls
+  return $ foldl1' addArg processedCalls
+  where
+    process :: [Expr] -> Parser [Expr]
+    process (x@(FuncCall _ (Var _ ident) _) : []) = do
+      _ <- resolveDecl ident [NormalDecl, VerbDecl, AdjectiveDecl] 0
+      return [x]
+    process (FuncCall pos (Var _ ident) args : xs) =
+      if T.last ident == '고'
+        then do
+          let originalIdent = T.snoc (T.init ident) '다'
+          _ <- resolveDecl originalIdent [VerbDecl] 0
+          pxs <- process xs
+          return (FuncCall pos (Var pos originalIdent) args : pxs)
+        else do
+          -- offset 설정
+          fail "여기에서는 활용이 '~하고' 형태여야합니다."
+    addArg :: Expr -> Expr -> Expr
+    addArg arg (FuncCall pos func args) =
+      FuncCall pos func ((arg, "_") : args)
+    addArg _ _ = error "불가능한 상황"
 
 parseFuncCall :: Parser Expr
 parseFuncCall = do
   args <- parseArguments
   pos <- getSourceLine
-  offset <- P.getOffset
   func <- parseFuncIdentifier <?> "함수 이름"
-  _ <- resolveDecl func [NormalDecl, VerbDecl, AdjectiveDecl] offset
   return $ FuncCall pos (Var pos func) args
 
 parseArguments :: Parser [(Expr, Text)]
 parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm <?> "함수 인수") (parseJosa <* sc)
 
 parseFuncIdentifier :: Parser Text
-parseFuncIdentifier =
-  lexeme
-    ( T.unwords
-        <$> P.sepEndBy1
-          (P.try $ P.notFollowedBy keyword *> hangulWord)
-          (P.char ' ')
-    )
+parseFuncIdentifier = lexeme (P.notFollowedBy parseKeyword *> hangulWord)
   where
-    keywords = ["함수", "동사", "형용사", "없음", "참", "거짓", "만약", "이라면", "아니라면", "순서대로", "그리고", "또는"]
-    keyword = P.choice $ reserved <$> keywords
-    hangulWord = toText <$> P.some hangulSyllable
+    hangulWord = toText <$> P.some (hangulSyllable <|> P.char '_')
 
 parseTerm :: Parser Expr
 parseTerm =

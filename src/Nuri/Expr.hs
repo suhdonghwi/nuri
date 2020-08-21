@@ -29,7 +29,7 @@ declToExpr pos kind name t =
       let baseDecl = [(name, Lambda pos args body)]
           extraDecl = case kind of
             AdjectiveDecl ->
-              [(T.init name <> "지 않다", Lambda pos args (UnaryOp pos LogicNot body))]
+              [(T.init name <> "지_않다", Lambda pos args (UnaryOp pos LogicNot body))]
             _ -> []
        in baseDecl ++ extraDecl
     ConstDecl expr -> [(name, expr)]

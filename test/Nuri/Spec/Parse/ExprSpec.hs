@@ -199,8 +199,6 @@ spec = do
   describe "함수 이름 파싱" $ do
     it "띄어쓰기 없는 한 단어" $ do
       testParse parseFuncIdentifier "더하고" `shouldParse` "더하고"
-    it "띄어쓰기가 포함된 이름" $ do
-      testParse parseFuncIdentifier "합 구하다" `shouldParse` "합 구하다"
     it "부울 키워드에 대해서 오류" $ do
       testParse parseFuncIdentifier `shouldFailOn` "참"
       testParse parseFuncIdentifier `shouldFailOn` "거짓"
@@ -221,18 +219,18 @@ spec = do
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4와 2의 합 구하고, 2로 나누다"
+      testParse parseNestedFuncCalls "4와 2를 합하고 2로 나누다"
         `shouldParse` funcCall
           (var "나누다")
           [ ( funcCall
-                (var "합 구하다")
-                [(litInteger 4, "와"), (litInteger 2, "의")],
+                (var "합하다")
+                [(litInteger 4, "와"), (litInteger 2, "을")],
               "_"
             ),
             (litInteger 2, "로")
           ]
     it "두 번 중첩된 식" $ do
-      testParse parseNestedFuncCalls "4와 2를 더하고, 2로 나누고, 3을 더하다"
+      testParse parseNestedFuncCalls "4와 2를 더하고 2로 나누고 3을 더하다"
         `shouldParse` funcCall
           (var "더하다")
           [ ( funcCall
@@ -262,11 +260,11 @@ spec = do
           (binaryOp Multiply (litInteger 1) (litInteger 2))
           (binaryOp Divide (litInteger 2) (litInteger 3))
     it "함수 호출식이 포함된 조건식 파싱" $ do
-      testParse parseIf "만약 1과 2의 합 구하다 이라면 3을 던지고, 받다 아니라면 2를 던지다"
+      testParse parseIf "만약 1과 2를 합하다 이라면 3을 던지고 받다 아니라면 2를 던지다"
         `shouldParse` ifExpr
           ( funcCall
-              (var "합 구하다")
-              [(litInteger 1, "와"), (litInteger 2, "의")]
+              (var "합하다")
+              [(litInteger 1, "와"), (litInteger 2, "을")]
           )
           ( funcCall
               (var "받다")
