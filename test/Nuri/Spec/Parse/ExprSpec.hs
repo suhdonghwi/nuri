@@ -5,6 +5,7 @@ module Nuri.Spec.Parse.ExprSpec where
 import NeatInterpolation
 import Nuri.Expr
 import Nuri.Parse.Expr
+import Nuri.Parse.Term
 import Nuri.Spec.Parse.Util
 import Nuri.Spec.Util
 import Test.Hspec

@@ -18,13 +18,9 @@ import Nuri.Expr
     Expr (..),
     UnaryOperator (..),
   )
-import Nuri.Literal
-  ( Literal (..),
-  )
 import Nuri.Parse
   ( Parser,
     getSourceLine,
-    hangulJamo,
     hangulSyllable,
     lexeme,
     reserved,
@@ -33,6 +29,7 @@ import Nuri.Parse
     scn,
     symbol,
   )
+import Nuri.Parse.Term (parseIdentifier, parseNonLexemeTerm, parseTerm)
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
@@ -186,7 +183,7 @@ parseIf =
 parseArithmetic :: Parser Expr
 parseArithmetic =
   makeExprParser
-    ((P.try parseNestedFuncCalls <|> parseTerm) <?> "표현식")
+    ((P.try parseNestedFuncCalls <|> parseTerm parseExpr) <?> "표현식")
     table
   where
     table =
@@ -251,109 +248,9 @@ parseFuncCall = do
   return $ FuncCall pos (Var pos func) args
 
 parseArguments :: Parser [(Expr, Text)]
-parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm <?> "함수 인수") (parseJosa <* sc)
+parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm parseExpr <?> "함수 인수") (parseJosa <* sc)
 
 parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme (P.notFollowedBy parseKeyword *> hangulWord)
   where
     hangulWord = toText <$> P.some (hangulSyllable <|> P.char '_')
-
-parseTerm :: Parser Expr
-parseTerm =
-  lexeme
-    ( parseNoneExpr
-        <|> parseBoolExpr
-        <|> parseCharExpr
-        <|> P.try (parseRealExpr)
-        <|> parseIntegerExpr
-        <|> parseIdentifierExpr
-        <|> parseParens
-    )
-
-parseNonLexemeTerm :: Parser Expr
-parseNonLexemeTerm =
-  parseNoneExpr
-    <|> parseBoolExpr
-    <|> parseCharExpr
-    <|> P.try (parseRealExpr)
-    <|> parseIntegerExpr
-    <|> parseIdentifierExpr
-    <|> parseParens
-
-parseParens :: Parser Expr
-parseParens = P.between (P.char '(' >> sc) (sc >> P.char ')') parseExpr
-
-parseIdentifierExpr :: Parser Expr
-parseIdentifierExpr = do
-  pos <- getSourceLine
-  offset <- P.getOffset
-  ident <- parseIdentifier
-  _ <- resolveDecl ident [NormalDecl, VerbDecl, AdjectiveDecl] offset
-  return $ Var pos ident
-
-parseIdentifier :: Parser Text
-parseIdentifier =
-  ( P.between
-      (P.char '[')
-      (P.char ']')
-      ( toText
-          <$> liftA2
-            (++)
-            (P.some allowedChars)
-            (P.many (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자")))
-      )
-  )
-    <?> "변수 이름"
-  where
-    allowedChars = (hangulSyllable <|> hangulJamo <|> P.letterChar) <?> "한글 또는 영문"
-
-parseNoneExpr :: Parser Expr
-parseNoneExpr = do
-  pos <- getSourceLine
-  reserved "없음"
-  return $ Lit pos LitNone
-
-parseIntegerExpr :: Parser Expr
-parseIntegerExpr = do
-  pos <- getSourceLine
-  val <- zeroNumber <|> parseDecimal
-  return $ Lit pos (LitInteger val)
-  where
-    zeroNumber =
-      P.char '0' >> parseHexadecimal <|> parseOctal <|> parseBinary <|> return 0
-
-parseRealExpr :: Parser Expr
-parseRealExpr = Lit <$> getSourceLine <*> (LitReal <$> parseReal)
-
-parseCharExpr :: Parser Expr
-parseCharExpr = Lit <$> getSourceLine <*> (LitChar <$> parseChar)
-
-parseBoolExpr :: Parser Expr
-parseBoolExpr = Lit <$> getSourceLine <*> (LitBool <$> parseBool)
-
-parseBinary :: Parser Int64
-parseBinary = P.char' 'b' >> (L.binary <?> "2진수")
-
-parseOctal :: Parser Int64
-parseOctal = L.octal <?> "8진수"
-
-parseDecimal :: Parser Int64
-parseDecimal = L.decimal <?> "정수"
-
-parseHexadecimal :: Parser Int64
-parseHexadecimal = P.char' 'x' >> (L.hexadecimal <?> "16진수")
-
-parseReal :: Parser Double
-parseReal = L.float
-
-parseChar :: Parser Char
-parseChar =
-  ( P.between
-      (P.char '\'')
-      (P.char '\'')
-      (P.notFollowedBy (P.char '\'') *> L.charLiteral)
-  )
-    <?> "문자"
-
-parseBool :: Parser Bool
-parseBool = (True <$ reserved "참") <|> (False <$ reserved "거짓")
