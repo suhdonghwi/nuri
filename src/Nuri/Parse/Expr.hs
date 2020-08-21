@@ -10,29 +10,31 @@ import Control.Monad.Combinators.Expr
 import Control.Monad.Combinators.NonEmpty (sepBy1)
 import Data.List (foldl1')
 import qualified Data.Text as T
-    ( length, last, init, snoc, unwords )
 import Nuri.Expr
-    ( BinaryOperator(..),
-      Decl(..),
-      DeclKind(..),
-      DeclType(ConstDecl, FuncDecl),
-      Expr(..),
-      UnaryOperator(..) )
+  ( BinaryOperator (..),
+    Decl (..),
+    DeclKind (..),
+    DeclType (ConstDecl, FuncDecl),
+    Expr (..),
+    UnaryOperator (..),
+  )
 import Nuri.Literal
-    ( Literal(..) )
+  ( Literal (..),
+  )
 import Nuri.Parse
-    ( getSourceLine,
-      hangulJamo,
-      hangulSyllable,
-      lexeme,
-      reserved,
-      resolveDecl,
-      sc,
-      scn,
-      symbol,
-      Parser )
-import qualified Text.Megaparsec as P
+  ( Parser,
+    getSourceLine,
+    hangulJamo,
+    hangulSyllable,
+    lexeme,
+    reserved,
+    resolveDecl,
+    sc,
+    scn,
+    symbol,
+  )
 import Text.Megaparsec ((<?>))
+import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 import Prelude hiding
@@ -234,6 +236,8 @@ parseNestedFuncCalls = do
         else do
           -- offset 설정
           fail "여기에서는 활용이 '~하고' 형태여야합니다."
+    process _ = error "불가능한 상황"
+
     addArg :: Expr -> Expr -> Expr
     addArg arg (FuncCall pos func args) =
       FuncCall pos func ((arg, "_") : args)

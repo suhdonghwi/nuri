@@ -1,6 +1,5 @@
 module Nuri.Expr where
 
-import qualified Data.Text as T 
 import Nuri.ASTNode ( ASTNode(..) )
 import Nuri.Literal ( Literal )
 import Text.Megaparsec.Pos (Pos)
