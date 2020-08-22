@@ -34,11 +34,9 @@ type MarkedInstruction = Instruction' Mark
 
 type Instruction = Instruction' Word32
 
-type Ann t = (Pos, t)
+type MarkedCode = [MarkedInstruction]
 
-type MarkedCode = [Ann MarkedInstruction]
-
-type Code = [Ann Instruction]
+type Code = [Instruction]
 
 estimateStackSize :: Code -> Word64
 estimateStackSize input = sizeLoop 0 0 0 input
@@ -46,7 +44,7 @@ estimateStackSize input = sizeLoop 0 0 0 input
     sizeLoop :: Word32 -> Word64 -> Word64 -> Code -> Word64
     sizeLoop pos currentSize maxSize code = case code !!? fromIntegral pos of
       Nothing -> maxSize
-      Just (_, inst) ->
+      Just inst ->
         let newSize = currentSize + sizeDifference inst
             newMaxSize = if newSize > maxSize then newSize else maxSize
          in case inst of

@@ -1,12 +1,12 @@
 module Haneul.Builder where
 
 import Control.Lens
-  ( (.~),
-    element,
+  ( element,
     modifying,
     use,
     uses,
     view,
+    (.~),
   )
 import Control.Monad.RWS
   ( RWS,
@@ -20,23 +20,25 @@ import Data.Set.Ordered
     (|>),
   )
 import Haneul.BuilderInternal
-    ( BuilderInternal,
-      internalConstTable,
-      internalFreeVars,
-      internalGlobalVarNames,
-      internalLocalVars,
-      internalMarks,
-      internalMaxLocalCount,
-      internalOffset )
-import Haneul.Constant ( Constant, FuncObject(..) )
+  ( BuilderInternal,
+    internalConstTable,
+    internalFreeVars,
+    internalGlobalVarNames,
+    internalLocalVars,
+    internalMarks,
+    internalMaxLocalCount,
+    internalOffset,
+  )
+import Haneul.Constant (Constant, FuncObject (..))
 import Haneul.Instruction
-    ( estimateStackSize,
-      Code,
-      Instruction,
-      Instruction'(..),
-      Mark(Mark),
-      MarkedCode,
-      MarkedInstruction )
+  ( Code,
+    Instruction,
+    Instruction' (..),
+    Mark (Mark),
+    MarkedCode,
+    MarkedInstruction,
+    estimateStackSize,
+  )
 import Text.Megaparsec.Pos (Pos)
 
 type Builder = RWS [OSet Text] MarkedCode BuilderInternal
@@ -80,7 +82,7 @@ setMark markIndex = do
   modifying internalMarks (element (fromIntegral markIndex) .~ offset)
 
 clearMarks :: BuilderInternal -> MarkedCode -> Code
-clearMarks internal markedCode = fmap (unmarkInst internal) <$> markedCode
+clearMarks internal markedCode = (unmarkInst internal) <$> markedCode
 
 unmarkInst :: BuilderInternal -> MarkedInstruction -> Instruction
 unmarkInst internal inst = case inst of
@@ -111,13 +113,13 @@ unmarkInst internal inst = case inst of
     unmark (Mark index) =
       let marks = view internalMarks internal in marks !! fromIntegral index
 
-tellCode :: MarkedCode -> Builder ()
-tellCode code = do
-  modifying internalOffset (+ genericLength code)
-  tell code
+tellCode :: Pos -> [MarkedInstruction] -> Builder ()
+tellCode pos insts = sequence_ (tellInst pos <$> insts)
 
 tellInst :: Pos -> MarkedInstruction -> Builder ()
-tellInst pos inst = tellCode [(pos, inst)]
+tellInst _ inst = do
+  modifying internalOffset (+ 1)
+  tell [inst]
 
 internalToFuncObject :: (BuilderInternal, MarkedCode) -> FuncObject
 internalToFuncObject (internal, markedCode) =

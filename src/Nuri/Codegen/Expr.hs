@@ -8,39 +8,42 @@ import Control.Lens
     view,
   )
 import Control.Monad.RWS (execRWS)
-import qualified Data.List as L 
-import qualified Data.Set.Ordered as S 
-
+import qualified Data.List as L
+import qualified Data.Set.Ordered as S
 import Haneul.Builder
-    ( addConstant,
-      addFreeVar,
-      addGlobalVarName,
-      addVarName,
-      createMark,
-      internalToFuncObject,
-      setMark,
-      tellCode,
-      tellInst,
-      Builder )
+  ( Builder,
+    addConstant,
+    addFreeVar,
+    addGlobalVarName,
+    addVarName,
+    createMark,
+    internalToFuncObject,
+    setMark,
+    tellCode,
+    tellInst,
+  )
 import Haneul.BuilderInternal
-    ( BuilderInternal,
-      internalDepth,
-      internalFreeVars,
-      internalLocalVars,
-      internalMaxLocalCount,
-      defaultInternal )
-import Haneul.Constant ( Constant(..), FuncObject(_funcJosa) )
-import qualified Haneul.Instruction as Inst
-    ( Instruction'(..) )
+  ( BuilderInternal,
+    defaultInternal,
+    internalDepth,
+    internalFreeVars,
+    internalLocalVars,
+    internalMaxLocalCount,
+  )
+import Haneul.Constant (Constant (..), FuncObject (_funcJosa))
 import Haneul.Instruction (Mark (Mark))
-import Nuri.ASTNode ( ASTNode(getSourceLine) )
+import qualified Haneul.Instruction as Inst
+  ( Instruction' (..),
+  )
+import Nuri.ASTNode (ASTNode (getSourceLine))
 import Nuri.Expr
-    ( declToExpr,
-      BinaryOperator(..),
-      Decl(Decl),
-      Expr(..),
-      UnaryOperator(LogicNot, Negative, Positive) )
-import Nuri.Literal ( Literal(..) )
+  ( BinaryOperator (..),
+    Decl (Decl),
+    Expr (..),
+    UnaryOperator (LogicNot, Negative, Positive),
+    declToExpr,
+  )
+import Nuri.Literal (Literal (..))
 
 litToConst :: Literal -> Constant
 litToConst LitNone = ConstNone
@@ -104,13 +107,13 @@ compileExpr (BinaryOp pos op lhs rhs) = do
     Divide -> tellInst pos (Inst.Divide)
     Mod -> tellInst pos (Inst.Mod)
     Equal -> tellInst pos (Inst.Equal)
-    Inequal -> tellCode [(pos, Inst.Equal), (pos, Inst.LogicNot)]
+    Inequal -> tellCode pos [Inst.Equal, Inst.LogicNot]
     LessThan -> tellInst pos (Inst.LessThan)
     GreaterThan -> tellInst pos (Inst.GreaterThan)
-    LessThanEqual -> tellCode [(pos, Inst.GreaterThan), (pos, Inst.LogicNot)]
-    GreaterThanEqual -> tellCode [(pos, Inst.LessThan), (pos, Inst.LogicNot)]
-    LogicAnd -> tellCode [(pos, Inst.LogicAnd)]
-    LogicOr -> tellCode [(pos, Inst.LogicOr)]
+    LessThanEqual -> tellCode pos [Inst.GreaterThan, Inst.LogicNot]
+    GreaterThanEqual -> tellCode pos [Inst.LessThan, Inst.LogicNot]
+    LogicAnd -> tellInst pos Inst.LogicAnd
+    LogicOr -> tellInst pos Inst.LogicOr
 compileExpr (UnaryOp pos op value) = do
   compileExpr value
   case op of

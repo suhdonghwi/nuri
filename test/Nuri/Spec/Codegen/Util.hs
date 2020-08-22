@@ -12,13 +12,10 @@ shouldBuild :: Builder () -> (ConstTable, [Instruction]) -> Expectation
 shouldBuild actual expected =
   let FuncObject {_funcConstTable = constTable, _funcCode = insts} =
         internalToFuncObject (runBuilder defaultInternal actual)
-   in (constTable, snd <$> insts) `shouldBe` expected
+   in (constTable, insts) `shouldBe` expected
 
 defaultI :: BuilderInternal
 defaultI = defaultInternal
-
-ann :: [Instruction] -> [Ann Instruction]
-ann = fmap (initPos,)
 
 funcObject :: FuncObject
 funcObject =
