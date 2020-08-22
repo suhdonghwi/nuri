@@ -121,11 +121,14 @@ tellCode pos insts = sequence_ (tellInst pos <$> insts)
 tellInst :: Pos -> MarkedInstruction -> Builder ()
 tellInst pos inst = do
   lastLine <- use internalLastLine
-  if (unPos pos > unPos lastLine)
+  let pos' = unPos pos
+      lastLine' = unPos lastLine
+
+  if pos' > lastLine'
     then do
       assign internalLastLine pos
       offset <- use internalOffset
-      let diff = unPos pos - unPos lastLine
+      let diff = pos' - lastLine'
       tell ([inst], [(offset, fromIntegral diff)])
     else tell ([inst], mempty)
   modifying internalOffset (+ 1)

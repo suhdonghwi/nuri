@@ -204,7 +204,7 @@ instance (Binary a) => Binary (Instruction' a) where
 
 instance Binary Pos where
   put v = do
-    put (fromIntegral (unPos v) :: Word32)
+    put (fromIntegral (unPos v) :: Word16)
   get = do
-    line <- get :: Get Word32
+    line <- get :: Get Word16
     return (mkPos $ fromIntegral line)
