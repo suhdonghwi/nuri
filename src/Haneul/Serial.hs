@@ -90,7 +90,7 @@ instance Binary FuncObject where
     put (obj ^. funcStackSize)
     put (obj ^. funcMaxLocalCount)
     put (toList $ obj ^. funcConstTable)
-    put (obj ^. funcName)
+    put (unpack (obj ^. funcName))
     put (obj ^. funcLineNo)
     put (obj ^. funcLineNoTable)
     put (obj ^. funcCode)
