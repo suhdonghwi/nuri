@@ -219,6 +219,32 @@ spec = do
     it "인자가 없는 함수 호출식" $ do
       testParse parseFuncCall "던지다" `shouldParse` funcCall (var "던지다") []
 
+  describe "소괄호 함수 호출식 파싱" $ do
+    it "인자가 하나인 함수 호출식" $ do
+      testParse (parseParenCall parseExpr) "더하다(1)"
+        `shouldParse` funcCall
+          (var "더하다")
+          [(litInteger 1, "_")]
+    it "인자가 두 개인 함수 호출식" $ do
+      testParse (parseParenCall parseExpr) "더하다(1, 2)"
+        `shouldParse` funcCall
+          (var "더하다")
+          [(litInteger 1, "_"), (litInteger 2, "_")]
+    it "인자가 없는 함수 호출식" $ do
+      testParse (parseParenCall parseExpr) "더하다()"
+        `shouldParse` funcCall
+          (var "더하다")
+          []
+    it "인자가 복합 표현식인 함수 호출식" $ do
+      testParse (parseParenCall parseExpr) "더하다(1 + 2, 3와 4를 더하다)"
+        `shouldParse` funcCall
+          (var "더하다")
+          [ (binaryOp Add (litInteger 1) (litInteger 2), "_"),
+            (funcCall (var "더하다") [(litInteger 3, "와"), (litInteger 4, "을")], "_")
+          ]
+    it "함수 이름과 괄호 사이에 공백이 있으면 에러" $ do
+      testParse (parseParenCall parseExpr) `shouldFailOn` "더하다 (1 + 2, 3와 4를 더하다)"
+
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
       testParse parseNestedFuncCalls "4와 2를 합하고 2로 나누다"

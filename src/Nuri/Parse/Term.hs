@@ -16,7 +16,9 @@ import Nuri.Parse
     reserved,
     resolveDecl,
     sc,
+    symbol,
   )
+import Nuri.Parse.Util (funcIdentifier)
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
@@ -33,10 +35,20 @@ parseNonLexemeTerm parseExpr =
     <|> P.try (parseRealExpr)
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
+    <|> P.try (parseParenCall parseExpr)
     <|> parseParens parseExpr
 
-parseParens :: Parser Expr -> Parser Expr
-parseParens parseExpr = P.between (P.char '(' >> sc) (sc >> P.char ')') parseExpr
+parseParenCall :: Parser Expr -> Parser Expr
+parseParenCall expr = do
+  pos <- getSourceLine
+  funcName <- funcIdentifier
+  args <- parseParens parseArguments
+  return $ FuncCall pos (Var pos funcName) ((,"_") <$> args)
+  where
+    parseArguments = expr `P.sepBy` (symbol ",")
+
+parseParens :: Parser a -> Parser a
+parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr
 
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = do

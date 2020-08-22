@@ -46,6 +46,9 @@ parseJosa =
     <?> "조사"
 
 parseFuncIdentifier :: Parser Text
-parseFuncIdentifier = lexeme (P.notFollowedBy parseKeyword *> hangulWord)
+parseFuncIdentifier = lexeme funcIdentifier
+
+funcIdentifier :: Parser Text
+funcIdentifier = P.notFollowedBy parseKeyword *> hangulWord
   where
     hangulWord = toText <$> P.some (hangulSyllable <|> P.char '_')
