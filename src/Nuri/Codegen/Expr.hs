@@ -31,7 +31,7 @@ import Haneul.BuilderInternal
     internalMaxLocalCount,
     _internalLastLine,
   )
-import Haneul.Constant (Constant (..), FuncObject (_funcJosa), _funcLineNo, _funcName)
+import Haneul.Constant (Constant (..), FuncObject (_funcJosa), _funcFilePath, _funcLineNo, _funcName)
 import Haneul.Instruction (Mark (Mark))
 import qualified Haneul.Instruction as Inst
   ( Instruction' (..),
@@ -45,7 +45,7 @@ import Nuri.Expr
     declToExpr,
   )
 import Nuri.Literal (Literal (..))
-import Text.Megaparsec.Pos (SourcePos, sourceLine)
+import Text.Megaparsec.Pos (SourcePos, sourceLine, sourceName)
 
 litToConst :: Literal -> Constant
 litToConst LitNone = ConstNone
@@ -198,6 +198,7 @@ lambdaToFuncObject pos name args body = do
       result
         { _funcJosa = snd <$> args,
           _funcLineNo = sourceLine pos,
-          _funcName = name
+          _funcName = name,
+          _funcFilePath = sourceName pos
         }
     )

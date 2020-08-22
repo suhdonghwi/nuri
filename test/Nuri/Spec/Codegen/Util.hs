@@ -28,5 +28,6 @@ funcObject =
       _funcLineNo = mkPos 1,
       _funcLineNoTable = [],
       _funcName = "",
+      _funcFilePath = "(test)",
       _funcStackSize = 0
     }

@@ -26,6 +26,7 @@ data FuncObject = FuncObject
     _funcMaxLocalCount :: Word32,
     _funcConstTable :: ConstTable,
     _funcName :: Text,
+    _funcFilePath :: String,
     _funcLineNo :: Pos,
     _funcLineNoTable :: LineNoTable,
     _funcCode :: Code

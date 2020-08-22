@@ -23,6 +23,7 @@ import Haneul.Constant
     FuncObject (..),
     funcCode,
     funcConstTable,
+    funcFilePath,
     funcGlobalVarNames,
     funcJosa,
     funcLineNo,
@@ -91,6 +92,7 @@ instance Binary FuncObject where
     put (obj ^. funcMaxLocalCount)
     put (toList $ obj ^. funcConstTable)
     put (unpack (obj ^. funcName))
+    put (obj ^. funcFilePath)
     put (obj ^. funcLineNo)
     put (obj ^. funcLineNoTable)
     put (obj ^. funcCode)
@@ -101,6 +103,7 @@ instance Binary FuncObject where
     maxLocalCount <- get
     constTable <- fromList <$> get
     name <- get
+    filePath <- get
     lineNo <- get
     lineNoTable <- get
     code <- get
@@ -111,6 +114,7 @@ instance Binary FuncObject where
             _funcCode = code,
             _funcConstTable = constTable,
             _funcName = name,
+            _funcFilePath = filePath,
             _funcMaxLocalCount = maxLocalCount,
             _funcLineNo = lineNo,
             _funcLineNoTable = lineNoTable,
