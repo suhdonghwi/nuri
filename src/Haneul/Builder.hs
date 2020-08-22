@@ -130,6 +130,7 @@ internalToFuncObject (internal, markedCode) =
           _funcMaxLocalCount = view internalMaxLocalCount internal,
           _funcConstTable = view internalConstTable internal,
           _funcCode = code,
+          _funcLineNo = 0,
           _funcJosa = []
         }
 

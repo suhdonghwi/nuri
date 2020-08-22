@@ -150,9 +150,7 @@ spec = do
                                   { _funcJosa = ["을"],
                                     _funcStackSize = 2,
                                     _funcConstTable = S.fromList [ConstInteger 1],
-                                    _funcCode =
-                                      ann
-                                        [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
+                                    _funcCode = [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
                                   }
                               )
                           ],
@@ -170,8 +168,7 @@ spec = do
                                   { _funcJosa = ["에", "를"],
                                     _funcStackSize = 2,
                                     _funcCode =
-                                      ann
-                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
+                                      [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
                                   }
                               )
                           ],

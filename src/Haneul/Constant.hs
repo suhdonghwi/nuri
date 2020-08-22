@@ -21,6 +21,7 @@ data FuncObject = FuncObject
     _funcStackSize :: Word64,
     _funcMaxLocalCount :: Word32,
     _funcConstTable :: ConstTable,
+    _funcLineNo :: Word64,
     _funcCode :: Code
   }
   deriving (Eq, Show, Ord)

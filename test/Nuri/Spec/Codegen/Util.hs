@@ -25,5 +25,6 @@ funcObject =
       _funcGlobalVarNames = S.empty,
       _funcJosa = [],
       _funcMaxLocalCount = 0,
+      _funcLineNo = 0,
       _funcStackSize = 0
     }

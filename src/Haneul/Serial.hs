@@ -19,15 +19,16 @@ import Data.Char
 import Data.Set.Ordered (fromList)
 import Data.Text (unpack)
 import Haneul.Constant
-    ( funcCode,
-      funcConstTable,
-      funcGlobalVarNames,
-      funcJosa,
-      funcMaxLocalCount,
-      funcStackSize,
-      Constant(..),
-      FuncObject(..) )
-import Haneul.Instruction ( Instruction'(..) )
+  ( Constant (..),
+    FuncObject (..),
+    funcCode,
+    funcConstTable,
+    funcGlobalVarNames,
+    funcJosa,
+    funcMaxLocalCount,
+    funcStackSize,
+  )
+import Haneul.Instruction (Instruction' (..))
 import Text.Megaparsec.Pos
   ( Pos,
     mkPos,
@@ -93,6 +94,7 @@ instance Binary FuncObject where
     maxStackSize <- get
     maxLocalCount <- get
     constTable <- fromList <$> get
+    lineNo <- get
     code <- get
     return
       ( FuncObject
@@ -101,6 +103,7 @@ instance Binary FuncObject where
             _funcCode = code,
             _funcConstTable = constTable,
             _funcMaxLocalCount = maxLocalCount,
+            _funcLineNo = lineNo,
             _funcStackSize = maxStackSize
           }
       )

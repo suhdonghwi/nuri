@@ -30,8 +30,7 @@ spec = do
                                       _funcStackSize = 2,
                                       _funcConstTable = S.fromList [ConstInteger 1],
                                       _funcCode =
-                                        ann
-                                          [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
+                                        [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
                                     }
                                 )
                             ],
@@ -51,8 +50,7 @@ spec = do
                                     { _funcJosa = ["에", "을"],
                                       _funcStackSize = 2,
                                       _funcCode =
-                                        ann
-                                          [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
                                     }
                                 )
                             ],
@@ -76,8 +74,7 @@ spec = do
                                       _funcGlobalVarNames = S.fromList ["값"],
                                       _funcStackSize = 2,
                                       _funcCode =
-                                        ann
-                                          [Inst.LoadLocal 0, Inst.LoadGlobal 0, Inst.Add]
+                                        [Inst.LoadLocal 0, Inst.LoadGlobal 0, Inst.Add]
                                     }
                                 )
                             ],
@@ -105,8 +102,7 @@ spec = do
                                       _funcStackSize = 2,
                                       _funcConstTable = S.singleton (ConstInteger 2),
                                       _funcCode =
-                                        ann
-                                          [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
+                                        [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
                                     }
                                 )
                             ],
@@ -137,13 +133,12 @@ spec = do
                                       _funcMaxLocalCount = 2,
                                       _funcConstTable = S.fromList [ConstInteger 1],
                                       _funcCode =
-                                        ann
-                                          [ Inst.Push 0,
-                                            Inst.StoreLocal 1,
-                                            Inst.LoadLocal 0,
-                                            Inst.LoadLocal 1,
-                                            Inst.Add
-                                          ]
+                                        [ Inst.Push 0,
+                                          Inst.StoreLocal 1,
+                                          Inst.LoadLocal 0,
+                                          Inst.LoadLocal 1,
+                                          Inst.Add
+                                        ]
                                     }
                                 )
                             ],
@@ -185,29 +180,26 @@ spec = do
                                                               ( funcObject
                                                                   { _funcStackSize = 1,
                                                                     _funcCode =
-                                                                      ann
-                                                                        [Inst.LoadDeref 0]
+                                                                      [Inst.LoadDeref 0]
                                                                   }
                                                               )
                                                           ],
                                                       _funcCode =
-                                                        ann
-                                                          [ Inst.Push 0,
-                                                            Inst.FreeVar [(True, 0)],
-                                                            Inst.StoreLocal 0,
-                                                            Inst.LoadLocal 0
-                                                          ]
+                                                        [ Inst.Push 0,
+                                                          Inst.FreeVar [(True, 0)],
+                                                          Inst.StoreLocal 0,
+                                                          Inst.LoadLocal 0
+                                                        ]
                                                     }
                                                 )
                                             ]
                                         ),
                                       _funcCode =
-                                        ann
-                                          [ Inst.Push 0,
-                                            Inst.FreeVar [(False, 0)],
-                                            Inst.StoreLocal 1,
-                                            Inst.LoadLocal 1
-                                          ]
+                                        [ Inst.Push 0,
+                                          Inst.FreeVar [(False, 0)],
+                                          Inst.StoreLocal 1,
+                                          Inst.LoadLocal 1
+                                        ]
                                     }
                                 )
                             ],
@@ -237,19 +229,17 @@ spec = do
                                               ( funcObject
                                                   { _funcStackSize = 1,
                                                     _funcCode =
-                                                      ann
-                                                        [Inst.LoadDeref 0, Inst.Call []]
+                                                      [Inst.LoadDeref 0, Inst.Call []]
                                                   }
                                               )
                                           ],
                                       _funcCode =
-                                        ann
-                                          [ Inst.Push 0,
-                                            Inst.FreeVar [(False, 0)],
-                                            Inst.StoreLocal 0,
-                                            Inst.LoadLocal 0,
-                                            Inst.Call []
-                                          ]
+                                        [ Inst.Push 0,
+                                          Inst.FreeVar [(False, 0)],
+                                          Inst.StoreLocal 0,
+                                          Inst.LoadLocal 0,
+                                          Inst.Call []
+                                        ]
                                     }
                                 )
                             ],
@@ -276,16 +266,15 @@ spec = do
                                     { _funcStackSize = 1,
                                       _funcMaxLocalCount = 2,
                                       _funcCode =
-                                        ( ann
-                                            [ Inst.Push 0,
-                                              Inst.FreeVar [(False, 0)],
-                                              Inst.StoreLocal 1,
-                                              Inst.Push 0,
-                                              Inst.FreeVar [(False, 1)],
-                                              Inst.StoreLocal 0,
-                                              Inst.LoadLocal 1,
-                                              Inst.Call []
-                                            ]
+                                        ( [ Inst.Push 0,
+                                            Inst.FreeVar [(False, 0)],
+                                            Inst.StoreLocal 1,
+                                            Inst.Push 0,
+                                            Inst.FreeVar [(False, 1)],
+                                            Inst.StoreLocal 0,
+                                            Inst.LoadLocal 1,
+                                            Inst.Call []
+                                          ]
                                         ),
                                       _funcConstTable =
                                         ( S.fromList
@@ -293,7 +282,7 @@ spec = do
                                                 ( funcObject
                                                     { _funcStackSize = 1,
                                                       _funcCode =
-                                                        ann [Inst.LoadDeref 0, Inst.Call []]
+                                                        [Inst.LoadDeref 0, Inst.Call []]
                                                     }
                                                 )
                                             ]
@@ -317,8 +306,7 @@ spec = do
                                     { _funcJosa = ["와", "이"],
                                       _funcStackSize = 2,
                                       _funcCode =
-                                        ann
-                                          [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
                                     }
                                 )
                             ],

@@ -1,7 +1,5 @@
 module Haneul.Instruction where
 
-import Text.Megaparsec.Pos (Pos)
-
 data Instruction' a
   = Push Word32
   | Pop
