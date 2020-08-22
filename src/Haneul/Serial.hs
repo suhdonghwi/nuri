@@ -25,6 +25,7 @@ import Haneul.Constant
     funcConstTable,
     funcGlobalVarNames,
     funcJosa,
+    funcLineNo,
     funcMaxLocalCount,
     funcStackSize,
   )
@@ -87,6 +88,7 @@ instance Binary FuncObject where
     put (obj ^. funcStackSize)
     put (obj ^. funcMaxLocalCount)
     put (toList $ obj ^. funcConstTable)
+    put (obj ^. funcLineNo)
     put (obj ^. funcCode)
   get = do
     josa <- get
