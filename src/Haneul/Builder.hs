@@ -39,7 +39,7 @@ import Haneul.Instruction
     MarkedInstruction,
     estimateStackSize,
   )
-import Text.Megaparsec.Pos (Pos)
+import Text.Megaparsec.Pos (Pos, mkPos)
 
 type Builder = RWS [OSet Text] MarkedCode BuilderInternal
 
@@ -130,7 +130,7 @@ internalToFuncObject (internal, markedCode) =
           _funcMaxLocalCount = view internalMaxLocalCount internal,
           _funcConstTable = view internalConstTable internal,
           _funcCode = code,
-          _funcLineNo = 0,
+          _funcLineNo = mkPos 1,
           _funcJosa = []
         }
 

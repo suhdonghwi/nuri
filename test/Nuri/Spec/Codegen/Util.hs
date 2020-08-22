@@ -5,8 +5,8 @@ import Haneul.Builder
 import Haneul.BuilderInternal
 import Haneul.Constant
 import Haneul.Instruction
-import Nuri.Spec.Util
 import Test.Hspec
+import Text.Megaparsec.Pos (mkPos)
 
 shouldBuild :: Builder () -> (ConstTable, [Instruction]) -> Expectation
 shouldBuild actual expected =
@@ -25,6 +25,6 @@ funcObject =
       _funcGlobalVarNames = S.empty,
       _funcJosa = [],
       _funcMaxLocalCount = 0,
-      _funcLineNo = 0,
+      _funcLineNo = mkPos 1,
       _funcStackSize = 0
     }

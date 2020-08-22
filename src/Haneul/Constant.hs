@@ -3,6 +3,7 @@ module Haneul.Constant where
 import Control.Lens (makeLenses)
 import Data.Set.Ordered (OSet)
 import Haneul.Instruction (Code)
+import Text.Megaparsec.Pos (Pos)
 
 data Constant
   = ConstNone
@@ -21,7 +22,7 @@ data FuncObject = FuncObject
     _funcStackSize :: Word64,
     _funcMaxLocalCount :: Word32,
     _funcConstTable :: ConstTable,
-    _funcLineNo :: Word64,
+    _funcLineNo :: Pos,
     _funcCode :: Code
   }
   deriving (Eq, Show, Ord)
