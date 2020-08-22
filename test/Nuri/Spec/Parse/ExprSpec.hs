@@ -349,7 +349,13 @@ spec = do
       testParse parseExpr "더하다(1, 2)와 3을 더하다"
         `shouldParse` funcCall
           (var "더하다")
-          [(funcCall (var "더하다") [(litInteger 1, "_"), (litInteger 2, "_")], "와"), (litInteger 3, "을")]
+          [ ( funcCall
+                (var "더하다")
+                [(litInteger 1, "_"), (litInteger 2, "_")],
+              "와"
+            ),
+            (litInteger 3, "을")
+          ]
 
   describe "시퀀스 파싱" $ do
     it "연산식 2개로 이어진 시퀀스" $ do
