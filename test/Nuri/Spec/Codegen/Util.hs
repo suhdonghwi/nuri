@@ -26,5 +26,6 @@ funcObject =
       _funcJosa = [],
       _funcMaxLocalCount = 0,
       _funcLineNo = mkPos 1,
+      _funcLineNoTable = [],
       _funcStackSize = 0
     }

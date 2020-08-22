@@ -1,7 +1,8 @@
 module Haneul.Builder where
 
 import Control.Lens
-  ( element,
+  ( assign,
+    element,
     modifying,
     use,
     uses,
@@ -24,12 +25,13 @@ import Haneul.BuilderInternal
     internalConstTable,
     internalFreeVars,
     internalGlobalVarNames,
+    internalLastLine,
     internalLocalVars,
     internalMarks,
     internalMaxLocalCount,
     internalOffset,
   )
-import Haneul.Constant (Constant, FuncObject (..))
+import Haneul.Constant (Constant, FuncObject (..), LineNoTable)
 import Haneul.Instruction
   ( Code,
     Instruction,
@@ -39,9 +41,9 @@ import Haneul.Instruction
     MarkedInstruction,
     estimateStackSize,
   )
-import Text.Megaparsec.Pos (Pos, mkPos)
+import Text.Megaparsec.Pos (Pos, mkPos, unPos)
 
-type Builder = RWS [OSet Text] MarkedCode BuilderInternal
+type Builder = RWS [OSet Text] (MarkedCode, LineNoTable) BuilderInternal
 
 addConstant :: Constant -> Builder Word32
 addConstant value = do
@@ -117,12 +119,19 @@ tellCode :: Pos -> [MarkedInstruction] -> Builder ()
 tellCode pos insts = sequence_ (tellInst pos <$> insts)
 
 tellInst :: Pos -> MarkedInstruction -> Builder ()
-tellInst _ inst = do
+tellInst pos inst = do
+  lastLine <- use internalLastLine
+  if (unPos pos > unPos lastLine)
+    then do
+      assign internalLastLine pos
+      offset <- use internalOffset
+      let diff = unPos pos - unPos lastLine
+      tell ([inst], [(offset, fromIntegral diff)])
+    else tell ([inst], mempty)
   modifying internalOffset (+ 1)
-  tell [inst]
 
-internalToFuncObject :: (BuilderInternal, MarkedCode) -> FuncObject
-internalToFuncObject (internal, markedCode) =
+internalToFuncObject :: (BuilderInternal, (MarkedCode, LineNoTable)) -> FuncObject
+internalToFuncObject (internal, (markedCode, lineNoTable)) =
   let code = clearMarks internal markedCode
    in FuncObject
         { _funcGlobalVarNames = view internalGlobalVarNames internal,
@@ -131,8 +140,9 @@ internalToFuncObject (internal, markedCode) =
           _funcConstTable = view internalConstTable internal,
           _funcCode = code,
           _funcLineNo = mkPos 1,
+          _funcLineNoTable = lineNoTable,
           _funcJosa = []
         }
 
-runBuilder :: BuilderInternal -> Builder () -> (BuilderInternal, MarkedCode)
+runBuilder :: BuilderInternal -> Builder () -> (BuilderInternal, (MarkedCode, LineNoTable))
 runBuilder i b = execRWS b [] i

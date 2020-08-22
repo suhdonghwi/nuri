@@ -29,6 +29,7 @@ import Haneul.BuilderInternal
     internalFreeVars,
     internalLocalVars,
     internalMaxLocalCount,
+    _internalLastLine,
   )
 import Haneul.Constant (Constant (..), FuncObject (_funcJosa), _funcLineNo)
 import Haneul.Instruction (Mark (Mark))
@@ -190,7 +191,7 @@ lambdaToFuncObject pos args body = do
               compileExpr body
           )
           (newLocalStack : oldLocalStack)
-          defaultInternal
+          (defaultInternal {_internalLastLine = pos})
       result = internalToFuncObject (internal, code)
   return
     ( internal,

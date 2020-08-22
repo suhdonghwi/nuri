@@ -1,9 +1,10 @@
 module Haneul.BuilderInternal where
 
 import Control.Lens (makeLenses)
-import qualified Data.Set.Ordered as S ( OSet, empty )
-import Haneul.Constant ( ConstTable )
-import Nuri.Expr ( DeclKind(VerbDecl) )
+import qualified Data.Set.Ordered as S (OSet, empty)
+import Haneul.Constant (ConstTable)
+import Nuri.Expr (DeclKind (VerbDecl))
+import Text.Megaparsec.Pos (Pos, mkPos)
 
 data BuilderInternal = BuilderInternal
   { _internalConstTable :: ConstTable,
@@ -13,7 +14,8 @@ data BuilderInternal = BuilderInternal
     _internalGlobalVarNames :: S.OSet Text,
     _internalFreeVars :: S.OSet (Word8, Word8),
     _internalOffset :: Word32,
-    _internalMarks :: [Word32]
+    _internalMarks :: [Word32],
+    _internalLastLine :: Pos
   }
   deriving (Eq, Show)
 
@@ -32,5 +34,6 @@ defaultInternal =
       _internalGlobalVarNames = S.empty,
       _internalFreeVars = S.empty,
       _internalOffset = 0,
-      _internalMarks = []
+      _internalMarks = [],
+      _internalLastLine = mkPos 1
     }
