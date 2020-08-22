@@ -29,6 +29,7 @@ spec = do
                                     { _funcJosa = ["을"],
                                       _funcStackSize = 2,
                                       _funcConstTable = S.fromList [ConstInteger 1],
+                                      _funcName = "더하다",
                                       _funcCode =
                                         [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
                                     }
@@ -49,6 +50,7 @@ spec = do
                                 ( funcObject
                                     { _funcJosa = ["에", "을"],
                                       _funcStackSize = 2,
+                                      _funcName = "더하다",
                                       _funcCode =
                                         [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
                                     }
@@ -73,6 +75,7 @@ spec = do
                                     { _funcJosa = ["을"],
                                       _funcGlobalVarNames = S.fromList ["값"],
                                       _funcStackSize = 2,
+                                      _funcName = "더하다",
                                       _funcCode =
                                         [Inst.LoadLocal 0, Inst.LoadGlobal 0, Inst.Add]
                                     }
@@ -101,6 +104,7 @@ spec = do
                                     { _funcJosa = ["을"],
                                       _funcStackSize = 2,
                                       _funcConstTable = S.singleton (ConstInteger 2),
+                                      _funcName = "더하다",
                                       _funcCode =
                                         [Inst.LoadLocal 0, Inst.Push 0, Inst.Add]
                                     }
@@ -132,6 +136,7 @@ spec = do
                                       _funcStackSize = 2,
                                       _funcMaxLocalCount = 2,
                                       _funcConstTable = S.fromList [ConstInteger 1],
+                                      _funcName = "더하다",
                                       _funcCode =
                                         [ Inst.Push 0,
                                           Inst.StoreLocal 1,
@@ -179,11 +184,13 @@ spec = do
                                                           [ ConstFunc
                                                               ( funcObject
                                                                   { _funcStackSize = 1,
+                                                                    _funcName = "안쪽",
                                                                     _funcCode =
                                                                       [Inst.LoadDeref 0]
                                                                   }
                                                               )
                                                           ],
+                                                      _funcName = "중간",
                                                       _funcCode =
                                                         [ Inst.Push 0,
                                                           Inst.FreeVar [(True, 0)],
@@ -194,6 +201,7 @@ spec = do
                                                 )
                                             ]
                                         ),
+                                      _funcName = "바깥",
                                       _funcCode =
                                         [ Inst.Push 0,
                                           Inst.FreeVar [(False, 0)],
@@ -228,11 +236,13 @@ spec = do
                                           [ ConstFunc
                                               ( funcObject
                                                   { _funcStackSize = 1,
+                                                    _funcName = "재귀",
                                                     _funcCode =
                                                       [Inst.LoadDeref 0, Inst.Call []]
                                                   }
                                               )
                                           ],
+                                      _funcName = "동작",
                                       _funcCode =
                                         [ Inst.Push 0,
                                           Inst.FreeVar [(False, 0)],
@@ -269,7 +279,7 @@ spec = do
                                         ( [ Inst.Push 0,
                                             Inst.FreeVar [(False, 0)],
                                             Inst.StoreLocal 1,
-                                            Inst.Push 0,
+                                            Inst.Push 1,
                                             Inst.FreeVar [(False, 1)],
                                             Inst.StoreLocal 0,
                                             Inst.LoadLocal 1,
@@ -281,12 +291,22 @@ spec = do
                                             [ ConstFunc
                                                 ( funcObject
                                                     { _funcStackSize = 1,
+                                                      _funcName = "재귀1",
+                                                      _funcCode =
+                                                        [Inst.LoadDeref 0, Inst.Call []]
+                                                    }
+                                                ),
+                                              ConstFunc
+                                                ( funcObject
+                                                    { _funcStackSize = 1,
+                                                      _funcName = "재귀2",
                                                       _funcCode =
                                                         [Inst.LoadDeref 0, Inst.Call []]
                                                     }
                                                 )
                                             ]
-                                        )
+                                        ),
+                                      _funcName = "동작"
                                     }
                                 )
                             ],
@@ -305,6 +325,7 @@ spec = do
                                 ( funcObject
                                     { _funcJosa = ["와", "이"],
                                       _funcStackSize = 2,
+                                      _funcName = "같다",
                                       _funcCode =
                                         [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
                                     }

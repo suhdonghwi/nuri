@@ -31,7 +31,7 @@ import Haneul.BuilderInternal
     internalMaxLocalCount,
     _internalLastLine,
   )
-import Haneul.Constant (Constant (..), FuncObject (_funcJosa), _funcLineNo)
+import Haneul.Constant (Constant (..), FuncObject (_funcJosa), _funcLineNo, _funcName)
 import Haneul.Instruction (Mark (Mark))
 import qualified Haneul.Instruction as Inst
   ( Instruction' (..),
@@ -157,8 +157,8 @@ compileExpr (Seq xs) = do
   assign internalLocalVars tempVarNames
 
   modifying internalDepth (`subtract` 1)
-compileExpr (Lambda pos args body) = do
-  (internal, funcObject) <- lambdaToFuncObject pos args body
+compileExpr (Lambda pos name args body) = do
+  (internal, funcObject) <- lambdaToFuncObject pos name args body
 
   index <- addConstant (ConstFunc funcObject)
   tellInst pos (Inst.Push index)
@@ -179,8 +179,8 @@ compileExpr (Lambda pos args body) = do
   when ((not . null) processed) $ tellInst pos (Inst.FreeVar processed)
 
 lambdaToFuncObject ::
-  Pos -> [(Text, Text)] -> Expr -> Builder (BuilderInternal, FuncObject)
-lambdaToFuncObject pos args body = do
+  Pos -> Text -> [(Text, Text)] -> Expr -> Builder (BuilderInternal, FuncObject)
+lambdaToFuncObject pos name args body = do
   localVars <- use internalLocalVars
   oldLocalStack <- ask
   let newLocalStack = (S.fromList . fmap snd . toList) localVars
@@ -195,5 +195,9 @@ lambdaToFuncObject pos args body = do
       result = internalToFuncObject (internal, code)
   return
     ( internal,
-      result {_funcJosa = snd <$> args, _funcLineNo = pos}
+      result
+        { _funcJosa = snd <$> args,
+          _funcLineNo = pos,
+          _funcName = name
+        }
     )

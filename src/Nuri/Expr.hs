@@ -1,7 +1,7 @@
 module Nuri.Expr where
 
-import Nuri.ASTNode ( ASTNode(..) )
-import Nuri.Literal ( Literal )
+import Nuri.ASTNode (ASTNode (..))
+import Nuri.Literal (Literal)
 import Text.Megaparsec.Pos (Pos)
 
 data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
@@ -24,7 +24,7 @@ instance ASTNode Decl where
 declToExpr :: Pos -> DeclKind -> Text -> DeclType -> [(Text, Expr)]
 declToExpr pos _ name t =
   case t of
-    FuncDecl args body -> [(name, Lambda pos args body)]
+    FuncDecl args body -> [(name, Lambda pos name args body)]
     ConstDecl expr -> [(name, expr)]
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
@@ -41,8 +41,8 @@ data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
     UnaryOp Pos UnaryOperator Expr
   | -- 표현식 시퀀스 : 표현식 목록
     Seq (NonEmpty (Either Decl Expr))
-  | -- 람다 표현식 : 코드 위치, 인수 목록, 함수 본문
-    Lambda Pos [(Text, Text)] Expr
+  | -- 람다 표현식 : 코드 위치, 함수 이름, 인수 목록, 함수 본문
+    Lambda Pos Text [(Text, Text)] Expr
   deriving (Show)
 
 instance Eq Expr where
@@ -54,7 +54,7 @@ instance Eq Expr where
     (op1 == op2) && (l1 == l2) && (r1 == r2)
   UnaryOp _ op1 v1 == UnaryOp _ op2 v2 = (op1 == op2) && (v1 == v2)
   Seq e1 == Seq e2 = e1 == e2
-  Lambda _ a1 b1 == Lambda _ a2 b2 = (a1 == a2) && (b1 == b2)
+  Lambda _ n1 a1 b1 == Lambda _ n2 a2 b2 = (n1 == n2) && (a1 == a2) && (b1 == b2)
   _ == _ = False
 
 instance ASTNode Expr where
@@ -67,7 +67,7 @@ instance ASTNode Expr where
   getSourceLine (Seq (x :| _)) = case x of
     Left (Decl pos _ _ _) -> pos
     Right expr -> getSourceLine expr
-  getSourceLine (Lambda pos _ _) = pos
+  getSourceLine (Lambda pos _ _ _) = pos
 
 data BinaryOperator
   = Add

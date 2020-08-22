@@ -27,5 +27,6 @@ funcObject =
       _funcMaxLocalCount = 0,
       _funcLineNo = mkPos 1,
       _funcLineNoTable = [],
+      _funcName = "",
       _funcStackSize = 0
     }

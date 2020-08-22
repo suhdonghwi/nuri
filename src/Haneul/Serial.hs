@@ -28,6 +28,7 @@ import Haneul.Constant
     funcLineNo,
     funcLineNoTable,
     funcMaxLocalCount,
+    funcName,
     funcStackSize,
   )
 import Haneul.Instruction (Instruction' (..))
@@ -89,6 +90,7 @@ instance Binary FuncObject where
     put (obj ^. funcStackSize)
     put (obj ^. funcMaxLocalCount)
     put (toList $ obj ^. funcConstTable)
+    put (obj ^. funcName)
     put (obj ^. funcLineNo)
     put (obj ^. funcLineNoTable)
     put (obj ^. funcCode)
@@ -98,6 +100,7 @@ instance Binary FuncObject where
     maxStackSize <- get
     maxLocalCount <- get
     constTable <- fromList <$> get
+    name <- get
     lineNo <- get
     lineNoTable <- get
     code <- get
@@ -107,6 +110,7 @@ instance Binary FuncObject where
             _funcGlobalVarNames = globalVarNames,
             _funcCode = code,
             _funcConstTable = constTable,
+            _funcName = name,
             _funcMaxLocalCount = maxLocalCount,
             _funcLineNo = lineNo,
             _funcLineNoTable = lineNoTable,

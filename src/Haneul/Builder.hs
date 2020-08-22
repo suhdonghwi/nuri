@@ -144,7 +144,8 @@ internalToFuncObject (internal, (markedCode, lineNoTable)) =
           _funcCode = code,
           _funcLineNo = mkPos 1,
           _funcLineNoTable = lineNoTable,
-          _funcJosa = []
+          _funcJosa = [],
+          _funcName = ""
         }
 
 runBuilder :: BuilderInternal -> Builder () -> (BuilderInternal, (MarkedCode, LineNoTable))

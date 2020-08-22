@@ -17,20 +17,20 @@ litInteger v = Lit initPos (LitInteger v)
 litChar v = Lit initPos (LitChar v)
 
 litReal v = Lit initPos (LitReal v)
-litBool v = Lit initPos (LitBool v)
 
+litBool v = Lit initPos (LitBool v)
 
 ifExpr = If initPos
 
 binaryOp = BinaryOp initPos
-unaryOp = UnaryOp initPos
 
+unaryOp = UnaryOp initPos
 
 var = Var initPos
 
 funcCall = FuncCall initPos
-lambda = Lambda initPos
 
+lambda = Lambda initPos ""
 
 funcDecl kind name args body = Decl initPos kind name (Just $ FuncDecl args body)
 
