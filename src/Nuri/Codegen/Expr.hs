@@ -36,7 +36,7 @@ import Haneul.Instruction (Mark (Mark))
 import qualified Haneul.Instruction as Inst
   ( Instruction' (..),
   )
-import Nuri.ASTNode (ASTNode (getSourceLine))
+import Nuri.ASTNode (ASTNode (getSourcePos))
 import Nuri.Expr
   ( BinaryOperator (..),
     Decl (Decl),
@@ -45,7 +45,7 @@ import Nuri.Expr
     declToExpr,
   )
 import Nuri.Literal (Literal (..))
-import Text.Megaparsec.Pos (Pos)
+import Text.Megaparsec.Pos (SourcePos, sourceLine)
 
 litToConst :: Literal -> Constant
 litToConst LitNone = ConstNone
@@ -146,7 +146,7 @@ compileExpr (Seq xs) = do
           Right expr -> do
             compileExpr expr
             -- 시퀀스의 마지막이 아닌 표현식일 경우 Pop
-            when (not $ null ys) (tellInst (getSourceLine expr) Inst.Pop)
+            when (not $ null ys) (tellInst (getSourcePos expr) Inst.Pop)
         process ys
   process $ toList xs
 
@@ -179,7 +179,7 @@ compileExpr (Lambda pos name args body) = do
   when ((not . null) processed) $ tellInst pos (Inst.FreeVar processed)
 
 lambdaToFuncObject ::
-  Pos -> Text -> [(Text, Text)] -> Expr -> Builder (BuilderInternal, FuncObject)
+  SourcePos -> Text -> [(Text, Text)] -> Expr -> Builder (BuilderInternal, FuncObject)
 lambdaToFuncObject pos name args body = do
   localVars <- use internalLocalVars
   oldLocalStack <- ask
@@ -191,13 +191,13 @@ lambdaToFuncObject pos name args body = do
               compileExpr body
           )
           (newLocalStack : oldLocalStack)
-          (defaultInternal {_internalLastLine = pos})
+          (defaultInternal {_internalLastLine = sourceLine pos})
       result = internalToFuncObject (internal, code)
   return
     ( internal,
       result
         { _funcJosa = snd <$> args,
-          _funcLineNo = pos,
+          _funcLineNo = sourceLine pos,
           _funcName = name
         }
     )

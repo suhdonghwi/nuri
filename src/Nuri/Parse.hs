@@ -5,7 +5,6 @@ import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
-import Text.Megaparsec.Pos (Pos)
 
 type Parser = P.ParsecT Void Text (State [(DeclKind, Text)])
 
@@ -43,6 +42,3 @@ hangulSyllable = P.hidden $ P.satisfy (\x -> '가' <= x && x <= '힣')
 hangulJamo :: Parser Char
 hangulJamo =
   P.hidden $ P.satisfy (\x -> ('ㄱ' <= x && x <= 'ㅎ') || ('ㅏ' <= x && x <= 'ㅣ'))
-
-getSourceLine :: Parser Pos
-getSourceLine = P.sourceLine <$> P.getSourcePos

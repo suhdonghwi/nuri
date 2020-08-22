@@ -6,7 +6,6 @@ import Nuri.Literal
   )
 import Nuri.Parse
   ( Parser,
-    getSourceLine,
     hangulJamo,
     hangulSyllable,
     lexeme,
@@ -36,7 +35,7 @@ parseNonLexemeTerm parseExpr =
 
 parseParenCall :: Parser Expr -> Parser Expr
 parseParenCall expr = do
-  pos <- getSourceLine
+  pos <- P.getSourcePos
   funcName <- funcIdentifier
   args <- parseParens parseArguments
   return $ FuncCall pos (Var pos funcName) ((,"_") <$> args)
@@ -48,7 +47,7 @@ parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr
 
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = do
-  pos <- getSourceLine
+  pos <- P.getSourcePos
   ident <- parseIdentifier
   return $ Var pos ident
 
@@ -70,13 +69,13 @@ parseIdentifier =
 
 parseNoneExpr :: Parser Expr
 parseNoneExpr = do
-  pos <- getSourceLine
+  pos <- P.getSourcePos
   reserved "없음"
   return $ Lit pos LitNone
 
 parseIntegerExpr :: Parser Expr
 parseIntegerExpr = do
-  pos <- getSourceLine
+  pos <- P.getSourcePos
   val <- zeroNumber <|> parseDecimal
   return $ Lit pos (LitInteger val)
   where
@@ -84,13 +83,13 @@ parseIntegerExpr = do
       P.char '0' >> parseHexadecimal <|> parseOctal <|> parseBinary <|> return 0
 
 parseRealExpr :: Parser Expr
-parseRealExpr = Lit <$> getSourceLine <*> (LitReal <$> parseReal)
+parseRealExpr = Lit <$> P.getSourcePos <*> (LitReal <$> parseReal)
 
 parseCharExpr :: Parser Expr
-parseCharExpr = Lit <$> getSourceLine <*> (LitChar <$> parseChar)
+parseCharExpr = Lit <$> P.getSourcePos <*> (LitChar <$> parseChar)
 
 parseBoolExpr :: Parser Expr
-parseBoolExpr = Lit <$> getSourceLine <*> (LitBool <$> parseBool)
+parseBoolExpr = Lit <$> P.getSourcePos <*> (LitBool <$> parseBool)
 
 parseBinary :: Parser Int64
 parseBinary = P.char' 'b' >> (L.binary <?> "2진수")

@@ -41,7 +41,7 @@ import Haneul.Instruction
     MarkedInstruction,
     estimateStackSize,
   )
-import Text.Megaparsec.Pos (Pos, mkPos, unPos)
+import Text.Megaparsec.Pos (SourcePos, mkPos, sourceLine, unPos)
 
 type Builder = RWS [OSet Text] (MarkedCode, LineNoTable) BuilderInternal
 
@@ -115,18 +115,18 @@ unmarkInst internal inst = case inst of
     unmark (Mark index) =
       let marks = view internalMarks internal in marks !! fromIntegral index
 
-tellCode :: Pos -> [MarkedInstruction] -> Builder ()
+tellCode :: SourcePos -> [MarkedInstruction] -> Builder ()
 tellCode pos insts = sequence_ (tellInst pos <$> insts)
 
-tellInst :: Pos -> MarkedInstruction -> Builder ()
+tellInst :: SourcePos -> MarkedInstruction -> Builder ()
 tellInst pos inst = do
   lastLine <- use internalLastLine
-  let pos' = unPos pos
+  let pos' = unPos (sourceLine pos)
       lastLine' = unPos lastLine
 
   if pos' > lastLine'
     then do
-      assign internalLastLine pos
+      assign internalLastLine (sourceLine pos)
       offset <- use internalOffset
       let diff = pos' - lastLine'
       tell ([inst], [(offset, fromIntegral diff)])

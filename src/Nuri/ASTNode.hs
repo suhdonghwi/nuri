@@ -1,6 +1,6 @@
 module Nuri.ASTNode where
 
-import Text.Megaparsec.Pos (Pos)
+import Text.Megaparsec.Pos (SourcePos)
 
 class ASTNode a where
-  getSourceLine :: a -> Pos
+  getSourcePos :: a -> SourcePos

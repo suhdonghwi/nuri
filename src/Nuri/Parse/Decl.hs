@@ -9,7 +9,6 @@ import Nuri.Expr
   )
 import Nuri.Parse
   ( Parser,
-    getSourceLine,
     lexeme,
     reserved,
     sc,
@@ -39,7 +38,7 @@ checkValidIdentifier offset kind name = do
 
 parseFuncDecl :: Parser Expr -> Parser Decl
 parseFuncDecl parseExpr = do
-  pos <- getSourceLine
+  pos <- P.getSourcePos
   declKind <- parseDeclKind
   args <- parseArgList []
   offset <- P.getOffset
@@ -85,7 +84,7 @@ parseFuncDecl parseExpr = do
 
 parseConstDecl :: Parser Expr -> Parser Decl
 parseConstDecl parseExpr = do
-  pos <- getSourceLine
+  pos <- P.getSourcePos
   reserved "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
   modify ((NormalDecl, identifier) :)

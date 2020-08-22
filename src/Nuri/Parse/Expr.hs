@@ -17,7 +17,6 @@ import Nuri.Expr
   )
 import Nuri.Parse
   ( Parser,
-    getSourceLine,
     reserved,
     sc,
     scn,
@@ -51,7 +50,7 @@ parseSeq = do
 parseIf :: Parser Expr
 parseIf =
   ( do
-      pos <- getSourceLine
+      pos <- P.getSourcePos
       reserved "만약"
       condExpr <- parseExpr
       scn
@@ -92,10 +91,10 @@ parseArithmetic =
         ]
       ]
     binaryOp opStr op = P.hidden $ do
-      pos <- getSourceLine
+      pos <- P.getSourcePos
       BinaryOp pos op <$ L.symbol sc opStr
     unaryOp opStr op = P.hidden $ do
-      pos <- getSourceLine
+      pos <- P.getSourcePos
       UnaryOp pos op <$ L.symbol sc opStr
 
 parseNestedFuncCalls :: Parser Expr
@@ -125,7 +124,7 @@ parseNestedFuncCalls = do
 parseFuncCall :: Parser Expr
 parseFuncCall = do
   args <- parseArguments
-  pos <- getSourceLine
+  pos <- P.getSourcePos
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos (Var pos func) args
 

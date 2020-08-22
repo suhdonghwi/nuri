@@ -7,8 +7,8 @@ import Nuri.Literal
 import Nuri.Stmt
 import Text.Megaparsec.Pos
 
-initPos :: Pos
-initPos = pos1
+initPos :: SourcePos
+initPos = initialPos "(test)"
 
 litNone = Lit initPos LitNone
 

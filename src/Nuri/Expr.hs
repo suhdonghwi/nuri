@@ -2,7 +2,7 @@ module Nuri.Expr where
 
 import Nuri.ASTNode (ASTNode (..))
 import Nuri.Literal (Literal)
-import Text.Megaparsec.Pos (Pos)
+import Text.Megaparsec.Pos (SourcePos)
 
 data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
   deriving (Eq, Show)
@@ -12,37 +12,37 @@ data DeclType
   | ConstDecl Expr
   deriving (Eq, Show)
 
-data Decl = Decl Pos DeclKind Text (Maybe DeclType)
+data Decl = Decl SourcePos DeclKind Text (Maybe DeclType)
   deriving (Show)
 
 instance Eq Decl where
   Decl _ k1 n1 t1 == Decl _ k2 n2 t2 = (k1 == k2) && (n1 == n2) && (t1 == t2)
 
 instance ASTNode Decl where
-  getSourceLine (Decl pos _ _ _) = pos
+  getSourcePos (Decl pos _ _ _) = pos
 
-declToExpr :: Pos -> DeclKind -> Text -> DeclType -> [(Text, Expr)]
+declToExpr :: SourcePos -> DeclKind -> Text -> DeclType -> [(Text, Expr)]
 declToExpr pos _ name t =
   case t of
     FuncDecl args body -> [(name, Lambda pos name args body)]
     ConstDecl expr -> [(name, expr)]
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
-  = Lit Pos Literal
+  = Lit SourcePos Literal
   | -- 변수 읽기 표현식 : 코드 위치, 변수명
-    Var Pos Text
+    Var SourcePos Text
   | -- 함수 호출 표현식 : 코드 위치, 함수식, 함수 인자 리스트
-    FuncCall Pos Expr [(Expr, Text)]
+    FuncCall SourcePos Expr [(Expr, Text)]
   | -- 조건 분기 표현식 : 코드 위치, 조건식, then문, else문
-    If Pos Expr Expr Expr
+    If SourcePos Expr Expr Expr
   | -- 이항 연산 표현식 : 코드 위치, 이항 연산자, 피연산자(좌), 피연산자(우)
-    BinaryOp Pos BinaryOperator Expr Expr
+    BinaryOp SourcePos BinaryOperator Expr Expr
   | -- 단항 연산 표현식 : 코드 위치, 단항 연산자, 피연산자
-    UnaryOp Pos UnaryOperator Expr
+    UnaryOp SourcePos UnaryOperator Expr
   | -- 표현식 시퀀스 : 표현식 목록
     Seq (NonEmpty (Either Decl Expr))
   | -- 람다 표현식 : 코드 위치, 함수 이름, 인수 목록, 함수 본문
-    Lambda Pos Text [(Text, Text)] Expr
+    Lambda SourcePos Text [(Text, Text)] Expr
   deriving (Show)
 
 instance Eq Expr where
@@ -58,16 +58,16 @@ instance Eq Expr where
   _ == _ = False
 
 instance ASTNode Expr where
-  getSourceLine (Lit pos _) = pos
-  getSourceLine (Var pos _) = pos
-  getSourceLine (FuncCall pos _ _) = pos
-  getSourceLine (BinaryOp pos _ _ _) = pos
-  getSourceLine (If pos _ _ _) = pos
-  getSourceLine (UnaryOp pos _ _) = pos
-  getSourceLine (Seq (x :| _)) = case x of
+  getSourcePos (Lit pos _) = pos
+  getSourcePos (Var pos _) = pos
+  getSourcePos (FuncCall pos _ _) = pos
+  getSourcePos (BinaryOp pos _ _ _) = pos
+  getSourcePos (If pos _ _ _) = pos
+  getSourcePos (UnaryOp pos _ _) = pos
+  getSourcePos (Seq (x :| _)) = case x of
     Left (Decl pos _ _ _) -> pos
-    Right expr -> getSourceLine expr
-  getSourceLine (Lambda pos _ _ _) = pos
+    Right expr -> getSourcePos expr
+  getSourcePos (Lambda pos _ _ _) = pos
 
 data BinaryOperator
   = Add
