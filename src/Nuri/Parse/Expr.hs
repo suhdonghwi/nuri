@@ -12,7 +12,6 @@ import Data.List (foldl1')
 import qualified Data.Text as T
 import Nuri.Expr
   ( BinaryOperator (..),
-    DeclKind (..),
     Expr (..),
     UnaryOperator (..),
   )
@@ -20,7 +19,6 @@ import Nuri.Parse
   ( Parser,
     getSourceLine,
     reserved,
-    resolveDecl,
     sc,
     scn,
   )
@@ -70,7 +68,7 @@ parseIf =
 parseArithmetic :: Parser Expr
 parseArithmetic =
   makeExprParser
-    ((P.try parseNestedFuncCalls <|> parseTerm parseExpr) <?> "표현식")
+    ((parseNestedFuncCalls <|> parseTerm parseExpr) <?> "표현식")
     table
   where
     table =
@@ -102,19 +100,16 @@ parseArithmetic =
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  calls <- P.some (parseFuncCall <?> "함수 호출식")
+  calls <- P.try $ P.some (parseFuncCall <?> "함수 호출식")
   processedCalls <- process calls
   return $ foldl1' addArg processedCalls
   where
     process :: [Expr] -> Parser [Expr]
-    process (x@(FuncCall _ (Var _ ident) _) : []) = do
-      _ <- resolveDecl ident [NormalDecl, VerbDecl, AdjectiveDecl] 0
-      return [x]
+    process (x@(FuncCall _ _ _) : []) = return [x]
     process (FuncCall pos (Var _ ident) args : xs) =
       if T.last ident == '고'
         then do
           let originalIdent = T.snoc (T.init ident) '다'
-          _ <- resolveDecl originalIdent [VerbDecl] 0
           pxs <- process xs
           return (FuncCall pos (Var pos originalIdent) args : pxs)
         else do

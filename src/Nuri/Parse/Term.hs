@@ -1,9 +1,6 @@
 module Nuri.Parse.Term where
 
-import Nuri.Expr
-  ( DeclKind (..),
-    Expr (..),
-  )
+import Nuri.Expr (Expr (..))
 import Nuri.Literal
   ( Literal (..),
   )
@@ -14,7 +11,6 @@ import Nuri.Parse
     hangulSyllable,
     lexeme,
     reserved,
-    resolveDecl,
     sc,
     symbol,
   )
@@ -53,9 +49,7 @@ parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = do
   pos <- getSourceLine
-  offset <- P.getOffset
   ident <- parseIdentifier
-  _ <- resolveDecl ident [NormalDecl, VerbDecl, AdjectiveDecl] offset
   return $ Var pos ident
 
 parseIdentifier :: Parser Text

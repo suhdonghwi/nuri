@@ -1,8 +1,8 @@
 module Nuri.Parse where
 
 import Nuri.Expr (DeclKind (..))
-import qualified Text.Megaparsec as P
 import Text.Megaparsec ((<?>))
+import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 import Text.Megaparsec.Pos (Pos)
@@ -46,20 +46,3 @@ hangulJamo =
 
 getSourceLine :: Parser Pos
 getSourceLine = P.sourceLine <$> P.getSourcePos
-
-resolveDecl :: Text -> [DeclKind] -> Int -> Parser DeclKind
-resolveDecl name kinds offset = do
-  st <- get
-  case find (checkDecl name) st of
-    Just (kind, _) -> return kind
-    _ -> do
-      let missingKinds = intercalate " 또는 " (declKindName <$> kinds)
-      P.setOffset offset
-      fail $ missingKinds ++ " '" ++ toString name ++ "'을(를) 찾을 수 없습니다."
-  where
-    checkDecl n' (_, n) = n == n'
-    declKindName kind =
-      case kind of
-        NormalDecl -> "함수"
-        VerbDecl -> "동사"
-        AdjectiveDecl -> "형용사"
