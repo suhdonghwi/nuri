@@ -39,11 +39,11 @@ parseInput input fileName = do
     Left err -> do
       (liftIO . putTextLn . toText . errorBundlePretty) err
       hoistMaybe Nothing
-    Right parseResult -> return parseResult
+    Right result -> return result
 
-printResult :: (NonEmpty Stmt) -> IO ()
-printResult stmts = do
-  (liftIO . pPrint) stmts
+compileResult :: Bool -> String -> (NonEmpty Stmt) -> IO ()
+compileResult isDebug dest stmts = do
+  when isDebug $ (liftIO . pPrint) stmts
   let program' =
         ( internalToFuncObject
             . runBuilder
@@ -56,25 +56,9 @@ printResult stmts = do
 
       program = program' {_funcFilePath = sourceName (getSourcePos $ head stmts)}
 
-  putStrLn "---------------"
-  pPrint program
-  putStrLn "---------------"
+  when isDebug $ do
+    putStrLn "---------------"
+    pPrint program
+    putStrLn "---------------"
 
-  let encodedProgram = encode program
-  writeFileLBS "./test.hn" encodedProgram
-
-repl :: Repl ()
-repl = forever $ do
-  st <- get
-  liftIO $ do
-    putText (view prompt st)
-    hFlush stdout
-  input <- strip <$> liftIO getLine
-  liftIO $ when (input == ":quit") exitSuccess
-  result <- (liftIO . runMaybeT . parseInput input) "(반응형)"
-  case result of
-    Just stmts -> liftIO (printResult stmts)
-    Nothing -> pass
-
-runRepl :: Repl a -> ReplState -> IO a
-runRepl f = evalStateT (unRepl f)
+  writeFileLBS dest (encode program)

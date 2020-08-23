@@ -22,11 +22,12 @@ main = do
             "사용법:",
             "  nuri --help | -h",
             "  nuri --version | -v",
-            "  nuri <파일명>",
+            "  nuri <파일명> [--debug | -d]",
             "",
             "옵션:",
             "  -h, --help      도움말을 출력합니다.",
-            "  -v, --version   누리 실행기의 버전을 출력합니다."
+            "  -v, --version   누리 실행기의 버전을 출력합니다.",
+            "  -d, --debug     디버그용 출력을 활성화합니다."
           ] ::
             [Text]
     putTextLn $ unlines helpMessage
@@ -36,6 +37,9 @@ main = do
     exitSuccess
   when (opts `isPresent` (argument "file")) $ do
     let filePath = fromJust $ opts `getArg` (argument "file")
+        isDebug = opts `isPresent` (longOption "debug")
+
     content <- readFileText filePath
     result <- runMaybeT $ parseInput content filePath
-    whenJust result printResult
+
+    whenJust result (compileResult isDebug "./test.hn")
