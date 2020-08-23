@@ -6,6 +6,7 @@ import Control.Monad (when)
 import Data.Maybe (fromJust)
 import Repl
 import System.Console.Docopt
+import System.Directory (doesFileExist)
 import System.Environment (getArgs)
 
 patterns :: Docopt
@@ -46,6 +47,11 @@ main = do
       when (opts `isPresent` (argument "file")) $ do
         let filePath = fromJust $ opts `getArg` (argument "file")
             isDebug = opts `isPresent` (longOption "debug")
+
+        exists <- doesFileExist filePath
+        when (not exists) $ do
+          putStrLn $ "오류 : '" ++ filePath ++ "' 파일을 찾을 수 없습니다."
+          exitFailure
 
         content <- readFileText filePath
         result <- runMaybeT $ parseInput content filePath
