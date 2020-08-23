@@ -132,7 +132,7 @@ showErrorFancy = \case
       <> show (unPos ref)
       <> " "
       <> p
-      <> " 단계여야 하는데"
+      <> " 단계여야 하는데 "
       <> show (unPos actual)
       <> " 단계가 주어짐)"
     where
