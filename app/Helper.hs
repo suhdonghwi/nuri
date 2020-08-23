@@ -1,4 +1,4 @@
-module Repl where
+module Helper where
 
 import Control.Lens
   ( makeLenses,
@@ -8,15 +8,19 @@ import Control.Lens.TH ()
 import Data.Binary (encode)
 import qualified Data.Set.Ordered as S
 import Data.Text (strip)
-import Haneul.Builder
+import Haneul.Builder (internalToFuncObject, runBuilder)
 import Haneul.BuilderInternal
-import Haneul.Constant
+  ( BuilderInternal (_internalGlobalVarNames),
+    defaultDecls,
+    defaultInternal,
+  )
+import Haneul.Constant (FuncObject (_funcFilePath))
 import Haneul.Serial ()
-import Nuri.ASTNode
-import Nuri.Codegen.Stmt
+import Nuri.ASTNode (ASTNode (getSourcePos))
+import Nuri.Codegen.Stmt (compileStmts)
 import Nuri.Parse.Error (errorBundlePretty)
-import Nuri.Parse.Stmt
-import Nuri.Stmt
+import Nuri.Parse.Stmt (parseStmts)
+import Nuri.Stmt (Stmt)
 import System.IO (hFlush)
 import Text.Megaparsec
   ( eof,

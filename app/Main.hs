@@ -4,9 +4,10 @@ module Main where
 
 import Control.Monad (when)
 import Data.Maybe (fromJust)
-import Repl (compileResult, parseInput)
+import Helper (compileResult, parseInput)
 import System.Console.Docopt
-  ( Docopt,
+  ( Arguments,
+    Docopt,
     argument,
     docoptFile,
     getArg,
@@ -21,6 +22,30 @@ import System.Process (callCommand)
 
 patterns :: Docopt
 patterns = [docoptFile|USAGE.txt|]
+
+runCommand :: Arguments -> IO ()
+runCommand opts = do
+  when (opts `isPresent` (longOption "help")) $ do
+    putTextLn helpMessage
+    exitSuccess
+  when (opts `isPresent` (longOption "version")) $ do
+    putStrLn "누리 - 배포 전 0.1"
+    exitSuccess
+  when (opts `isPresent` (argument "file")) $ do
+    let filePath = fromJust $ opts `getArg` (argument "file")
+        isDebug = opts `isPresent` (longOption "debug")
+
+    exists <- doesFileExist filePath
+    when (not exists) $ do
+      putStrLn $ "오류 : '" ++ filePath ++ "' 파일을 찾을 수 없습니다."
+      exitFailure
+
+    content <- readFileText filePath
+    result <- runMaybeT $ parseInput content filePath
+
+    let bytecodeFileName = replaceExtension filePath ".hn"
+    whenJust result (compileResult isDebug bytecodeFileName)
+    callCommand $ "../haneul-rpython/target-c " ++ bytecodeFileName
 
 helpMessage :: Text
 helpMessage =
@@ -47,25 +72,4 @@ main = do
     Left _ -> do
       putTextLn helpMessage
       exitFailure
-    Right opts -> do
-      when (opts `isPresent` (longOption "help")) $ do
-        putTextLn helpMessage
-        exitSuccess
-      when (opts `isPresent` (longOption "version")) $ do
-        putStrLn "누리 - 배포 전 0.1"
-        exitSuccess
-      when (opts `isPresent` (argument "file")) $ do
-        let filePath = fromJust $ opts `getArg` (argument "file")
-            isDebug = opts `isPresent` (longOption "debug")
-
-        exists <- doesFileExist filePath
-        when (not exists) $ do
-          putStrLn $ "오류 : '" ++ filePath ++ "' 파일을 찾을 수 없습니다."
-          exitFailure
-
-        content <- readFileText filePath
-        result <- runMaybeT $ parseInput content filePath
-
-        let bytecodeFileName = replaceExtension filePath ".hn"
-        whenJust result (compileResult isDebug bytecodeFileName)
-        callCommand $ "../haneul-rpython/target-c " ++ bytecodeFileName
+    Right opts -> runCommand opts
