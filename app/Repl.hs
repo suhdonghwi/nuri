@@ -6,19 +6,22 @@ import Control.Lens
   )
 import Control.Lens.TH ()
 import Data.Binary (encode)
-import Data.Text (strip)
 import qualified Data.Set.Ordered as S
+import Data.Text (strip)
 import Haneul.Builder
 import Haneul.BuilderInternal
+import Haneul.Constant
 import Haneul.Serial ()
+import Nuri.ASTNode
 import Nuri.Codegen.Stmt
-import Nuri.Parse.Stmt
 import Nuri.Parse.Error (errorBundlePretty)
+import Nuri.Parse.Stmt
 import Nuri.Stmt
 import System.IO (hFlush)
 import Text.Megaparsec
   ( eof,
     runParserT,
+    sourceName,
   )
 import Text.Pretty.Simple (pPrint)
 import Prelude hiding (writeFile)
@@ -41,7 +44,7 @@ parseInput input fileName = do
 printResult :: (NonEmpty Stmt) -> IO ()
 printResult stmts = do
   (liftIO . pPrint) stmts
-  let program =
+  let program' =
         ( internalToFuncObject
             . runBuilder
               defaultInternal
@@ -50,6 +53,8 @@ printResult stmts = do
             . compileStmts
         )
           stmts
+
+      program = program' {_funcFilePath = sourceName (getSourcePos $ head stmts)}
 
   putStrLn "---------------"
   pPrint program
