@@ -4,10 +4,19 @@ module Main where
 
 import Control.Monad (when)
 import Data.Maybe (fromJust)
-import Repl
+import Repl (compileResult, parseInput)
 import System.Console.Docopt
+  ( Docopt,
+    argument,
+    docoptFile,
+    getArg,
+    isPresent,
+    longOption,
+    parseArgs,
+  )
 import System.Directory (doesFileExist)
 import System.Environment (getArgs)
+import System.FilePath (replaceExtension)
 
 patterns :: Docopt
 patterns = [docoptFile|USAGE.txt|]
@@ -56,4 +65,5 @@ main = do
         content <- readFileText filePath
         result <- runMaybeT $ parseInput content filePath
 
-        whenJust result (compileResult isDebug "./test.hn")
+        let bytecodeFileName = replaceExtension filePath ".hn"
+        whenJust result (compileResult isDebug bytecodeFileName)

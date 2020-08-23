@@ -41,6 +41,7 @@ dependencies:
   - text-icu
   - docopt
   - directory
+  - filepath
 
 default-extensions:
   - OverloadedStrings
