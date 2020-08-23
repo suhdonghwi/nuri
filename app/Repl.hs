@@ -43,7 +43,6 @@ parseInput input fileName = do
 
 compileResult :: Bool -> String -> (NonEmpty Stmt) -> IO ()
 compileResult isDebug dest stmts = do
-  when isDebug $ (liftIO . pPrint) stmts
   let program' =
         ( internalToFuncObject
             . runBuilder
@@ -53,12 +52,11 @@ compileResult isDebug dest stmts = do
             . compileStmts
         )
           stmts
-
       program = program' {_funcFilePath = sourceName (getSourcePos $ head stmts)}
 
   when isDebug $ do
+    (liftIO . pPrint) stmts
     putStrLn "---------------"
     pPrint program
-    putStrLn "---------------"
 
   writeFileLBS dest (encode program)
