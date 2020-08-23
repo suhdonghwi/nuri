@@ -10,19 +10,18 @@ module Nuri.Parse.Error (errorBundlePretty) where
 
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Set as S
-
 import Data.Text.ICU.Char (EastAsianWidth (..), EastAsianWidth_ (..), property)
 import Text.Megaparsec (PosState, pstateSourcePos)
 import Text.Megaparsec.Error
-    ( ShowErrorComponent(..),
-      ParseErrorBundle(..),
-      errorOffset,
-      ErrorFancy(..),
-      ErrorItem(..),
-      ParseError(..) )
-import Text.Megaparsec.Pos
-    ( sourcePosPretty, unPos, SourcePos(sourceColumn, sourceLine) )
-import Text.Megaparsec.Stream ( Stream(reachOffset, Token) )
+  ( ErrorFancy (..),
+    ErrorItem (..),
+    ParseError (..),
+    ParseErrorBundle (..),
+    ShowErrorComponent (..),
+    errorOffset,
+  )
+import Text.Megaparsec.Pos (SourcePos (sourceColumn, sourceLine, sourceName), unPos)
+import Text.Megaparsec.Stream (Stream (Token, reachOffset))
 
 byJongseong :: String -> String -> String -> String
 byJongseong s1 s2 text =
@@ -58,7 +57,7 @@ errorBundlePretty ParseErrorBundle {..} =
         (sline, pst') = reachOffset (errorOffset e) pst
         epos = pstateSourcePos pst'
         outChunk =
-          "\n" <> sourcePosPretty epos <> ":\n"
+          "\n" <> "파일 '" <> sourceName epos <> "', " <> lineNumber <> "번째 줄:\n"
             <> padding
             <> "|\n"
             <> lineNumber
