@@ -44,7 +44,7 @@ parseSeq = do
       parseLine
       (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
 
-  void P.newline <|> P.eof
+  void (P.lookAhead $ P.newline >> L.indentGuard scn LT level) <|> P.eof
   when (isLeft $ last result) $ fail "순서 표현식의 마지막은 선언문이 아닌 표현식이어야 합니다."
   put st
   return $ Seq result

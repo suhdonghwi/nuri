@@ -373,6 +373,21 @@ spec = do
               binaryOp Multiply (litInteger 2) (litInteger 2)
           ]
 
+    it "시퀀스 속의 시퀀스" $ do
+      testParse
+        parseSeq
+        ( [text| 
+            순서대로
+              순서대로
+                1
+              2
+          |]
+        )
+        `shouldParse` Seq
+          [ Right $ Seq [Right $ litInteger 1],
+            Right (litInteger 2)
+          ]
+
     it "비어있는 라인을 포함한 시퀀스" $ do
       testParse
         parseSeq
