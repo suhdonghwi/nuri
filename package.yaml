@@ -39,6 +39,7 @@ dependencies:
   - hspec-megaparsec
   - neat-interpolation
   - text-icu
+  - docopt
 
 default-extensions:
   - OverloadedStrings

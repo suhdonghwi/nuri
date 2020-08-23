@@ -1,0 +1,8 @@
+Usage:
+  nuri --help | -h
+  nuri --version | -v
+  nuri <file>
+
+Options:
+  -h, --help        도움말을 출력합니다.
+  -v, --version     누리 실행기의 버전을 출력합니다.
