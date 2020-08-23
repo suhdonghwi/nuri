@@ -11,35 +11,43 @@ import System.Environment (getArgs)
 patterns :: Docopt
 patterns = [docoptFile|USAGE.txt|]
 
+helpMessage :: Text
+helpMessage =
+  unlines
+    [ "누리 - 함수형 한글 프로그래밍 언어",
+      "",
+      "사용법:",
+      "  nuri --help | -h",
+      "  nuri --version | -v",
+      "  nuri <파일명> [--debug | -d]",
+      "",
+      "옵션:",
+      "  -h, --help      도움말을 출력합니다.",
+      "  -v, --version   누리 실행기의 버전을 출력합니다.",
+      "  -d, --debug     디버그용 출력을 활성화합니다."
+    ]
+
 main :: IO ()
 main = do
-  opts <- parseArgsOrExit patterns =<< getArgs
+  args <- getArgs
+  let result = parseArgs patterns args
 
-  when (opts `isPresent` (longOption "help")) $ do
-    let helpMessage =
-          [ "누리 - 함수형 한글 프로그래밍 언어",
-            "",
-            "사용법:",
-            "  nuri --help | -h",
-            "  nuri --version | -v",
-            "  nuri <파일명> [--debug | -d]",
-            "",
-            "옵션:",
-            "  -h, --help      도움말을 출력합니다.",
-            "  -v, --version   누리 실행기의 버전을 출력합니다.",
-            "  -d, --debug     디버그용 출력을 활성화합니다."
-          ] ::
-            [Text]
-    putTextLn $ unlines helpMessage
-    exitSuccess
-  when (opts `isPresent` (longOption "version")) $ do
-    putStrLn "누리 - 배포 전 0.1"
-    exitSuccess
-  when (opts `isPresent` (argument "file")) $ do
-    let filePath = fromJust $ opts `getArg` (argument "file")
-        isDebug = opts `isPresent` (longOption "debug")
+  case result of
+    Left _ -> do
+      putTextLn helpMessage
+      exitFailure
+    Right opts -> do
+      when (opts `isPresent` (longOption "help")) $ do
+        putTextLn helpMessage
+        exitSuccess
+      when (opts `isPresent` (longOption "version")) $ do
+        putStrLn "누리 - 배포 전 0.1"
+        exitSuccess
+      when (opts `isPresent` (argument "file")) $ do
+        let filePath = fromJust $ opts `getArg` (argument "file")
+            isDebug = opts `isPresent` (longOption "debug")
 
-    content <- readFileText filePath
-    result <- runMaybeT $ parseInput content filePath
+        content <- readFileText filePath
+        result <- runMaybeT $ parseInput content filePath
 
-    whenJust result (compileResult isDebug "./test.hn")
+        whenJust result (compileResult isDebug "./test.hn")
