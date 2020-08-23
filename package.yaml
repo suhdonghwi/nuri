@@ -42,6 +42,7 @@ dependencies:
   - docopt
   - directory
   - filepath
+  - process
 
 default-extensions:
   - OverloadedStrings

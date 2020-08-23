@@ -17,6 +17,7 @@ import System.Console.Docopt
 import System.Directory (doesFileExist)
 import System.Environment (getArgs)
 import System.FilePath (replaceExtension)
+import System.Process (callCommand)
 
 patterns :: Docopt
 patterns = [docoptFile|USAGE.txt|]
@@ -67,3 +68,4 @@ main = do
 
         let bytecodeFileName = replaceExtension filePath ".hn"
         whenJust result (compileResult isDebug bytecodeFileName)
+        callCommand $ "../haneul-rpython/target-c " ++ bytecodeFileName
