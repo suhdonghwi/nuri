@@ -4,7 +4,7 @@ github: "suhdonghwi/nuri"
 license: MIT
 author: "Suh Donghwi"
 maintainer: "hwidongsuh@gmail.com"
-copyright: "2019 Suh Donghwi"
+copyright: "2020 Suh Donghwi"
 
 extra-source-files:
   - README.md
@@ -17,7 +17,7 @@ extra-source-files:
 # To avoid duplicated efforts in documentation and dealing with the
 # complications of embedding Haddock markup inside cabal files, it is
 # common to point users to the README.md file.
-description: 배우기 쉬운 한글 프로그래밍 언어
+description: 함수형 한글 프로그래밍 언어
 
 dependencies:
   - base-noprelude >= 4.12
