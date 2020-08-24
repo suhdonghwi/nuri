@@ -60,7 +60,7 @@ library:
     - -Wall
 
 executables:
-  nuri-exe:
+  nuri:
     main: Main.hs
     source-dirs: app
     ghc-options:
