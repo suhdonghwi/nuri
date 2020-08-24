@@ -45,7 +45,7 @@ runCommand opts = do
 
     let bytecodeFileName = replaceExtension filePath ".hn"
     whenJust result (compileResult isDebug bytecodeFileName)
-    callCommand $ "../haneul-rpython/target-c " ++ bytecodeFileName
+    callCommand $ "../haneul/target-c " ++ bytecodeFileName
 
 helpMessage :: Text
 helpMessage =
