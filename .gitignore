@@ -3,3 +3,4 @@ nuri.cabal
 *~
 *.hn
 run.sh
+*.prof
