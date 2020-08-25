@@ -225,7 +225,7 @@ declToExpr pos name t =
               let args = dup <$> fields
                   makeStructBody = do
                     sequence_ ((compileExpr . Var pos) <$> fields)
-                    tellInst pos (Inst.MakeStruct fields)
+                    tellInst pos (Inst.MakeStruct $ reverse fields)
 
               (_, funcObject) <- lambdaToFuncObject pos name args makeStructBody
               index <- addConstant (ConstFunc funcObject)

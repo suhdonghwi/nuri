@@ -320,7 +320,7 @@ spec = do
                                       [ Inst.LoadLocal 0,
                                         Inst.LoadLocal 1,
                                         Inst.LoadLocal 2,
-                                        Inst.MakeStruct ["이름", "키", "성별"]
+                                        Inst.MakeStruct ["성별", "키", "이름"]
                                       ]
                                   }
                               ),
