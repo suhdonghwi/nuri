@@ -53,9 +53,6 @@ instance Binary Constant where
   put (ConstReal v) = do
     putWord8 2
     putDoublebe v
-  -- let (base, e) = decodeFloat v
-  -- put (fromIntegral base :: Int64)
-  -- put e
   put (ConstChar v) = do
     putWord8 3
     put (fromIntegral (ord v) :: Word32)
@@ -64,6 +61,9 @@ instance Binary Constant where
     put v
   put (ConstFunc v) = do
     putWord8 5
+    put v
+  put (ConstStruct v) = do
+    putWord8 6
     put v
   get = do
     t <- getWord8
@@ -74,6 +74,7 @@ instance Binary Constant where
       3 -> (ConstChar . chr) <$> get
       4 -> ConstBool <$> get
       5 -> ConstFunc <$> get
+      6 -> ConstStruct <$> get
       _ -> fail "invalid constant type"
 
 putWord8List :: (a -> Put) -> [a] -> Put

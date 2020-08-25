@@ -12,6 +12,7 @@ data Constant
   | ConstChar Char
   | ConstBool Bool
   | ConstFunc FuncObject
+  | ConstStruct (Map Text Constant)
   deriving (Eq, Show, Ord)
 
 type ConstTable = OSet Constant
