@@ -30,7 +30,7 @@ runCommand opts = do
     putTextLn helpMessage
     exitSuccess
   when (opts `isPresent` (longOption "version")) $ do
-    putStrLn "누리 - 배포 전 0.1"
+    putStrLn "누리 0.1.0"
     exitSuccess
   when (opts `isPresent` (argument "file")) $ do
     let filePath = fromJust $ opts `getArg` (argument "file")
