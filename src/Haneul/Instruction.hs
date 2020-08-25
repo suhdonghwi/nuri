@@ -9,6 +9,7 @@ data Instruction' a
   | StoreGlobal Word32
   | LoadGlobal Word32
   | Call [Text]
+  | MakeStruct [Text]
   | Jmp a
   | PopJmpIfFalse a
   | FreeVar [(Bool, Word8)]

@@ -146,39 +146,42 @@ instance (Binary a) => Binary (Instruction' a) where
   put (Call v) = do
     putWord8 7
     putJosaList v
-  put (Jmp v) = do
+  put (MakeStruct v) = do
     putWord8 8
-    put v
-  put (PopJmpIfFalse v) = do
+    putJosaList v
+  put (Jmp v) = do
     putWord8 9
     put v
-  put (FreeVar v) = do
+  put (PopJmpIfFalse v) = do
     putWord8 10
+    put v
+  put (FreeVar v) = do
+    putWord8 11
     putWord8List put v
   put Add = do
-    putWord8 11
-  put Subtract = do
     putWord8 12
-  put Multiply = do
+  put Subtract = do
     putWord8 13
-  put Divide = do
+  put Multiply = do
     putWord8 14
-  put Mod = do
+  put Divide = do
     putWord8 15
-  put Equal = do
+  put Mod = do
     putWord8 16
-  put LessThan = do
+  put Equal = do
     putWord8 17
-  put GreaterThan = do
+  put LessThan = do
     putWord8 18
-  put Negate = do
+  put GreaterThan = do
     putWord8 19
-  put LogicNot = do
+  put Negate = do
     putWord8 20
-  put LogicAnd = do
+  put LogicNot = do
     putWord8 21
-  put LogicOr = do
+  put LogicAnd = do
     putWord8 22
+  put LogicOr = do
+    putWord8 23
   get = do
     inst <- get :: Get Word8
     let getterList =
@@ -190,6 +193,7 @@ instance (Binary a) => Binary (Instruction' a) where
             StoreGlobal <$> get,
             LoadGlobal <$> get,
             Call <$> get,
+            MakeStruct <$> get,
             Jmp <$> get,
             PopJmpIfFalse <$> get,
             FreeVar <$> get,
