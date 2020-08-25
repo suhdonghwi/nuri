@@ -263,7 +263,7 @@ spec = do
                 "동작"
                 []
                 ( Seq
-                    [ Left $ funcForward NormalDecl "재귀2",
+                    [ Left $ funcForward "재귀2",
                       Left $ funcDecl NormalDecl "재귀1" [] (funcCall (var "재귀2") []),
                       Left $ funcDecl NormalDecl "재귀2" [] (funcCall (var "재귀1") []),
                       Right $ funcCall (var "재귀1") []

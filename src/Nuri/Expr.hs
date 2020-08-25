@@ -8,23 +8,23 @@ data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
   deriving (Eq, Show)
 
 data DeclType
-  = FuncDecl [(Text, Text)] Expr
+  = FuncDecl DeclKind [(Text, Text)] Expr
   | ConstDecl Expr
   deriving (Eq, Show)
 
-data Decl = Decl SourcePos DeclKind Text (Maybe DeclType)
+data Decl = Decl SourcePos Text (Maybe DeclType)
   deriving (Show)
 
 instance Eq Decl where
-  Decl _ k1 n1 t1 == Decl _ k2 n2 t2 = (k1 == k2) && (n1 == n2) && (t1 == t2)
+  Decl _ n1 t1 == Decl _ n2 t2 = (n1 == n2) && (t1 == t2)
 
 instance ASTNode Decl where
-  getSourcePos (Decl pos _ _ _) = pos
+  getSourcePos (Decl pos _ _) = pos
 
-declToExpr :: SourcePos -> DeclKind -> Text -> DeclType -> [(Text, Expr)]
-declToExpr pos _ name t =
+declToExpr :: SourcePos -> Text -> DeclType -> [(Text, Expr)]
+declToExpr pos name t =
   case t of
-    FuncDecl args body -> [(name, Lambda pos name args body)]
+    FuncDecl _ args body -> [(name, Lambda pos name args body)]
     ConstDecl expr -> [(name, expr)]
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
@@ -65,7 +65,7 @@ instance ASTNode Expr where
   getSourcePos (If pos _ _ _) = pos
   getSourcePos (UnaryOp pos _ _) = pos
   getSourcePos (Seq (x :| _)) = case x of
-    Left (Decl pos _ _ _) -> pos
+    Left (Decl pos _ _) -> pos
     Right expr -> getSourcePos expr
   getSourcePos (Lambda pos _ _ _) = pos
 

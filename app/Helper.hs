@@ -1,13 +1,9 @@
 module Helper where
 
-import Control.Lens
-  ( makeLenses,
-    view,
-  )
+import Control.Lens (makeLenses)
 import Control.Lens.TH ()
 import Data.Binary (encode)
 import qualified Data.Set.Ordered as S
-import Data.Text (strip)
 import Haneul.Builder (internalToFuncObject, runBuilder)
 import Haneul.BuilderInternal
   ( BuilderInternal (_internalGlobalVarNames),
@@ -21,10 +17,9 @@ import Nuri.Codegen.Stmt (compileStmts)
 import Nuri.Parse.Error (errorBundlePretty)
 import Nuri.Parse.Stmt (parseStmts)
 import Nuri.Stmt (Stmt)
-import System.IO (hFlush)
 import Text.Megaparsec
   ( eof,
-    runParserT,
+    runParser,
     sourceName,
   )
 import Text.Pretty.Simple (pPrint)
@@ -39,7 +34,7 @@ newtype Repl a = Repl {unRepl :: StateT ReplState IO a}
 
 parseInput :: Text -> String -> MaybeT IO (NonEmpty Stmt)
 parseInput input fileName = do
-  case evalState (runParserT (parseStmts <* eof) fileName input) defaultDecls of
+  case runParser (parseStmts <* eof) fileName input of
     Left err -> do
       (liftIO . putTextLn . toText . errorBundlePretty) err
       hoistMaybe Nothing

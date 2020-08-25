@@ -131,8 +131,8 @@ compileExpr (Seq xs) = do
   let process [] = pass
       process (y : ys) = do
         case y of
-          Left (Decl pos kind name (Just t)) -> do
-            let declList = declToExpr pos kind name t
+          Left (Decl pos name (Just t)) -> do
+            let declList = declToExpr pos name t
             sequence_ (addVarName depth . fst <$> declList)
 
             let register (n, b) = do
@@ -141,7 +141,7 @@ compileExpr (Seq xs) = do
                   tellInst pos (Inst.StoreLocal index)
 
             sequence_ (register <$> declList)
-          Left (Decl _ _ name Nothing) ->
+          Left (Decl _ name Nothing) ->
             addVarName depth name >> pass
           Right expr -> do
             compileExpr expr

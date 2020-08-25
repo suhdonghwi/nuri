@@ -38,7 +38,6 @@ parseSeq = do
   scn
   level <- L.indentGuard scn GT P.pos1
   let parseLine = (Left <$> parseDecl parseExpr) <|> (Right <$> parseExpr)
-  st <- get
   result <-
     sepBy1
       parseLine
@@ -46,7 +45,6 @@ parseSeq = do
 
   void (P.lookAhead $ P.newline >> L.indentGuard scn LT level) <|> P.eof
   when (isLeft $ last result) $ fail "순서 표현식의 마지막은 선언문이 아닌 표현식이어야 합니다."
-  put st
   return $ Seq result
 
 parseIf :: Parser Expr

@@ -348,7 +348,7 @@ spec = do
             첫번째하다
           |]
         )
-        `shouldParse` [ funcForwardStmt VerbDecl "두번째하다",
+        `shouldParse` [ funcForwardStmt "두번째하다",
                         funcDeclStmt VerbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
                         funcDeclStmt VerbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
                         ExprStmt $ funcCall (var "첫번째하다") []
@@ -370,7 +370,7 @@ spec = do
         )
         `shouldParse` [ ExprStmt $
                           Seq
-                            [ Left $ funcForward VerbDecl "두번째하다",
+                            [ Left $ funcForward "두번째하다",
                               Left $ funcDecl VerbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
                               Left $ funcDecl VerbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
                               Right $ funcCall (var "첫번째하다") []

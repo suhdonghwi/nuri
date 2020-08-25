@@ -8,8 +8,8 @@ import Nuri.Expr (Decl (Decl), declToExpr)
 import Nuri.Stmt (Stmt (..))
 
 compileStmt :: Stmt -> Builder ()
-compileStmt (DeclStmt (Decl pos kind name (Just t))) = do
-  let declList = declToExpr pos kind name t
+compileStmt (DeclStmt (Decl pos name (Just t))) = do
+  let declList = declToExpr pos name t
   sequence_ (addGlobalVarName . fst <$> declList)
 
   let register (n, b) = do
@@ -18,7 +18,7 @@ compileStmt (DeclStmt (Decl pos kind name (Just t))) = do
         tellInst pos (Inst.StoreGlobal index)
 
   sequence_ (register <$> declList)
-compileStmt (DeclStmt (Decl _ _ name Nothing)) = addGlobalVarName name >> pass
+compileStmt (DeclStmt (Decl _ name Nothing)) = addGlobalVarName name >> pass
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
   tellInst (getSourcePos stmt) (Inst.Pop)
