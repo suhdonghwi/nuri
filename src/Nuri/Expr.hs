@@ -22,13 +22,6 @@ instance Eq Decl where
 instance ASTNode Decl where
   getSourcePos (Decl pos _ _) = pos
 
-declToExpr :: SourcePos -> Text -> DeclType -> [(Text, Expr)]
-declToExpr pos name t =
-  case t of
-    FuncDecl _ args body -> [(name, Lambda pos name args body)]
-    ConstDecl expr -> [(name, expr)]
-    StructDecl _ -> [] -- TODO: field getter 정의 추가하도록 수정
-
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
   = Lit SourcePos Literal
   | -- 변수 읽기 표현식 : 코드 위치, 변수명

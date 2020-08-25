@@ -40,9 +40,9 @@ import Nuri.ASTNode (ASTNode (getSourcePos))
 import Nuri.Expr
   ( BinaryOperator (..),
     Decl (Decl),
+    DeclType (..),
     Expr (..),
     UnaryOperator (LogicNot, Negative, Positive),
-    declToExpr,
   )
 import Nuri.Literal (Literal (..))
 import Text.Megaparsec.Pos (SourcePos, sourceLine, sourceName)
@@ -135,8 +135,8 @@ compileExpr (Seq xs) = do
             let declList = declToExpr pos name t
             sequence_ (addVarName depth . fst <$> declList)
 
-            let register (n, b) = do
-                  compileExpr b
+            let register (n, build) = do
+                  build
                   index <- addVarName depth n
                   tellInst pos (Inst.StoreLocal index)
 
@@ -202,3 +202,10 @@ lambdaToFuncObject pos name args body = do
           _funcFilePath = sourceName pos
         }
     )
+
+declToExpr :: SourcePos -> Text -> DeclType -> [(Text, Builder ())]
+declToExpr pos name t =
+  case t of
+    FuncDecl _ args body -> [(name, compileExpr $ Lambda pos name args body)]
+    ConstDecl expr -> [(name, compileExpr expr)]
+    StructDecl _ -> [] -- TODO: field getter 정의 추가하도록 수정
