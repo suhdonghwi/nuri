@@ -1,9 +1,10 @@
 Usage:
   nuri --help | -h
   nuri --version | -v
-  nuri <file> [--debug | -d]
+  nuri <file> [--debug | -d] [--haneul=<path>]
 
 Options:
-  -h, --help        도움말을 출력합니다.
-  -v, --version     누리 실행기의 버전을 출력합니다.
-  -d, --debug       디버그용 출력을 활성화합니다. 
+  -h, --help             도움말을 출력합니다.
+  -v, --version          누리 실행기의 버전을 출력합니다.
+  -d, --debug            디버그용 출력을 활성화합니다. 
+  --haneul=<path>   하늘 가상머신 실행 파일의 경로를 설정합니다.

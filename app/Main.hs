@@ -11,6 +11,7 @@ import System.Console.Docopt
     argument,
     docoptFile,
     getArg,
+    getArgWithDefault,
     isPresent,
     longOption,
     parseArgs,
@@ -34,6 +35,7 @@ runCommand opts = do
   when (opts `isPresent` (argument "file")) $ do
     let filePath = fromJust $ opts `getArg` (argument "file")
         isDebug = opts `isPresent` (longOption "debug")
+        haneulPath = getArgWithDefault opts "./haneul" (longOption "haneul")
 
     exists <- doesFileExist filePath
     when (not exists) $ do
@@ -45,7 +47,7 @@ runCommand opts = do
 
     let bytecodeFileName = replaceExtension filePath ".hn"
     whenJust result (compileResult isDebug bytecodeFileName)
-    callCommand $ "../haneul/target-c " ++ bytecodeFileName
+    callCommand $ haneulPath ++ " " ++ bytecodeFileName
 
 helpMessage :: Text
 helpMessage =
@@ -55,12 +57,14 @@ helpMessage =
       "사용법:",
       "  nuri --help | -h",
       "  nuri --version | -v",
-      "  nuri <파일명> [--debug | -d]",
+      "  nuri <파일명> [--debug | -d] [--haneul=<path>]",
       "",
       "옵션:",
-      "  -h, --help      도움말을 출력합니다.",
-      "  -v, --version   누리 실행기의 버전을 출력합니다.",
-      "  -d, --debug     디버그용 출력을 활성화합니다."
+      "  -h, --help        도움말을 출력합니다.",
+      "  -v, --version     누리 실행기의 버전을 출력합니다.",
+      "  -d, --debug       디버그용 출력을 활성화합니다.",
+      "  --haneul=<path>   하늘 가상머신 실행 파일의 경로를 설정합니다.",
+      "                    [기본 : './haneul']"
     ]
 
 main :: IO ()
