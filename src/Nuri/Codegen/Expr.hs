@@ -210,17 +210,27 @@ declToExpr pos name t =
     FuncDecl _ args body -> [(name, compileExpr $ Lambda pos name args body)]
     ConstDecl expr -> [(name, compileExpr expr)]
     StructDecl fields ->
-      [ ( name,
-          do
-            let args = dup <$> fields
-                makeStructBody = do
-                  sequence_ ((compileExpr . Var pos) <$> fields)
-                  tellInst pos (Inst.MakeStruct fields)
+      let fieldGetter field =
+            ( field,
+              do
+                let fieldGetterBody = do
+                      compileExpr (Var pos "구조체")
+                      tellInst pos (Inst.GetField field)
+                (_, funcObject) <- lambdaToFuncObject pos field [("구조체", "의")] fieldGetterBody
+                index <- addConstant (ConstFunc funcObject)
+                tellInst pos (Inst.Push index)
+            )
+       in ( name,
+            do
+              let args = dup <$> fields
+                  makeStructBody = do
+                    sequence_ ((compileExpr . Var pos) <$> fields)
+                    tellInst pos (Inst.MakeStruct fields)
 
-            (_, funcObject) <- lambdaToFuncObject pos name args makeStructBody
-            index <- addConstant (ConstFunc funcObject)
-            tellInst pos (Inst.Push index)
-        )
-      ]
+              (_, funcObject) <- lambdaToFuncObject pos name args makeStructBody
+              index <- addConstant (ConstFunc funcObject)
+              tellInst pos (Inst.Push index)
+          ) :
+          (fieldGetter <$> fields)
 
 -- TODO: field getter 정의 추가하도록 수정

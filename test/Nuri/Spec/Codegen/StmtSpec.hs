@@ -360,10 +360,23 @@ spec = do
                                         Inst.MakeStruct ["이름"]
                                       ]
                                   }
+                              ),
+                            ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["의"],
+                                    _funcName = "이름",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.GetField "이름"
+                                      ]
+                                  }
                               )
                           ],
                         [ Inst.Push 0,
-                          Inst.StoreGlobal 0
+                          Inst.StoreGlobal 0,
+                          Inst.Push 1,
+                          Inst.StoreGlobal 1
                         ]
                       )
     it "필드가 3개인 구조체 선언문" $ do
@@ -382,9 +395,48 @@ spec = do
                                         Inst.MakeStruct ["이름", "키", "성별"]
                                       ]
                                   }
+                              ),
+                            ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["의"],
+                                    _funcName = "이름",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.GetField "이름"
+                                      ]
+                                  }
+                              ),
+                            ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["의"],
+                                    _funcName = "키",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.GetField "키"
+                                      ]
+                                  }
+                              ),
+                            ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["의"],
+                                    _funcName = "성별",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.GetField "성별"
+                                      ]
+                                  }
                               )
                           ],
                         [ Inst.Push 0,
-                          Inst.StoreGlobal 0
+                          Inst.StoreGlobal 0,
+                          Inst.Push 1,
+                          Inst.StoreGlobal 1,
+                          Inst.Push 2,
+                          Inst.StoreGlobal 2,
+                          Inst.Push 3,
+                          Inst.StoreGlobal 3
                         ]
                       )

@@ -281,11 +281,24 @@ spec = do
                                       ]
                                   }
                               ),
+                            ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["의"],
+                                    _funcName = "이름",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.GetField "이름"
+                                      ]
+                                  }
+                              ),
                             ConstInteger 10
                           ],
                         [ Inst.Push 0,
                           Inst.StoreLocal 0,
                           Inst.Push 1,
+                          Inst.StoreLocal 1,
+                          Inst.Push 2,
                           Inst.LoadLocal 0,
                           Inst.Call ["이름"]
                         ]
@@ -311,6 +324,39 @@ spec = do
                                       ]
                                   }
                               ),
+                            ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["의"],
+                                    _funcName = "이름",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.GetField "이름"
+                                      ]
+                                  }
+                              ),
+                            ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["의"],
+                                    _funcName = "키",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.GetField "키"
+                                      ]
+                                  }
+                              ),
+                            ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["의"],
+                                    _funcName = "성별",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.GetField "성별"
+                                      ]
+                                  }
+                              ),
                             ConstInteger 10,
                             ConstInteger 170,
                             ConstInteger 0
@@ -318,8 +364,14 @@ spec = do
                         [ Inst.Push 0,
                           Inst.StoreLocal 0,
                           Inst.Push 1,
+                          Inst.StoreLocal 1,
                           Inst.Push 2,
+                          Inst.StoreLocal 2,
                           Inst.Push 3,
+                          Inst.StoreLocal 3,
+                          Inst.Push 4,
+                          Inst.Push 5,
+                          Inst.Push 6,
                           Inst.LoadLocal 0,
                           Inst.Call ["성별", "키", "이름"]
                         ]
