@@ -1,0 +1,3 @@
+[submodule "haneul"]
+	path = haneul
+	url = https://github.com/suhdonghwi/haneul.git
