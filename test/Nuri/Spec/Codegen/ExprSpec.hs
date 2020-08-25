@@ -261,3 +261,66 @@ spec = do
                           Inst.Add
                         ]
                       )
+  describe "구조체 선언문 코드 생성" $ do
+    it "필드가 1개인 구조체 선언문" $ do
+      compileExpr
+        ( Seq
+            [ Left $ structDecl "사람" ["이름"],
+              Right $ funcCall (var "사람") [(litInteger 10, "이름")]
+            ]
+        )
+        `shouldBuild` ( S.fromList
+                          [ ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["이름"],
+                                    _funcName = "사람",
+                                    _funcStackSize = 1,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.MakeStruct ["이름"]
+                                      ]
+                                  }
+                              ),
+                            ConstInteger 10
+                          ],
+                        [ Inst.Push 0,
+                          Inst.StoreLocal 0,
+                          Inst.Push 1,
+                          Inst.LoadLocal 0,
+                          Inst.Call ["이름"]
+                        ]
+                      )
+    it "필드가 3개인 구조체 선언문" $ do
+      compileExpr
+        ( Seq
+            [ Left $ structDecl "사람" ["이름", "키", "성별"],
+              Right $ funcCall (var "사람") [(litInteger 10, "이름"), (litInteger 170, "키"), (litInteger 0, "성별")]
+            ]
+        )
+        `shouldBuild` ( S.fromList
+                          [ ConstFunc
+                              ( funcObject
+                                  { _funcJosa = ["이름", "키", "성별"],
+                                    _funcName = "사람",
+                                    _funcStackSize = 3,
+                                    _funcCode =
+                                      [ Inst.LoadLocal 0,
+                                        Inst.LoadLocal 1,
+                                        Inst.LoadLocal 2,
+                                        Inst.MakeStruct ["이름", "키", "성별"]
+                                      ]
+                                  }
+                              ),
+                            ConstInteger 10,
+                            ConstInteger 170,
+                            ConstInteger 0
+                          ],
+                        [ Inst.Push 0,
+                          Inst.StoreLocal 0,
+                          Inst.Push 1,
+                          Inst.Push 2,
+                          Inst.Push 3,
+                          Inst.LoadLocal 0,
+                          Inst.Call ["성별", "키", "이름"]
+                        ]
+                      )

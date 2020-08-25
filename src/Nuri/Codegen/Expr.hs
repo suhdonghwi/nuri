@@ -45,6 +45,7 @@ import Nuri.Expr
     UnaryOperator (LogicNot, Negative, Positive),
   )
 import Nuri.Literal (Literal (..))
+import Relude.Extra.Tuple (dup)
 import Text.Megaparsec.Pos (SourcePos, sourceLine, sourceName)
 
 litToConst :: Literal -> Constant
@@ -158,7 +159,7 @@ compileExpr (Seq xs) = do
 
   modifying internalDepth (`subtract` 1)
 compileExpr (Lambda pos name args body) = do
-  (internal, funcObject) <- lambdaToFuncObject pos name args body
+  (internal, funcObject) <- lambdaToFuncObject pos name args (compileExpr body)
 
   index <- addConstant (ConstFunc funcObject)
   tellInst pos (Inst.Push index)
@@ -179,7 +180,7 @@ compileExpr (Lambda pos name args body) = do
   when ((not . null) processed) $ tellInst pos (Inst.FreeVar processed)
 
 lambdaToFuncObject ::
-  SourcePos -> Text -> [(Text, Text)] -> Expr -> Builder (BuilderInternal, FuncObject)
+  SourcePos -> Text -> [(Text, Text)] -> Builder () -> Builder (BuilderInternal, FuncObject)
 lambdaToFuncObject pos name args body = do
   localVars <- use internalLocalVars
   oldLocalStack <- ask
@@ -188,7 +189,7 @@ lambdaToFuncObject pos name args body = do
         execRWS
           ( do
               sequence_ (addVarName 0 . fst <$> args)
-              compileExpr body
+              body
           )
           (newLocalStack : oldLocalStack)
           (defaultInternal {_internalLastLine = sourceLine pos})
@@ -208,4 +209,18 @@ declToExpr pos name t =
   case t of
     FuncDecl _ args body -> [(name, compileExpr $ Lambda pos name args body)]
     ConstDecl expr -> [(name, compileExpr expr)]
-    StructDecl _ -> [] -- TODO: field getter 정의 추가하도록 수정
+    StructDecl fields ->
+      [ ( name,
+          do
+            let args = dup <$> fields
+                makeStructBody = do
+                  sequence_ ((compileExpr . Var pos) <$> fields)
+                  tellInst pos (Inst.MakeStruct fields)
+
+            (_, funcObject) <- lambdaToFuncObject pos name args makeStructBody
+            index <- addConstant (ConstFunc funcObject)
+            tellInst pos (Inst.Push index)
+        )
+      ]
+
+-- TODO: field getter 정의 추가하도록 수정
