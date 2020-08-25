@@ -99,6 +99,7 @@ unmarkInst internal inst = case inst of
   LoadGlobal v -> LoadGlobal v
   Call v -> Call v
   MakeStruct v -> MakeStruct v
+  GetField v -> GetField v
   FreeVar v -> FreeVar v
   Add -> Add
   Subtract -> Subtract

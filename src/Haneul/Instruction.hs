@@ -10,6 +10,7 @@ data Instruction' a
   | LoadGlobal Word32
   | Call [Text]
   | MakeStruct [Text]
+  | GetField Text
   | Jmp a
   | PopJmpIfFalse a
   | FreeVar [(Bool, Word8)]
@@ -60,6 +61,7 @@ estimateStackSize input = sizeLoop 0 0 0 input
       LoadGlobal _ -> 1
       Call args -> - genericLength args
       MakeStruct fields -> - genericLength fields
+      GetField _ -> 0
       Jmp _ -> 0
       PopJmpIfFalse _ -> -1
       FreeVar _ -> 0

@@ -82,8 +82,11 @@ putWord8List f l = do
   putWord8 (genericLength l)
   sequence_ (f <$> l)
 
+putJosa :: Text -> Put
+putJosa = putWord8List (put :: Char -> Put) . unpack
+
 putJosaList :: [Text] -> Put
-putJosaList = putWord8List (putWord8List (put :: Char -> Put) . unpack)
+putJosaList = putWord8List putJosa
 
 instance Binary FuncObject where
   put obj = do
@@ -150,39 +153,42 @@ instance (Binary a) => Binary (Instruction' a) where
   put (MakeStruct v) = do
     putWord8 8
     putJosaList v
-  put (Jmp v) = do
+  put (GetField v) = do
     putWord8 9
-    put v
-  put (PopJmpIfFalse v) = do
+    putJosa v
+  put (Jmp v) = do
     putWord8 10
     put v
-  put (FreeVar v) = do
+  put (PopJmpIfFalse v) = do
     putWord8 11
+    put v
+  put (FreeVar v) = do
+    putWord8 12
     putWord8List put v
   put Add = do
-    putWord8 12
-  put Subtract = do
     putWord8 13
-  put Multiply = do
+  put Subtract = do
     putWord8 14
-  put Divide = do
+  put Multiply = do
     putWord8 15
-  put Mod = do
+  put Divide = do
     putWord8 16
-  put Equal = do
+  put Mod = do
     putWord8 17
-  put LessThan = do
+  put Equal = do
     putWord8 18
-  put GreaterThan = do
+  put LessThan = do
     putWord8 19
-  put Negate = do
+  put GreaterThan = do
     putWord8 20
-  put LogicNot = do
+  put Negate = do
     putWord8 21
-  put LogicAnd = do
+  put LogicNot = do
     putWord8 22
-  put LogicOr = do
+  put LogicAnd = do
     putWord8 23
+  put LogicOr = do
+    putWord8 24
   get = do
     inst <- get :: Get Word8
     let getterList =
@@ -195,6 +201,7 @@ instance (Binary a) => Binary (Instruction' a) where
             LoadGlobal <$> get,
             Call <$> get,
             MakeStruct <$> get,
+            GetField <$> get,
             Jmp <$> get,
             PopJmpIfFalse <$> get,
             FreeVar <$> get,
