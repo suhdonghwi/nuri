@@ -13,7 +13,7 @@ import Nuri.Parse
     sc,
     symbol,
   )
-import Nuri.Parse.Util (funcIdentifier)
+import Nuri.Parse.Util (funcIdentifier, parseJosa)
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
@@ -30,17 +30,23 @@ parseNonLexemeTerm parseExpr =
     <|> P.try (parseRealExpr)
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
-    <|> P.try (parseParenCall parseExpr)
+    <|> (parseParenCall parseExpr)
     <|> parseParens parseExpr
 
 parseParenCall :: Parser Expr -> Parser Expr
 parseParenCall expr = do
   pos <- P.getSourcePos
-  funcName <- funcIdentifier
-  args <- parseParens parseArguments
-  return $ FuncCall pos (Var pos funcName) ((,"_") <$> args)
+  funcName <- P.try $ funcIdentifier <* (P.char '(' >> sc)
+  args <- parseArguments <* (sc >> P.char ')')
+  return $ FuncCall pos (Var pos funcName) args
   where
-    parseArguments = expr `P.sepBy` (symbol ",")
+    parseNamedArgument = do
+      argName <- P.try $ (parseJosa <?> "인자 이름") <* symbol ":"
+      value <- expr
+      return (value, argName)
+    parseArgument = (,"_") <$> expr
+
+    parseArguments = (parseNamedArgument <|> parseArgument) `P.sepBy` (symbol ",")
 
 parseParens :: Parser a -> Parser a
 parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr

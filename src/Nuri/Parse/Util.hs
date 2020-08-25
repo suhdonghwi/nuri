@@ -33,7 +33,7 @@ parseJosa :: Parser Text
 parseJosa =
   ( do
       P.notFollowedBy parseKeyword
-      josa <- toText <$> P.some hangulSyllable
+      josa <- parseFuncIdentifier
       return
         ( case josa of
             "으로" -> "로"

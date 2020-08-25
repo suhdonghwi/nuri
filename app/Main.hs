@@ -43,11 +43,14 @@ runCommand opts = do
       exitFailure
 
     content <- readFileText filePath
-    result <- runMaybeT $ parseInput content filePath
+    result' <- runMaybeT $ parseInput content filePath
 
-    let bytecodeFileName = replaceExtension filePath ".hn"
-    whenJust result (compileResult isDebug bytecodeFileName)
-    callCommand $ haneulPath ++ " " ++ bytecodeFileName
+    case result' of
+      Nothing -> exitSuccess
+      Just result -> do
+        let bytecodeFileName = replaceExtension filePath ".hn"
+        compileResult isDebug bytecodeFileName result
+        callCommand $ haneulPath ++ " " ++ bytecodeFileName
 
 helpMessage :: Text
 helpMessage =
