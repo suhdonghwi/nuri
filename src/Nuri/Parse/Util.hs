@@ -17,6 +17,7 @@ parseKeyword = P.choice $ reserved <$> keywords
       [ "함수",
         "동사",
         "형용사",
+        "구조체",
         "없음",
         "참",
         "거짓",

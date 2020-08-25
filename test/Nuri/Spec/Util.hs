@@ -43,3 +43,7 @@ funcForwardStmt name = DeclStmt $ Decl initPos name Nothing
 constDecl name expr = Decl initPos name (Just $ ConstDecl expr)
 
 constDeclStmt = (DeclStmt .) . constDecl
+
+structDecl name fields = Decl initPos name (Just $ StructDecl fields)
+
+structDeclStmt = (DeclStmt .) . structDecl

@@ -10,6 +10,7 @@ data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
 data DeclType
   = FuncDecl DeclKind [(Text, Text)] Expr
   | ConstDecl Expr
+  | StructDecl [Text]
   deriving (Eq, Show)
 
 data Decl = Decl SourcePos Text (Maybe DeclType)
@@ -26,6 +27,7 @@ declToExpr pos name t =
   case t of
     FuncDecl _ args body -> [(name, Lambda pos name args body)]
     ConstDecl expr -> [(name, expr)]
+    StructDecl _ -> [] -- TODO: field getter 정의 추가하도록 수정
 
 data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
   = Lit SourcePos Literal

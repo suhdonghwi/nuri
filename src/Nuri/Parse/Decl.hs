@@ -4,7 +4,7 @@ import qualified Data.Text as T
 import Nuri.Expr
   ( Decl (..),
     DeclKind (..),
-    DeclType (ConstDecl, FuncDecl),
+    DeclType (ConstDecl, FuncDecl, StructDecl),
     Expr,
   )
 import Nuri.Parse
@@ -17,10 +17,11 @@ import Nuri.Parse
   )
 import Nuri.Parse.Term (parseIdentifier)
 import Nuri.Parse.Util (parseFuncIdentifier, parseJosa)
+import Text.Megaparsec
 import qualified Text.Megaparsec as P
 
 parseDecl :: Parser Expr -> Parser Decl
-parseDecl e = parseConstDecl e <|> parseFuncDecl e
+parseDecl e = parseConstDecl e <|> parseFuncDecl e <|> parseStructDecl
 
 parseDeclKind :: Parser DeclKind
 parseDeclKind =
@@ -83,3 +84,11 @@ parseConstDecl parseExpr = do
   reserved "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
   Decl pos identifier <$> Just . ConstDecl <$> parseExpr
+
+parseStructDecl :: Parser Decl
+parseStructDecl = do
+  pos <- P.getSourcePos
+  reserved "구조체"
+  identifier <- lexeme parseFuncIdentifier <* symbol ":"
+  fields <- parseFuncIdentifier `sepBy1` symbol ","
+  return $ Decl pos identifier (Just $ StructDecl fields)
