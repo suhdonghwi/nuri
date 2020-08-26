@@ -296,11 +296,31 @@ spec = do
     it "잘못된 동사 활용을 한 식" $ do
       testParse parseNestedFuncCalls `shouldFailOn` "4와 2를 더하다, 2로 나누다"
 
+  describe "리스트 표현식 파싱" $ do
+    it "비어있는 리스트" $ do
+      testParse (parseList parseExpr) "{}" `shouldParse` litNone
+      testParse (parseList parseExpr) "{ }" `shouldParse` litNone
+    it "원소가 1개인 리스트" $ do
+      testParse (parseList parseExpr) "{1}"
+        `shouldParse` struct "목록" [("첫번째", litInteger 1), ("나머지", litNone)]
+      testParse (parseList parseExpr) "{ 1 + 2}"
+        `shouldParse` struct "목록" [("첫번째", binaryOp Add (litInteger 1) (litInteger 2)), ("나머지", litNone)]
+    it "원소가 2개 이상인 리스트" $ do
+      testParse (parseList parseExpr) "{1, 2}"
+        `shouldParse` struct "목록" [("첫번째", litInteger 1), ("나머지", struct "목록" [("첫번째", litInteger 2), ("나머지", litNone)])]
+      testParse (parseList parseExpr) "{ 1 + 2,3}"
+        `shouldParse` struct "목록" [("첫번째", binaryOp Add (litInteger 1) (litInteger 2)), ("나머지", struct "목록" [("첫번째", litInteger 3), ("나머지", litNone)])]
+      testParse (parseList parseExpr) "{1, 2,3}"
+        `shouldParse` struct "목록" [("첫번째", litInteger 1), ("나머지", struct "목록" [("첫번째", litInteger 2), ("나머지", struct "목록" [("첫번째", litInteger 3), ("나머지", litNone)])])]
+    it "콤마가 잘못된 위치에 있는 리스트에 대해서 오류" $ do
+      testParse (parseList parseExpr) `shouldFailOn` "{,}"
+      testParse (parseList parseExpr) `shouldFailOn` "{1,}"
+
   describe "조건식 파싱" $ do
-    it "단순 조건식 파싱" $ do
+    it "단순 조건식" $ do
       testParse parseIf "만약 참 이라면 1 아니라면 2"
         `shouldParse` ifExpr (litBool True) (litInteger 1) (litInteger 2)
-    it "연산식이 포함된 조건식 파싱" $ do
+    it "연산식이 포함된 조건식" $ do
       testParse parseIf "만약 1 + 2 이라면 1 * 2 아니라면 2 / 3"
         `shouldParse` ifExpr
           (binaryOp Add (litInteger 1) (litInteger 2))

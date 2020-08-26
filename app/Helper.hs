@@ -4,6 +4,7 @@ import Control.Lens (makeLenses)
 import Control.Lens.TH ()
 import Data.Binary (encode)
 import qualified Data.Set.Ordered as S
+import Default (defineDefaults)
 import Haneul.Builder (internalToFuncObject, runBuilder)
 import Haneul.BuilderInternal
   ( BuilderInternal (_internalGlobalVarNames),
@@ -44,13 +45,11 @@ compileResult :: Bool -> String -> (NonEmpty Stmt) -> IO ()
 compileResult isDebug dest stmts = do
   let program' =
         ( internalToFuncObject
-            . runBuilder
-              defaultInternal
-                { _internalGlobalVarNames = S.fromList (snd <$> defaultDecls)
-                }
-            . compileStmts
+            . runBuilder defaultInternal {_internalGlobalVarNames = S.fromList (snd <$> defaultDecls)}
         )
-          stmts
+          $ do
+            defineDefaults
+            compileStmts stmts
       program = program' {_funcFilePath = sourceName (getSourcePos $ head stmts)}
 
   when isDebug $ do

@@ -30,9 +30,20 @@ parseNonLexemeTerm parseExpr =
     <|> P.try (parseRealExpr)
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
+    <|> parseList parseExpr
     <|> P.try (parseStruct parseExpr)
     <|> parseParenCall parseExpr
     <|> parseParens parseExpr
+
+parseList :: Parser Expr -> Parser Expr
+parseList expr = do
+  pos <- P.getSourcePos
+  elements <- brackets (expr `P.sepBy` symbol ",")
+  let toListStruct [] = Lit pos LitNone
+      toListStruct (x : xs) = Struct pos "목록" [("첫번째", x), ("나머지", toListStruct xs)]
+  return $ toListStruct elements
+  where
+    brackets = P.between (symbol "{") (symbol "}")
 
 parseStruct :: Parser Expr -> Parser Expr
 parseStruct expr = do
