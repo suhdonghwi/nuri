@@ -62,7 +62,7 @@ estimateStackSize input = sizeLoop 0 0 0 input
       LoadGlobal _ -> 1
       Call args -> - genericLength args
       AddStruct _ _ -> 0
-      MakeStruct _ fields -> - genericLength fields
+      MakeStruct _ fields -> (- genericLength fields) + 1
       GetField _ -> 0
       Jmp _ -> 0
       PopJmpIfFalse _ -> -1
