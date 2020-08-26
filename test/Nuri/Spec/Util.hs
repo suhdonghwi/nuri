@@ -32,6 +32,8 @@ funcCall = FuncCall initPos
 
 lambda = Lambda initPos ""
 
+struct = Struct initPos
+
 funcDecl kind name args body = Decl initPos name $ Just (FuncDecl kind args body)
 
 funcDeclStmt = (((DeclStmt .) .) .) . funcDecl

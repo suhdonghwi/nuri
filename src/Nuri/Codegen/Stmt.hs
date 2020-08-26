@@ -4,12 +4,16 @@ import Haneul.Builder (Builder, addGlobalVarName, tellInst)
 import qualified Haneul.Instruction as Inst
 import Nuri.ASTNode (ASTNode (getSourcePos))
 import Nuri.Codegen.Expr (compileExpr, declToExpr)
-import Nuri.Expr (Decl (Decl))
+import Nuri.Expr (Decl (Decl), DeclType (StructDecl))
 import Nuri.Stmt (Stmt (..))
 
 compileStmt :: Stmt -> Builder ()
 compileStmt (DeclStmt (Decl pos name (Just t))) = do
   let declList = declToExpr pos name t
+  case t of
+    StructDecl fields -> tellInst pos (Inst.AddStruct name fields)
+    _ -> pass
+
   sequence_ (addGlobalVarName . fst <$> declList)
 
   let register (n, build) = do

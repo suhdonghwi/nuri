@@ -352,17 +352,6 @@ spec = do
         `shouldBuild` ( S.fromList
                           [ ConstFunc
                               ( funcObject
-                                  { _funcJosa = ["이름"],
-                                    _funcName = "사람",
-                                    _funcStackSize = 1,
-                                    _funcCode =
-                                      [ Inst.LoadLocal 0,
-                                        Inst.MakeStruct ["이름"]
-                                      ]
-                                  }
-                              ),
-                            ConstFunc
-                              ( funcObject
                                   { _funcJosa = ["의"],
                                     _funcName = "이름",
                                     _funcStackSize = 1,
@@ -373,10 +362,9 @@ spec = do
                                   }
                               )
                           ],
-                        [ Inst.Push 0,
-                          Inst.StoreGlobal 0,
-                          Inst.Push 1,
-                          Inst.StoreGlobal 1
+                        [ Inst.AddStruct "사람" ["이름"],
+                          Inst.Push 0,
+                          Inst.StoreGlobal 0
                         ]
                       )
     it "필드가 3개인 구조체 선언문" $ do
@@ -384,19 +372,6 @@ spec = do
         (structDeclStmt "사람" ["이름", "키", "성별"])
         `shouldBuild` ( S.fromList
                           [ ConstFunc
-                              ( funcObject
-                                  { _funcJosa = ["이름", "키", "성별"],
-                                    _funcName = "사람",
-                                    _funcStackSize = 3,
-                                    _funcCode =
-                                      [ Inst.LoadLocal 0,
-                                        Inst.LoadLocal 1,
-                                        Inst.LoadLocal 2,
-                                        Inst.MakeStruct ["성별", "키", "이름"]
-                                      ]
-                                  }
-                              ),
-                            ConstFunc
                               ( funcObject
                                   { _funcJosa = ["의"],
                                     _funcName = "이름",
@@ -430,13 +405,12 @@ spec = do
                                   }
                               )
                           ],
-                        [ Inst.Push 0,
+                        [ Inst.AddStruct "사람" ["이름", "키", "성별"],
+                          Inst.Push 0,
                           Inst.StoreGlobal 0,
                           Inst.Push 1,
                           Inst.StoreGlobal 1,
                           Inst.Push 2,
-                          Inst.StoreGlobal 2,
-                          Inst.Push 3,
-                          Inst.StoreGlobal 3
+                          Inst.StoreGlobal 2
                         ]
                       )

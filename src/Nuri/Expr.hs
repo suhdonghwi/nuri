@@ -38,6 +38,8 @@ data Expr -- 리터럴 표현식 : 코드 위치, 리터럴 값
     Seq (NonEmpty (Either Decl Expr))
   | -- 람다 표현식 : 코드 위치, 함수 이름, 인수 목록, 함수 본문
     Lambda SourcePos Text [(Text, Text)] Expr
+  | -- 구조체 표현식 : 코드 위치, 구조체 이름, 필드 & 값 쌍
+    Struct SourcePos Text [(Text, Expr)]
   deriving (Show)
 
 instance Eq Expr where
@@ -63,6 +65,7 @@ instance ASTNode Expr where
     Left (Decl pos _ _) -> pos
     Right expr -> getSourcePos expr
   getSourcePos (Lambda pos _ _ _) = pos
+  getSourcePos (Struct pos _ _) = pos
 
 data BinaryOperator
   = Add

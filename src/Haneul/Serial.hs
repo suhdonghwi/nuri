@@ -150,9 +150,14 @@ instance (Binary a) => Binary (Instruction' a) where
   put (Call v) = do
     putWord8 7
     putJosaList v
-  put (MakeStruct v) = do
+  put (AddStruct v1 v2) = do
     putWord8 8
-    putJosaList v
+    putJosa v1
+    putJosaList v2
+  put (MakeStruct v1 v2) = do
+    putWord8 8
+    putJosa v1
+    putJosaList v2
   put (GetField v) = do
     putWord8 9
     putJosa v
@@ -200,7 +205,8 @@ instance (Binary a) => Binary (Instruction' a) where
             StoreGlobal <$> get,
             LoadGlobal <$> get,
             Call <$> get,
-            MakeStruct <$> get,
+            AddStruct <$> get <*> get,
+            MakeStruct <$> get <*> get,
             GetField <$> get,
             Jmp <$> get,
             PopJmpIfFalse <$> get,

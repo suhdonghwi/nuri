@@ -266,22 +266,11 @@ spec = do
       compileExpr
         ( Seq
             [ Left $ structDecl "사람" ["이름"],
-              Right $ funcCall (var "사람") [(litInteger 10, "이름")]
+              Right $ struct "사람" [("이름", litInteger 10)]
             ]
         )
         `shouldBuild` ( S.fromList
                           [ ConstFunc
-                              ( funcObject
-                                  { _funcJosa = ["이름"],
-                                    _funcName = "사람",
-                                    _funcStackSize = 1,
-                                    _funcCode =
-                                      [ Inst.LoadLocal 0,
-                                        Inst.MakeStruct ["이름"]
-                                      ]
-                                  }
-                              ),
-                            ConstFunc
                               ( funcObject
                                   { _funcJosa = ["의"],
                                     _funcName = "이름",
@@ -294,37 +283,22 @@ spec = do
                               ),
                             ConstInteger 10
                           ],
-                        [ Inst.Push 0,
+                        [ Inst.AddStruct "사람" ["이름"],
+                          Inst.Push 0,
                           Inst.StoreLocal 0,
                           Inst.Push 1,
-                          Inst.StoreLocal 1,
-                          Inst.Push 2,
-                          Inst.LoadLocal 0,
-                          Inst.Call ["이름"]
+                          Inst.MakeStruct "사람" ["이름"]
                         ]
                       )
     it "필드가 3개인 구조체 선언문" $ do
       compileExpr
         ( Seq
             [ Left $ structDecl "사람" ["이름", "키", "성별"],
-              Right $ funcCall (var "사람") [(litInteger 10, "이름"), (litInteger 170, "키"), (litInteger 0, "성별")]
+              Right $ struct "사람" [("이름", litInteger 10), ("키", litInteger 170), ("성별", litInteger 0)]
             ]
         )
         `shouldBuild` ( S.fromList
                           [ ConstFunc
-                              ( funcObject
-                                  { _funcJosa = ["이름", "키", "성별"],
-                                    _funcName = "사람",
-                                    _funcStackSize = 3,
-                                    _funcCode =
-                                      [ Inst.LoadLocal 0,
-                                        Inst.LoadLocal 1,
-                                        Inst.LoadLocal 2,
-                                        Inst.MakeStruct ["성별", "키", "이름"]
-                                      ]
-                                  }
-                              ),
-                            ConstFunc
                               ( funcObject
                                   { _funcJosa = ["의"],
                                     _funcName = "이름",
@@ -361,18 +335,16 @@ spec = do
                             ConstInteger 170,
                             ConstInteger 0
                           ],
-                        [ Inst.Push 0,
+                        [ Inst.AddStruct "사람" ["이름", "키", "성별"],
+                          Inst.Push 0,
                           Inst.StoreLocal 0,
                           Inst.Push 1,
                           Inst.StoreLocal 1,
                           Inst.Push 2,
                           Inst.StoreLocal 2,
                           Inst.Push 3,
-                          Inst.StoreLocal 3,
                           Inst.Push 4,
                           Inst.Push 5,
-                          Inst.Push 6,
-                          Inst.LoadLocal 0,
-                          Inst.Call ["성별", "키", "이름"]
+                          Inst.MakeStruct "사람" ["성별", "키", "이름"]
                         ]
                       )

@@ -33,6 +33,20 @@ parseNonLexemeTerm parseExpr =
     <|> (parseParenCall parseExpr)
     <|> parseParens parseExpr
 
+parseStruct :: Parser Expr -> Parser Expr
+parseStruct expr = do
+  pos <- P.getSourcePos
+  structName <- P.try $ funcIdentifier <* (P.char '(' >> sc)
+  args <- parseArguments <* (sc >> P.char ')')
+  return $ Struct pos structName args
+  where
+    parseField = do
+      argName <- P.try $ (parseJosa <?> "인자 이름") <* symbol ":"
+      value <- expr
+      return (argName, value)
+
+    parseArguments = parseField `P.sepBy` (symbol ",")
+
 parseParenCall :: Parser Expr -> Parser Expr
 parseParenCall expr = do
   pos <- P.getSourcePos
@@ -40,13 +54,8 @@ parseParenCall expr = do
   args <- parseArguments <* (sc >> P.char ')')
   return $ FuncCall pos (Var pos funcName) args
   where
-    parseNamedArgument = do
-      argName <- P.try $ (parseJosa <?> "인자 이름") <* symbol ":"
-      value <- expr
-      return (value, argName)
     parseArgument = (,"_") <$> expr
-
-    parseArguments = (parseNamedArgument <|> parseArgument) `P.sepBy` (symbol ",")
+    parseArguments = parseArgument `P.sepBy` (symbol ",")
 
 parseParens :: Parser a -> Parser a
 parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr

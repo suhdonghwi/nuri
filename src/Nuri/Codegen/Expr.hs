@@ -134,6 +134,9 @@ compileExpr (Seq xs) = do
         case y of
           Left (Decl pos name (Just t)) -> do
             let declList = declToExpr pos name t
+            case t of
+              StructDecl fields -> tellInst pos (Inst.AddStruct name fields)
+              _ -> pass
             sequence_ (addVarName depth . fst <$> declList)
 
             let register (n, build) = do
@@ -178,6 +181,13 @@ compileExpr (Lambda pos name args body) = do
 
   processed <- processFreeVar freeVarList
   when ((not . null) processed) $ tellInst pos (Inst.FreeVar processed)
+compileExpr (Struct pos name fields) =
+  do
+    let fieldNames = fst <$> fields
+        values = snd <$> fields
+
+    sequence_ (compileExpr <$> values)
+    tellInst pos (Inst.MakeStruct name (reverse fieldNames))
 
 lambdaToFuncObject ::
   SourcePos -> Text -> [(Text, Text)] -> Builder () -> Builder (BuilderInternal, FuncObject)
@@ -220,17 +230,6 @@ declToExpr pos name t =
                 index <- addConstant (ConstFunc funcObject)
                 tellInst pos (Inst.Push index)
             )
-       in ( name,
-            do
-              let args = dup <$> fields
-                  makeStructBody = do
-                    sequence_ ((compileExpr . Var pos) <$> fields)
-                    tellInst pos (Inst.MakeStruct $ reverse fields)
-
-              (_, funcObject) <- lambdaToFuncObject pos name args makeStructBody
-              index <- addConstant (ConstFunc funcObject)
-              tellInst pos (Inst.Push index)
-          ) :
-          (fieldGetter <$> fields)
+       in (fieldGetter <$> fields)
 
 -- TODO: field getter 정의 추가하도록 수정

@@ -9,7 +9,8 @@ data Instruction' a
   | StoreGlobal Word32
   | LoadGlobal Word32
   | Call [Text]
-  | MakeStruct [Text]
+  | AddStruct Text [Text]
+  | MakeStruct Text [Text]
   | GetField Text
   | Jmp a
   | PopJmpIfFalse a
@@ -60,7 +61,8 @@ estimateStackSize input = sizeLoop 0 0 0 input
       LoadDeref _ -> 1
       LoadGlobal _ -> 1
       Call args -> - genericLength args
-      MakeStruct fields -> - genericLength fields
+      AddStruct _ _ -> 0
+      MakeStruct _ fields -> - genericLength fields
       GetField _ -> 0
       Jmp _ -> 0
       PopJmpIfFalse _ -> -1
