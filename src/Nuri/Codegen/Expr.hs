@@ -133,9 +133,7 @@ compileExpr (Seq xs) = do
         case y of
           Left (Decl pos name (Just t)) -> do
             let declList = declToExpr pos name t
-            case t of
-              StructDecl fields -> tellInst pos (Inst.AddStruct name fields)
-              _ -> pass
+            -- 여기에는 구조체 선언문이 올 수 없음
             sequence_ (addVarName depth . fst <$> declList)
 
             let register (n, build) = do

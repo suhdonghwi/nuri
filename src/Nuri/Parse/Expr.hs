@@ -12,6 +12,8 @@ import Data.List (foldl1')
 import qualified Data.Text as T
 import Nuri.Expr
   ( BinaryOperator (..),
+    Decl (Decl),
+    DeclType (StructDecl),
     Expr (..),
     UnaryOperator (..),
   )
@@ -37,7 +39,17 @@ parseSeq = do
   reserved "순서대로" <* P.newline
   scn
   level <- L.indentGuard scn GT P.pos1
-  let parseLine = (Left <$> parseDecl parseExpr) <|> (Right <$> parseExpr)
+  let parseDeclExceptStruct = do
+        offset <- P.getOffset
+        decl@(Decl _ _ declType) <- parseDecl parseExpr
+        case declType of
+          Just (StructDecl _) -> do
+            P.setOffset offset
+            fail "순서 표현식에는 구조체 선언문이 올 수 없습니다."
+          _ -> pass
+        return decl
+
+      parseLine = (Left <$> parseDeclExceptStruct) <|> (Right <$> parseExpr)
   result <-
     sepBy1
       parseLine

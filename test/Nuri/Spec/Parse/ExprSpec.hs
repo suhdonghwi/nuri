@@ -510,3 +510,12 @@ spec = do
               상수 [수]: 10 + 10
           |]
                        )
+    it "구조체 선언문을 포함한 시퀀스에 대해서 오류" $ do
+      testParse
+        parseSeq
+        `shouldFailOn` ( [text|
+            순서대로
+              구조체 사각형: 가로, 세로
+              1
+          |]
+                       )
