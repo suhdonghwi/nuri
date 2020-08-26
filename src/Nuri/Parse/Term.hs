@@ -30,18 +30,21 @@ parseNonLexemeTerm parseExpr =
     <|> P.try (parseRealExpr)
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
+    <|> parseStringExpr
     <|> parseList parseExpr
     <|> P.try (parseStruct parseExpr)
     <|> parseParenCall parseExpr
     <|> parseParens parseExpr
 
+toListStruct :: P.SourcePos -> [Expr] -> Expr
+toListStruct pos [] = Lit pos LitNone
+toListStruct pos (x : xs) = Struct pos "목록" [("첫번째", x), ("나머지", toListStruct pos xs)]
+
 parseList :: Parser Expr -> Parser Expr
 parseList expr = do
   pos <- P.getSourcePos
   elements <- brackets (expr `P.sepBy` symbol ",")
-  let toListStruct [] = Lit pos LitNone
-      toListStruct (x : xs) = Struct pos "목록" [("첫번째", x), ("나머지", toListStruct xs)]
-  return $ toListStruct elements
+  return $ toListStruct pos elements
   where
     brackets = P.between (symbol "{") (symbol "}")
 
@@ -71,6 +74,15 @@ parseParenCall expr = do
 
 parseParens :: Parser a -> Parser a
 parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr
+
+parseStringExpr :: Parser Expr
+parseStringExpr = do
+  pos <- P.getSourcePos
+  let parseCh = do
+        p <- P.getSourcePos
+        char <- P.notFollowedBy (P.char '"') >> L.charLiteral
+        return $ Lit p (LitChar char)
+  toListStruct pos <$> P.between (P.char '"') (P.char '"') (P.many parseCh)
 
 parseIdentifierExpr :: Parser Expr
 parseIdentifierExpr = do

@@ -55,7 +55,8 @@ instance Binary Constant where
     putDoublebe v
   put (ConstChar v) = do
     putWord8 3
-    put (fromIntegral (ord v) :: Word32)
+    put v
+  -- put (fromIntegral (ord v) :: Word32)
   put (ConstBool v) = do
     putWord8 4
     put v

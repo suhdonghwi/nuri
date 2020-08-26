@@ -205,6 +205,14 @@ spec = do
       testParse parseFuncIdentifier `shouldFailOn` "참"
       testParse parseFuncIdentifier `shouldFailOn` "거짓"
 
+  describe "문자열 파싱" $ do
+    it "비어있는 문자열" $ do
+      testParse parseStringExpr "\"\"" `shouldParse` litNone
+    it "문자가 1개인 문자열" $ do
+      testParse parseStringExpr "\"a\"" `shouldParse` struct "목록" [("첫번째", litChar 'a'), ("나머지", litNone)]
+    it "문자가 2개 이상, 공백을 포함한 문자열" $ do
+      testParse parseStringExpr "\"a bc\"" `shouldParse` struct "목록" [("첫번째", litChar 'a'), ("나머지", struct "목록" [("첫번째", litChar ' '), ("나머지", struct "목록" [("첫번째", litChar 'b'), ("나머지", struct "목록" [("첫번째", litChar 'c'), ("나머지", litNone)])])])]
+
   describe "함수 호출식 파싱" $ do
     it "인자가 2개인 함수 호출식" $ do
       testParse parseFuncCall "1과 2를 더하다"
