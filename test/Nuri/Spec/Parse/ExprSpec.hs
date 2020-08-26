@@ -250,6 +250,18 @@ spec = do
           (var "더하다")
           [(funcCall (var "실행하다") [], "_")]
 
+  describe "구조체 생성식 파싱" $ do
+    it "필드가 1개인 구조체" $ do
+      testParse (parseStruct parseExpr) "정사각형(변: 10)"
+        `shouldParse` struct
+          "정사각형"
+          [("변", litInteger 10)]
+    it "필드가 3개인 구조체" $ do
+      testParse (parseStruct parseExpr) "직육면체(가로: 10, 세로: 10 + 10, 높이: 20)"
+        `shouldParse` struct
+          "직육면체"
+          [("가로", litInteger 10), ("세로", binaryOp Add (litInteger 10) (litInteger 10)), ("높이", litInteger 20)]
+
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
       testParse parseNestedFuncCalls "4와 2를 합하고 2로 나누다"
@@ -357,6 +369,15 @@ spec = do
           [ ( funcCall
                 (var "더하다")
                 [(litInteger 1, "_"), (litInteger 2, "_")],
+              "와"
+            ),
+            (litInteger 3, "을")
+          ]
+    it "구조체 생성자식이 함수 호출식보다 우선순위 높음" $ do
+      testParse parseExpr "정사각형(길이: 20)과 3을 더하다"
+        `shouldParse` funcCall
+          (var "더하다")
+          [ ( struct "정사각형" [("길이", litInteger 20)],
               "와"
             ),
             (litInteger 3, "을")

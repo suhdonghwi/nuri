@@ -30,7 +30,8 @@ parseNonLexemeTerm parseExpr =
     <|> P.try (parseRealExpr)
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
-    <|> (parseParenCall parseExpr)
+    <|> P.try (parseStruct parseExpr)
+    <|> parseParenCall parseExpr
     <|> parseParens parseExpr
 
 parseStruct :: Parser Expr -> Parser Expr

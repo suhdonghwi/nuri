@@ -52,6 +52,7 @@ instance Eq Expr where
   UnaryOp _ op1 v1 == UnaryOp _ op2 v2 = (op1 == op2) && (v1 == v2)
   Seq e1 == Seq e2 = e1 == e2
   Lambda _ n1 a1 b1 == Lambda _ n2 a2 b2 = (n1 == n2) && (a1 == a2) && (b1 == b2)
+  Struct _ a1 b1 == Struct _ a2 b2 = (a1 == a2) && (b1 == b2)
   _ == _ = False
 
 instance ASTNode Expr where
