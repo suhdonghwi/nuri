@@ -55,7 +55,7 @@ runCommand opts = do
 helpMessage :: Text
 helpMessage =
   unlines
-    [ "누리 - 함수형 한글 프로그래밍 언어",
+    [ "누리 - 함수형 한글 프로그래밍 언어 0.1.0",
       "",
       "사용법:",
       "  nuri --help | -h",
