@@ -125,7 +125,7 @@ spec = do
             (litInteger 1)
             (unaryOp Positive (litInteger 2))
       it "두 정수 빼기" $ do
-        testParse parseArithmetic "2 - 4"
+        testParse parseArithmetic "2-4"
           `shouldParse` binaryOp Subtract (litInteger 2) (litInteger 4)
       it "두 정수 곱하기" $ do
         testParse parseArithmetic "2 * 4"
@@ -201,6 +201,8 @@ spec = do
   describe "함수 이름 파싱" $ do
     it "띄어쓰기 없는 한 단어" $ do
       testParse parseFuncIdentifier "더하고" `shouldParse` "더하고"
+    it "하이픈이 포함된 함수 이름" $ do
+      testParse parseFuncIdentifier "값을-더하다" `shouldParse` "값을-더하다"
     it "부울 키워드에 대해서 오류" $ do
       testParse parseFuncIdentifier `shouldFailOn` "참"
       testParse parseFuncIdentifier `shouldFailOn` "거짓"
@@ -214,6 +216,11 @@ spec = do
       testParse parseStringExpr "\"a bc\"" `shouldParse` struct "목록" [("첫번째", litChar 'a'), ("나머지", struct "목록" [("첫번째", litChar ' '), ("나머지", struct "목록" [("첫번째", litChar 'b'), ("나머지", struct "목록" [("첫번째", litChar 'c'), ("나머지", litNone)])])])]
 
   describe "함수 호출식 파싱" $ do
+    it "인자가 1개인 함수 호출식" $ do
+      testParse parseFuncCall "2를 받고-던지다"
+        `shouldParse` funcCall
+          (var "받고-던지다")
+          [(litInteger 2, "을")]
     it "인자가 2개인 함수 호출식" $ do
       testParse parseFuncCall "1과 2를 더하다"
         `shouldParse` funcCall
@@ -221,7 +228,7 @@ spec = do
           [(litInteger 1, "와"), (litInteger 2, "을")]
     it "조사가 없는 함수 호출식에 대해서 오류" $ do
       testParse parseFuncCall `shouldFailOn` "1 2를 더하다"
-      testParse parseFuncCall `shouldFailOn` "(1 + 1) 피보나치 수 구하다"
+      testParse parseFuncCall `shouldFailOn` "(1 + 1) 피보나치수"
     it "조사가 떨어져 있는 경우 오류" $ do
       testParse parseFuncCall `shouldFailOn` "1 과 2 를 더하다"
     it "인자가 없는 함수 호출식" $ do
