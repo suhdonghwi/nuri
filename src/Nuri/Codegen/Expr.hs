@@ -45,7 +45,6 @@ import Nuri.Expr
     UnaryOperator (LogicNot, Negative, Positive),
   )
 import Nuri.Literal (Literal (..))
-import Relude.Extra.Tuple (dup)
 import Text.Megaparsec.Pos (SourcePos, sourceLine, sourceName)
 
 litToConst :: Literal -> Constant

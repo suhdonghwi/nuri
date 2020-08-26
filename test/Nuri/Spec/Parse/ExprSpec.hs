@@ -242,7 +242,7 @@ spec = do
           [ (binaryOp Add (litInteger 1) (litInteger 2), "_"),
             (funcCall (var "더하다") [(litInteger 3, "와"), (litInteger 4, "을")], "_")
           ]
-    it "함수 이름과 괄호 사이에 공백이 있으면 에러" $ do
+    it "함수 이름과 괄호 사이에 공백이 있으면 오류" $ do
       testParse (parseParenCall parseExpr) `shouldFailOn` "더하다 (1 + 2, 3와 4를 더하다)"
     it "괄호 내부에서 인수가 없는 함수를 호출한 함수 호출식" $ do
       testParse (parseParenCall parseExpr) "더하다(실행하다)"
@@ -261,6 +261,8 @@ spec = do
         `shouldParse` struct
           "직육면체"
           [("가로", litInteger 10), ("세로", binaryOp Add (litInteger 10) (litInteger 10)), ("높이", litInteger 20)]
+    it "구조체 이름과 괄호 사이에 공백이 있으면 오류" $ do
+      testParse (parseStruct parseExpr) `shouldFailOn` "직육면체 (가로: 10, 세로: 10 + 10, 높이: 20)"
 
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 식" $ do
