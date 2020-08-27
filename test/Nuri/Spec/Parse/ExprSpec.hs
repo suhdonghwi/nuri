@@ -201,8 +201,8 @@ spec = do
   describe "함수 이름 파싱" $ do
     it "띄어쓰기 없는 한 단어" $ do
       testParse parseFuncIdentifier "더하고" `shouldParse` "더하고"
-    it "하이픈이 포함된 함수 이름" $ do
-      testParse parseFuncIdentifier "값을-더하다" `shouldParse` "값을-더하다"
+    it "언더스코어가 포함된 함수 이름" $ do
+      testParse parseFuncIdentifier "값을_더하다" `shouldParse` "값을_더하다"
     it "부울 키워드에 대해서 오류" $ do
       testParse parseFuncIdentifier `shouldFailOn` "참"
       testParse parseFuncIdentifier `shouldFailOn` "거짓"
@@ -217,9 +217,9 @@ spec = do
 
   describe "함수 호출식 파싱" $ do
     it "인자가 1개인 함수 호출식" $ do
-      testParse parseFuncCall "2를 받고-던지다"
+      testParse parseFuncCall "2를 받고_던지다"
         `shouldParse` funcCall
-          (var "받고-던지다")
+          (var "받고_던지다")
           [(litInteger 2, "을")]
     it "인자가 2개인 함수 호출식" $ do
       testParse parseFuncCall "1과 2를 더하다"

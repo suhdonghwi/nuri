@@ -52,4 +52,4 @@ parseFuncIdentifier = lexeme funcIdentifier
 funcIdentifier :: Parser Text
 funcIdentifier = P.notFollowedBy parseKeyword *> hangulWord
   where
-    hangulWord = toText <$> P.some (hangulSyllable <|> P.char '-')
+    hangulWord = toText <$> P.some (hangulSyllable <|> P.char '_')
