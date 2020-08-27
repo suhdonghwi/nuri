@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - name: Download RPython
         uses: actions/checkout@v2
         with:
@@ -21,5 +23,17 @@ jobs:
         run: stack build
       - name: Test nuri
         run: stack test
+      - name: Install nuri
+        run: stack install
       - name: Build haneul
         run: python ./pypy/rpython/bin/rpython --opt=3 ./haneul/src/target.py
+      - name: Upload nuri
+        uses: actions/upload-artifact@v2
+        with:
+          name: nuri binary
+          path: ~/.local/bin/nuri
+      - name: Upload haneul
+        uses: actions/upload-artifact@v2
+        with:
+          name: haneul binary
+          path: ./target-c
