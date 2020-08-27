@@ -1,0 +1,22 @@
+name: Ubuntu Release
+
+on:
+  push:
+    branches:    
+      - master
+    # tags:        
+    # - v*             
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download RPython
+        run: hub clone mozillazg/pypy ~/pypy
+      - name: Build nuri
+        run: stack build
+      - name: Test nuri
+        run: stack test
+      - name: Build haneul
+        run: python ~/pypy/rpython/bin/rpython --opt=3 ./haneul/src/target.py
