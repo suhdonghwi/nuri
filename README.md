@@ -1,4 +1,7 @@
 # 🗺️ 누리
+<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/suhdonghwi/nuri/nuri%20&%20haneul%20build%20release%20files?style=flat">
+<img alt="GitHub top language" src="https://img.shields.io/github/languages/top/suhdonghwi/nuri?style=flat">
+<img alt="GitHub" src="https://img.shields.io/github/license/suhdonghwi/nuri?style=flat">
 
 누리는 쓰기 쉬운 함수형 한글 프로그래밍 언어입니다.
 

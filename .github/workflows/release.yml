@@ -63,8 +63,10 @@ jobs:
         with:
           repository: mozillazg/pypy
           path: 'pypy'
-      - name: Download libffi
-        run: brew reinstall libffi
+      - name: Install libffi
+        run: brew install libffi
+      - name: Install pkg-config 
+        run: brew install pkg-config
       - name: Build nuri
         run: stack build 
       - name: Test nuri
