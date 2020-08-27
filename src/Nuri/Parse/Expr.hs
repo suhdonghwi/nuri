@@ -36,7 +36,7 @@ parseExpr = parseIf <|> parseSeq <|> parseArithmetic
 
 parseSeq :: Parser Expr
 parseSeq = do
-  reserved "순서대로" <* P.newline
+  reserved "순서대로" <* P.eol
   scn
   level <- L.indentGuard scn GT P.pos1
   let parseDeclExceptStruct = do
@@ -53,9 +53,9 @@ parseSeq = do
   result <-
     sepBy1
       parseLine
-      (P.try $ P.newline >> scn >> L.indentGuard scn EQ level)
+      (P.try $ P.eol >> scn >> L.indentGuard scn EQ level)
 
-  void (P.lookAhead $ P.newline >> L.indentGuard scn LT level) <|> P.eof
+  void (P.lookAhead $ P.eol >> L.indentGuard scn LT level) <|> P.eof
   when (isLeft $ last result) $ fail "순서 표현식의 마지막은 선언문이 아닌 표현식이어야 합니다."
   return $ Seq result
 
