@@ -38,7 +38,6 @@ dependencies:
   - hspec
   - hspec-megaparsec
   - neat-interpolation
-  - text-icu
   - docopt
   - directory
   - filepath

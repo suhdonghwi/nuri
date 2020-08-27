@@ -10,7 +10,6 @@ module Nuri.Parse.Error (errorBundlePretty) where
 
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Set as S
-import Data.Text.ICU.Char (EastAsianWidth (..), EastAsianWidth_ (..), property)
 import Text.Megaparsec (PosState, pstateSourcePos)
 import Text.Megaparsec.Error
   ( ErrorFancy (..),
@@ -34,7 +33,7 @@ byJongseongSubject :: String -> String
 byJongseongSubject = byJongseong "이" "가"
 
 isWide :: Char -> Bool
-isWide c = property EastAsianWidth c `elem` [EAFull, EAWide]
+isWide c = '가' <= c && c <= '힣'
 
 errorBundlePretty ::
   forall e.
