@@ -51,7 +51,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nuri Windows binary
-          path: '%USERPROFILE%\AppData\Roaming\local\bin\nuri.exe'
+          path: 'C:\Users\runneradmin\AppData\Roaming\local\bin\nuri.exe'
   macos-release:
     runs-on: macos-latest
     steps:
@@ -64,7 +64,7 @@ jobs:
           repository: mozillazg/pypy
           path: 'pypy'
       - name: Download libffi
-        run: brew install libffi
+        run: brew reinstall libffi
       - name: Build nuri
         run: stack build 
       - name: Test nuri
