@@ -63,6 +63,8 @@ jobs:
         with:
           repository: mozillazg/pypy
           path: 'pypy'
+      - name: Download libffi
+        run: brew install libffi
       - name: Build nuri
         run: stack build 
       - name: Test nuri
