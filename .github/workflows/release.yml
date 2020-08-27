@@ -48,6 +48,8 @@ jobs:
         with:
           repository: mozillazg/pypy
           path: 'pypy'
+      - name: Install icu library
+        run: stack exec -- pacman -Sy mingw64/mingw-w64-x86_64-icu
       - name: Build nuri
         run: stack build
       - name: Test nuri
@@ -77,8 +79,10 @@ jobs:
         with:
           repository: mozillazg/pypy
           path: 'pypy'
+      - name: Install icu library
+        run: brew install icu4c
       - name: Build nuri
-        run: stack build
+        run: stack build --extra-lib-dirs=/usr/local/opt/icu4c/lib --extra-include-dirs=/usr/local/opt/icu4c/include
       - name: Test nuri
         run: stack test
       - name: Install nuri
