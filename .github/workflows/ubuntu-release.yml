@@ -16,10 +16,10 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: mozillazg/pypy
-          path: '~/pypy'
+          path: 'pypy'
       - name: Build nuri
         run: stack build
       - name: Test nuri
         run: stack test
       - name: Build haneul
-        run: python ~/pypy/rpython/bin/rpython --opt=3 ./haneul/src/target.py
+        run: python ./pypy/rpython/bin/rpython --opt=3 ./haneul/src/target.py
