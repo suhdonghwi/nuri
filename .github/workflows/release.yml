@@ -49,7 +49,12 @@ jobs:
           repository: mozillazg/pypy
           path: 'pypy'
       - name: Install icu library
-        run: stack exec -- pacman -Sy mingw64/mingw-w64-x86_64-icu
+        run: |
+          stack exec -- curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz
+          stack exec -- curl -O http://repo.msys2.org/msys/x86_64/msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig
+          stack exec -- pacman-key --verify msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz.sig 
+          stack exec -- pacman -U msys2-keyring-r21.b39fb11-1-any.pkg.tar.xz
+          stack exec -- pacman -Sy mingw64/mingw-w64-x86_64-icu
       - name: Build nuri
         run: stack build
       - name: Test nuri
