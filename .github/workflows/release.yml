@@ -41,36 +41,17 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - name: Download RPython
-        uses: actions/checkout@v2
-        with:
-          repository: mozillazg/pypy
-          path: 'pypy'
-      - name: Set up Python 2.x x86
-        uses: actions/setup-python@v2
-        with:
-          python-version: '2.x' 
-          architecture: 'x86' 
       - name: Build nuri
         run: stack build
       - name: Test nuri
         run: stack test
       - name: Install nuri
         run: stack install
-      - name: Build haneul
-        run: python ./pypy/rpython/bin/rpython --opt=3 ./haneul/src/target.py
       - name: Upload nuri
         uses: actions/upload-artifact@v2
         with:
           name: nuri Windows binary
           path: '%USERPROFILE%\AppData\Roaming\local\bin\nuri.exe'
-      - name: Upload haneul
-        uses: actions/upload-artifact@v2
-        with:
-          name: haneul Windows binary
-          path: ./target-c.exe
   macos-release:
     runs-on: macos-latest
     steps:
