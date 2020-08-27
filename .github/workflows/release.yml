@@ -60,7 +60,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: nuri Windows binary
-          path: ~/.local/bin/nuri
+          path: %USERPROFILE%/.local/bin/nuri
       - name: Upload haneul
         uses: actions/upload-artifact@v2
         with:
