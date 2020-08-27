@@ -1,12 +1,9 @@
-# 🗺️ 누리
-<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/suhdonghwi/nuri/nuri%20&%20haneul%20build%20release%20files?style=flat">
-<img alt="GitHub top language" src="https://img.shields.io/github/languages/top/suhdonghwi/nuri?style=flat">
-<img alt="GitHub" src="https://img.shields.io/github/license/suhdonghwi/nuri?style=flat">
+# 누리 <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/suhdonghwi/nuri/nuri%20&%20haneul%20build%20release%20files?style=flat"> <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/suhdonghwi/nuri?style=flat"> <img alt="GitHub" src="https://img.shields.io/github/license/suhdonghwi/nuri?style=flat">
 
 누리는 쓰기 쉬운 함수형 한글 프로그래밍 언어입니다.
 
 ```
-"안녕, "과 "세상!" 연결하고 보여주다
+"안녕, "과 "세상!"을 연결하고 보여주다
 ```
 
 ## 특징
@@ -103,12 +100,6 @@
 선언형 프로그래밍 언어는 부수 효과(side effects)를 최대한 피한다는 특징이 있습니다. 이에 따라 누리에는 **변수가 없습니다.** 오직 상수만 존재합니다. (오해는 하시면 안됩니다! 변수가 없어도 재귀 함수 등을 이용하여 다른 프로그래밍 언어에서 작성할 수 있는 프로그램을 모두 구현할 수 있습니다.)
 
 제가 명령형 패러다임이 아닌 선언형 패러다임을 선택한 이유는, 선언형 프로그래밍이 자연어에 조금 더 적합하기 때문입니다. 우리가 평소에 다른 누군가에게 어떤 개념을 설명할 때 "이런 생각을 해. 그 다음 이런 생각을 해."와 같이 설명을 하진 않습니다. "이것은 이거고, 이거는 이거야"와 같은 방식으로 정의를 해 나가면서 설명을 합니다. 전자가 명령형 프로그래밍이고, 후자가 선언형 프로그래밍입니다.
-
-## 장점
-
-### JIT (Just-In-Time)
-
-누리는 [하늘](https://github.com/suhdonghwi/haneul)이라는 백엔드 가상 머신을 사용합니다. 하늘은 JIT 실행을 지원하며, 이를 통해서 굉장히 빠른 성능을 낼 수 있습니다. 정확한 퍼포먼스 측정은 해보지 않았지만, 대부분의 예시 코드에서 CPython보다 좋은 성능을 보여주었습니다.
 
 ## 기여
 
