@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Download RPython
-        run: hub clone mozillazg/pypy ~/pypy
+        uses: actions/checkout@v2
+        with:
+          repository: mozillazg/pypy
       - name: Build nuri
         run: stack build
       - name: Test nuri
