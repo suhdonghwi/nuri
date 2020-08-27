@@ -111,20 +111,27 @@ parseArithmetic =
 
 parseNestedFuncCalls :: Parser Expr
 parseNestedFuncCalls = do
-  calls <- P.try $ P.some (parseFuncCall <?> "함수 호출식")
+  calls <-
+    P.try $
+      P.some
+        ( do
+            offset <- P.getOffset
+            funcCall <- parseFuncCall <?> "함수 호출식"
+            return (funcCall, offset)
+        )
   processedCalls <- process calls
   return $ foldl1' addArg processedCalls
   where
-    process :: [Expr] -> Parser [Expr]
-    process (x@(FuncCall _ _ _) : []) = return [x]
-    process (FuncCall pos (Var _ ident) args : xs) =
+    process :: [(Expr, Int)] -> Parser [Expr]
+    process ((x@(FuncCall _ _ _), _) : []) = return [x]
+    process ((FuncCall pos (Var _ ident) args, offset) : xs) =
       if T.last ident == '고'
         then do
           let originalIdent = T.snoc (T.init ident) '다'
           pxs <- process xs
           return (FuncCall pos (Var pos originalIdent) args : pxs)
         else do
-          -- offset 설정
+          P.setOffset offset
           fail "여기에서는 활용이 '~하고' 형태여야합니다."
     process _ = error "불가능한 상황"
 

@@ -22,15 +22,25 @@ import Text.Megaparsec.Error
 import Text.Megaparsec.Pos (SourcePos (sourceColumn, sourceLine, sourceName), unPos)
 import Text.Megaparsec.Stream (Stream (Token, reachOffset))
 
-byJongseong :: String -> String -> String -> String
-byJongseong s1 s2 text =
+hasJongseong :: String -> Bool
+hasJongseong text =
   let lastChar = last `viaNonEmpty` text
+      headChar = init `viaNonEmpty` text
    in case lastChar of
-        Nothing -> ""
-        Just ch -> if (ord ch - 0xAC00) `mod` 28 > 0 then text <> s1 else text <> s2
+        Nothing -> False
+        Just '\'' ->
+          case headChar of
+            Nothing -> False
+            Just str -> hasJongseong str
+        Just ch -> hasJongseongChar ch
+  where
+    hasJongseongChar ch
+      | ch `elem` ['1', '3', '6', '7', '8', '0', 'l', 'L', 'm', 'M', 'n', 'N', 'r', 'R'] = True
+      | ('0' <= ch && ch <= '9') || ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') = False
+      | otherwise = (ord ch - 0xAC00) `mod` 28 > 0
 
 byJongseongSubject :: String -> String
-byJongseongSubject = byJongseong "이" "가"
+byJongseongSubject str = str <> if hasJongseong str then "이" else "가"
 
 isWide :: Char -> Bool
 isWide c = '가' <= c && c <= '힣'
