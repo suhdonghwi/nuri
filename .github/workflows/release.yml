@@ -1,0 +1,97 @@
+name: nuri & haneul build release files
+
+on:
+  push:
+    branches:    
+      - master
+    # tags:        
+    # - v*             
+
+jobs:
+  ubuntu-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Download RPython
+        uses: actions/checkout@v2
+        with:
+          repository: mozillazg/pypy
+          path: 'pypy'
+      - name: Build nuri
+        run: stack build
+      - name: Test nuri
+        run: stack test
+      - name: Install nuri
+        run: stack install
+      - name: Build haneul
+        run: python ./pypy/rpython/bin/rpython --opt=3 ./haneul/src/target.py
+      - name: Upload nuri
+        uses: actions/upload-artifact@v2
+        with:
+          name: nuri Ubuntu binary
+          path: ~/.local/bin/nuri
+      - name: Upload haneul
+        uses: actions/upload-artifact@v2
+        with:
+          name: haneul Ubuntu binary
+          path: ./target-c
+  windows-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Download RPython
+        uses: actions/checkout@v2
+        with:
+          repository: mozillazg/pypy
+          path: 'pypy'
+      - name: Build nuri
+        run: stack build
+      - name: Test nuri
+        run: stack test
+      - name: Install nuri
+        run: stack install
+      - name: Build haneul
+        run: python2.7 ./pypy/rpython/bin/rpython --opt=3 ./haneul/src/target.py
+      - name: Upload nuri
+        uses: actions/upload-artifact@v2
+        with:
+          name: nuri Windows binary
+          path: ~/.local/bin/nuri
+      - name: Upload haneul
+        uses: actions/upload-artifact@v2
+        with:
+          name: haneul Windows binary
+          path: ./target-c
+  macos-release:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Download RPython
+        uses: actions/checkout@v2
+        with:
+          repository: mozillazg/pypy
+          path: 'pypy'
+      - name: Build nuri
+        run: stack build
+      - name: Test nuri
+        run: stack test
+      - name: Install nuri
+        run: stack install
+      - name: Build haneul
+        run: python2.7 ./pypy/rpython/bin/rpython --opt=3 ./haneul/src/target.py
+      - name: Upload nuri
+        uses: actions/upload-artifact@v2
+        with:
+          name: nuri macOS binary
+          path: ~/.local/bin/nuri
+      - name: Upload haneul
+        uses: actions/upload-artifact@v2
+        with:
+          name: haneul macOS binary
+          path: ./target-c
