@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: mozillazg/pypy
+          path: '~/pypy'
       - name: Build nuri
         run: stack build
       - name: Test nuri
