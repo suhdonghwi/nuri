@@ -23,9 +23,9 @@ import Data.Set.Ordered
 import Haneul.BuilderInternal
   ( BuilderInternal,
     internalConstTable,
-    internalFilePath,
     internalFreeVars,
     internalGlobalVarNames,
+    internalLastFilePath,
     internalLastLine,
     internalLocalVars,
     internalMarks,
@@ -128,16 +128,19 @@ tellInst pos inst = do
   let pos' = unPos (sourceLine pos)
       lastLine' = unPos lastLine
 
-  originalFilePath <- use internalFilePath
+  originalFilePath <- use internalLastFilePath
   let currentFilePath = sourceName pos
 
-  if pos' > lastLine' && originalFilePath == currentFilePath
-    then do
-      assign internalLastLine (sourceLine pos)
-      offset <- use internalOffset
-      let diff = pos' - lastLine'
-      tell ([inst], [(offset, fromIntegral diff)])
-    else tell ([inst], mempty)
+  offset <- use internalOffset
+  when (pos' /= lastLine') $ do
+    assign internalLastLine (sourceLine pos)
+    tell (mempty, [(offset, Right $ fromIntegral pos')])
+
+  when (originalFilePath /= currentFilePath) $ do
+    assign internalLastFilePath currentFilePath
+    tell (mempty, [(offset, Left $ currentFilePath)])
+
+  tell ([inst], mempty)
   modifying internalOffset (+ 1)
 
 internalToFuncObject :: (BuilderInternal, (MarkedCode, LineNoTable)) -> FuncObject

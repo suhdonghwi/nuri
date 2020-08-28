@@ -18,7 +18,7 @@ data Constant
 type ConstTable = OSet Constant
 
 -- (n, m)은 n번째 인스트럭션 일때 줄 번호를 m만큼 증가하라는 의미
-type LineNoTable = [(Word32, Word16)]
+type LineNoTable = [(Word32, Either String Word16)]
 
 data FuncObject = FuncObject
   { _funcJosa :: [Text],

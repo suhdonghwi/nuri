@@ -29,7 +29,7 @@ import Haneul.BuilderInternal
     internalFreeVars,
     internalLocalVars,
     internalMaxLocalCount,
-    _internalFilePath,
+    _internalLastFilePath,
     _internalLastLine,
   )
 import Haneul.Constant (Constant (..), FuncObject (_funcJosa), _funcFilePath, _funcLineNo, _funcName)
@@ -200,7 +200,7 @@ lambdaToFuncObject pos name args body = do
               body
           )
           (newLocalStack : oldLocalStack)
-          (defaultInternal {_internalLastLine = sourceLine pos, _internalFilePath = sourceName pos})
+          (defaultInternal {_internalLastLine = sourceLine pos, _internalLastFilePath = sourceName pos})
       result = internalToFuncObject (internal, code)
   return
     ( internal,

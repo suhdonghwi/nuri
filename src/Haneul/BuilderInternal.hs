@@ -16,7 +16,7 @@ data BuilderInternal = BuilderInternal
     _internalOffset :: Word32,
     _internalMarks :: [Word32],
     _internalLastLine :: Pos,
-    _internalFilePath :: String
+    _internalLastFilePath :: String
   }
   deriving (Eq, Show)
 
@@ -37,5 +37,5 @@ defaultInternal =
       _internalOffset = 0,
       _internalMarks = [],
       _internalLastLine = mkPos 1,
-      _internalFilePath = ""
+      _internalLastFilePath = ""
     }
