@@ -35,11 +35,11 @@ runCommand opts = do
     putStrLn "누리 0.1.0"
     exitSuccess
   when (opts `isPresent` (argument "file")) $ do
-    #ifdef mingw32_HOST_OS
+#ifdef mingw32_HOST_OS
     let defaultHaneul = ".\\haneul.exe"
-    #else
+#else
     let defaultHaneul = "./haneul"
-    #endif
+#endif
 
     let filePath = fromJust $ opts `getArg` (argument "file")
         isDebug = opts `isPresent` (longOption "debug")
