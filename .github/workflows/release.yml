@@ -83,7 +83,7 @@ jobs:
       - name: Install pkg-config 
         run: brew install pkg-config
       - name: Build nuri
-        run: stack build --ghc-options -O3
+        run: stack build --system-ghc --ghc-options -O3
       - name: Test nuri
         run: stack test
       - name: Install nuri
