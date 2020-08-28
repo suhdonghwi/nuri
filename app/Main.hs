@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE QuasiQuotes #-}
 
 module Main where
@@ -34,9 +35,15 @@ runCommand opts = do
     putStrLn "누리 0.1.0"
     exitSuccess
   when (opts `isPresent` (argument "file")) $ do
+    #ifdef mingw32_HOST_OS 
+    let defaultHaneul = ".\haneul.exe" 
+    #else 
+    let defaultHaneul = "./haneul"
+    #endif
+
     let filePath = fromJust $ opts `getArg` (argument "file")
         isDebug = opts `isPresent` (longOption "debug")
-        haneulPath = getArgWithDefault opts "./haneul" (longOption "haneul")
+        haneulPath = getArgWithDefault opts defaultHaneul (longOption "haneul")
 
     exists <- doesFileExist filePath
     when (not exists) $ do
@@ -65,7 +72,7 @@ helpMessage =
       "  -v, --version     누리 실행기의 버전을 출력합니다.",
       "  -d, --debug       디버그용 출력을 활성화합니다.",
       "  --haneul=<path>   하늘 가상머신 실행 파일의 경로를 설정합니다.",
-      "                    [기본 : './haneul']"
+      "                    [기본 : 같은 경로의 haneul 파일]"
     ]
 
 main :: IO ()
