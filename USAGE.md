@@ -56,3 +56,12 @@ $ mv target-c.exe haneul.exe
 ```
 $ chcp 65001
 ```
+
+기본적인 프로그램을 작성하기 위한 유용한 함수들은 배포 압축 파일에 동봉되어있는 (혹은 [여기](https://github.com/suhdonghwi/nuri/blob/master/examples/유용한%20함수들.nuri)) `유용한 함수.nuri`에 있습니다.
+
+```
+꾸러미 "유용한 함수.nuri"
+```
+
+작성하고 있는 코드 파일과 같은 경로에 `유용한 함수.nuri`를 위치시키고, 위와 같이 코드에 파일을 포함해서 사용할 수 있습니다.
+
