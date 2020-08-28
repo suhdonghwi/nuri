@@ -23,6 +23,7 @@ import Data.Set.Ordered
 import Haneul.BuilderInternal
   ( BuilderInternal,
     internalConstTable,
+    internalFilePath,
     internalFreeVars,
     internalGlobalVarNames,
     internalLastLine,
@@ -41,7 +42,7 @@ import Haneul.Instruction
     MarkedInstruction,
     estimateStackSize,
   )
-import Text.Megaparsec.Pos (SourcePos, mkPos, sourceLine, unPos)
+import Text.Megaparsec.Pos (SourcePos, mkPos, sourceLine, sourceName, unPos)
 
 type Builder = RWS [OSet Text] (MarkedCode, LineNoTable) BuilderInternal
 
@@ -127,7 +128,10 @@ tellInst pos inst = do
   let pos' = unPos (sourceLine pos)
       lastLine' = unPos lastLine
 
-  if pos' > lastLine'
+  originalFilePath <- use internalFilePath
+  let currentFilePath = sourceName pos
+
+  if pos' > lastLine' && originalFilePath == currentFilePath
     then do
       assign internalLastLine (sourceLine pos)
       offset <- use internalOffset

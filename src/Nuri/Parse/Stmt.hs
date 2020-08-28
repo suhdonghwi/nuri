@@ -32,9 +32,9 @@ parseImportStmt = do
   currentPath <- P.sourceName <$> P.getSourcePos
   let realPath = takeDirectory currentPath </> path
 
-  st <- P.getParserState
   content <- readFileText realPath
 
+  st <- P.getParserState
   result <- liftIO $ parseInput content realPath
   P.setParserState st
 

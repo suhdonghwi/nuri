@@ -7,7 +7,7 @@ import qualified Data.Set.Ordered as S
 import Default (defineDefaults)
 import Haneul.Builder (internalToFuncObject, runBuilder)
 import Haneul.BuilderInternal
-  ( BuilderInternal (_internalGlobalVarNames),
+  ( BuilderInternal (_internalFilePath, _internalGlobalVarNames),
     defaultDecls,
     defaultInternal,
   )
@@ -29,7 +29,11 @@ compileResult :: FilePath -> Bool -> String -> (NonEmpty Stmt) -> IO ()
 compileResult filePath isDebug dest stmts = do
   let program' =
         ( internalToFuncObject
-            . runBuilder defaultInternal {_internalGlobalVarNames = S.fromList (snd <$> defaultDecls)}
+            . runBuilder
+              defaultInternal
+                { _internalGlobalVarNames = S.fromList (snd <$> defaultDecls),
+                  _internalFilePath = filePath
+                }
         )
           $ do
             defineDefaults
