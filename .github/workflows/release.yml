@@ -25,7 +25,7 @@ jobs:
           repository: mozillazg/pypy
           path: 'pypy'
       - name: Build nuri
-        run: stack build
+        run: stack build --ghc-options -O3
       - name: Test nuri
         run: stack test
       - name: Install nuri
@@ -52,7 +52,7 @@ jobs:
           path: ~/.stack
           key: ${{ runner.os }}-${{ hashFiles('**/package.yaml') }}
       - name: Build nuri
-        run: stack build
+        run: stack build --ghc-options -O3
       - name: Test nuri
         run: stack test
       - name: Install nuri
@@ -68,6 +68,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
+      - name: Cache ~/.stack
+        uses: actions/cache@v2
+        with:
+          path: ~/.stack
+          key: ${{ runner.os }}-${{ hashFiles('**/package.yaml') }}
       - name: Download RPython
         uses: actions/checkout@v2
         with:
@@ -78,7 +83,7 @@ jobs:
       - name: Install pkg-config 
         run: brew install pkg-config
       - name: Build nuri
-        run: stack build 
+        run: stack build --ghc-options -O3
       - name: Test nuri
         run: stack test
       - name: Install nuri
