@@ -13,10 +13,8 @@ import Haneul.BuilderInternal
   )
 import Haneul.Constant (FuncObject (_funcFilePath))
 import Haneul.Serial ()
-import Nuri.ASTNode (ASTNode (getSourcePos))
 import Nuri.Codegen.Stmt (compileStmts)
 import Nuri.Stmt (Stmt)
-import Text.Megaparsec (sourceName)
 import Text.Pretty.Simple (pPrint)
 import Prelude hiding (writeFile)
 
