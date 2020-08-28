@@ -4,7 +4,8 @@ module Main where
 
 import Control.Monad (when)
 import Data.Maybe (fromJust)
-import Helper (compileResult, parseInput)
+import Helper (compileResult)
+import Nuri.Parse.Stmt (parseInput)
 import System.Console.Docopt
   ( Arguments,
     Docopt,
@@ -43,14 +44,11 @@ runCommand opts = do
       exitFailure
 
     content <- readFileText filePath
-    result' <- runMaybeT $ parseInput content filePath
+    result <- parseInput content filePath
 
-    case result' of
-      Nothing -> exitSuccess
-      Just result -> do
-        let bytecodeFileName = replaceExtension filePath ".hn"
-        compileResult isDebug bytecodeFileName result
-        callCommand $ haneulPath ++ " " ++ bytecodeFileName
+    let bytecodeFileName = replaceExtension filePath ".hn"
+    compileResult filePath isDebug bytecodeFileName result
+    callCommand $ haneulPath ++ " " ++ bytecodeFileName
 
 helpMessage :: Text
 helpMessage =

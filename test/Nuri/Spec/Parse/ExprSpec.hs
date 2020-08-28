@@ -10,7 +10,6 @@ import Nuri.Parse.Util
 import Nuri.Spec.Parse.Util
 import Nuri.Spec.Util
 import Test.Hspec
-import Test.Hspec.Megaparsec
 import Text.Megaparsec
 
 spec :: Spec

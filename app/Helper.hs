@@ -15,14 +15,8 @@ import Haneul.Constant (FuncObject (_funcFilePath))
 import Haneul.Serial ()
 import Nuri.ASTNode (ASTNode (getSourcePos))
 import Nuri.Codegen.Stmt (compileStmts)
-import Nuri.Parse.Error (errorBundlePretty)
-import Nuri.Parse.Stmt (parseStmts)
 import Nuri.Stmt (Stmt)
-import Text.Megaparsec
-  ( eof,
-    runParser,
-    sourceName,
-  )
+import Text.Megaparsec (sourceName)
 import Text.Pretty.Simple (pPrint)
 import Prelude hiding (writeFile)
 
@@ -33,16 +27,8 @@ $(makeLenses ''ReplState)
 newtype Repl a = Repl {unRepl :: StateT ReplState IO a}
   deriving (Monad, Functor, Applicative, MonadState ReplState, MonadIO)
 
-parseInput :: Text -> String -> MaybeT IO (NonEmpty Stmt)
-parseInput input fileName = do
-  case runParser (parseStmts <* eof) fileName input of
-    Left err -> do
-      (liftIO . putTextLn . toText . errorBundlePretty) err
-      hoistMaybe Nothing
-    Right result -> return result
-
-compileResult :: Bool -> String -> (NonEmpty Stmt) -> IO ()
-compileResult isDebug dest stmts = do
+compileResult :: FilePath -> Bool -> String -> (NonEmpty Stmt) -> IO ()
+compileResult filePath isDebug dest stmts = do
   let program' =
         ( internalToFuncObject
             . runBuilder defaultInternal {_internalGlobalVarNames = S.fromList (snd <$> defaultDecls)}
@@ -50,7 +36,7 @@ compileResult isDebug dest stmts = do
           $ do
             defineDefaults
             compileStmts stmts
-      program = program' {_funcFilePath = sourceName (getSourcePos $ head stmts)}
+      program = program' {_funcFilePath = filePath}
 
   when isDebug $ do
     (liftIO . pPrint) stmts

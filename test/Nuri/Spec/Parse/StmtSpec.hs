@@ -9,7 +9,6 @@ import Nuri.Spec.Parse.Util
 import Nuri.Spec.Util
 import Nuri.Stmt
 import Test.Hspec
-import Test.Hspec.Megaparsec
 
 spec :: Spec
 spec = do
@@ -258,14 +257,15 @@ spec = do
   describe "구문 파싱" $ do
     it "인자가 한 개인 함수" $ do
       testParse parseStmt "함수 [값]에 증가하다:\n  [값]에 1을 더하다"
-        `shouldParse` funcDeclStmt
-          NormalDecl
-          "증가하다"
-          [("값", "에")]
-          ( funcCall
-              (var "더하다")
-              [(var "값", "에"), (litInteger 1, "을")]
-          )
+        `shouldParse` [ funcDeclStmt
+                          NormalDecl
+                          "증가하다"
+                          [("값", "에")]
+                          ( funcCall
+                              (var "더하다")
+                              [(var "값", "에"), (litInteger 1, "을")]
+                          )
+                      ]
 
   describe "구문 여러 개 파싱" $ do
     it "함수 여러 개 선언 파싱" $ do
