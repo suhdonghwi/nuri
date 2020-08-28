@@ -99,7 +99,7 @@ parseIdentifier =
           <$> liftA2
             (++)
             (P.some allowedChars)
-            (P.many (P.char ' ' <|> allowedChars <|> (P.digitChar <?> "숫자")))
+            (P.many (P.char '_' <|> allowedChars <|> (P.digitChar <?> "숫자")))
       )
   )
     <?> "변수 이름"
