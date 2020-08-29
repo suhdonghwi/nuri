@@ -55,7 +55,7 @@ runCommand opts = do
 
     let bytecodeFileName = replaceExtension filePath ".hn"
     compileResult filePath isDebug bytecodeFileName result
-    callCommand $ haneulPath ++ " " ++ bytecodeFileName
+    callCommand $ haneulPath ++ " '" ++ bytecodeFileName ++ "'"
 
 helpMessage :: Text
 helpMessage =
