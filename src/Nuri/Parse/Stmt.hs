@@ -6,6 +6,7 @@ import Nuri.Parse.Decl (parseDecl)
 import Nuri.Parse.Error (errorBundlePretty)
 import Nuri.Parse.Expr (parseExpr)
 import Nuri.Stmt (Stmt (..))
+import System.Directory (doesFileExist)
 import System.FilePath (takeDirectory, (</>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
@@ -32,8 +33,11 @@ parseImportStmt = do
   currentPath <- P.sourceName <$> P.getSourcePos
   let realPath = takeDirectory currentPath </> path
 
-  content <- readFileText realPath
+  exists <- liftIO $ doesFileExist realPath
+  when (not exists) $ do
+    fail $ "'" ++ realPath ++ "' 파일을 찾을 수 없습니다."
 
+  content <- readFileText realPath
   st <- P.getParserState
   result <- liftIO $ parseInput content realPath
   P.setParserState st
