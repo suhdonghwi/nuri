@@ -52,6 +52,6 @@ parseFuncIdentifier = lexeme funcIdentifier
 funcIdentifier :: Parser Text
 funcIdentifier = P.notFollowedBy parseKeyword *> hangulWord
   where
-    firstChar = hangulSyllable <|> P.letterChar
-    laterChar = firstChar <|> P.char '_' <|> P.digitChar
-    hangulWord = toText <$> ((:) <$> firstChar <*> P.many laterChar)
+    firstChar = (hangulSyllable <|> P.letterChar) <?> "한글 음절 또는 영문"
+    laterChar = firstChar <|> P.char '_' <|> (P.digitChar <?> "숫자")
+    hangulWord = toText <$> (liftA2 (:) firstChar (P.many laterChar))

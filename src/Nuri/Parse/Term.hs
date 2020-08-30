@@ -95,16 +95,12 @@ parseIdentifier =
   ( P.between
       (P.char '[')
       (P.char ']')
-      ( toText
-          <$> liftA2
-            (++)
-            (P.some allowedChars)
-            (P.many (P.char '_' <|> allowedChars <|> (P.digitChar <?> "숫자")))
-      )
+      (toText <$> liftA2 (:) (firstChar) (P.many laterChar))
   )
     <?> "변수 이름"
   where
-    allowedChars = (hangulSyllable <|> hangulJamo <|> P.letterChar) <?> "한글 또는 영문"
+    firstChar = (hangulSyllable <|> hangulJamo <|> P.letterChar) <?> "한글 또는 영문"
+    laterChar = firstChar <|> P.char '_' <|> (P.digitChar <?> "숫자")
 
 parseNoneExpr :: Parser Expr
 parseNoneExpr = do
