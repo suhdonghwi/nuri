@@ -1,12 +1,17 @@
-# 누리 <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/suhdonghwi/nuri/nuri%20&%20haneul%20build%20release%20files?style=flat"> <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/suhdonghwi/nuri?style=flat"> <img alt="GitHub" src="https://img.shields.io/github/license/suhdonghwi/nuri?style=flat">
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/39073901/91651251-69a37b80-eac5-11ea-947d-1af88e89e035.png" width="450"/>
+</p>
 
-<img src="https://user-images.githubusercontent.com/39073901/91651251-69a37b80-eac5-11ea-947d-1af88e89e035.png"/>
+<h1 align="center">누리 프로그래밍 언어</h1>
 
-누리는 쓰기 쉬운 함수형 한글 프로그래밍 언어입니다.
+<p align="center">
+  누리는 쓰기 쉬운 함수형 한글 프로그래밍 언어입니다.
+</p>
 
-```
-"안녕, "과 "세상!"을 연결하고 보여주다
-```
+<p align="center">
+    <img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/suhdonghwi/nuri/nuri%20&%20haneul%20build%20release%20files?style=flat"> <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/suhdonghwi/nuri?style=flat"> <img alt="GitHub" src="https://img.shields.io/github/license/suhdonghwi/nuri?style=flat">
+</p>
+
 
 ## 특징
 
