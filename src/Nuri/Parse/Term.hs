@@ -13,7 +13,7 @@ import Nuri.Parse
     sc,
     symbol,
   )
-import Nuri.Parse.Util (funcIdentifier, parseJosa)
+import Nuri.Parse.Util (funcIdentifier)
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
@@ -56,7 +56,7 @@ parseStruct expr = do
   return $ Struct pos structName args
   where
     parseField = do
-      argName <- P.try $ (parseJosa <?> "인자 이름") <* symbol ":"
+      argName <- P.try $ (funcIdentifier <?> "인자 이름") <* symbol ":"
       value <- expr
       return (argName, value)
 

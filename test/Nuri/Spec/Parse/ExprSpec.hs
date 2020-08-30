@@ -202,9 +202,18 @@ spec = do
       testParse parseFuncIdentifier "더하고" `shouldParse` "더하고"
     it "언더스코어가 포함된 함수 이름" $ do
       testParse parseFuncIdentifier "값을_더하다" `shouldParse` "값을_더하다"
+    it "숫자가 포함된 함수 이름" $ do
+      testParse parseFuncIdentifier "와123" `shouldParse` "와123"
+    it "영문이 포함된 함수 이름" $ do
+      testParse parseFuncIdentifier "abc" `shouldParse` "abc"
+      testParse parseFuncIdentifier "R값_가져오다" `shouldParse` "R값_가져오다"
     it "부울 키워드에 대해서 오류" $ do
       testParse parseFuncIdentifier `shouldFailOn` "참"
       testParse parseFuncIdentifier `shouldFailOn` "거짓"
+    it "첫 글자가 언더스코어면 오류" $
+      testParse parseFuncIdentifier `shouldFailOn` "_값을_더하다"
+    it "첫 글자가 숫자면 오류" $
+      testParse parseFuncIdentifier `shouldFailOn` "1을_더하다"
 
   describe "문자열 파싱" $ do
     it "비어있는 문자열" $ do
