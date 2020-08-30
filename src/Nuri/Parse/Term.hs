@@ -13,7 +13,7 @@ import Nuri.Parse
     sc,
     symbol,
   )
-import Nuri.Parse.Util (funcIdentifier, parseJosa)
+import Nuri.Parse.Util (funcIdentifier)
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
@@ -56,7 +56,7 @@ parseStruct expr = do
   return $ Struct pos structName args
   where
     parseField = do
-      argName <- P.try $ (parseJosa <?> "인자 이름") <* symbol ":"
+      argName <- P.try $ (funcIdentifier <?> "인자 이름") <* symbol ":"
       value <- expr
       return (argName, value)
 
@@ -95,16 +95,12 @@ parseIdentifier =
   ( P.between
       (P.char '[')
       (P.char ']')
-      ( toText
-          <$> liftA2
-            (++)
-            (P.some allowedChars)
-            (P.many (P.char '_' <|> allowedChars <|> (P.digitChar <?> "숫자")))
-      )
+      (toText <$> liftA2 (:) (firstChar) (P.many laterChar))
   )
     <?> "변수 이름"
   where
-    allowedChars = (hangulSyllable <|> hangulJamo <|> P.letterChar) <?> "한글 또는 영문"
+    firstChar = (hangulSyllable <|> hangulJamo <|> P.letterChar) <?> "한글 또는 영문"
+    laterChar = firstChar <|> P.char '_' <|> (P.digitChar <?> "숫자")
 
 parseNoneExpr :: Parser Expr
 parseNoneExpr = do
