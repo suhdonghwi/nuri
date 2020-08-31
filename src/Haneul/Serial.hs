@@ -12,7 +12,6 @@ import Data.Binary
   )
 import Data.Binary.Get (getDoublebe)
 import Data.Binary.Put (putDoublebe)
-import Data.Char (chr)
 import Data.Set.Ordered (fromList)
 import Data.Text (unpack)
 import Haneul.Constant
