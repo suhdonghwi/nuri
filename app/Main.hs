@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 
 module Main where
 
@@ -7,81 +8,55 @@ import Control.Monad (when)
 import Data.Maybe (fromJust)
 import Helper (compileResult)
 import Nuri.Parse.Stmt (parseInput)
-import System.Console.Docopt
-  ( Arguments,
-    Docopt,
-    argument,
-    docoptFile,
-    getArg,
-    getArgWithDefault,
-    isPresent,
-    longOption,
-    parseArgs,
-  )
 import System.Directory (doesFileExist)
 import System.Environment (getArgs)
 import System.FilePath (replaceExtension)
 import System.Process (callCommand)
+import System.Console.CmdArgs
+import System.Console.CmdArgs.Explicit
 
-patterns :: Docopt
-patterns = [docoptFile|USAGE.txt|]
 
-runCommand :: Arguments -> IO ()
-runCommand opts = do
-  when (opts `isPresent` (longOption "help")) $ do
-    putTextLn helpMessage
-    exitSuccess
-  when (opts `isPresent` (longOption "version")) $ do
-    putStrLn "누리 0.1.0"
-    exitSuccess
-  when (opts `isPresent` (argument "file")) $ do
+defaultHaneulPath :: FilePath
 #ifdef mingw32_HOST_OS
-    let defaultHaneul = ".\\haneul.exe"
+defaultHaneulPath = ".\\haneul.exe"
 #else
-    let defaultHaneul = "./haneul"
+defaultHaneulPath = "./haneul"
 #endif
 
-    let filePath = fromJust $ opts `getArg` (argument "file")
-        isDebug = opts `isPresent` (longOption "debug")
-        haneulPath = getArgWithDefault opts defaultHaneul (longOption "haneul")
+data Nuri = Run { src :: FilePath, haneul :: FilePath, debug :: Bool }
+  deriving (Show, Data, Typeable)
 
-    exists <- doesFileExist filePath
-    when (not exists) $ do
-      putStrLn $ "오류 : '" ++ filePath ++ "' 파일을 찾을 수 없습니다."
-      exitFailure
-
-    content <- readFileText filePath
-    result <- parseInput content filePath
-
-    let bytecodeFileName = replaceExtension filePath ".hn"
-    compileResult filePath isDebug bytecodeFileName result
-    callCommand $ haneulPath ++ " '" ++ bytecodeFileName ++ "'"
-
-helpMessage :: Text
-helpMessage =
-  unlines
-    [ "누리 - 함수형 한글 프로그래밍 언어 0.1.0",
-      "",
-      "사용법:",
-      "  nuri --help | -h",
-      "  nuri --version | -v",
-      "  nuri <파일명> [--debug | -d] [--haneul=<path>]",
-      "",
-      "옵션:",
-      "  -h, --help        도움말을 출력합니다.",
-      "  -v, --version     누리 실행기의 버전을 출력합니다.",
-      "  -d, --debug       디버그용 출력을 활성화합니다.",
-      "  --haneul=<path>   하늘 가상머신 실행 파일의 경로를 설정합니다.",
-      "                    [기본 : 같은 경로의 haneul 파일]"
-    ]
+run = Run { 
+            src = def &= args &= typ "누리 코드 파일",
+            haneul = defaultHaneulPath &= typ "[하늘 파일]" &= groupname "옵션",
+            debug = def
+          }
+      &= summary "누리 0.1.0 - 함수형 한글 프로그래밍 언어"
+      &= helpArg [help "도움 메시지를 출력합니다."]
+      &= versionArg [help "누리의 버전을 출력합니다."]
 
 main :: IO ()
 main = do
-  args <- getArgs
-  let result = parseArgs patterns args
+  let mode = cmdArgsMode run
+  let helpMessage = helpText [] HelpFormatDefault mode
+  Run {src = inputPath, haneul = haneulPath, debug = isDebug} <- cmdArgsValue <$> processArgs mode
+  when (null inputPath) $ do
+    print helpMessage
+    exitFailure
 
-  case result of
-    Left _ -> do
-      putTextLn helpMessage
-      exitFailure
-    Right opts -> runCommand opts
+  inputExists <- doesFileExist inputPath
+  when (not inputExists) $ do
+    putStrLn $ "오류 : 입력 코드 파일 '" ++ inputPath ++ "' 파일을 찾을 수 없습니다."
+    exitFailure
+
+  content <- readFileText inputPath
+  result <- parseInput content inputPath
+
+  let bytecodeFileName = replaceExtension inputPath ".hn"
+  compileResult inputPath isDebug bytecodeFileName result
+
+  haneulExists <- doesFileExist haneulPath
+  when (not haneulExists) $ do
+    putStrLn $ "오류 : 하늘 실행 파일 '" ++ haneulPath ++ "' 파일을 찾을 수 없습니다. (--haneul 옵션을 사용하여 경로를 설정하세요.)"
+    exitFailure
+  callCommand $ haneulPath ++ " '" ++ bytecodeFileName ++ "'"

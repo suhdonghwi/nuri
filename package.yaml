@@ -38,10 +38,10 @@ dependencies:
   - hspec
   - hspec-megaparsec
   - neat-interpolation
-  - docopt
   - directory
   - filepath
   - process
+  - cmdargs
 
 default-extensions:
   - OverloadedStrings

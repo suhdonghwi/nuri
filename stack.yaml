@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: lts-14.19
+resolver: lts-16.12
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -37,12 +37,7 @@ packages:
 # Dependency packages to be pulled from upstream that are not in the resolver
 # using the same syntax as the packages field.
 # (e.g., acme-missiles-0.3)
-extra-deps:
- - megaparsec-8.0.0
- - relude-0.6.0.0
- - prettyprinter-1.5.1
- - ordered-containers-0.2.2
- - hspec-megaparsec-2.1.0
+extra-deps: []
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

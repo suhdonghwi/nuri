@@ -3,45 +3,10 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages:
-- completed:
-    hackage: megaparsec-8.0.0@sha256:362f85e243ecbcb550e1de6e5c74ba5a50c09edaa1208c99bc5b9fd242227fc6,3808
-    pantry-tree:
-      size: 1446
-      sha256: 955117c00a86970f2d0c215f33cf5293b16589c04678a0a790c03368ab6fd0aa
-  original:
-    hackage: megaparsec-8.0.0
-- completed:
-    hackage: relude-0.6.0.0@sha256:094ad587b28fa8dcc78fd0fba8927b970e5e4a9bb10a3126c0ca32a7ee61f3ca,8681
-    pantry-tree:
-      size: 4101
-      sha256: 79a99fd25ca55b12910780ed52fa60f3b19d97be03cb6ad5ad96abaf4f428478
-  original:
-    hackage: relude-0.6.0.0
-- completed:
-    hackage: prettyprinter-1.5.1@sha256:fca87c3e2611d3499a0341a59857e9b424a23f31646e4737d535a18582284f96,5375
-    pantry-tree:
-      size: 2106
-      sha256: 86fd583112db41bac5ac9ecf258ec402ad615253e9c5eabc56ec127bfb94c096
-  original:
-    hackage: prettyprinter-1.5.1
-- completed:
-    hackage: ordered-containers-0.2.2@sha256:ebf2be3f592d9cf148ea6b8375f8af97148d44f82d8d04476899285e965afdbf,810
-    pantry-tree:
-      size: 526
-      sha256: 757fd75227afa0107f8eb3ebb467856b1d7456276eb501d510c9b06cb5395fbc
-  original:
-    hackage: ordered-containers-0.2.2
-- completed:
-    hackage: hspec-megaparsec-2.1.0@sha256:e4dfe9f9c750352f4ffaef4137ea907e457c5ac9042197e11f411f263296372a,2106
-    pantry-tree:
-      size: 385
-      sha256: 17337afa3964b6caee5d2e713a82c38a8909a509bea74c6d6855e1800c638f99
-  original:
-    hackage: hspec-megaparsec-2.1.0
+packages: []
 snapshots:
 - completed:
-    size: 524155
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/19.yaml
-    sha256: 9f79f6494473c9b46911364b94c4b5ef19ca8d35ebf62e46697cf651f198ee19
-  original: lts-14.19
+    size: 532377
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/12.yaml
+    sha256: f914cfa23fef85bdf895e300a8234d9d0edc2dbec67f4bc9c53f85867c50eab6
+  original: lts-16.12
