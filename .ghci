@@ -1,0 +1,5 @@
+import Text.Megaparsec
+
+let testParse parser input = runParserT (parser) "(test)" input
+
+:set prompt "$ "

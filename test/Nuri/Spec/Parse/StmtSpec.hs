@@ -239,10 +239,11 @@ spec = do
       it "필드가 3개인 구조체 선언문" $ do
         testParse parseDeclStmt "구조체 사람: 이름, 몸무게, 성별"
           `shouldParse` structDeclStmt "사람" ["이름", "몸무게", "성별"]
+      it "필드 이름 중에 공백이 포함되어있는 구조체 선언문" $ do
+        testParse parseDeclStmt "구조체 사람: 이름, 몸의 무게, 성별" 
+          `shouldParse` structDeclStmt "사람" ["이름", "몸의 무게", "성별"]
       it "이름에 공백이 포함되어있는 구조체 선언문에 대해 오류" $ do
         testParse parseDeclStmt `shouldFailOn` "구조체 멋진 사람: 이름, 몸의 무게, 성별"
-      it "필드 이름 중에 공백이 포함되어있는 구조체 선언문에 대해 오류" $ do
-        testParse parseDeclStmt `shouldFailOn` "구조체 사람: 이름, 몸의 무게, 성별"
 
   describe "표현식 구문 파싱" $ do
     it "계산식 구문" $ do

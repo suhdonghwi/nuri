@@ -32,11 +32,8 @@ data Instruction' a
 newtype Mark = Mark Word32
 
 type MarkedInstruction = Instruction' Mark
-
 type Instruction = Instruction' Word32
-
 type MarkedCode = [MarkedInstruction]
-
 type Code = [Instruction]
 
 estimateStackSize :: Code -> Word64

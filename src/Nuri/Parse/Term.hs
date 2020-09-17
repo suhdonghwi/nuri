@@ -13,7 +13,7 @@ import Nuri.Parse
     sc,
     symbol,
   )
-import Nuri.Parse.Util (funcIdentifier)
+import Nuri.Parse.Util (funcIdentifier, structIdentifier)
 import Text.Megaparsec ((<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
@@ -51,7 +51,7 @@ parseList expr = do
 parseStruct :: Parser Expr -> Parser Expr
 parseStruct expr = do
   pos <- P.getSourcePos
-  structName <- P.try $ funcIdentifier <* (P.char '(' >> sc)
+  structName <- P.try $ structIdentifier <* (P.char '(' >> sc)
   args <- parseArguments <* (sc >> P.char ')')
   return $ Struct pos structName args
   where

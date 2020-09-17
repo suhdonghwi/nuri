@@ -16,7 +16,7 @@ import Nuri.Parse
     symbol,
   )
 import Nuri.Parse.Term (parseIdentifier)
-import Nuri.Parse.Util (parseFuncIdentifier, parseJosa)
+import Nuri.Parse.Util (parseFuncIdentifier, parseJosa, parseStructIdentifier)
 import Text.Megaparsec
 import qualified Text.Megaparsec as P
 
@@ -89,6 +89,6 @@ parseStructDecl :: Parser Decl
 parseStructDecl = do
   pos <- P.getSourcePos
   reserved "구조체"
-  identifier <- lexeme parseFuncIdentifier <* symbol ":"
+  identifier <- lexeme parseStructIdentifier <* symbol ":"
   fields <- parseFuncIdentifier `sepBy1` symbol ","
   return $ Decl pos identifier (Just $ StructDecl fields)

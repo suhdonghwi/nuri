@@ -201,21 +201,25 @@ spec = do
 
   describe "함수 이름 파싱" $ do
     it "띄어쓰기 없는 한 단어" $ do
-      testParse parseFuncIdentifier "더하고" `shouldParse` "더하고"
-    it "언더스코어가 포함된 함수 이름" $ do
-      testParse parseFuncIdentifier "값을_더하다" `shouldParse` "값을_더하다"
-    it "숫자가 포함된 함수 이름" $ do
-      testParse parseFuncIdentifier "와123" `shouldParse` "와123"
+      testParse parseFuncIdentifier "더하다" `shouldParse` "더하다"
+    it "공백이 포함된 함수 이름" $ do
+      testParse parseFuncIdentifier "값을 더하다" `shouldParse` "값을 더하다"
     it "영문이 포함된 함수 이름" $ do
       testParse parseFuncIdentifier "abc" `shouldParse` "abc"
-      testParse parseFuncIdentifier "R값_가져오다" `shouldParse` "R값_가져오다"
+      testParse parseFuncIdentifier "R값 가져오다" `shouldParse` "R값 가져오다"
+    it "마지막이 '고'로 끝나는 함수 이름" $ do
+      testParse parseFuncIdentifier "받고" `shouldParse` "받고"
+    it "키워드로 시작하는 어절이 포함된 함수 이름" $ do
+      testParse parseFuncIdentifier "열려라 참깨" `shouldParse` "열려라 참깨"
     it "부울 키워드에 대해서 오류" $ do
       testParse parseFuncIdentifier `shouldFailOn` "참"
       testParse parseFuncIdentifier `shouldFailOn` "거짓"
-    it "첫 글자가 언더스코어면 오류" $
-      testParse parseFuncIdentifier `shouldFailOn` "_값을_더하다"
-    it "첫 글자가 숫자면 오류" $
-      testParse parseFuncIdentifier `shouldFailOn` "1을_더하다"
+    it "숫자가 포함된 함수 이름에 대해서 오류" $ do
+      testParse parseFuncIdentifier `shouldFailOn` "와123"
+    it "중간에 '고'로 끝나는 어절이 포함된 함수 이름에 대해서 오류" $ do
+      testParse parseFuncIdentifier `shouldFailOn` "받고 던지다"
+    it "중간에 키워드 어절이 포함된 함수 이름에 대해서 오류" $ do
+      testParse parseFuncIdentifier `shouldFailOn` "열려라 참 깨"
 
   describe "문자열 파싱" $ do
     it "비어있는 문자열" $ do
@@ -227,9 +231,9 @@ spec = do
 
   describe "함수 호출식 파싱" $ do
     it "인자가 1개인 함수 호출식" $ do
-      testParse parseFuncCall "2를 받고_던지다"
+      testParse parseFuncCall "2를 받다"
         `shouldParse` funcCall
-          (var "받고_던지다")
+          (var "받다")
           [(litInteger 2, "을")]
     it "인자가 2개인 함수 호출식" $ do
       testParse parseFuncCall "1과 2를 더하다"
