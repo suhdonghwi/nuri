@@ -11,6 +11,7 @@ import Nuri.Parse
     lexeme,
     reserved,
     sc,
+    scn,
     symbol,
   )
 import Nuri.Parse.Util (funcIdentifier, structIdentifier)
@@ -59,7 +60,7 @@ parseStruct expr = do
       value <- expr
       return (argName, value)
 
-    parseArguments = parseField `P.sepBy` (symbol ",")
+    parseArguments = parseField `P.sepBy` (symbol "," <* scn)
 
 parseParens :: Parser a -> Parser a
 parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr

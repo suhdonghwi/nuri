@@ -2,7 +2,7 @@
 
 module Nuri.Spec.Parse.ExprSpec where
 
-import NeatInterpolation
+import NeatInterpolation 
 import Nuri.Expr
 import Nuri.Parse.Expr
 import Nuri.Parse.Term
@@ -263,8 +263,21 @@ spec = do
         `shouldParse` struct
           "직육면체"
           [("가로", litInteger 10), ("세로", binaryOp Add (litInteger 10) (litInteger 10)), ("높이", litInteger 20)]
+    it "구분자에서 줄바꿈을 하는 구조체" $ do
+      testParse
+        (parseStruct parseExpr)
+        ( [text|
+          직육면체(가로: 10, 
+                   세로: 10 + 10, 
+                   높이: 20)
+          |]
+        )
+        `shouldParse` struct
+          "직육면체"
+          [("가로", litInteger 10), ("세로", binaryOp Add (litInteger 10) (litInteger 10)), ("높이", litInteger 20)]
     it "구조체 이름과 괄호 사이에 공백이 있으면 오류" $ do
       testParse (parseStruct parseExpr) `shouldFailOn` "직육면체 (가로: 10, 세로: 10 + 10, 높이: 20)"
+
   describe "중첩된 함수 호출식 파싱" $ do
     it "한 번 중첩된 함수 호출식" $ do
       testParse parseNestedFuncCalls "4와 2를 합하고 2로 나누다"
