@@ -440,7 +440,17 @@ spec = do
         `shouldParse` funcCall
           (var "더하다")
           [(binaryOp Add (litInteger 1) (litInteger 1), "와"), (litInteger 2, "을")]
-
+    it "소괄호 함수 호출식이 함수 호출식보다 우선순위 높음" $ do
+      testParse parseExpr "더하다(1, 2)와 3을 더하다"
+        `shouldParse` funcCall
+          (var "더하다")
+          [ ( funcCall
+                (var "더하다")
+                [(litInteger 1, "_"), (litInteger 2, "_")],
+              "와"
+            ),
+            (litInteger 3, "을")
+          ]
     it "구조체 생성자식이 함수 호출식보다 우선순위 높음" $ do
       testParse parseExpr "정사각형(길이: 20)과 3을 더하다"
         `shouldParse` funcCall
