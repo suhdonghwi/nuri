@@ -89,7 +89,7 @@ parseIdentifier =
     <?> "변수 이름"
   where
     firstChar = (hangulSyllable <|> hangulJamo <|> P.letterChar) <?> "한글 또는 영문"
-    laterChar = firstChar <|> P.char '_' <|> (P.digitChar <?> "숫자")
+    laterChar = firstChar <|> P.char ' ' <|> (P.digitChar <?> "숫자")
 
 parseNoneExpr :: Parser Expr
 parseNoneExpr = do
