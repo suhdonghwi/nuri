@@ -64,14 +64,11 @@ funcIdentifier = P.notFollowedBy parseKeyword *> hangulWords ""
          else return t
 
     hangulWords s = do
-      w <- P.optional word
-      case w of
-        Just w' -> do
-          let con = if T.null s then w' else s <> " " <> w'
-          if T.last w' == '고'
-             then return con
-             else P.try (P.char ' ' >> hangulWords con) <|> return con
-        Nothing -> if T.null s then fail "" else return s
+      w <- word
+      let con = if T.null s then w else s <> " " <> w
+      if T.last w == '고'
+         then return con
+         else P.try (P.char ' ' >> hangulWords con) <|> return con
 
 parseStructIdentifier :: Parser Text
 parseStructIdentifier = lexeme structIdentifier
