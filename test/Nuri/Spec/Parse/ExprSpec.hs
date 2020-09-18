@@ -235,6 +235,11 @@ spec = do
         `shouldParse` funcCall
           (var "받다")
           [(litInteger 2, "을")]
+    it "공백이 포함된 함수 호출 식" $ do
+      testParse parseFuncCall "2번째 피보나치 수 구하다"
+        `shouldParse` funcCall
+          (var "피보나치 수 구하다")
+          [(litInteger 2, "번째")]
     it "인자가 2개인 함수 호출식" $ do
       testParse parseFuncCall "1과 2를 더하다"
         `shouldParse` funcCall
@@ -247,37 +252,6 @@ spec = do
       testParse parseFuncCall `shouldFailOn` "1 과 2 를 더하다"
     it "인자가 없는 함수 호출식" $ do
       testParse parseFuncCall "던지다" `shouldParse` funcCall (var "던지다") []
-
-  describe "소괄호 함수 호출식 파싱" $ do
-    it "인자가 하나인 함수 호출식" $ do
-      testParse (parseParenCall parseExpr) "더하다(1)"
-        `shouldParse` funcCall
-          (var "더하다")
-          [(litInteger 1, "_")]
-    it "인자가 두 개인 함수 호출식" $ do
-      testParse (parseParenCall parseExpr) "더하다(1, 2)"
-        `shouldParse` funcCall
-          (var "더하다")
-          [(litInteger 1, "_"), (litInteger 2, "_")]
-    it "인자가 없는 함수 호출식" $ do
-      testParse (parseParenCall parseExpr) "더하다()"
-        `shouldParse` funcCall
-          (var "더하다")
-          []
-    it "인자가 복합 표현식인 함수 호출식" $ do
-      testParse (parseParenCall parseExpr) "더하다(1 + 2, 3와 4를 더하다)"
-        `shouldParse` funcCall
-          (var "더하다")
-          [ (binaryOp Add (litInteger 1) (litInteger 2), "_"),
-            (funcCall (var "더하다") [(litInteger 3, "와"), (litInteger 4, "을")], "_")
-          ]
-    it "함수 이름과 괄호 사이에 공백이 있으면 오류" $ do
-      testParse (parseParenCall parseExpr) `shouldFailOn` "더하다 (1 + 2, 3와 4를 더하다)"
-    it "괄호 내부에서 인수가 없는 함수를 호출한 함수 호출식" $ do
-      testParse (parseParenCall parseExpr) "더하다(실행하다)"
-        `shouldParse` funcCall
-          (var "더하다")
-          [(funcCall (var "실행하다") [], "_")]
 
   describe "구조체 생성식 파싱" $ do
     it "필드가 1개인 구조체" $ do
@@ -292,9 +266,8 @@ spec = do
           [("가로", litInteger 10), ("세로", binaryOp Add (litInteger 10) (litInteger 10)), ("높이", litInteger 20)]
     it "구조체 이름과 괄호 사이에 공백이 있으면 오류" $ do
       testParse (parseStruct parseExpr) `shouldFailOn` "직육면체 (가로: 10, 세로: 10 + 10, 높이: 20)"
-
   describe "중첩된 함수 호출식 파싱" $ do
-    it "한 번 중첩된 식" $ do
+    it "한 번 중첩된 함수 호출식" $ do
       testParse parseNestedFuncCalls "4와 2를 합하고 2로 나누다"
         `shouldParse` funcCall
           (var "나누다")
@@ -305,7 +278,18 @@ spec = do
             ),
             (litInteger 2, "로")
           ]
-    it "두 번 중첩된 식" $ do
+    it "공백이 포함된 중첩 함수 호출식" $ do
+      testParse parseNestedFuncCalls "4번째 피보나치 수 구하고 2로 나누다"
+        `shouldParse` funcCall
+          (var "나누다")
+          [ ( funcCall
+                (var "피보나치 수 구하다")
+                [(litInteger 4, "번째")],
+              "_"
+            ),
+            (litInteger 2, "로")
+          ]
+    it "두 번 중첩된 함수 호출식" $ do
       testParse parseNestedFuncCalls "4와 2를 더하고 2로 나누고 3을 더하다"
         `shouldParse` funcCall
           (var "더하다")
@@ -413,17 +397,7 @@ spec = do
         `shouldParse` funcCall
           (var "더하다")
           [(binaryOp Add (litInteger 1) (litInteger 1), "와"), (litInteger 2, "을")]
-    it "소괄호 함수 호출식이 함수 호출식보다 우선순위 높음" $ do
-      testParse parseExpr "더하다(1, 2)와 3을 더하다"
-        `shouldParse` funcCall
-          (var "더하다")
-          [ ( funcCall
-                (var "더하다")
-                [(litInteger 1, "_"), (litInteger 2, "_")],
-              "와"
-            ),
-            (litInteger 3, "을")
-          ]
+
     it "구조체 생성자식이 함수 호출식보다 우선순위 높음" $ do
       testParse parseExpr "정사각형(길이: 20)과 3을 더하다"
         `shouldParse` funcCall

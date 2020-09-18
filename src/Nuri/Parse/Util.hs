@@ -53,27 +53,25 @@ parseFuncIdentifier :: Parser Text
 parseFuncIdentifier = lexeme funcIdentifier
 
 funcIdentifier :: Parser Text
-funcIdentifier = P.notFollowedBy parseKeyword *> (P.try hangulWords <|> lastWord)
+funcIdentifier = P.notFollowedBy parseKeyword *> hangulWords "" 
   where
     char = (hangulSyllable <|> P.letterChar) <?> "한글 음절 또는 영문"
-    word = P.try $ do
-      raw <- lastWord
-      if T.last raw == '고' 
-         then fail "이 자리에는 '고'가 올 수 없습니다." 
-         else return raw
 
-    lastWord = do 
+    word = do 
       t <- toText <$> P.some char
       if t `elem` keywords
          then fail "여기에는 키워드가 사용될 수 없습니다." 
          else return t
 
-    hangulWords = do
-      xs <- T.intercalate " " <$> word `P.sepBy1` (P.char ' ')
-      x <- P.optional (P.char ' ' >> lastWord)
-      case x of
-        Nothing -> return xs
-        Just x' -> return $ xs <> " " <> x'
+    hangulWords s = do
+      w <- P.optional word
+      case w of
+        Just w' -> do
+          let con = if T.null s then w' else s <> " " <> w'
+          if T.last w' == '고'
+             then return con
+             else P.try (P.char ' ' >> hangulWords con) <|> return con
+        Nothing -> if T.null s then fail "" else return s
 
 parseStructIdentifier :: Parser Text
 parseStructIdentifier = lexeme structIdentifier

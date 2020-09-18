@@ -33,7 +33,6 @@ parseNonLexemeTerm parseExpr =
     <|> parseStringExpr
     <|> parseList parseExpr
     <|> P.try (parseStruct parseExpr)
-    <|> parseParenCall parseExpr
     <|> parseParens parseExpr
 
 toListStruct :: P.SourcePos -> [Expr] -> Expr
@@ -61,16 +60,6 @@ parseStruct expr = do
       return (argName, value)
 
     parseArguments = parseField `P.sepBy` (symbol ",")
-
-parseParenCall :: Parser Expr -> Parser Expr
-parseParenCall expr = do
-  pos <- P.getSourcePos
-  funcName <- P.try $ funcIdentifier <* (P.char '(' >> sc)
-  args <- parseArguments <* (sc >> P.char ')')
-  return $ FuncCall pos (Var pos funcName) args
-  where
-    parseArgument = (,"_") <$> expr
-    parseArguments = parseArgument `P.sepBy` (symbol ",")
 
 parseParens :: Parser a -> Parser a
 parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr
