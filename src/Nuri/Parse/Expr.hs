@@ -40,10 +40,13 @@ parseSeq = do
   reserved "순서대로" <* P.eol
   scn
   level <- L.indentGuard scn GT P.pos1
+
+  st <- get
   result <-
     sepBy1
       parseLine
       (P.try $ P.eol >> scn >> L.indentGuard scn EQ level)
+  put st
 
   void (P.lookAhead $ P.eol >> L.indentGuard scn LT level) <|> P.eof
   when (isLeft $ last result) $ fail "순서 표현식의 마지막은 선언문이 아닌 표현식이어야 합니다."

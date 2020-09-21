@@ -5,7 +5,9 @@ import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 
-type MonadParser m = (MonadParsec Void Text m, MonadFail m)
+import Nuri.Parse.PartTable (MonadPartTable)
+
+type MonadParser m = (MonadParsec Void Text m, MonadFail m, MonadPartTable m)
 
 lineComment :: (MonadParser m) => m ()
 lineComment = L.skipLineComment "#"

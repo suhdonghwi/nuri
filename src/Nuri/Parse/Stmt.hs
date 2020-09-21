@@ -47,7 +47,7 @@ parseImportStmt = do
 
 parseInput :: Text -> String -> IO (NonEmpty Stmt)
 parseInput input fileName = do
-  r <- P.runParserT (parseStmts <* P.eof) fileName input
+  (r, _) <- runStateT (P.runParserT (parseStmts <* P.eof) fileName input) (fromList [])
   case r of
     Left err -> do
       (liftIO . putTextLn . toText . errorBundlePretty) err

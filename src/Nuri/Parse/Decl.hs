@@ -15,6 +15,7 @@ import Nuri.Parse
     scn,
     symbol,
   )
+import Nuri.Parse.PartTable (MonadPartTable, addDecl)
 import Nuri.Parse.Term (parseIdentifier)
 import Nuri.Parse.Util (parseFuncIdentifier, parseJosa, parseStructIdentifier)
 import Text.Megaparsec (sepBy1)
@@ -44,7 +45,9 @@ parseFuncDecl parseExpr = do
   args <- parseArgList []
   offset <- P.getOffset
   funcName <- parseFuncIdentifier
+
   checkValidIdentifier offset declKind funcName
+  addDecl funcName declKind
 
   colon <- P.observing (symbol ":")
   case colon of
@@ -85,10 +88,12 @@ parseConstDecl parseExpr = do
   identifier <- lexeme parseIdentifier <* symbol ":"
   Decl pos identifier <$> Just . ConstDecl <$> parseExpr
 
-parseStructDecl :: (MonadParser m) => m Decl
+parseStructDecl :: (MonadParser m, MonadPartTable m) => m Decl
 parseStructDecl = do
   pos <- P.getSourcePos
   reserved "구조체"
   identifier <- lexeme parseStructIdentifier <* symbol ":"
   fields <- parseFuncIdentifier `sepBy1` symbol ","
+
+  sequence_ $ (`addDecl` NormalDecl) <$> fields
   return $ Decl pos identifier (Just $ StructDecl fields)
