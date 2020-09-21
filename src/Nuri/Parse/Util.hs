@@ -1,5 +1,7 @@
 module Nuri.Parse.Util where
 
+import Control.Monad.Combinators.NonEmpty (some)
+import qualified Data.Text as T
 import Nuri.Parse
   ( MonadParser,
     hangulSyllable,
@@ -7,8 +9,6 @@ import Nuri.Parse
     reserved,
   )
 import Text.Megaparsec ((<?>))
-import Control.Monad.Combinators.NonEmpty (some)
-import qualified Data.Text as T
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 
@@ -53,22 +53,22 @@ parseFuncIdentifier :: (MonadParser m) => m Text
 parseFuncIdentifier = lexeme funcIdentifier
 
 funcIdentifier :: (MonadParser m) => m Text
-funcIdentifier = P.notFollowedBy parseKeyword *> hangulWords "" 
+funcIdentifier = P.notFollowedBy parseKeyword *> hangulWords ""
   where
     char = (hangulSyllable <|> P.letterChar) <?> "한글 음절 또는 영문"
 
-    word = do 
+    word = do
       t <- toText <$> P.some char
       if t `elem` keywords
-         then fail "여기에는 키워드가 사용될 수 없습니다." 
-         else return t
+        then fail "여기에는 키워드가 사용될 수 없습니다."
+        else return t
 
     hangulWords s = do
       w <- word
       let con = if T.null s then w else s <> " " <> w
       if T.last w == '고'
-         then return con
-         else P.try (P.char ' ' >> hangulWords con) <|> return con
+        then return con
+        else P.try (P.char ' ' >> hangulWords con) <|> return con
 
 parseStructIdentifier :: (MonadParser m) => m Text
 parseStructIdentifier = lexeme structIdentifier

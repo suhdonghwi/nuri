@@ -240,7 +240,7 @@ spec = do
         testParse parseDeclStmt "구조체 사람: 이름, 몸무게, 성별"
           `shouldParse` structDeclStmt "사람" ["이름", "몸무게", "성별"]
       it "필드 이름 중에 공백이 포함되어있는 구조체 선언문" $ do
-        testParse parseDeclStmt "구조체 사람: 이름, 몸의 무게, 성별" 
+        testParse parseDeclStmt "구조체 사람: 이름, 몸의 무게, 성별"
           `shouldParse` structDeclStmt "사람" ["이름", "몸의 무게", "성별"]
       it "이름에 공백이 포함되어있는 구조체 선언문에 대해 오류" $ do
         testParse parseDeclStmt `shouldFailOn` "구조체 멋진 사람: 이름, 몸의 무게, 성별"
@@ -399,11 +399,11 @@ spec = do
             동사 달리다: 3
           |]
         )
-        `shouldParse'` ([ funcDeclStmt NormalDecl "일" [] (litInteger 1),
-                          funcDeclStmt AdjectiveDecl "같다" [] (litInteger 2),
-                          funcDeclStmt VerbDecl "달리다" [] (litInteger 3)], 
-                          
-                          fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+        `shouldParse'` ( [ funcDeclStmt NormalDecl "일" [] (litInteger 1),
+                           funcDeclStmt AdjectiveDecl "같다" [] (litInteger 2),
+                           funcDeclStmt VerbDecl "달리다" [] (litInteger 3)
+                         ],
+                         fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
                        )
     it "일반, 형용사, 동사 함수 전방 선언 테이블 추가" $ do
       testParse'
@@ -414,11 +414,11 @@ spec = do
             동사 달리다
           |]
         )
-        `shouldParse'` ([ funcForwardStmt NormalDecl "일" [],
-                          funcForwardStmt AdjectiveDecl "같다" [],
-                          funcForwardStmt VerbDecl "달리다" []], 
-                          
-                          fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+        `shouldParse'` ( [ funcForwardStmt NormalDecl "일" [],
+                           funcForwardStmt AdjectiveDecl "같다" [],
+                           funcForwardStmt VerbDecl "달리다" []
+                         ],
+                         fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
                        )
     it "순서대로 표현식 스코프 관리" $ do
       testParse'
@@ -434,15 +434,16 @@ spec = do
             동사 달리다: 3
           |]
         )
-        `shouldParse'` ([ funcDeclStmt NormalDecl "일" [] (litInteger 1),
-                          ExprStmt 
-                            $ Seq [Left $ funcDecl NormalDecl "이" [] (litInteger 2), 
-                                   Right $ funcCall (var "이") []
-                                  ],
-                          funcDeclStmt AdjectiveDecl "같다" [] (litInteger 2),
-                          funcDeclStmt VerbDecl "달리다" [] (litInteger 3)], 
-                          
-                          fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+        `shouldParse'` ( [ funcDeclStmt NormalDecl "일" [] (litInteger 1),
+                           ExprStmt $
+                             Seq
+                               [ Left $ funcDecl NormalDecl "이" [] (litInteger 2),
+                                 Right $ funcCall (var "이") []
+                               ],
+                           funcDeclStmt AdjectiveDecl "같다" [] (litInteger 2),
+                           funcDeclStmt VerbDecl "달리다" [] (litInteger 3)
+                         ],
+                         fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
                        )
     it "구조체 선언 필드 접근자 테이블 추가" $ do
       testParse'
@@ -451,8 +452,8 @@ spec = do
             구조체 사람: 몸의 무게, 나이, 이름
           |]
         )
-        `shouldParse'` ([ structDeclStmt "사람" ["몸의 무게", "나이", "이름"]],
-                          fromList [("몸의 무게", NormalDecl), ("나이", NormalDecl), ("이름", NormalDecl)]
+        `shouldParse'` ( [structDeclStmt "사람" ["몸의 무게", "나이", "이름"]],
+                         fromList [("몸의 무게", NormalDecl), ("나이", NormalDecl), ("이름", NormalDecl)]
                        )
     it "상수의 경우 품사 테이블에 추가하지 않음" $ do
       testParse'
@@ -464,10 +465,10 @@ spec = do
             동사 달리다
           |]
         )
-        `shouldParse'` ([ funcForwardStmt NormalDecl "일" [],
-                          constDeclStmt "수" (litInteger 10), 
-                          funcForwardStmt AdjectiveDecl "같다" [],
-                          funcForwardStmt VerbDecl "달리다" []], 
-                          
-                          fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+        `shouldParse'` ( [ funcForwardStmt NormalDecl "일" [],
+                           constDeclStmt "수" (litInteger 10),
+                           funcForwardStmt AdjectiveDecl "같다" [],
+                           funcForwardStmt VerbDecl "달리다" []
+                         ],
+                         fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
                        )

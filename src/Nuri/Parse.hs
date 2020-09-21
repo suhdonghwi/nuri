@@ -1,11 +1,10 @@
 module Nuri.Parse where
 
-import Text.Megaparsec ((<?>), MonadParsec)
+import Nuri.Parse.PartTable (MonadPartTable)
+import Text.Megaparsec (MonadParsec, (<?>))
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
-
-import Nuri.Parse.PartTable (MonadPartTable)
 
 type MonadParser m = (MonadParsec Void Text m, MonadFail m, MonadPartTable m)
 

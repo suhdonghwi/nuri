@@ -5,8 +5,7 @@ import Nuri.Literal
   ( Literal (..),
   )
 import Nuri.Parse
-  ( 
-    MonadParser,
+  ( MonadParser,
     hangulJamo,
     hangulSyllable,
     lexeme,
@@ -42,7 +41,7 @@ toListStruct :: P.SourcePos -> [Expr] -> Expr
 toListStruct pos [] = Lit pos LitNone
 toListStruct pos (x : xs) = Struct pos "목록" [("첫번째", x), ("나머지", toListStruct pos xs)]
 
-parseList  :: (MonadParser m) => m Expr -> m Expr
+parseList :: (MonadParser m) => m Expr -> m Expr
 parseList expr = do
   pos <- P.getSourcePos
   elements <- brackets (expr `P.sepBy` symbol ",")
@@ -50,7 +49,7 @@ parseList expr = do
   where
     brackets = P.between (symbol "{") (symbol "}")
 
-parseParenCall  :: (MonadParser m) => m Expr -> m Expr
+parseParenCall :: (MonadParser m) => m Expr -> m Expr
 parseParenCall expr = do
   pos <- P.getSourcePos
   funcName <- P.try $ funcIdentifier <* (P.char '(' >> sc)
@@ -60,7 +59,7 @@ parseParenCall expr = do
     parseArgument = (,"_") <$> expr
     parseArguments = parseArgument `P.sepBy` (symbol ",")
 
-parseStruct  :: (MonadParser m) => m Expr -> m Expr
+parseStruct :: (MonadParser m) => m Expr -> m Expr
 parseStruct expr = do
   pos <- P.getSourcePos
   structName <- P.try $ structIdentifier <* (P.char '(' >> sc)
@@ -74,10 +73,10 @@ parseStruct expr = do
 
     parseArguments = parseField `P.sepBy` (symbol "," <* scn)
 
-parseParens  :: (MonadParser m) => m Expr -> m Expr
+parseParens :: (MonadParser m) => m Expr -> m Expr
 parseParens expr = P.between (P.char '(' >> sc) (sc >> P.char ')') expr
 
-parseStringExpr  :: (MonadParser m) => m Expr
+parseStringExpr :: (MonadParser m) => m Expr
 parseStringExpr = do
   pos <- P.getSourcePos
   let parseCh = do
@@ -86,13 +85,13 @@ parseStringExpr = do
         return $ Lit p (LitChar char)
   toListStruct pos <$> P.between (P.char '"') (P.char '"') (P.many parseCh)
 
-parseIdentifierExpr  :: (MonadParser m) => m Expr
+parseIdentifierExpr :: (MonadParser m) => m Expr
 parseIdentifierExpr = do
   pos <- P.getSourcePos
   ident <- parseIdentifier
   return $ Var pos ident
 
-parseIdentifier  :: (MonadParser m) => m Text
+parseIdentifier :: (MonadParser m) => m Text
 parseIdentifier =
   ( P.between
       (P.char '[')
@@ -104,13 +103,13 @@ parseIdentifier =
     firstChar = (hangulSyllable <|> hangulJamo <|> P.letterChar) <?> "한글 또는 영문"
     laterChar = firstChar <|> P.char ' ' <|> (P.digitChar <?> "숫자")
 
-parseNoneExpr  :: (MonadParser m) => m Expr
+parseNoneExpr :: (MonadParser m) => m Expr
 parseNoneExpr = do
   pos <- P.getSourcePos
   reserved "없음"
   return $ Lit pos LitNone
 
-parseIntegerExpr  :: (MonadParser m) => m Expr
+parseIntegerExpr :: (MonadParser m) => m Expr
 parseIntegerExpr = do
   pos <- P.getSourcePos
   val <- zeroNumber <|> parseDecimal
@@ -119,31 +118,31 @@ parseIntegerExpr = do
     zeroNumber =
       P.char '0' >> parseHexadecimal <|> parseOctal <|> parseBinary <|> return 0
 
-parseRealExpr  :: (MonadParser m) => m Expr
+parseRealExpr :: (MonadParser m) => m Expr
 parseRealExpr = Lit <$> P.getSourcePos <*> (LitReal <$> parseReal)
 
-parseCharExpr  :: (MonadParser m) => m Expr
+parseCharExpr :: (MonadParser m) => m Expr
 parseCharExpr = Lit <$> P.getSourcePos <*> (LitChar <$> parseChar)
 
-parseBoolExpr  :: (MonadParser m) => m Expr
+parseBoolExpr :: (MonadParser m) => m Expr
 parseBoolExpr = Lit <$> P.getSourcePos <*> (LitBool <$> parseBool)
 
-parseBinary  :: (MonadParser m) => m Int64
+parseBinary :: (MonadParser m) => m Int64
 parseBinary = P.char' 'b' >> (L.binary <?> "2진수")
 
-parseOctal  :: (MonadParser m) => m Int64
+parseOctal :: (MonadParser m) => m Int64
 parseOctal = L.octal <?> "8진수"
 
-parseDecimal  :: (MonadParser m) => m Int64
+parseDecimal :: (MonadParser m) => m Int64
 parseDecimal = L.decimal <?> "정수"
 
-parseHexadecimal  :: (MonadParser m) => m Int64
+parseHexadecimal :: (MonadParser m) => m Int64
 parseHexadecimal = P.char' 'x' >> (L.hexadecimal <?> "16진수")
 
-parseReal  :: (MonadParser m) => m Double
+parseReal :: (MonadParser m) => m Double
 parseReal = L.float
 
-parseChar  :: (MonadParser m) => m Char
+parseChar :: (MonadParser m) => m Char
 parseChar =
   ( P.between
       (P.char '\'')

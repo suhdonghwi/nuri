@@ -19,14 +19,13 @@ import Nuri.Expr
     UnaryOperator (..),
   )
 import Nuri.Parse
-  ( 
-    MonadParser,
+  ( MonadParser,
     reserved,
     sc,
     scn,
   )
-import Nuri.Parse.PartTable (checkDeclKind)
 import Nuri.Parse.Decl (parseDecl)
+import Nuri.Parse.PartTable (checkDeclKind)
 import Nuri.Parse.Term (parseNonLexemeTerm, parseTerm)
 import Nuri.Parse.Util (parseFuncIdentifier, parseJosa)
 import Text.Megaparsec ((<?>))
@@ -53,18 +52,17 @@ parseSeq = do
   void (P.lookAhead $ P.eol >> L.indentGuard scn LT level) <|> P.eof
   when (isLeft $ last result) $ fail "순서 표현식의 마지막은 선언문이 아닌 표현식이어야 합니다."
   return $ Seq result
-
-  where 
+  where
     parseDeclExceptStruct :: (MonadParser m) => m Decl
     parseDeclExceptStruct = do
-          offset <- P.getOffset
-          decl@(Decl _ _ declType) <- parseDecl parseExpr
-          case declType of
-            StructDecl _ -> do
-              P.setOffset offset
-              fail "순서 표현식에는 구조체 선언문이 올 수 없습니다."
-            _ -> pass
-          return decl
+      offset <- P.getOffset
+      decl@(Decl _ _ declType) <- parseDecl parseExpr
+      case declType of
+        StructDecl _ -> do
+          P.setOffset offset
+          fail "순서 표현식에는 구조체 선언문이 올 수 없습니다."
+        _ -> pass
+      return decl
 
     parseLine = (Left <$> parseDeclExceptStruct) <|> (Right <$> parseExpr)
 

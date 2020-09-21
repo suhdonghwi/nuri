@@ -1,17 +1,18 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+
 module Nuri.Parse.Stmt where
 
 import Control.Monad.Combinators.NonEmpty (some)
+import Data.Map (union)
+import Nuri.Expr (DeclKind (..))
 import Nuri.Parse (MonadParser, reserved, sc, scn)
 import Nuri.Parse.Decl (parseDecl)
 import Nuri.Parse.Error (errorBundlePretty)
 import Nuri.Parse.Expr (parseExpr)
 import Nuri.Parse.PartTable (PartTable)
 import Nuri.Stmt (Stmt (..))
-import Nuri.Expr (DeclKind(..))
 import System.Directory (doesFileExist)
 import System.FilePath (takeDirectory, (</>))
-import Data.Map (union)
 import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
@@ -57,13 +58,14 @@ parseInput input fileName = do
       (liftIO . putTextLn . toText . errorBundlePretty) err
       exitSuccess
     Right result -> return (result, s)
-  where defaultState :: PartTable
-        defaultState = fromList [
-            ("문자 출력하다", VerbDecl),
-            ("문자열화하다", VerbDecl),
-            ("입력받다", VerbDecl),
-            ("정수화하다", VerbDecl),
-            ("실수화하다", VerbDecl),
-            ("난수 가져오다", VerbDecl)
-          ]
-            
+  where
+    defaultState :: PartTable
+    defaultState =
+      fromList
+        [ ("문자 출력하다", VerbDecl),
+          ("문자열화하다", VerbDecl),
+          ("입력받다", VerbDecl),
+          ("정수화하다", VerbDecl),
+          ("실수화하다", VerbDecl),
+          ("난수 가져오다", VerbDecl)
+        ]

@@ -1,10 +1,11 @@
 module Nuri.Parse.PartTable where
 
-import Nuri.Expr (DeclKind(..))
 import Data.Map (insert, lookup)
+import Nuri.Expr (DeclKind (..))
 import qualified Text.Megaparsec as P
 
 type PartTable = Map Text DeclKind
+
 type MonadPartTable m = (MonadState PartTable m)
 
 addDecl :: (MonadState PartTable m) => Text -> DeclKind -> m ()
@@ -26,13 +27,13 @@ checkDeclKind :: (P.MonadParsec Void Text m, MonadState PartTable m, MonadFail m
 checkDeclKind offset ident kind = do
   result <- checkExistence offset ident
   if result == kind
-     then pass
-     else do
-       P.setOffset offset
-       fail $ "'" <> toString ident <> "' 라는 " <> declKindToString kind <> " 함수를 찾을 수 없습니다."
-  where 
+    then pass
+    else do
+      P.setOffset offset
+      fail $ "'" <> toString ident <> "' 라는 " <> declKindToString kind <> " 함수를 찾을 수 없습니다."
+  where
     declKindToString :: DeclKind -> String
     declKindToString k = case k of
-                           NormalDecl -> "일반"
-                           VerbDecl -> "동사"
-                           AdjectiveDecl -> "형용사"
+      NormalDecl -> "일반"
+      VerbDecl -> "동사"
+      AdjectiveDecl -> "형용사"

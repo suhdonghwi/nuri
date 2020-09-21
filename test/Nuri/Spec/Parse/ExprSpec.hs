@@ -2,7 +2,7 @@
 
 module Nuri.Spec.Parse.ExprSpec where
 
-import NeatInterpolation 
+import NeatInterpolation
 import Nuri.Expr
 import Nuri.Parse.Expr
 import Nuri.Parse.Term
@@ -277,7 +277,7 @@ spec = do
             (funcCall (var "더하다") [(litInteger 3, "와"), (litInteger 4, "을")], "_")
           ]
     it "함수 이름과 괄호 사이에 공백이 있으면 오류" $ do
-      testParse (parseParenCall parseExpr) `shouldFailOn` "더하다 (1 + 2, 3와 4를 더하다)"     
+      testParse (parseParenCall parseExpr) `shouldFailOn` "더하다 (1 + 2, 3와 4를 더하다)"
     it "괄호 내부에서 인수가 없는 함수를 호출한 함수 호출식" $ do
       testParse (parseParenCall parseExpr) "더하다(실행하다)"
         `shouldParse` funcCall

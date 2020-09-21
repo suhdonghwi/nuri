@@ -1,25 +1,26 @@
 module Nuri.Spec.Parse.Util where
 
-import Nuri.Parse
+import Data.Map (union)
 import Nuri.Expr
+import Nuri.Parse
 import Nuri.Parse.PartTable
 import Test.Hspec (expectationFailure, shouldBe)
 import qualified Test.Hspec.Megaparsec as P
 import Text.Megaparsec
-import Data.Map (union)
 
 defaultState :: PartTable
-defaultState = fromList [
-        ("더하다", VerbDecl),
-        ("합하다", VerbDecl),
-        ("실행하다", VerbDecl),
-        ("나누다", VerbDecl),
-        ("피보나치 수 구하다", VerbDecl),
-        ("같다", AdjectiveDecl),
-        ("크다", AdjectiveDecl),
-        ("던지다", VerbDecl),
-        ("받다", VerbDecl)
-                        ]
+defaultState =
+  fromList
+    [ ("더하다", VerbDecl),
+      ("합하다", VerbDecl),
+      ("실행하다", VerbDecl),
+      ("나누다", VerbDecl),
+      ("피보나치 수 구하다", VerbDecl),
+      ("같다", AdjectiveDecl),
+      ("크다", AdjectiveDecl),
+      ("던지다", VerbDecl),
+      ("받다", VerbDecl)
+    ]
 
 testParse :: ParsecT Void Text (StateT PartTable IO) a -> Text -> IO (Either (ParseErrorBundle Text Void) a)
 testParse parser input = fst <$> runStateT (runParserT (scn *> parser <* scn <* eof) "(test)" input) defaultState
@@ -32,11 +33,11 @@ shouldParse p e = do
   r <- p
   r `P.shouldParse` e
 
-shouldParse' :: 
-  (ShowErrorComponent e, Stream s, Show a, Eq a) => 
-    IO (Either (ParseErrorBundle s e) a, PartTable) -> 
-    (a, PartTable) -> 
-    IO ()
+shouldParse' ::
+  (ShowErrorComponent e, Stream s, Show a, Eq a) =>
+  IO (Either (ParseErrorBundle s e) a, PartTable) ->
+  (a, PartTable) ->
+  IO ()
 shouldParse' p (er, et) = do
   (r, t) <- p
   r `P.shouldParse` er
