@@ -17,9 +17,9 @@ parseStmts :: (MonadParser m, MonadIO m) => m (NonEmpty Stmt)
 parseStmts = scn >> join <$> some (L.nonIndented sc parseStmt <* scn)
 
 parseStmt :: (MonadParser m, MonadIO m) => m (NonEmpty Stmt)
-parseStmt = (single <$> parseDeclStmt) <|> (single <$> parseExprStmt) <|> parseImportStmt
+parseStmt = (singleton <$> parseDeclStmt) <|> (singleton <$> parseExprStmt) <|> parseImportStmt
   where
-    single x = x :| []
+    singleton x = x :| []
 
 parseDeclStmt :: (MonadParser m) => m Stmt
 parseDeclStmt = DeclStmt <$> parseDecl parseExpr

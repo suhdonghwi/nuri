@@ -229,5 +229,3 @@ declToExpr pos name t =
                 tellInst pos (Inst.Push index)
             )
        in (fieldGetter <$> fields)
-
--- TODO: field getter 정의 추가하도록 수정
