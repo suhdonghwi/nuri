@@ -5,7 +5,7 @@ import Test.Hspec (expectationFailure)
 import qualified Test.Hspec.Megaparsec as P
 import Text.Megaparsec
 
-testParse :: Parser a -> Text -> IO (Either (ParseErrorBundle Text Void) a)
+testParse :: ParsecT Void Text IO a -> Text -> IO (Either (ParseErrorBundle Text Void) a)
 testParse parser input = runParserT (scn *> parser <* scn <* eof) "(test)" input
 
 shouldParse :: (ShowErrorComponent e, Stream s, Show a, Eq a) => IO (Either (ParseErrorBundle s e) a) -> a -> IO ()

@@ -52,6 +52,7 @@ default-extensions:
   - QuasiQuotes
   - MultiWayIf
   - GADTs
+  - ConstraintKinds
 
 library:
   source-dirs: src

@@ -18,7 +18,8 @@ import Nuri.Expr
     UnaryOperator (..),
   )
 import Nuri.Parse
-  ( Parser,
+  ( 
+    MonadParser,
     reserved,
     sc,
     scn,
@@ -31,25 +32,14 @@ import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 
-parseExpr :: Parser Expr
+parseExpr :: (MonadParser m) => m Expr
 parseExpr = parseIf <|> parseSeq <|> parseArithmetic
 
-parseSeq :: Parser Expr
+parseSeq :: (MonadParser m) => m Expr
 parseSeq = do
   reserved "순서대로" <* P.eol
   scn
   level <- L.indentGuard scn GT P.pos1
-  let parseDeclExceptStruct = do
-        offset <- P.getOffset
-        decl@(Decl _ _ declType) <- parseDecl parseExpr
-        case declType of
-          Just (StructDecl _) -> do
-            P.setOffset offset
-            fail "순서 표현식에는 구조체 선언문이 올 수 없습니다."
-          _ -> pass
-        return decl
-
-      parseLine = (Left <$> parseDeclExceptStruct) <|> (Right <$> parseExpr)
   result <-
     sepBy1
       parseLine
@@ -59,7 +49,21 @@ parseSeq = do
   when (isLeft $ last result) $ fail "순서 표현식의 마지막은 선언문이 아닌 표현식이어야 합니다."
   return $ Seq result
 
-parseIf :: Parser Expr
+  where 
+    parseDeclExceptStruct :: (MonadParser m) => m Decl
+    parseDeclExceptStruct = do
+          offset <- P.getOffset
+          decl@(Decl _ _ declType) <- parseDecl parseExpr
+          case declType of
+            Just (StructDecl _) -> do
+              P.setOffset offset
+              fail "순서 표현식에는 구조체 선언문이 올 수 없습니다."
+            _ -> pass
+          return decl
+
+    parseLine = (Left <$> parseDeclExceptStruct) <|> (Right <$> parseExpr)
+
+parseIf :: (MonadParser m) => m Expr
 parseIf =
   ( do
       pos <- P.getSourcePos
@@ -76,7 +80,7 @@ parseIf =
   )
     <?> "조건식"
 
-parseArithmetic :: Parser Expr
+parseArithmetic :: (MonadParser m) => m Expr
 parseArithmetic =
   makeExprParser
     ((parseNestedFuncCalls <|> parseTerm parseExpr) <?> "표현식")
@@ -109,7 +113,7 @@ parseArithmetic =
       pos <- P.getSourcePos
       UnaryOp pos op <$ L.symbol sc opStr
 
-parseNestedFuncCalls :: Parser Expr
+parseNestedFuncCalls :: (MonadParser m) => m Expr
 parseNestedFuncCalls = do
   calls <-
     P.try $
@@ -122,7 +126,7 @@ parseNestedFuncCalls = do
   processedCalls <- process calls
   return $ foldl1' addArg processedCalls
   where
-    process :: [(Expr, Int)] -> Parser [Expr]
+    process :: (MonadParser m) => [(Expr, Int)] -> m [Expr]
     process ((x@(FuncCall _ _ _), _) : []) = return [x]
     process ((FuncCall pos (Var _ ident) args, offset) : xs) =
       if T.last ident == '고'
@@ -140,12 +144,12 @@ parseNestedFuncCalls = do
       FuncCall pos func ((arg, "_") : args)
     addArg _ _ = error "불가능한 상황"
 
-parseFuncCall :: Parser Expr
+parseFuncCall :: (MonadParser m) => m Expr
 parseFuncCall = do
   args <- parseArguments
   pos <- P.getSourcePos
   func <- parseFuncIdentifier <?> "함수 이름"
   return $ FuncCall pos (Var pos func) args
 
-parseArguments :: Parser [(Expr, Text)]
+parseArguments :: (MonadParser m) => m [(Expr, Text)]
 parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm parseExpr <?> "함수 인수") (parseJosa <* sc)

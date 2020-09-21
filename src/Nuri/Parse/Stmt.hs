@@ -1,7 +1,8 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Nuri.Parse.Stmt where
 
 import Control.Monad.Combinators.NonEmpty (some)
-import Nuri.Parse (Parser, reserved, sc, scn)
+import Nuri.Parse (MonadParser, reserved, sc, scn)
 import Nuri.Parse.Decl (parseDecl)
 import Nuri.Parse.Error (errorBundlePretty)
 import Nuri.Parse.Expr (parseExpr)
@@ -12,21 +13,21 @@ import qualified Text.Megaparsec as P
 import qualified Text.Megaparsec.Char as P
 import qualified Text.Megaparsec.Char.Lexer as L
 
-parseStmts :: Parser (NonEmpty Stmt)
+parseStmts :: (MonadParser m, MonadIO m) => m (NonEmpty Stmt)
 parseStmts = scn >> join <$> some (L.nonIndented sc parseStmt <* scn)
 
-parseStmt :: Parser (NonEmpty Stmt)
+parseStmt :: (MonadParser m, MonadIO m) => m (NonEmpty Stmt)
 parseStmt = (single <$> parseDeclStmt) <|> (single <$> parseExprStmt) <|> parseImportStmt
   where
     single x = x :| []
 
-parseDeclStmt :: Parser Stmt
+parseDeclStmt :: (MonadParser m) => m Stmt
 parseDeclStmt = DeclStmt <$> parseDecl parseExpr
 
-parseExprStmt :: Parser Stmt
+parseExprStmt :: (MonadParser m) => m Stmt
 parseExprStmt = ExprStmt <$> parseExpr
 
-parseImportStmt :: Parser (NonEmpty Stmt)
+parseImportStmt :: (MonadParser m, MonadIO m) => m (NonEmpty Stmt)
 parseImportStmt = do
   reserved "꾸러미"
   path <- P.between (P.char '"') (P.char '"') (P.many (P.notFollowedBy (P.char '"') >> L.charLiteral))

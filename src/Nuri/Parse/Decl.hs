@@ -8,7 +8,7 @@ import Nuri.Expr
     Expr,
   )
 import Nuri.Parse
-  ( Parser,
+  ( MonadParser,
     lexeme,
     reserved,
     sc,
@@ -17,19 +17,19 @@ import Nuri.Parse
   )
 import Nuri.Parse.Term (parseIdentifier)
 import Nuri.Parse.Util (parseFuncIdentifier, parseJosa, parseStructIdentifier)
-import Text.Megaparsec
+import Text.Megaparsec (sepBy1)
 import qualified Text.Megaparsec as P
 
-parseDecl :: Parser Expr -> Parser Decl
+parseDecl :: (MonadParser m) => m Expr -> m Decl
 parseDecl e = parseConstDecl e <|> parseFuncDecl e <|> parseStructDecl
 
-parseDeclKind :: Parser DeclKind
+parseDeclKind :: (MonadParser m) => m DeclKind
 parseDeclKind =
   (pure NormalDecl <* reserved "함수")
     <|> (pure VerbDecl <* reserved "동사")
     <|> (pure AdjectiveDecl <* reserved "형용사")
 
-checkValidIdentifier :: Int -> DeclKind -> Text -> Parser ()
+checkValidIdentifier :: (MonadParser m) => Int -> DeclKind -> Text -> m ()
 checkValidIdentifier offset kind name = do
   if kind `elem` [VerbDecl, AdjectiveDecl]
     then when (not $ T.last name == '다') $ do
@@ -37,7 +37,7 @@ checkValidIdentifier offset kind name = do
       fail "용언을 선언할 때는 식별자가 ~(하)다 꼴이어야 합니다."
     else pass
 
-parseFuncDecl :: Parser Expr -> Parser Decl
+parseFuncDecl :: (MonadParser m) => m Expr -> m Decl
 parseFuncDecl parseExpr = do
   pos <- P.getSourcePos
   declKind <- parseDeclKind
@@ -54,7 +54,7 @@ parseFuncDecl parseExpr = do
       result <- Decl pos funcName <$> (Just . FuncDecl declKind args <$> parseExpr)
       return result
   where
-    parseArgList :: [(Text, Text)] -> Parser [(Text, Text)]
+    parseArgList :: (MonadParser m) => [(Text, Text)] -> m [(Text, Text)]
     parseArgList l = do
       identPos <- P.getOffset
       identResult <- P.observing parseIdentifier
@@ -78,14 +78,14 @@ parseFuncDecl parseExpr = do
             )
           parseArgList (l ++ [(ident, josa)])
 
-parseConstDecl :: Parser Expr -> Parser Decl
+parseConstDecl :: (MonadParser m) => m Expr -> m Decl
 parseConstDecl parseExpr = do
   pos <- P.getSourcePos
   reserved "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
   Decl pos identifier <$> Just . ConstDecl <$> parseExpr
 
-parseStructDecl :: Parser Decl
+parseStructDecl :: (MonadParser m) => m Decl
 parseStructDecl = do
   pos <- P.getSourcePos
   reserved "구조체"

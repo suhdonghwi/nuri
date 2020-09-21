@@ -1,7 +1,7 @@
 module Nuri.Parse.Util where
 
 import Nuri.Parse
-  ( Parser,
+  ( MonadParser,
     hangulSyllable,
     lexeme,
     reserved,
@@ -29,10 +29,10 @@ keywords =
     "또는"
   ]
 
-parseKeyword :: Parser ()
+parseKeyword :: (MonadParser m) => m ()
 parseKeyword = P.choice $ reserved . T.unpack <$> keywords
 
-parseJosa :: Parser Text
+parseJosa :: (MonadParser m) => m Text
 parseJosa =
   ( do
       P.notFollowedBy parseKeyword
@@ -49,10 +49,10 @@ parseJosa =
   )
     <?> "조사"
 
-parseFuncIdentifier :: Parser Text
+parseFuncIdentifier :: (MonadParser m) => m Text
 parseFuncIdentifier = lexeme funcIdentifier
 
-funcIdentifier :: Parser Text
+funcIdentifier :: (MonadParser m) => m Text
 funcIdentifier = P.notFollowedBy parseKeyword *> hangulWords "" 
   where
     char = (hangulSyllable <|> P.letterChar) <?> "한글 음절 또는 영문"
@@ -70,8 +70,8 @@ funcIdentifier = P.notFollowedBy parseKeyword *> hangulWords ""
          then return con
          else P.try (P.char ' ' >> hangulWords con) <|> return con
 
-parseStructIdentifier :: Parser Text
+parseStructIdentifier :: (MonadParser m) => m Text
 parseStructIdentifier = lexeme structIdentifier
 
-structIdentifier :: Parser Text
+structIdentifier :: (MonadParser m) => m Text
 structIdentifier = (toText . toList) <$> some (hangulSyllable <|> P.letterChar)
