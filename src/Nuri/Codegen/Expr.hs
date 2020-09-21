@@ -132,19 +132,20 @@ compileExpr (Seq xs) = do
   let process [] = pass
       process (y : ys) = do
         case y of
-          Left (Decl pos name (Just t)) -> do
+          Left (Decl pos name t) -> do
             let declList = declToExpr pos name t
             -- 여기에는 구조체 선언문이 올 수 없음
             sequence_ (addVarName depth . fst <$> declList)
 
-            let register (n, build) = do
-                  build
-                  index <- addVarName depth n
-                  tellInst pos (Inst.StoreLocal index)
+            let register (n, b) = 
+                  case b of
+                    Just build -> do
+                      build
+                      index <- addVarName depth n
+                      tellInst pos (Inst.StoreLocal index)
+                    Nothing -> pass
 
             sequence_ (register <$> declList)
-          Left (Decl _ name Nothing) ->
-            addVarName depth name >> pass
           Right expr -> do
             compileExpr expr
             -- 시퀀스의 마지막이 아닌 표현식일 경우 Pop
@@ -212,15 +213,18 @@ lambdaToFuncObject pos name args body = do
         }
     )
 
-declToExpr :: SourcePos -> Text -> DeclType -> [(Text, Builder ())]
+declToExpr :: SourcePos -> Text -> DeclType -> [(Text, Maybe (Builder ()))]
 declToExpr pos name t =
   case t of
-    FuncDecl _ args body -> [(name, compileExpr $ Lambda pos name args body)]
-    ConstDecl expr -> [(name, compileExpr expr)]
+    FuncDecl _ args body -> 
+      case body of
+        Just body' -> [(name, Just $ compileExpr $ Lambda pos name args body')]
+        Nothing -> [(name, Nothing)]
+    ConstDecl expr -> [(name, Just $ compileExpr expr)]
     StructDecl fields ->
       let fieldGetter field =
             ( field,
-              do
+              Just $ do
                 let fieldGetterBody = do
                       compileExpr (Var pos "구조체")
                       tellInst pos (Inst.GetField field)

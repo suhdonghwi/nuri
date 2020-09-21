@@ -51,10 +51,10 @@ parseFuncDecl parseExpr = do
 
   colon <- P.observing (symbol ":")
   case colon of
-    Left _ -> return $ Decl pos funcName Nothing
+    Left _ -> return $ Decl pos funcName (FuncDecl declKind args Nothing)
     Right _ -> do
       scn
-      result <- Decl pos funcName <$> (Just . FuncDecl declKind args <$> parseExpr)
+      result <- Decl pos funcName <$> (FuncDecl declKind args <$> Just <$> parseExpr)
       return result
   where
     parseArgList :: (MonadParser m) => [(Text, Text)] -> m [(Text, Text)]
@@ -86,7 +86,7 @@ parseConstDecl parseExpr = do
   pos <- P.getSourcePos
   reserved "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
-  Decl pos identifier <$> Just . ConstDecl <$> parseExpr
+  Decl pos identifier <$> ConstDecl <$> parseExpr
 
 parseStructDecl :: (MonadParser m, MonadPartTable m) => m Decl
 parseStructDecl = do
@@ -96,4 +96,4 @@ parseStructDecl = do
   fields <- parseFuncIdentifier `sepBy1` symbol ","
 
   sequence_ $ (`addDecl` NormalDecl) <$> fields
-  return $ Decl pos identifier (Just $ StructDecl fields)
+  return $ Decl pos identifier (StructDecl fields)

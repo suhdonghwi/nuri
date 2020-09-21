@@ -8,7 +8,7 @@ import Nuri.Expr (Decl (Decl), DeclType (StructDecl))
 import Nuri.Stmt (Stmt (..))
 
 compileStmt :: Stmt -> Builder ()
-compileStmt (DeclStmt (Decl pos name (Just t))) = do
+compileStmt (DeclStmt (Decl pos name t)) = do
   let declList = declToExpr pos name t
   case t of
     StructDecl fields -> tellInst pos (Inst.AddStruct name fields)
@@ -16,13 +16,15 @@ compileStmt (DeclStmt (Decl pos name (Just t))) = do
 
   sequence_ (addGlobalVarName . fst <$> declList)
 
-  let register (n, build) = do
-        build
-        index <- addGlobalVarName n
-        tellInst pos (Inst.StoreGlobal index)
+  let register (n, b) = 
+        case b of
+          Just build -> do
+            build
+            index <- addGlobalVarName n
+            tellInst pos (Inst.StoreGlobal index)
+          Nothing -> pass
 
   sequence_ (register <$> declList)
-compileStmt (DeclStmt (Decl _ name Nothing)) = addGlobalVarName name >> pass
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
   tellInst (getSourcePos stmt) (Inst.Pop)

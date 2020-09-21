@@ -58,7 +58,7 @@ parseSeq = do
           offset <- P.getOffset
           decl@(Decl _ _ declType) <- parseDecl parseExpr
           case declType of
-            Just (StructDecl _) -> do
+            StructDecl _ -> do
               P.setOffset offset
               fail "순서 표현식에는 구조체 선언문이 올 수 없습니다."
             _ -> pass

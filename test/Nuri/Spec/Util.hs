@@ -34,18 +34,18 @@ lambda = Lambda initPos ""
 
 struct = Struct initPos
 
-funcDecl kind name args body = Decl initPos name $ Just (FuncDecl kind args body)
+funcDecl kind name args body = Decl initPos name $ FuncDecl kind args (Just body)
 
 funcDeclStmt = (((DeclStmt .) .) .) . funcDecl
 
-funcForward name = Decl initPos name Nothing
+funcForward kind name args = Decl initPos name $ FuncDecl kind args Nothing
 
-funcForwardStmt name = DeclStmt $ Decl initPos name Nothing
+funcForwardStmt = ((DeclStmt .) .) . funcForward
 
-constDecl name expr = Decl initPos name (Just $ ConstDecl expr)
+constDecl name expr = Decl initPos name (ConstDecl expr)
 
 constDeclStmt = (DeclStmt .) . constDecl
 
-structDecl name fields = Decl initPos name (Just $ StructDecl fields)
+structDecl name fields = Decl initPos name (StructDecl fields)
 
 structDeclStmt = (DeclStmt .) . structDecl

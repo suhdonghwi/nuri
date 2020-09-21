@@ -8,12 +8,12 @@ data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
   deriving (Eq, Show)
 
 data DeclType
-  = FuncDecl DeclKind [(Text, Text)] Expr
+  = FuncDecl DeclKind [(Text, Text)] (Maybe Expr)
   | ConstDecl Expr
   | StructDecl [Text]
   deriving (Eq, Show)
 
-data Decl = Decl SourcePos Text (Maybe DeclType)
+data Decl = Decl SourcePos Text DeclType
   deriving (Show)
 
 instance Eq Decl where

@@ -361,7 +361,7 @@ spec = do
             첫번째하다
           |]
         )
-        `shouldParse` [ funcForwardStmt "두번째하다",
+        `shouldParse` [ funcForwardStmt VerbDecl "두번째하다" [],
                         funcDeclStmt VerbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
                         funcDeclStmt VerbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
                         ExprStmt $ funcCall (var "첫번째하다") []
@@ -383,9 +383,91 @@ spec = do
         )
         `shouldParse` [ ExprStmt $
                           Seq
-                            [ Left $ funcForward "두번째하다",
+                            [ Left $ funcForward VerbDecl "두번째하다" [],
                               Left $ funcDecl VerbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
                               Left $ funcDecl VerbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
                               Right $ funcCall (var "첫번째하다") []
                             ]
                       ]
+  describe "품사 테이블 관리" $ do
+    it "일반, 형용사, 동사 함수 선언 테이블 추가" $ do
+      testParse'
+        parseStmts
+        ( [text|
+            함수 일: 1
+            형용사 같다: 2
+            동사 달리다: 3
+          |]
+        )
+        `shouldParse'` ([ funcDeclStmt NormalDecl "일" [] (litInteger 1),
+                          funcDeclStmt AdjectiveDecl "같다" [] (litInteger 2),
+                          funcDeclStmt VerbDecl "달리다" [] (litInteger 3)], 
+                          
+                          fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+                       )
+    it "일반, 형용사, 동사 함수 전방 선언 테이블 추가" $ do
+      testParse'
+        parseStmts
+        ( [text|
+            함수 일
+            형용사 같다
+            동사 달리다
+          |]
+        )
+        `shouldParse'` ([ funcForwardStmt NormalDecl "일" [],
+                          funcForwardStmt AdjectiveDecl "같다" [],
+                          funcForwardStmt VerbDecl "달리다" []], 
+                          
+                          fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+                       )
+    it "순서대로 표현식 스코프 관리" $ do
+      testParse'
+        parseStmts
+        ( [text|
+            함수 일: 1
+
+            순서대로
+              함수 이: 2
+              이
+
+            형용사 같다: 2
+            동사 달리다: 3
+          |]
+        )
+        `shouldParse'` ([ funcDeclStmt NormalDecl "일" [] (litInteger 1),
+                          ExprStmt 
+                            $ Seq [Left $ funcDecl NormalDecl "이" [] (litInteger 2), 
+                                   Right $ funcCall (var "이") []
+                                  ],
+                          funcDeclStmt AdjectiveDecl "같다" [] (litInteger 2),
+                          funcDeclStmt VerbDecl "달리다" [] (litInteger 3)], 
+                          
+                          fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+                       )
+    it "구조체 선언 필드 접근자 테이블 추가" $ do
+      testParse'
+        parseStmts
+        ( [text|
+            구조체 사람: 몸의 무게, 나이, 이름
+          |]
+        )
+        `shouldParse'` ([ structDeclStmt "사람" ["몸의 무게", "나이", "이름"]],
+                          fromList [("몸의 무게", NormalDecl), ("나이", NormalDecl), ("이름", NormalDecl)]
+                       )
+    it "상수의 경우 품사 테이블에 추가하지 않음" $ do
+      testParse'
+        parseStmts
+        ( [text|
+            함수 일
+            상수 [수]: 10
+            형용사 같다
+            동사 달리다
+          |]
+        )
+        `shouldParse'` ([ funcForwardStmt NormalDecl "일" [],
+                          constDeclStmt "수" (litInteger 10), 
+                          funcForwardStmt AdjectiveDecl "같다" [],
+                          funcForwardStmt VerbDecl "달리다" []], 
+                          
+                          fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+                       )

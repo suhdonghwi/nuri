@@ -8,4 +8,4 @@ import Text.Megaparsec.Pos (initialPos)
 
 defineDefaults :: Builder ()
 defineDefaults = do
-  compileStmt (DeclStmt $ Decl (initialPos "") "목록" (Just $ StructDecl ["첫번째", "나머지"]))
+  compileStmt (DeclStmt $ Decl (initialPos "") "목록" (StructDecl ["첫번째", "나머지"]))
