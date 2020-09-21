@@ -50,7 +50,7 @@ main = do
     exitFailure
 
   content <- readFileText inputPath
-  result <- parseInput content inputPath
+  (result, _) <- parseInput content inputPath
 
   let bytecodeFileName = replaceExtension inputPath ".hn"
   compileResult inputPath isDebug bytecodeFileName result

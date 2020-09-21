@@ -7,12 +7,13 @@ import Control.Monad.Combinators.Expr
       ),
     makeExprParser,
   )
-import Control.Monad.Combinators.NonEmpty (sepBy1)
+import Control.Monad.Combinators.NonEmpty (sepBy1, some)
 import Data.List (foldl1')
 import qualified Data.Text as T
 import Nuri.Expr
   ( BinaryOperator (..),
     Decl (Decl),
+    DeclKind (..),
     DeclType (StructDecl),
     Expr (..),
     UnaryOperator (..),
@@ -24,6 +25,7 @@ import Nuri.Parse
     sc,
     scn,
   )
+import Nuri.Parse.PartTable (checkDeclKind)
 import Nuri.Parse.Decl (parseDecl)
 import Nuri.Parse.Term (parseNonLexemeTerm, parseTerm)
 import Nuri.Parse.Util (parseFuncIdentifier, parseJosa)
@@ -118,28 +120,29 @@ parseArithmetic =
 
 parseNestedFuncCalls :: (MonadParser m) => m Expr
 parseNestedFuncCalls = do
-  calls <-
-    P.try $
-      P.some
-        ( do
-            offset <- P.getOffset
-            funcCall <- parseFuncCall <?> "함수 호출식"
-            return (funcCall, offset)
-        )
-  processedCalls <- process calls
-  return $ foldl1' addArg processedCalls
+  calls <- P.try $ some (parseFuncCall <?> "함수 호출식")
+  case calls of
+    (x, _) :| [] -> return x
+    _ -> do
+      processedCalls <- process calls
+      return $ foldl1' addArg processedCalls
   where
-    process :: (MonadParser m) => [(Expr, Int)] -> m [Expr]
-    process ((x@(FuncCall _ _ _), _) : []) = return [x]
-    process ((FuncCall pos (Var _ ident) args, offset) : xs) =
-      if T.last ident == '고'
-        then do
-          let originalIdent = T.snoc (T.init ident) '다'
-          pxs <- process xs
-          return (FuncCall pos (Var pos originalIdent) args : pxs)
-        else do
-          P.setOffset offset
-          fail "여기에서는 활용이 '~하고' 형태여야합니다."
+    process :: (MonadParser m) => NonEmpty (Expr, Int) -> m [Expr]
+    process ((x@(FuncCall pos (Var _ ident) args), offset) :| xs') =
+      case nonEmpty xs' of
+        Nothing -> do
+          checkDeclKind offset ident VerbDecl
+          return [x]
+        Just xs ->
+          if T.last ident == '고'
+            then do
+              let originalIdent = T.snoc (T.init ident) '다'
+              checkDeclKind offset originalIdent VerbDecl
+              pxs <- process xs
+              return (FuncCall pos (Var pos originalIdent) args : pxs)
+            else do
+              P.setOffset offset
+              fail "여기에서는 활용이 '~(하)고' 형태여야합니다."
     process _ = error "불가능한 상황"
 
     addArg :: Expr -> Expr -> Expr
@@ -147,12 +150,13 @@ parseNestedFuncCalls = do
       FuncCall pos func ((arg, "_") : args)
     addArg _ _ = error "불가능한 상황"
 
-parseFuncCall :: (MonadParser m) => m Expr
+parseFuncCall :: (MonadParser m) => m (Expr, Int)
 parseFuncCall = do
   args <- parseArguments
   pos <- P.getSourcePos
+  offset <- P.getOffset
   func <- parseFuncIdentifier <?> "함수 이름"
-  return $ FuncCall pos (Var pos func) args
+  return (FuncCall pos (Var pos func) args, offset)
 
 parseArguments :: (MonadParser m) => m [(Expr, Text)]
 parseArguments = P.many $ liftA2 (,) (parseNonLexemeTerm parseExpr <?> "함수 인수") (parseJosa <* sc)

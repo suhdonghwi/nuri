@@ -229,28 +229,29 @@ spec = do
       testParse parseStringExpr "\"a bc\"" `shouldParse` struct "목록" [("첫번째", litChar 'a'), ("나머지", struct "목록" [("첫번째", litChar ' '), ("나머지", struct "목록" [("첫번째", litChar 'b'), ("나머지", struct "목록" [("첫번째", litChar 'c'), ("나머지", litNone)])])])]
 
   describe "함수 호출식 파싱" $ do
+    let parseFuncCall' = fst <$> parseFuncCall
     it "인자가 1개인 함수 호출식" $ do
-      testParse parseFuncCall "2를 받다"
+      testParse parseFuncCall' "2를 받다"
         `shouldParse` funcCall
           (var "받다")
           [(litInteger 2, "을")]
     it "공백이 포함된 함수 호출 식" $ do
-      testParse parseFuncCall "2번째 피보나치 수 구하다"
+      testParse parseFuncCall' "2번째 피보나치 수 구하다"
         `shouldParse` funcCall
           (var "피보나치 수 구하다")
           [(litInteger 2, "번째")]
     it "인자가 2개인 함수 호출식" $ do
-      testParse parseFuncCall "1과 2를 더하다"
+      testParse parseFuncCall' "1과 2를 더하다"
         `shouldParse` funcCall
           (var "더하다")
           [(litInteger 1, "와"), (litInteger 2, "을")]
     it "조사가 없는 함수 호출식에 대해서 오류" $ do
-      testParse parseFuncCall `shouldFailOn` "1 2를 더하다"
-      testParse parseFuncCall `shouldFailOn` "(1 + 1) 피보나치수"
+      testParse parseFuncCall' `shouldFailOn` "1 2를 더하다"
+      testParse parseFuncCall' `shouldFailOn` "(1 + 1) 피보나치수"
     it "조사가 떨어져 있는 경우 오류" $ do
-      testParse parseFuncCall `shouldFailOn` "1 과 2 를 더하다"
+      testParse parseFuncCall' `shouldFailOn` "1 과 2 를 더하다"
     it "인자가 없는 함수 호출식" $ do
-      testParse parseFuncCall "던지다" `shouldParse` funcCall (var "던지다") []
+      testParse parseFuncCall' "던지다" `shouldParse` funcCall (var "던지다") []
 
   describe "소괄호 함수 호출식 파싱" $ do
     it "인자가 하나인 함수 호출식" $ do
@@ -349,8 +350,12 @@ spec = do
             ),
             (litInteger 3, "을")
           ]
-    it "잘못된 동사 활용을 한 식" $ do
-      testParse parseNestedFuncCalls `shouldFailOn` "4와 2를 더하다, 2로 나누다"
+    it "잘못된 연쇄 어미를 사용한 식에 대해서 오류" $ do
+      testParse parseNestedFuncCalls `shouldFailOn` "4와 2를 더하다 2로 나누다"
+    it "중간에 형용사를 활용한 식에 대해서 오류" $ do
+      testParse parseNestedFuncCalls `shouldFailOn` "4와 2가 같고 2로 나누다"
+    it "마지막에 형용사를 활용한 식에 대해서 오류" $ do
+      testParse parseNestedFuncCalls `shouldFailOn` "4와 2를 더하고 2와 같다"
 
   describe "리스트 표현식 파싱" $ do
     it "비어있는 리스트" $ do
