@@ -62,10 +62,10 @@ parseInput input fileName = do
     defaultState :: PartTable
     defaultState =
       fromList
-        [ ("문자 출력하다", VerbDecl),
-          ("문자열화하다", VerbDecl),
-          ("입력받다", VerbDecl),
-          ("정수화하다", VerbDecl),
-          ("실수화하다", VerbDecl),
-          ("난수 가져오다", VerbDecl)
+        [ ("문자로 보여주다", VerbDecl),
+          ("문자열로 바꾸다", VerbDecl),
+          ("정수로 바꾸다", VerbDecl),
+          ("실수로 바꾸다", VerbDecl),
+          ("난수를 가져오다", VerbDecl),
+          ("입력받다", VerbDecl)
         ]
