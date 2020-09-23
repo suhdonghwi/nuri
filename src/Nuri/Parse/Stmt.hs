@@ -67,5 +67,7 @@ parseInput input fileName = do
           ("정수로 바꾸다", VerbDecl),
           ("실수로 바꾸다", VerbDecl),
           ("난수를 가져오다", VerbDecl),
-          ("입력받다", VerbDecl)
+          ("입력받다", VerbDecl),
+          ("유니코드 값", NormalDecl),
+          ("유니코드 문자", NormalDecl)
         ]
