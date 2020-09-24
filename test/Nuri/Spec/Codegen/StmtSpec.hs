@@ -18,7 +18,6 @@ spec = do
       it "인자가 하나인 함수 선언 코드 생성" $
         compileStmt
           ( funcDeclStmt
-              NormalDecl
               "더하다"
               [("값", "을")]
               (binaryOp Add (var "값") (litInteger 1))
@@ -40,7 +39,6 @@ spec = do
       it "인자가 두 개인 함수 선언 코드 생성" $
         compileStmt
           ( funcDeclStmt
-              NormalDecl
               "더하다"
               [("수1", "에"), ("수2", "을")]
               (binaryOp Add (var "수1") (var "수2"))
@@ -63,7 +61,6 @@ spec = do
           compileStmt (constDeclStmt "값" (litInteger 1))
           compileStmt
             ( funcDeclStmt
-                NormalDecl
                 "더하다"
                 [("수", "을")]
                 (binaryOp Add (var "수") (var "값"))
@@ -92,7 +89,6 @@ spec = do
           compileStmt (constDeclStmt "값" (litInteger 1))
           compileStmt
             ( funcDeclStmt
-                NormalDecl
                 "더하다"
                 [("값", "을")]
                 (binaryOp Add (var "값") (litInteger 2))
@@ -120,7 +116,6 @@ spec = do
         do
           compileStmt
             ( funcDeclStmt
-                NormalDecl
                 "더하다"
                 [("값1", "을")]
                 ( Seq
@@ -153,16 +148,14 @@ spec = do
         do
           compileStmt
             ( funcDeclStmt
-                NormalDecl
                 "바깥"
                 [("값", "을")]
                 ( Seq
                     [ Left $
                         funcDecl
-                          NormalDecl
                           "중간"
                           []
-                          (Seq [Left $ funcDecl NormalDecl "안쪽" [] (var "값"), Right $ var "안쪽"]),
+                          (Seq [Left $ funcDecl "안쪽" [] (var "값"), Right $ var "안쪽"]),
                       Right $ var "중간"
                     ]
                 )
@@ -217,11 +210,10 @@ spec = do
         do
           compileStmt
             ( funcDeclStmt
-                NormalDecl
                 "동작"
                 []
                 ( Seq
-                    [ Left $ funcDecl NormalDecl "재귀" [] (funcCall (var "재귀") []),
+                    [ Left $ funcDecl "재귀" [] (funcCall (var "재귀") []),
                       Right $ funcCall (var "재귀") []
                     ]
                 )
@@ -259,13 +251,12 @@ spec = do
         do
           compileStmt
             ( funcDeclStmt
-                NormalDecl
                 "동작"
                 []
                 ( Seq
-                    [ Left $ funcForward NormalDecl "재귀2" [],
-                      Left $ funcDecl NormalDecl "재귀1" [] (funcCall (var "재귀2") []),
-                      Left $ funcDecl NormalDecl "재귀2" [] (funcCall (var "재귀1") []),
+                    [ Left $ funcForward "재귀2" [],
+                      Left $ funcDecl "재귀1" [] (funcCall (var "재귀2") []),
+                      Left $ funcDecl "재귀2" [] (funcCall (var "재귀1") []),
                       Right $ funcCall (var "재귀1") []
                     ]
                 )
@@ -314,8 +305,7 @@ spec = do
                         )
       it "형용사 함수 선언 코드 생성" $
         compileStmt
-          ( funcDeclStmt
-              AdjectiveDecl
+          ( adjectiveDeclStmt
               "같다"
               [("값1", "와"), ("값2", "이")]
               (binaryOp Equal (var "값1") (var "값2"))
@@ -328,6 +318,26 @@ spec = do
                                       _funcName = "같다",
                                       _funcCode =
                                         [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
+                                    }
+                                )
+                            ],
+                          [Inst.Push 0, Inst.StoreGlobal 0]
+                        )
+      it "동사 함수 선언 코드 생성" $
+        compileStmt
+          ( verbDeclStmt
+              "더하다"
+              [("값1", "와"), ("값2", "을")]
+              (binaryOp Add (var "값1") (var "값2"))
+          )
+          `shouldBuild` ( S.fromList
+                            [ ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "을"],
+                                      _funcStackSize = 2,
+                                      _funcName = "더하다",
+                                      _funcCode =
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Add]
                                     }
                                 )
                             ],

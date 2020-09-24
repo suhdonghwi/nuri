@@ -3,9 +3,9 @@ module Nuri.Parse.Decl where
 import qualified Data.Text as T
 import Nuri.Expr
   ( Decl (..),
-    DeclKind (..),
-    DeclType (ConstDecl, FuncDecl, StructDecl),
+    DeclType (..),
     Expr,
+    FuncKind (..),
   )
 import Nuri.Parse
   ( MonadParser,
@@ -24,15 +24,15 @@ import qualified Text.Megaparsec as P
 parseDecl :: (MonadParser m) => m Expr -> m Decl
 parseDecl e = parseConstDecl e <|> parseFuncDecl e <|> parseStructDecl
 
-parseDeclKind :: (MonadParser m) => m DeclKind
+parseDeclKind :: (MonadParser m) => m FuncKind
 parseDeclKind =
-  (pure NormalDecl <* reserved "함수")
-    <|> (pure VerbDecl <* reserved "동사")
-    <|> (pure AdjectiveDecl <* reserved "형용사")
+  (pure Normal <* reserved "함수")
+    <|> (pure Verb <* reserved "동사")
+    <|> (pure Adjective <* reserved "형용사")
 
-checkValidIdentifier :: (MonadParser m) => Int -> DeclKind -> Text -> m ()
+checkValidIdentifier :: (MonadParser m) => Int -> FuncKind -> Text -> m ()
 checkValidIdentifier offset kind name = do
-  if kind `elem` [VerbDecl, AdjectiveDecl]
+  if kind `elem` [Verb, Adjective]
     then when (not $ T.last name == '다') $ do
       P.setOffset offset
       fail "용언을 선언할 때는 식별자가 ~(하)다 꼴이어야 합니다."
@@ -50,12 +50,18 @@ parseFuncDecl parseExpr = do
   addDecl funcName declKind
 
   colon <- P.observing (symbol ":")
+
+  let funcDecl body = Decl pos funcName $ case declKind of
+        Normal -> FuncDecl args body
+        Verb -> VerbDecl args body
+        Adjective -> AdjectiveDecl args body
+
   case colon of
-    Left _ -> return $ Decl pos funcName (FuncDecl declKind args Nothing)
+    Left _ -> return $ funcDecl Nothing
     Right _ -> do
       scn
-      result <- Decl pos funcName <$> (FuncDecl declKind args <$> Just <$> parseExpr)
-      return result
+      body <- Just <$> parseExpr
+      return $ funcDecl body
   where
     parseArgList :: (MonadParser m) => [(Text, Text)] -> m [(Text, Text)]
     parseArgList l = do
@@ -95,5 +101,5 @@ parseStructDecl = do
   identifier <- lexeme parseStructIdentifier <* symbol ":"
   fields <- parseFuncIdentifier `sepBy1` symbol ","
 
-  sequence_ $ (`addDecl` NormalDecl) <$> fields
+  sequence_ $ (`addDecl` Normal) <$> fields
   return $ Decl pos identifier (StructDecl fields)

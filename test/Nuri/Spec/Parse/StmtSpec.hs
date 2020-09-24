@@ -17,7 +17,6 @@ spec = do
       it "인자가 한 개인 함수" $ do
         testParse parseDeclStmt "함수 [값]을 증가하다:\n  [값]에 1을 더하다"
           `shouldParse` funcDeclStmt
-            NormalDecl
             "증가하다"
             [("값", "을")]
             ( funcCall
@@ -27,8 +26,7 @@ spec = do
 
       it "인자가 여러 개인 함수" $ do
         testParse parseDeclStmt "동사 [값1]에 [값2]을 더하다:\n   [값1] + [값2]"
-          `shouldParse` funcDeclStmt
-            VerbDecl
+          `shouldParse` verbDeclStmt
             "더하다"
             [("값1", "에"), ("값2", "을")]
             (binaryOp Add (var "값1") (var "값2"))
@@ -87,7 +85,7 @@ spec = do
                          )
       it "예약어로 시작하는 이름의 함수 허용" $ do
         testParse parseDeclStmt "함수 [값]을 거짓하다:\n  1"
-          `shouldParse` funcDeclStmt NormalDecl "거짓하다" [("값", "을")] (litInteger 1)
+          `shouldParse` funcDeclStmt "거짓하다" [("값", "을")] (litInteger 1)
 
       it "연산식 시퀀스를 포함한 함수" $ do
         testParse
@@ -99,7 +97,6 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
-            NormalDecl
             "동작"
             []
             ( Seq
@@ -120,7 +117,6 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
-            NormalDecl
             "동작"
             []
             ( Seq
@@ -139,7 +135,6 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
-            NormalDecl
             "동작"
             []
             ( Seq
@@ -159,13 +154,11 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
-            NormalDecl
             "동작"
             []
             ( Seq
                 [ Left $
-                    funcDecl
-                      VerbDecl
+                    verbDecl
                       "더하다"
                       [("값", "을")]
                       (binaryOp Add (var "값") (litInteger 1)),
@@ -189,20 +182,17 @@ spec = do
             |]
           )
           `shouldParse` funcDeclStmt
-            NormalDecl
             "동작"
             []
             ( Seq
                 [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
                   Left $
-                    funcDecl
-                      VerbDecl
+                    verbDecl
                       "더하다"
                       [("값", "을")]
                       (binaryOp Add (var "값") (litInteger 1)),
                   Left $
-                    funcDecl
-                      VerbDecl
+                    verbDecl
                       "빼다"
                       [("값", "을")]
                       (binaryOp Subtract (var "값") (litInteger 1)),
@@ -259,7 +249,6 @@ spec = do
     it "인자가 한 개인 함수" $ do
       testParse parseStmt "함수 [값]에 증가하다:\n  [값]에 1을 더하다"
         `shouldParse` [ funcDeclStmt
-                          NormalDecl
                           "증가하다"
                           [("값", "에")]
                           ( funcCall
@@ -280,8 +269,8 @@ spec = do
               2
           |]
         )
-        `shouldParse` [ funcDeclStmt NormalDecl "더하다" [("값", "에")] (litInteger 1),
-                        funcDeclStmt NormalDecl "빼다" [("값", "을")] (litInteger 2)
+        `shouldParse` [ funcDeclStmt "더하다" [("값", "에")] (litInteger 1),
+                        funcDeclStmt "빼다" [("값", "을")] (litInteger 2)
                       ]
     it "시퀀스를 포함한 함수 여러 개 선언 파싱" $ do
       testParse
@@ -297,7 +286,6 @@ spec = do
           |]
         )
         `shouldParse` [ funcDeclStmt
-                          NormalDecl
                           "더하다"
                           [("값", "에")]
                           ( Seq
@@ -306,7 +294,6 @@ spec = do
                               ]
                           ),
                         funcDeclStmt
-                          NormalDecl
                           "빼다"
                           [("값", "을")]
                           ( Seq
@@ -328,8 +315,8 @@ spec = do
             10에 가하고 걷다
           |]
         )
-        `shouldParse` [ funcDeclStmt VerbDecl "가하다" [("값", "에")] (litInteger 1),
-                        funcDeclStmt VerbDecl "걷다" [("값", "을")] (litInteger 2),
+        `shouldParse` [ verbDeclStmt "가하다" [("값", "에")] (litInteger 1),
+                        verbDeclStmt "걷다" [("값", "을")] (litInteger 2),
                         ExprStmt $ funcCall (var "걷다") [(funcCall (var "가하다") [(litInteger 10, "에")], "_")]
                       ]
     it "시퀀스에서 함수 선언 뒤 외부 스코프에서 활용하면 에러" $ do
@@ -361,9 +348,9 @@ spec = do
             첫번째하다
           |]
         )
-        `shouldParse` [ funcForwardStmt VerbDecl "두번째하다" [],
-                        funcDeclStmt VerbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
-                        funcDeclStmt VerbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
+        `shouldParse` [ verbForwardStmt "두번째하다" [],
+                        verbDeclStmt "첫번째하다" [] (funcCall (var "두번째하다") []),
+                        verbDeclStmt "두번째하다" [] (funcCall (var "첫번째하다") []),
                         ExprStmt $ funcCall (var "첫번째하다") []
                       ]
     it "함수 전방 선언 문법으로 시퀀스 상호재귀 함수 선언 파싱" $ do
@@ -383,9 +370,9 @@ spec = do
         )
         `shouldParse` [ ExprStmt $
                           Seq
-                            [ Left $ funcForward VerbDecl "두번째하다" [],
-                              Left $ funcDecl VerbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
-                              Left $ funcDecl VerbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
+                            [ Left $ verbForward "두번째하다" [],
+                              Left $ verbDecl "첫번째하다" [] (funcCall (var "두번째하다") []),
+                              Left $ verbDecl "두번째하다" [] (funcCall (var "첫번째하다") []),
                               Right $ funcCall (var "첫번째하다") []
                             ]
                       ]
@@ -399,11 +386,11 @@ spec = do
             동사 달리다: 3
           |]
         )
-        `shouldParse'` ( [ funcDeclStmt NormalDecl "일" [] (litInteger 1),
-                           funcDeclStmt AdjectiveDecl "같다" [] (litInteger 2),
-                           funcDeclStmt VerbDecl "달리다" [] (litInteger 3)
+        `shouldParse'` ( [ funcDeclStmt "일" [] (litInteger 1),
+                           adjectiveDeclStmt "같다" [] (litInteger 2),
+                           verbDeclStmt "달리다" [] (litInteger 3)
                          ],
-                         fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+                         fromList [("일", Normal), ("같다", Adjective), ("달리다", Verb)]
                        )
     it "일반, 형용사, 동사 함수 전방 선언 테이블 추가" $ do
       testParse'
@@ -414,11 +401,11 @@ spec = do
             동사 달리다
           |]
         )
-        `shouldParse'` ( [ funcForwardStmt NormalDecl "일" [],
-                           funcForwardStmt AdjectiveDecl "같다" [],
-                           funcForwardStmt VerbDecl "달리다" []
+        `shouldParse'` ( [ funcForwardStmt "일" [],
+                           adjectiveForwardStmt "같다" [],
+                           verbForwardStmt "달리다" []
                          ],
-                         fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+                         fromList [("일", Normal), ("같다", Adjective), ("달리다", Verb)]
                        )
     it "순서대로 표현식 스코프 관리" $ do
       testParse'
@@ -434,16 +421,16 @@ spec = do
             동사 달리다: 3
           |]
         )
-        `shouldParse'` ( [ funcDeclStmt NormalDecl "일" [] (litInteger 1),
+        `shouldParse'` ( [ funcDeclStmt "일" [] (litInteger 1),
                            ExprStmt $
                              Seq
-                               [ Left $ funcDecl NormalDecl "이" [] (litInteger 2),
+                               [ Left $ funcDecl "이" [] (litInteger 2),
                                  Right $ funcCall (var "이") []
                                ],
-                           funcDeclStmt AdjectiveDecl "같다" [] (litInteger 2),
-                           funcDeclStmt VerbDecl "달리다" [] (litInteger 3)
+                           adjectiveDeclStmt "같다" [] (litInteger 2),
+                           verbDeclStmt "달리다" [] (litInteger 3)
                          ],
-                         fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+                         fromList [("일", Normal), ("같다", Adjective), ("달리다", Verb)]
                        )
     it "구조체 선언 필드 접근자 테이블 추가" $ do
       testParse'
@@ -453,7 +440,7 @@ spec = do
           |]
         )
         `shouldParse'` ( [structDeclStmt "사람" ["몸의 무게", "나이", "이름"]],
-                         fromList [("몸의 무게", NormalDecl), ("나이", NormalDecl), ("이름", NormalDecl)]
+                         fromList [("몸의 무게", Normal), ("나이", Normal), ("이름", Normal)]
                        )
     it "상수의 경우 품사 테이블에 추가하지 않음" $ do
       testParse'
@@ -465,10 +452,10 @@ spec = do
             동사 달리다
           |]
         )
-        `shouldParse'` ( [ funcForwardStmt NormalDecl "일" [],
+        `shouldParse'` ( [ funcForwardStmt "일" [],
                            constDeclStmt "수" (litInteger 10),
-                           funcForwardStmt AdjectiveDecl "같다" [],
-                           funcForwardStmt VerbDecl "달리다" []
+                           adjectiveForwardStmt "같다" [],
+                           verbForwardStmt "달리다" []
                          ],
-                         fromList [("일", NormalDecl), ("같다", AdjectiveDecl), ("달리다", VerbDecl)]
+                         fromList [("일", Normal), ("같다", Adjective), ("달리다", Verb)]
                        )

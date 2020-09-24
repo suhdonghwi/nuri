@@ -11,15 +11,15 @@ import Text.Megaparsec
 defaultState :: PartTable
 defaultState =
   fromList
-    [ ("더하다", VerbDecl),
-      ("합하다", VerbDecl),
-      ("실행하다", VerbDecl),
-      ("나누다", VerbDecl),
-      ("피보나치 수 구하다", VerbDecl),
-      ("같다", AdjectiveDecl),
-      ("크다", AdjectiveDecl),
-      ("던지다", VerbDecl),
-      ("받다", VerbDecl)
+    [ ("더하다", Verb),
+      ("합하다", Verb),
+      ("실행하다", Verb),
+      ("나누다", Verb),
+      ("피보나치 수 구하다", Verb),
+      ("같다", Adjective),
+      ("크다", Adjective),
+      ("던지다", Verb),
+      ("받다", Verb)
     ]
 
 testParse :: ParsecT Void Text (StateT PartTable IO) a -> Text -> IO (Either (ParseErrorBundle Text Void) a)

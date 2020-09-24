@@ -13,7 +13,7 @@ import qualified Data.Text as T
 import Nuri.Expr
   ( BinaryOperator (..),
     Decl (Decl),
-    DeclKind (..),
+    FuncKind (..),
     DeclType (StructDecl),
     Expr (..),
     UnaryOperator (..),
@@ -25,7 +25,7 @@ import Nuri.Parse
     scn,
   )
 import Nuri.Parse.Decl (parseDecl)
-import Nuri.Parse.PartTable (checkDeclKind)
+import Nuri.Parse.PartTable (checkFuncKind)
 import Nuri.Parse.Term (parseNonLexemeTerm, parseTerm)
 import Nuri.Parse.Util (parseFuncIdentifier, parseJosa)
 import Text.Megaparsec ((<?>))
@@ -129,13 +129,13 @@ parseNestedFuncCalls = do
     process ((x@(FuncCall pos (Var _ ident) args), offset) :| xs') =
       case nonEmpty xs' of
         Nothing -> do
-          checkDeclKind offset ident VerbDecl
+          checkFuncKind offset ident Verb
           return [x]
         Just xs ->
           if T.last ident == '고'
             then do
               let originalIdent = T.snoc (T.init ident) '다'
-              checkDeclKind offset originalIdent VerbDecl
+              checkFuncKind offset originalIdent Verb
               pxs <- process xs
               return (FuncCall pos (Var pos originalIdent) args : pxs)
             else do

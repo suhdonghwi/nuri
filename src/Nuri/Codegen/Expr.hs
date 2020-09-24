@@ -137,7 +137,7 @@ compileExpr (Seq xs) = do
             -- 여기에는 구조체 선언문이 올 수 없음
             sequence_ (addVarName depth . fst <$> declList)
 
-            let register (n, b) = 
+            let register (n, b) =
                   case b of
                     Just build -> do
                       build
@@ -216,10 +216,9 @@ lambdaToFuncObject pos name args body = do
 declToExpr :: SourcePos -> Text -> DeclType -> [(Text, Maybe (Builder ()))]
 declToExpr pos name t =
   case t of
-    FuncDecl _ args body -> 
-      case body of
-        Just body' -> [(name, Just $ compileExpr $ Lambda pos name args body')]
-        Nothing -> [(name, Nothing)]
+    FuncDecl args body -> funcToExpr args body
+    VerbDecl args body -> funcToExpr args body
+    AdjectiveDecl args body -> funcToExpr args body
     ConstDecl expr -> [(name, Just $ compileExpr expr)]
     StructDecl fields ->
       let fieldGetter field =
@@ -233,3 +232,9 @@ declToExpr pos name t =
                 tellInst pos (Inst.Push index)
             )
        in (fieldGetter <$> fields)
+  where
+    funcToExpr args body = case body of
+      Just body' -> bodyToExpr args body'
+      Nothing -> [(name, Nothing)]
+    
+    bodyToExpr args body = [(name, Just $ compileExpr $ Lambda pos name args body)]

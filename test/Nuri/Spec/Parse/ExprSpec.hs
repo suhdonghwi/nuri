@@ -542,8 +542,7 @@ spec = do
         )
         `shouldParse` Seq
           [ Left $
-              funcDecl
-                VerbDecl
+              verbDecl
                 "더하다"
                 [("값", "을")]
                 (binaryOp Add (var "값") (litInteger 1)),
@@ -566,14 +565,12 @@ spec = do
         `shouldParse` Seq
           [ Right $ binaryOp Add (litInteger 1) (litInteger 1),
             Left $
-              funcDecl
-                VerbDecl
+              verbDecl
                 "더하다"
                 [("값", "을")]
                 (binaryOp Add (var "값") (litInteger 1)),
             Left $
               funcDecl
-                NormalDecl
                 "빼다"
                 [("값", "을")]
                 (binaryOp Subtract (var "값") (litInteger 1)),

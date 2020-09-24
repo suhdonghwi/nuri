@@ -3,7 +3,6 @@ module Haneul.BuilderInternal where
 import Control.Lens (makeLenses)
 import qualified Data.Set.Ordered as S (OSet, empty)
 import Haneul.Constant (ConstTable)
-import Nuri.Expr (DeclKind (VerbDecl))
 import Text.Megaparsec.Pos (Pos, mkPos)
 
 data BuilderInternal = BuilderInternal
@@ -21,9 +20,6 @@ data BuilderInternal = BuilderInternal
   deriving (Eq, Show)
 
 $(makeLenses ''BuilderInternal)
-
-defaultDecls :: [(DeclKind, Text)]
-defaultDecls = [(VerbDecl, "보여주다")]
 
 defaultInternal :: BuilderInternal
 defaultInternal =

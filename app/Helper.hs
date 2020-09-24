@@ -8,7 +8,6 @@ import Default (defineDefaults)
 import Haneul.Builder (internalToFuncObject, runBuilder)
 import Haneul.BuilderInternal
   ( BuilderInternal (_internalGlobalVarNames, _internalLastFilePath),
-    defaultDecls,
     defaultInternal,
   )
 import Haneul.Constant (FuncObject (_funcFilePath))
@@ -31,7 +30,7 @@ compileResult filePath isDebug dest stmts = do
         ( internalToFuncObject
             . runBuilder
               defaultInternal
-                { _internalGlobalVarNames = S.fromList (snd <$> defaultDecls),
+                { _internalGlobalVarNames = S.empty,
                   _internalLastFilePath = filePath
                 }
         )

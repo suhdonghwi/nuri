@@ -34,18 +34,36 @@ lambda = Lambda initPos ""
 
 struct = Struct initPos
 
-funcDecl kind name args body = Decl initPos name $ FuncDecl kind args (Just body)
+decl = Decl initPos
 
-funcDeclStmt = (((DeclStmt .) .) .) . funcDecl
+funcDecl name args body = decl name $ FuncDecl args (Just body)
 
-funcForward kind name args = Decl initPos name $ FuncDecl kind args Nothing
+funcDeclStmt = ((DeclStmt .) .) . funcDecl
 
-funcForwardStmt = ((DeclStmt .) .) . funcForward
+verbDecl name args body = decl name $ VerbDecl args (Just body)
 
-constDecl name expr = Decl initPos name (ConstDecl expr)
+verbDeclStmt = ((DeclStmt .) .) . verbDecl
+
+adjectiveDecl name args body = decl name $ AdjectiveDecl args (Just body)
+
+adjectiveDeclStmt = ((DeclStmt .) .) . adjectiveDecl
+
+funcForward name args = decl name $ FuncDecl args Nothing
+
+funcForwardStmt = (DeclStmt .) . funcForward
+
+verbForward name args = decl name $ VerbDecl args Nothing
+
+verbForwardStmt = (DeclStmt .) . verbForward
+
+adjectiveForward name args = decl name $ AdjectiveDecl args Nothing
+
+adjectiveForwardStmt = (DeclStmt .) . adjectiveForward
+
+constDecl name expr = decl name (ConstDecl expr)
 
 constDeclStmt = (DeclStmt .) . constDecl
 
-structDecl name fields = Decl initPos name (StructDecl fields)
+structDecl name fields = decl name (StructDecl fields)
 
 structDeclStmt = (DeclStmt .) . structDecl

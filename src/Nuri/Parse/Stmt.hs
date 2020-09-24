@@ -4,7 +4,7 @@ module Nuri.Parse.Stmt where
 
 import Control.Monad.Combinators.NonEmpty (some)
 import Data.Map (union)
-import Nuri.Expr (DeclKind (..))
+import Nuri.Expr (FuncKind (..))
 import Nuri.Parse (MonadParser, reserved, sc, scn)
 import Nuri.Parse.Decl (parseDecl)
 import Nuri.Parse.Error (errorBundlePretty)
@@ -62,12 +62,12 @@ parseInput input fileName = do
     defaultState :: PartTable
     defaultState =
       fromList
-        [ ("문자로 보여주다", VerbDecl),
-          ("문자열로 바꾸다", VerbDecl),
-          ("정수로 바꾸다", VerbDecl),
-          ("실수로 바꾸다", VerbDecl),
-          ("난수를 가져오다", VerbDecl),
-          ("입력받다", VerbDecl),
-          ("유니코드 값", NormalDecl),
-          ("유니코드 문자", NormalDecl)
+        [ ("문자로 보여주다", Verb),
+          ("문자열로 바꾸다", Verb),
+          ("정수로 바꾸다", Verb),
+          ("실수로 바꾸다", Verb),
+          ("난수를 가져오다", Verb),
+          ("입력받다", Verb),
+          ("유니코드 값", Normal),
+          ("유니코드 문자", Normal)
         ]

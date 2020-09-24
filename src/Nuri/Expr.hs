@@ -4,11 +4,13 @@ import Nuri.ASTNode (ASTNode (..))
 import Nuri.Literal (Literal)
 import Text.Megaparsec.Pos (SourcePos)
 
-data DeclKind = NormalDecl | VerbDecl | AdjectiveDecl
+data FuncKind = Normal | Verb | Adjective
   deriving (Eq, Show)
 
 data DeclType
-  = FuncDecl DeclKind [(Text, Text)] (Maybe Expr)
+  = FuncDecl [(Text, Text)] (Maybe Expr)
+  | VerbDecl [(Text, Text)] (Maybe Expr)
+  | AdjectiveDecl [(Text, Text)] (Maybe Expr)
   | ConstDecl Expr
   | StructDecl [Text]
   deriving (Eq, Show)
