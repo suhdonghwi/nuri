@@ -219,7 +219,8 @@ spec = do
               형용사 [ㄱ]과 [ㄴ]이 같다 (<-> 다르다):             
                 [ㄱ] == [ㄴ]
               |]
-          ) `shouldParse` adjectiveDeclStmt
+          )
+          `shouldParse` adjectiveDeclStmt
             "같다"
             [("ㄱ", "와"), ("ㄴ", "이")]
             [Antonym "다르다"]
@@ -231,7 +232,8 @@ spec = do
               형용사 [ㄱ]과 [ㄴ]이 같다 (= 똑같다):             
                 [ㄱ] == [ㄴ]
               |]
-          ) `shouldParse` adjectiveDeclStmt
+          )
+          `shouldParse` adjectiveDeclStmt
             "같다"
             [("ㄱ", "와"), ("ㄴ", "이")]
             [Synonym "똑같다"]
@@ -243,13 +245,28 @@ spec = do
               형용사 [ㄱ]과 [ㄴ]이 같다 (= 똑같다, <-> 다르다):             
                 [ㄱ] == [ㄴ]
               |]
-          ) `shouldParse` adjectiveDeclStmt
+          )
+          `shouldParse` adjectiveDeclStmt
             "같다"
             [("ㄱ", "와"), ("ㄴ", "이")]
             [Synonym "똑같다", Antonym "다르다"]
             (binaryOp Equal (var "ㄱ") (var "ㄴ"))
- 
-
+      it "유의어 선언을 포함한 동사 선언에 대해서 오류" $ do
+        testParse
+          parseDeclStmt
+          `shouldFailOn` ( [text|
+              동사 [ㄱ]을 먹다 (= 섭취하다):
+                [ㄱ] - 1
+              |]
+                         )
+      it "용언의 식별자 조건에 맞지 않는 유의어에 대해서 오류" $ do
+        testParse
+          parseDeclStmt
+          `shouldFailOn` ( [text|
+              형용사 [ㄱ]과 [ㄴ]이 같다 (= 동일):
+                [ㄱ] - 1
+              |]
+                         )
 
     describe "상수 선언문 파싱" $ do
       it "단순 리터럴 상수 선언" $ do

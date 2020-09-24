@@ -70,10 +70,17 @@ parseFuncDecl parseExpr = do
       return $ funcDecl body
   where
     parseSynonym :: (MonadParser m) => m FuncVariation
-    parseSynonym = symbol "=" >> Synonym <$> parseFuncIdentifier
+    parseSynonym = symbol "=" >> Synonym <$> parseAdjectiveIdentifier
 
     parseAntonym :: (MonadParser m) => m FuncVariation
-    parseAntonym = symbol "<->" >> Antonym <$> parseFuncIdentifier
+    parseAntonym = symbol "<->" >> Antonym <$> parseAdjectiveIdentifier
+
+    parseAdjectiveIdentifier :: (MonadParser m) => m Text
+    parseAdjectiveIdentifier = do
+      offset <- P.getOffset
+      funcName <- parseFuncIdentifier
+      checkValidIdentifier offset Adjective funcName
+      return funcName
 
     parseSynAnt :: (MonadParser m) => m [FuncVariation]
     parseSynAnt = 

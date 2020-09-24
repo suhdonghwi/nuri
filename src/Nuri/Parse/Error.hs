@@ -43,7 +43,7 @@ byJongseongSubject :: String -> String
 byJongseongSubject str = str <> if hasJongseong str then "이" else "가"
 
 isWide :: Char -> Bool
-isWide c = '가' <= c && c <= '힣'
+isWide c = ('가' <= c && c <= '힣') || ('ㄱ' <= c && c <= 'ㅎ') || ('ㅏ' <= c && c <= 'ㅣ')
 
 errorBundlePretty ::
   forall e.
@@ -66,7 +66,7 @@ errorBundlePretty ParseErrorBundle {..} =
         (sline, pst') = reachOffset (errorOffset e) pst
         epos = pstateSourcePos pst'
         outChunk =
-          "\n" <> "파일 '" <> sourceName epos <> "', " <> lineNumber <> "번째 줄:\n"
+          "\n" <> "파일 '" <> sourceName epos <> "', " <> lineNumber <> "번째 줄 " <> column <> "번째 글자 :\n"
             <> padding
             <> "|\n"
             <> lineNumber
@@ -80,6 +80,7 @@ errorBundlePretty ParseErrorBundle {..} =
             <> "\n"
             <> parseErrorTextPretty e
         lineNumber = (show . unPos . sourceLine) epos
+        column = (show . unPos . sourceColumn) epos
         padding = replicate (length lineNumber + 1) ' '
         rpadding = [if isWide c then '　' else ' ' | c <- take rpshift sline]
         rpshift = unPos (sourceColumn epos) - 1
