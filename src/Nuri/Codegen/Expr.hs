@@ -43,6 +43,7 @@ import Nuri.Expr
     Decl (Decl),
     DeclType (..),
     Expr (..),
+    FuncVariation (Antonym, Synonym),
     UnaryOperator (LogicNot, Negative, Positive),
   )
 import Nuri.Literal (Literal (..))
@@ -214,11 +215,13 @@ lambdaToFuncObject pos name args body = do
     )
 
 declToExpr :: SourcePos -> Text -> DeclType -> [(Text, Maybe (Builder ()))]
-declToExpr pos name t =
-  case t of
-    FuncDecl args body -> funcToExpr args body
-    VerbDecl args body -> funcToExpr args body
-    AdjectiveDecl args body -> funcToExpr args body
+declToExpr pos name ident =
+  case ident of
+    FuncDecl args body -> funcToExpr name args body
+    VerbDecl args body -> funcToExpr name args body
+    AdjectiveDecl args vars body -> case body of
+      Just body' -> bodyToExpr name args body' : varsToExpr args body' vars
+      Nothing -> (name, Nothing) : collectNames vars
     ConstDecl expr -> [(name, Just $ compileExpr expr)]
     StructDecl fields ->
       let fieldGetter field =
@@ -233,8 +236,18 @@ declToExpr pos name t =
             )
        in (fieldGetter <$> fields)
   where
-    funcToExpr args body = case body of
-      Just body' -> bodyToExpr args body'
-      Nothing -> [(name, Nothing)]
-    
-    bodyToExpr args body = [(name, Just $ compileExpr $ Lambda pos name args body)]
+    funcToExpr t args body = case body of
+      Just body' -> [bodyToExpr t args body']
+      Nothing -> [(t, Nothing)]
+
+    bodyToExpr t args body = (t, Just $ compileExpr $ Lambda pos t args body) 
+
+    varsToExpr _ _ [] = []
+    varsToExpr args body ((Antonym t) : xs) = 
+        (t, Just $ compileExpr $ Lambda pos t args (UnaryOp pos LogicNot body)) : varsToExpr args body xs
+    varsToExpr args body ((Synonym t) : xs) = 
+        bodyToExpr t args body : varsToExpr args body xs
+  
+    collectNames [] = []
+    collectNames ((Antonym t) : xs) = (t, Nothing) : collectNames xs
+    collectNames ((Synonym t) : xs) = (t, Nothing) : collectNames xs

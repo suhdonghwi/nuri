@@ -212,6 +212,45 @@ spec = do
             |]
                          )
 
+      it "반의어 1개를 포함한 형용사 선언" $ do
+        testParse
+          parseDeclStmt
+          ( [text|
+              형용사 [ㄱ]과 [ㄴ]이 같다 (<-> 다르다):             
+                [ㄱ] == [ㄴ]
+              |]
+          ) `shouldParse` adjectiveDeclStmt
+            "같다"
+            [("ㄱ", "와"), ("ㄴ", "이")]
+            [Antonym "다르다"]
+            (binaryOp Equal (var "ㄱ") (var "ㄴ"))
+      it "유의어 1개를 포함한 형용사 선언" $ do
+        testParse
+          parseDeclStmt
+          ( [text|
+              형용사 [ㄱ]과 [ㄴ]이 같다 (= 똑같다):             
+                [ㄱ] == [ㄴ]
+              |]
+          ) `shouldParse` adjectiveDeclStmt
+            "같다"
+            [("ㄱ", "와"), ("ㄴ", "이")]
+            [Synonym "똑같다"]
+            (binaryOp Equal (var "ㄱ") (var "ㄴ"))
+      it "유의어, 반의어 여러개를 포함한 형용사 선언" $ do
+        testParse
+          parseDeclStmt
+          ( [text|
+              형용사 [ㄱ]과 [ㄴ]이 같다 (= 똑같다, <-> 다르다):             
+                [ㄱ] == [ㄴ]
+              |]
+          ) `shouldParse` adjectiveDeclStmt
+            "같다"
+            [("ㄱ", "와"), ("ㄴ", "이")]
+            [Synonym "똑같다", Antonym "다르다"]
+            (binaryOp Equal (var "ㄱ") (var "ㄴ"))
+ 
+
+
     describe "상수 선언문 파싱" $ do
       it "단순 리터럴 상수 선언" $ do
         testParse parseDeclStmt "상수 [값]: 1"
@@ -387,7 +426,7 @@ spec = do
           |]
         )
         `shouldParse'` ( [ funcDeclStmt "일" [] (litInteger 1),
-                           adjectiveDeclStmt "같다" [] (litInteger 2),
+                           adjectiveDeclStmt "같다" [] [] (litInteger 2),
                            verbDeclStmt "달리다" [] (litInteger 3)
                          ],
                          fromList [("일", Normal), ("같다", Adjective), ("달리다", Verb)]
@@ -402,7 +441,7 @@ spec = do
           |]
         )
         `shouldParse'` ( [ funcForwardStmt "일" [],
-                           adjectiveForwardStmt "같다" [],
+                           adjectiveForwardStmt "같다" [] [],
                            verbForwardStmt "달리다" []
                          ],
                          fromList [("일", Normal), ("같다", Adjective), ("달리다", Verb)]
@@ -427,7 +466,7 @@ spec = do
                                [ Left $ funcDecl "이" [] (litInteger 2),
                                  Right $ funcCall (var "이") []
                                ],
-                           adjectiveDeclStmt "같다" [] (litInteger 2),
+                           adjectiveDeclStmt "같다" [] [] (litInteger 2),
                            verbDeclStmt "달리다" [] (litInteger 3)
                          ],
                          fromList [("일", Normal), ("같다", Adjective), ("달리다", Verb)]
@@ -454,7 +493,7 @@ spec = do
         )
         `shouldParse'` ( [ funcForwardStmt "일" [],
                            constDeclStmt "수" (litInteger 10),
-                           adjectiveForwardStmt "같다" [],
+                           adjectiveForwardStmt "같다" [] [],
                            verbForwardStmt "달리다" []
                          ],
                          fromList [("일", Normal), ("같다", Adjective), ("달리다", Verb)]

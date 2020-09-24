@@ -308,6 +308,7 @@ spec = do
           ( adjectiveDeclStmt
               "같다"
               [("값1", "와"), ("값2", "이")]
+              []
               (binaryOp Equal (var "값1") (var "값2"))
           )
           `shouldBuild` ( S.fromList
@@ -322,6 +323,105 @@ spec = do
                                 )
                             ],
                           [Inst.Push 0, Inst.StoreGlobal 0]
+                        )
+      it "반의어가 있는 형용사 함수 선언 코드 생성" $
+        compileStmt
+          ( adjectiveDeclStmt
+              "같다"
+              [("값1", "와"), ("값2", "이")]
+              [Antonym "다르다"]
+              (binaryOp Equal (var "값1") (var "값2"))
+          )
+          `shouldBuild` ( S.fromList
+                            [ ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcName = "같다",
+                                      _funcCode =
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
+                                    }
+                                ),
+                              ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcName = "다르다",
+                                      _funcCode =
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal, Inst.LogicNot]
+                                    }
+                                )
+                            ],
+                          [Inst.Push 0, Inst.StoreGlobal 0, Inst.Push 1, Inst.StoreGlobal 1]
+                        )
+      it "유의어가 있는 형용사 함수 선언 코드 생성" $
+        compileStmt
+          ( adjectiveDeclStmt
+              "같다"
+              [("값1", "와"), ("값2", "이")]
+              [Synonym "똑같다"]
+              (binaryOp Equal (var "값1") (var "값2"))
+          )
+          `shouldBuild` ( S.fromList
+                            [ ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcName = "같다",
+                                      _funcCode =
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
+                                    }
+                                ),
+                              ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcName = "똑같다",
+                                      _funcCode =
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
+                                    }
+                                )
+                            ],
+                          [Inst.Push 0, Inst.StoreGlobal 0, Inst.Push 1, Inst.StoreGlobal 1]
+                        )
+      it "유의어 및 반의어가 있는 형용사 함수 선언 코드 생성" $
+        compileStmt
+          ( adjectiveDeclStmt
+              "같다"
+              [("값1", "와"), ("값2", "이")]
+              [Antonym "다르다", Synonym "똑같다"]
+              (binaryOp Equal (var "값1") (var "값2"))
+          )
+          `shouldBuild` ( S.fromList
+                            [ ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcName = "같다",
+                                      _funcCode =
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
+                                    }
+                                ),
+                              ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcName = "다르다",
+                                      _funcCode =
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal, Inst.LogicNot]
+                                    }
+                                ),
+                              ConstFunc
+                                ( funcObject
+                                    { _funcJosa = ["와", "이"],
+                                      _funcStackSize = 2,
+                                      _funcName = "똑같다",
+                                      _funcCode =
+                                        [Inst.LoadLocal 0, Inst.LoadLocal 1, Inst.Equal]
+                                    }
+                                )
+                            ],
+                          [Inst.Push 0, Inst.StoreGlobal 0, Inst.Push 1, Inst.StoreGlobal 1, Inst.Push 2, Inst.StoreGlobal 2]
                         )
       it "동사 함수 선언 코드 생성" $
         compileStmt

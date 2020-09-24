@@ -44,9 +44,9 @@ verbDecl name args body = decl name $ VerbDecl args (Just body)
 
 verbDeclStmt = ((DeclStmt .) .) . verbDecl
 
-adjectiveDecl name args body = decl name $ AdjectiveDecl args (Just body)
+adjectiveDecl name args vars body = decl name $ AdjectiveDecl args vars (Just body)
 
-adjectiveDeclStmt = ((DeclStmt .) .) . adjectiveDecl
+adjectiveDeclStmt = (((DeclStmt .) .) .) . adjectiveDecl
 
 funcForward name args = decl name $ FuncDecl args Nothing
 
@@ -56,9 +56,9 @@ verbForward name args = decl name $ VerbDecl args Nothing
 
 verbForwardStmt = (DeclStmt .) . verbForward
 
-adjectiveForward name args = decl name $ AdjectiveDecl args Nothing
+adjectiveForward name args vars = decl name $ AdjectiveDecl args vars Nothing
 
-adjectiveForwardStmt = (DeclStmt .) . adjectiveForward
+adjectiveForwardStmt = ((DeclStmt .) .) .  adjectiveForward
 
 constDecl name expr = decl name (ConstDecl expr)
 

@@ -6,6 +6,7 @@ import Nuri.Expr
     DeclType (..),
     Expr,
     FuncKind (..),
+    FuncVariation (Synonym, Antonym)
   )
 import Nuri.Parse
   ( MonadParser,
@@ -18,7 +19,6 @@ import Nuri.Parse
 import Nuri.Parse.PartTable (MonadPartTable, addDecl)
 import Nuri.Parse.Term (parseIdentifier)
 import Nuri.Parse.Util (parseFuncIdentifier, parseJosa, parseStructIdentifier)
-import Text.Megaparsec (sepBy1)
 import qualified Text.Megaparsec as P
 
 parseDecl :: (MonadParser m) => m Expr -> m Decl
@@ -46,15 +46,21 @@ parseFuncDecl parseExpr = do
   offset <- P.getOffset
   funcName <- parseFuncIdentifier
 
+  synAnts <- if declKind == Adjective then parseSynAnt <|> pure [] else pure []
+
+  let addVariation (Synonym t) = addDecl t Adjective
+      addVariation (Antonym t) = addDecl t Adjective
+
   checkValidIdentifier offset declKind funcName
   addDecl funcName declKind
+  sequence_ $ addVariation <$> synAnts
 
   colon <- P.observing (symbol ":")
 
   let funcDecl body = Decl pos funcName $ case declKind of
         Normal -> FuncDecl args body
         Verb -> VerbDecl args body
-        Adjective -> AdjectiveDecl args body
+        Adjective -> AdjectiveDecl args synAnts body
 
   case colon of
     Left _ -> return $ funcDecl Nothing
@@ -63,6 +69,16 @@ parseFuncDecl parseExpr = do
       body <- Just <$> parseExpr
       return $ funcDecl body
   where
+    parseSynonym :: (MonadParser m) => m FuncVariation
+    parseSynonym = symbol "=" >> Synonym <$> parseFuncIdentifier
+
+    parseAntonym :: (MonadParser m) => m FuncVariation
+    parseAntonym = symbol "<->" >> Antonym <$> parseFuncIdentifier
+
+    parseSynAnt :: (MonadParser m) => m [FuncVariation]
+    parseSynAnt = 
+      P.between (symbol "(") (symbol ")") ((parseSynonym <|> parseAntonym) `P.sepBy1` symbol ",")
+
     parseArgList :: (MonadParser m) => [(Text, Text)] -> m [(Text, Text)]
     parseArgList l = do
       identPos <- P.getOffset
@@ -99,7 +115,7 @@ parseStructDecl = do
   pos <- P.getSourcePos
   reserved "구조체"
   identifier <- lexeme parseStructIdentifier <* symbol ":"
-  fields <- parseFuncIdentifier `sepBy1` symbol ","
+  fields <- parseFuncIdentifier `P.sepBy1` symbol ","
 
   sequence_ $ (`addDecl` Normal) <$> fields
   return $ Decl pos identifier (StructDecl fields)

@@ -7,10 +7,13 @@ import Text.Megaparsec.Pos (SourcePos)
 data FuncKind = Normal | Verb | Adjective
   deriving (Eq, Show)
 
+data FuncVariation = Synonym Text | Antonym Text
+  deriving (Eq, Show)
+
 data DeclType
   = FuncDecl [(Text, Text)] (Maybe Expr)
   | VerbDecl [(Text, Text)] (Maybe Expr)
-  | AdjectiveDecl [(Text, Text)] (Maybe Expr)
+  | AdjectiveDecl [(Text, Text)] [FuncVariation] (Maybe Expr)
   | ConstDecl Expr
   | StructDecl [Text]
   deriving (Eq, Show)
