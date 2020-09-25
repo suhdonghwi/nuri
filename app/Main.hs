@@ -14,6 +14,7 @@ import System.FilePath (replaceExtension)
 import System.Process (callCommand)
 import System.Console.CmdArgs
 import System.Console.CmdArgs.Explicit
+import GHC.IO.Encoding
 
 
 defaultHaneulPath :: FilePath
@@ -37,6 +38,10 @@ run = Run {
 
 main :: IO ()
 main = do
+#ifdef mingw32_HOST_OS
+  cp949 <- mkTextEncoding "CP949"
+  setLocaleEncoding cp949
+#endif
   let mode = cmdArgsMode run
   let helpMessage = helpText [] HelpFormatDefault mode
   Run {src = inputPath, haneul = haneulPath, debug = isDebug} <- cmdArgsValue <$> processArgs mode
