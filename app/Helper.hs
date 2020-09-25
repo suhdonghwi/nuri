@@ -15,7 +15,6 @@ import Haneul.Serial ()
 import Nuri.Codegen.Stmt (compileStmts)
 import Nuri.Stmt (Stmt)
 import Text.Pretty.Simple (pPrint)
-import Prelude hiding (writeFile)
 
 newtype ReplState = ReplState {_prompt :: Text}
 
@@ -44,4 +43,4 @@ compileResult filePath isDebug dest stmts = do
     putStrLn "---------------"
     pPrint program
 
-  writeFileLBS dest (encode program)
+  writeFileBS dest (toStrict $ encode program)
