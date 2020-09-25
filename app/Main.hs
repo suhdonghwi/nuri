@@ -40,7 +40,7 @@ main :: IO ()
 main = withUtf8 $ do
   let mode = cmdArgsMode run
   let helpMessage = helpText [] HelpFormatDefault mode
-  Run {src = inputPath, haneul = haneulPath, debug = isDebug} <- cmdArgsValue <$> processArgs mode
+  Run {src = inputPath, haneul = haneulPath, debug = isDebug} <- cmdArgs run
   when (null inputPath) $ do
     print helpMessage
     exitFailure
