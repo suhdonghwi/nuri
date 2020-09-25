@@ -31,7 +31,7 @@ run = Run {
             haneul = defaultHaneulPath &= typ "[하늘 파일]" &= groupname "옵션",
             debug = def
           }
-      &= summary "누리 0.1.0 - 함수형 한글 프로그래밍 언어"
+      &= summary "누리 0.2.0 - 함수형 한글 프로그래밍 언어"
       &= helpArg [help "도움 메시지를 출력합니다."]
       &= versionArg [help "누리의 버전을 출력합니다."]
 
