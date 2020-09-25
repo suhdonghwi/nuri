@@ -60,4 +60,4 @@ main = withUtf8 $ do
   when (not haneulExists) $ do
     putStrLn $ "오류 : 하늘 실행 파일 '" ++ haneulPath ++ "' 파일을 찾을 수 없습니다. (--haneul 옵션을 사용하여 경로를 설정하세요.)"
     exitFailure
-  callCommand $ haneulPath ++ " '" ++ bytecodeFileName ++ "'"
+  callCommand $ haneulPath ++ " \"" ++ bytecodeFileName ++ "\""

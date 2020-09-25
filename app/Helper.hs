@@ -43,4 +43,4 @@ compileResult filePath isDebug dest stmts = do
     putStrLn "---------------"
     pPrint program
 
-  writeFileBS dest (toStrict $ encode program)
+  writeFileLBS dest (encode program)
