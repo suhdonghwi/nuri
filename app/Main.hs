@@ -14,8 +14,8 @@ import System.FilePath (replaceExtension)
 import System.Process (callCommand)
 import System.Console.CmdArgs
 import System.Console.CmdArgs.Explicit
-import GHC.IO.Encoding
-
+import qualified Data.Text.IO.Utf8 as Utf8
+import Main.Utf8 (withUtf8)
 
 defaultHaneulPath :: FilePath
 #ifdef mingw32_HOST_OS
@@ -37,11 +37,7 @@ run = Run {
       &= versionArg [help "누리의 버전을 출력합니다."]
 
 main :: IO ()
-main = do
-#ifdef mingw32_HOST_OS
-  cp949 <- mkTextEncoding "CP949"
-  setLocaleEncoding cp949
-#endif
+main = withUtf8 $ do
   let mode = cmdArgsMode run
   let helpMessage = helpText [] HelpFormatDefault mode
   Run {src = inputPath, haneul = haneulPath, debug = isDebug} <- cmdArgsValue <$> processArgs mode
@@ -54,7 +50,7 @@ main = do
     putStrLn $ "오류 : 입력 코드 파일 '" ++ inputPath ++ "' 파일을 찾을 수 없습니다."
     exitFailure
 
-  content <- readFileText inputPath
+  content <- Utf8.readFile inputPath
   (result, _) <- parseInput content inputPath
 
   let bytecodeFileName = replaceExtension inputPath ".hn"

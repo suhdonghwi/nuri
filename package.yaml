@@ -42,6 +42,7 @@ dependencies:
   - filepath
   - process
   - cmdargs
+  - with-utf8
 
 default-extensions:
   - OverloadedStrings
