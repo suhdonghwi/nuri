@@ -116,6 +116,8 @@
 
 [누리 사용해보기](USAGE.md)를 참조하세요.
 
+[vscode-nuri](https://github.com/rycont/vscode-nuri) - [@rycont](https://github.com/rycont)님, [@CraftyDragon678](https://github.com/CraftyDragon678)님께서 Visual Studio Code에서 사용할 수 있는 누리 문법 하이라이팅 확장팩을 제작해주셨습니다!
+
 ## 문서
 
 [누리 0.2.1 문서](docs/README.md)를 참조하세요.
