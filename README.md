@@ -101,7 +101,7 @@
 입니다. 응용해보자면 다음과 같은 코드를 작성할 수 있습니다.
 
 ```lua
-{1, 2, 3}에 (2를 더하다)를 각각_적용하다 == {3, 4, 5}
+{1, 2, 3}에 (2를 더하다)를 각각 적용하다 == {3, 4, 5}
 ```
 
 ### 선언형 프로그래밍
@@ -115,6 +115,8 @@
 ## 사용
 
 [누리 사용해보기](USAGE.md)를 참조하세요.
+
+[vscode-nuri](https://github.com/rycont/vscode-nuri) - [@rycont](https://github.com/rycont)님, [@CraftyDragon678](https://github.com/CraftyDragon678)님께서 Visual Studio Code에서 사용할 수 있는 누리 문법 하이라이팅 확장팩을 제작해주셨습니다!
 
 ## 문서
 
