@@ -39,7 +39,7 @@ parseImportStmt = do
   let realPath = takeDirectory currentPath </> path
 
   exists <- liftIO $ doesFileExist realPath
-  when (not exists) $ do
+  unless exists $ do
     fail $ "'" ++ realPath ++ "' 파일을 찾을 수 없습니다."
 
   content <- readFileText realPath

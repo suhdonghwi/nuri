@@ -16,7 +16,7 @@ compileStmt (DeclStmt (Decl pos name t)) = do
 
   sequence_ (addGlobalVarName . fst <$> declList)
 
-  let register (n, b) = 
+  let register (n, b) =
         case b of
           Just build -> do
             build
@@ -27,7 +27,7 @@ compileStmt (DeclStmt (Decl pos name t)) = do
   sequence_ (register <$> declList)
 compileStmt stmt@(ExprStmt expr) = do
   compileExpr expr
-  tellInst (getSourcePos stmt) (Inst.Pop)
+  tellInst (getSourcePos stmt) Inst.Pop
 
 compileStmts :: NonEmpty Stmt -> Builder ()
 compileStmts s = sequence_ (compileStmt <$> s)

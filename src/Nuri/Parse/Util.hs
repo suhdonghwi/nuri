@@ -30,7 +30,7 @@ keywords =
   ]
 
 parseKeyword :: (MonadParser m) => m ()
-parseKeyword = P.choice $ reserved . T.unpack <$> keywords
+parseKeyword = P.choice $ reserved . toString <$> keywords
 
 parseJosa :: (MonadParser m) => m Text
 parseJosa =
@@ -74,4 +74,4 @@ parseStructIdentifier :: (MonadParser m) => m Text
 parseStructIdentifier = lexeme structIdentifier
 
 structIdentifier :: (MonadParser m) => m Text
-structIdentifier = (toText . toList) <$> some (hangulSyllable <|> P.letterChar)
+structIdentifier = toText . toList <$> some (hangulSyllable <|> P.letterChar)

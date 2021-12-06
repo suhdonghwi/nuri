@@ -6,7 +6,7 @@ import Nuri.Expr
     DeclType (..),
     Expr,
     FuncKind (..),
-    FuncVariation (Synonym, Antonym)
+    FuncVariation (Antonym, Synonym),
   )
 import Nuri.Parse
   ( MonadParser,
@@ -33,7 +33,7 @@ parseDeclKind =
 checkValidIdentifier :: (MonadParser m) => Int -> FuncKind -> Text -> m ()
 checkValidIdentifier offset kind name = do
   if kind `elem` [Verb, Adjective]
-    then when (not $ T.last name == '다') $ do
+    then unless (T.last name == '다') $ do
       P.setOffset offset
       fail "용언을 선언할 때는 식별자가 ~(하)다 꼴이어야 합니다."
     else pass
@@ -83,7 +83,7 @@ parseFuncDecl parseExpr = do
       return funcName
 
     parseSynAnt :: (MonadParser m) => m [FuncVariation]
-    parseSynAnt = 
+    parseSynAnt =
       P.between (symbol "(") (symbol ")") ((parseSynonym <|> parseAntonym) `P.sepBy1` symbol ",")
 
     parseArgList :: (MonadParser m) => [(Text, Text)] -> m [(Text, Text)]
@@ -115,7 +115,7 @@ parseConstDecl parseExpr = do
   pos <- P.getSourcePos
   reserved "상수"
   identifier <- lexeme parseIdentifier <* symbol ":"
-  Decl pos identifier <$> ConstDecl <$> parseExpr
+  Decl pos identifier . ConstDecl <$> parseExpr
 
 parseStructDecl :: (MonadParser m, MonadPartTable m) => m Decl
 parseStructDecl = do

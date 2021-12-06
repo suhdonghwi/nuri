@@ -28,10 +28,7 @@ hasJongseong text =
       headChar = init `viaNonEmpty` text
    in case lastChar of
         Nothing -> False
-        Just '\'' ->
-          case headChar of
-            Nothing -> False
-            Just str -> hasJongseong str
+        Just '\'' -> maybe False hasJongseong headChar
         Just ch -> hasJongseongChar ch
   where
     hasJongseongChar ch
@@ -118,7 +115,7 @@ parseErrorTextPretty (TrivialError _ us ps) =
   if isNothing us && S.null ps
     then "알 수 없는 파싱 에러입니다.\n"
     else
-      let gotMessage = messageItemsPretty (showErrorItem `S.map` maybe S.empty S.singleton us)
+      let gotMessage = messageItemsPretty (showErrorItem `S.map` maybe S.empty one us)
           expectedMessage = messageItemsPretty (showErrorItem `S.map` ps)
        in if null expectedMessage
             then byJongseongSubject gotMessage <> " 올 자리가 아닙니다."

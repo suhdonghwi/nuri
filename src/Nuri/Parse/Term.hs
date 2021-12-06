@@ -28,7 +28,7 @@ parseNonLexemeTerm parseExpr =
   parseNoneExpr
     <|> parseBoolExpr
     <|> parseCharExpr
-    <|> P.try (parseRealExpr)
+    <|> P.try parseRealExpr
     <|> parseIntegerExpr
     <|> parseIdentifierExpr
     <|> parseStringExpr
@@ -57,7 +57,7 @@ parseParenCall expr = do
   return $ FuncCall pos (Var pos funcName) args
   where
     parseArgument = (,"_") <$> expr
-    parseArguments = parseArgument `P.sepBy` (symbol ",")
+    parseArguments = parseArgument `P.sepBy` symbol ","
 
 parseStruct :: (MonadParser m) => m Expr -> m Expr
 parseStruct expr = do

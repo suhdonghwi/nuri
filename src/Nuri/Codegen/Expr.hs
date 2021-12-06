@@ -105,15 +105,15 @@ compileExpr (BinaryOp pos op lhs rhs) = do
   compileExpr lhs
   compileExpr rhs
   case op of
-    Add -> tellInst pos (Inst.Add)
-    Subtract -> tellInst pos (Inst.Subtract)
-    Multiply -> tellInst pos (Inst.Multiply)
-    Divide -> tellInst pos (Inst.Divide)
-    Mod -> tellInst pos (Inst.Mod)
-    Equal -> tellInst pos (Inst.Equal)
+    Add -> tellInst pos Inst.Add
+    Subtract -> tellInst pos Inst.Subtract
+    Multiply -> tellInst pos Inst.Multiply
+    Divide -> tellInst pos Inst.Divide
+    Mod -> tellInst pos Inst.Mod
+    Equal -> tellInst pos Inst.Equal
     Inequal -> tellCode pos [Inst.Equal, Inst.LogicNot]
-    LessThan -> tellInst pos (Inst.LessThan)
-    GreaterThan -> tellInst pos (Inst.GreaterThan)
+    LessThan -> tellInst pos Inst.LessThan
+    GreaterThan -> tellInst pos Inst.GreaterThan
     LessThanEqual -> tellCode pos [Inst.GreaterThan, Inst.LogicNot]
     GreaterThanEqual -> tellCode pos [Inst.LessThan, Inst.LogicNot]
     LogicAnd -> tellInst pos Inst.LogicAnd
@@ -150,7 +150,7 @@ compileExpr (Seq xs) = do
           Right expr -> do
             compileExpr expr
             -- 시퀀스의 마지막이 아닌 표현식일 경우 Pop
-            when (not $ null ys) (tellInst (getSourcePos expr) Inst.Pop)
+            unless (null ys) (tellInst (getSourcePos expr) Inst.Pop)
         process ys
   process $ toList xs
 
@@ -180,7 +180,7 @@ compileExpr (Lambda pos name args body) = do
         fmap (val :) (processFreeVar xs)
 
   processed <- processFreeVar freeVarList
-  when ((not . null) processed) $ tellInst pos (Inst.FreeVar processed)
+  unless (null processed) $ tellInst pos (Inst.FreeVar processed)
 compileExpr (Struct pos name fields) =
   do
     let fieldNames = fst <$> fields
@@ -240,14 +240,14 @@ declToExpr pos name ident =
       Just body' -> [bodyToExpr t args body']
       Nothing -> [(t, Nothing)]
 
-    bodyToExpr t args body = (t, Just $ compileExpr $ Lambda pos t args body) 
+    bodyToExpr t args body = (t, Just $ compileExpr $ Lambda pos t args body)
 
     varsToExpr _ _ [] = []
-    varsToExpr args body ((Antonym t) : xs) = 
-        (t, Just $ compileExpr $ Lambda pos t args (UnaryOp pos LogicNot body)) : varsToExpr args body xs
-    varsToExpr args body ((Synonym t) : xs) = 
-        bodyToExpr t args body : varsToExpr args body xs
-  
+    varsToExpr args body ((Antonym t) : xs) =
+      (t, Just $ compileExpr $ Lambda pos t args (UnaryOp pos LogicNot body)) : varsToExpr args body xs
+    varsToExpr args body ((Synonym t) : xs) =
+      bodyToExpr t args body : varsToExpr args body xs
+
     collectNames [] = []
     collectNames ((Antonym t) : xs) = (t, Nothing) : collectNames xs
     collectNames ((Synonym t) : xs) = (t, Nothing) : collectNames xs
