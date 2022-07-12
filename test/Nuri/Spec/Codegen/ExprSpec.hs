@@ -120,12 +120,26 @@ spec = do
             (var "던지다")
             [(litInteger 10, "와"), (litInteger 10, "을"), (litInteger 0, "에")]
         )
-        `shouldBuild` ( S.fromList [ConstInteger 10, ConstInteger 0],
+        `shouldBuild` ( S.fromList [ConstInteger 0, ConstInteger 10],
                         [ Inst.Push 0,
-                          Inst.Push 0,
+                          Inst.Push 1,
                           Inst.Push 1,
                           Inst.LoadGlobal 0,
-                          Inst.Call ["에", "을", "와"]
+                          Inst.Call ["와", "을", "에"]
+                        ]
+                      )
+    it "C-Style 함수 호출 코드 생성" $ do
+      compileExpr
+        ( funcCall
+            (var "더하다")
+            [(litInteger 1, "_"), (litInteger 2, "_"), (litInteger 3, "_")]
+        )
+        `shouldBuild` ( S.fromList [ConstInteger 3, ConstInteger 2, ConstInteger 1],
+                        [ Inst.Push 0,
+                          Inst.Push 1,
+                          Inst.Push 2,
+                          Inst.LoadGlobal 0,
+                          Inst.Call ["_", "_", "_"]
                         ]
                       )
     it "인수가 없는 함수 호출 코드 생성" $ do

@@ -86,9 +86,9 @@ compileExpr (Var pos ident) = do
           index <- addGlobalVarName ident
           tellInst pos (Inst.LoadGlobal index)
 compileExpr (FuncCall pos func args) = do
-  sequence_ (compileExpr . fst <$> args)
+  sequence_ (compileExpr . fst <$> reverse args)
   compileExpr func
-  tellInst pos (Inst.Call $ snd <$> reverse args)
+  tellInst pos (Inst.Call $ snd <$> args)
 compileExpr (If pos condExpr thenExpr elseExpr) = do
   compileExpr condExpr
   whenFalseMark <- createMark
