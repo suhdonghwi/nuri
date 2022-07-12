@@ -4,3 +4,4 @@ nuri.cabal
 *.hn
 run.sh
 *.prof
+.DS_Store
