@@ -3,9 +3,8 @@ name: nuri & haneul build release files
 on:
   push:
     branches:    
-      - master
-    # tags:        
-    # - v*             
+      - main
+  pull_request:
 
 jobs:
   ubuntu-release:
