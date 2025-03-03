@@ -26,11 +26,11 @@ $ git pull --recurse-submodules
 $ python (pypy 경로)/rpython/bin/rpython --opt=(최적화 설정) ./haneul/src/target.py
 $ stack build
 
-# 리눅스, 맥의 경우
+# Unix의 경우
 $ mv target-c haneul
 $ chmod +x haneul
 
-# 윈도우의 경우
+# Windows의 경우
 $ mv target-c.exe haneul.exe
 ```
 
